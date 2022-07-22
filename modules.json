@@ -3,7 +3,13 @@
     "homePage": "https://github.com/nf-core/crisprseq",
     "repos": {
         "nf-core/modules": {
+            "cat/fastq": {
+                "git_sha": "9aadd9a6d3f5964476582319b3a1c54a3e3fe7c9"
+            },
             "custom/dumpsoftwareversions": {
+                "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
+            },
+            "cutadapt": {
                 "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
             },
             "fastqc": {
@@ -11,6 +17,12 @@
             },
             "multiqc": {
                 "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
+            },
+            "pear": {
+                "git_sha": "9bda3dc7f0dd1c0607eeb134fb6e4c9f2d1c5ca7"
+            },
+            "seqtk/seq": {
+                "git_sha": "f0800157544a82ae222931764483331a81812012"
             }
         }
     }

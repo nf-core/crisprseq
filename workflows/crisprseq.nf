@@ -35,7 +35,9 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { INPUT_CHECK   } from '../subworkflows/local/input_check'
+include { FIND_ADAPTERS } from '../modules/local/find_adapters'
+include { CUTADAPT      } from '../modules/local/cutadapt_custom'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -49,6 +51,9 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 include { FASTQC                      } from '../modules/nf-core/modules/fastqc/main'
 include { MULTIQC                     } from '../modules/nf-core/modules/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
+include { PEAR                        } from '../modules/nf-core/modules/pear/main'
+include { CAT_FASTQ                   } from '../modules/nf-core/modules/cat/fastq/main'
+include { SEQTK_SEQ                   } from '../modules/nf-core/modules/seqtk/seq/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,15 +74,96 @@ workflow CRISPRSEQ {
     INPUT_CHECK (
         ch_input
     )
+    .reads
+    .map {
+        meta, fastq ->
+            def meta_clone = meta.clone()
+            meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
+            [ meta_clone, fastq ]
+    }
+    .groupTuple(by: [0])
+    // Separate samples by the ones containing all reads in one file or the ones with many files to be concatenated
+    .branch {
+        meta, fastq ->
+            single  : fastq.size() == 1
+                return [ meta, fastq.flatten() ]
+            multiple: fastq.size() > 1
+                return [ meta, fastq.flatten() ]
+    }
+    .set { ch_fastq }
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+
+    //
+    // MODULE: Concatenate FastQ files from same sample if required
+    //
+    CAT_FASTQ (
+        ch_fastq.multiple
+    )
+    .reads
+    .groupTuple(by: [0])
+    .mix(ch_fastq.single)
+    // Separate samples by paired-end or single-end
+    .branch {
+        meta, fastq ->
+            single: fastq.size() == 1
+                return [ meta, fastq ]
+            paired: fastq.size() > 1
+                return [ meta, fastq ]
+    }
+    .set { ch_cat_fastq }
+    // comment version as there is an error (cat version is "cat: cat:")
+    //ch_versions = ch_versions.mix(CAT_FASTQ.out.versions.first().ifEmpty(null))
+
+    //
+    // MODULE: Merge paired-end reads
+    //
+    PEAR (
+        ch_cat_fastq.paired
+    )
+    .assembled
+    .mix( ch_cat_fastq.single )
+    .set { ch_pear_fastq }
+    ch_versions = ch_versions.mix(PEAR.out.versions)
 
     //
     // MODULE: Run FastQC
     //
     FASTQC (
-        INPUT_CHECK.out.reads
+        ch_pear_fastq
     )
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+
+    FIND_ADAPTERS (
+        FASTQC.out.zip
+    )
+    .adapters
+    .join(ch_pear_fastq)
+    .groupTuple(by: [0])
+    // Separate samples by containing overrepresented sequences or not
+    .branch {
+        meta, adapter_lines, adapter_seqs, reads ->
+            no_adapters: Integer.parseInt(adapter_lines.toString().substring(2,3)) < 6
+                return [ meta, adapter_seqs, reads ]
+            adapters   : Integer.parseInt(adapter_lines.toString().substring(2,3)) >= 6
+                return [ meta, adapter_seqs, reads ]
+    }
+    .set { ch_adapter_seqs }
+
+    ch_adapter_seqs.no_adapters.view()
+
+    //
+    // MODULE: Trim adapter sequences
+    //
+    CUTADAPT (
+        ch_adapter_seqs.adapters
+    )
+
+    //
+    // MODULE: Mask (convert to Ns) bases with quality lower than 20 and remove sequences shorter than 80
+    //
+    SEQTK_SEQ (
+        ch_pear_fastq
+    )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
