@@ -9,6 +9,9 @@
             "custom/dumpsoftwareversions": {
                 "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
             },
+            "cutadapt": {
+                "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
+            },
             "fastqc": {
                 "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
             },
@@ -17,6 +20,9 @@
             },
             "pear": {
                 "git_sha": "9bda3dc7f0dd1c0607eeb134fb6e4c9f2d1c5ca7"
+            },
+            "seqtk/seq": {
+                "git_sha": "f0800157544a82ae222931764483331a81812012"
             }
         }
     }
