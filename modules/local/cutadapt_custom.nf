@@ -1,5 +1,4 @@
 process CUTADAPT {
-    tag "$meta.id"
     label 'process_medium'
 
     conda (params.enable_conda ? 'bioconda::cutadapt=3.4' : null)
@@ -11,8 +10,8 @@ process CUTADAPT {
     tuple val(meta), val(adapter_seq), path(reads)
 
     output:
-    tuple val(meta), path('*.trim.fastq.gz'), emit: reads
-    tuple val(meta), path('*.log')          , emit: log
+    tuple val(meta), path('*.trim.fastq.gz'), optional: true, emit: reads
+    tuple val(meta), path('*.log')          , optional: true, emit: log
     path "versions.yml"                     , emit: versions
 
     when:
@@ -22,13 +21,22 @@ process CUTADAPT {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def trimmed  = meta.single_end ? "-o ${prefix}.trim.fastq.gz" : "-o ${prefix}_1.trim.fastq.gz -p ${prefix}_2.trim.fastq.gz"
+    if (reads != [])
     """
+    adapter_seq=${adapter_seq}
     cutadapt \\
         --cores $task.cpus \\
         $args \\
         $trimmed \\
         $reads \\
         > ${prefix}.cutadapt.log
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        cutadapt: \$(cutadapt --version)
+    END_VERSIONS
+    """
+    else
+    """
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         cutadapt: \$(cutadapt --version)

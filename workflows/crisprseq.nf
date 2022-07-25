@@ -143,26 +143,48 @@ workflow CRISPRSEQ {
     .branch {
         meta, adapter_lines, adapter_seqs, reads ->
             no_adapters: Integer.parseInt(adapter_lines.toString().substring(2,3)) < 6
-                return [ meta, adapter_seqs, reads ]
+                return [ meta, reads ]
             adapters   : Integer.parseInt(adapter_lines.toString().substring(2,3)) >= 6
                 return [ meta, adapter_seqs, reads ]
     }
     .set { ch_adapter_seqs }
 
-    ch_adapter_seqs.no_adapters.view()
-
     //
     // MODULE: Trim adapter sequences
     //
+    /*ch_adapters = ch_adapter_seqs.adapters.ifEmpty(False)
+
+    if (ch_adapters) {
+        CUTADAPT (
+            ch_adapters
+        )
+        .reads
+        .join(ch_adapter_seqs.no_adapters)
+        .set { ch_trimmed }
+    } else {
+        ch_trimmed = ch_adapter_seqs.no_adapters
+    }
+
+    ch_trimmed.view()*/
+
     CUTADAPT (
         ch_adapter_seqs.adapters
     )
+
+    ch_adapter_seqs.no_adapters
+    .mix(CUTADAPT.out.reads)
+    .groupTuple(by: [0])
+    .map {
+        meta, fastq ->
+                return [ meta, fastq.flatten() ]
+    }
+    .set{ ch_trimmed }
 
     //
     // MODULE: Mask (convert to Ns) bases with quality lower than 20 and remove sequences shorter than 80
     //
     SEQTK_SEQ (
-        ch_pear_fastq
+        ch_trimmed
     )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
