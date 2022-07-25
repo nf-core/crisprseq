@@ -18,7 +18,7 @@ process FIND_ADAPTERS {
     """
     unzip $zip
     test_lines=`grep -A 4 "Overrepresented sequences" $zip.baseName/fastqc_data.txt | grep -v "No Hit" | head -3 | tail -1 | awk '{print NF}'`
-	adapter_seq=`grep -A 4 "Overrepresented sequences" $zip.baseName/fastqc_data.txt | grep -v "No Hit" | head -3 | tail -1 | awk -F "\t" '{ print \$1 }'`
+    adapter_seq=`grep -A 4 "Overrepresented sequences" $zip.baseName/fastqc_data.txt | grep -v "No Hit" | head -3 | tail -1 | awk -F "\t" '{ print \$1 }'`
 
     # TODO: one the bug mentioned in https://github.com/nextflow-io/nextflow/issues/2812 is fixed, remove following lines
     echo "test_lines=\$test_lines" > .command.env
