@@ -17,7 +17,6 @@ process FIND_ADAPTERS {
     script:
     def args = task.ext.args ?: ''
     """
-    #unzip $zip
     7za \\
         e \\
         -o"${zip.baseName}"/ \\
