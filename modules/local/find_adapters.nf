@@ -2,10 +2,10 @@ process FIND_ADAPTERS {
     tag "$meta.id"
     label 'process_single'
 
-    conda (params.enable_conda ? "conda-forge::sed=4.7" : null)
+    conda (params.enable_conda ? "bioconda::p7zip=15.09" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/ubuntu:20.04' :
-        'ubuntu:20.04' }"
+        'https://depot.galaxyproject.org/singularity/p7zip:15.09--h2d50403_4' :
+        'quay.io/biocontainers/p7zip:15.09--h2d50403_4' }"
 
     input:
     tuple val(meta), path(zip)
@@ -15,8 +15,14 @@ process FIND_ADAPTERS {
     path "versions.yml",                                emit: versions
 
     script:
+    def args = task.ext.args ?: ''
     """
-    unzip $zip
+    #unzip $zip
+    7za \\
+        e \\
+        -o"${zip.baseName}"/ \\
+        $args \\
+        $zip
     test_lines=`grep -A 4 "Overrepresented sequences" $zip.baseName/fastqc_data.txt | grep -v "No Hit" | head -3 | tail -1 | awk '{print NF}'`
     adapter_seq=`grep -A 4 "Overrepresented sequences" $zip.baseName/fastqc_data.txt | grep -v "No Hit" | head -3 | tail -1 | awk -F "\t" '{ print \$1 }'`
 
@@ -27,7 +33,7 @@ process FIND_ADAPTERS {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        zipgrep: 0
+        7za: \$(echo \$(7za --help) | sed 's/.*p7zip Version //; s/(.*//')
     END_VERSIONS
     """
 }
