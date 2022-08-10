@@ -38,6 +38,7 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 include { INPUT_CHECK   } from '../subworkflows/local/input_check'
 include { FIND_ADAPTERS } from '../modules/local/find_adapters'
 include { CUTADAPT      } from '../modules/local/cutadapt_custom'
+include { EXTRACT_UMIS   } from '../modules/local/extract_umis'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -152,21 +153,6 @@ workflow CRISPRSEQ {
     //
     // MODULE: Trim adapter sequences
     //
-    /*ch_adapters = ch_adapter_seqs.adapters.ifEmpty(False)
-
-    if (ch_adapters) {
-        CUTADAPT (
-            ch_adapters
-        )
-        .reads
-        .join(ch_adapter_seqs.no_adapters)
-        .set { ch_trimmed }
-    } else {
-        ch_trimmed = ch_adapter_seqs.no_adapters
-    }
-
-    ch_trimmed.view()*/
-
     CUTADAPT (
         ch_adapter_seqs.adapters
     )
@@ -185,6 +171,13 @@ workflow CRISPRSEQ {
     //
     SEQTK_SEQ (
         ch_trimmed
+    )
+
+    //
+    // MODULE: Extract UMI sequences
+    //
+    EXTRACT_UMIS (
+        SEQTK_SEQ.out.fastx
     )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
