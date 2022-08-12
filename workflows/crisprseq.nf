@@ -58,6 +58,11 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/
 include { PEAR                        } from '../modules/nf-core/modules/pear/main'
 include { CAT_FASTQ                   } from '../modules/nf-core/modules/cat/fastq/main'
 include { SEQTK_SEQ                   } from '../modules/nf-core/modules/seqtk/seq/main'
+include { BOWTIE2_ALIGN               } from '../modules/nf-core/modules/bowtie2/align/main'
+include { BOWTIE2_BUILD               } from '../modules/nf-core/modules/bowtie2/build/main'
+include { BWA_MEM                     } from '../modules/nf-core/modules/bwa/mem/main'
+include { BWA_INDEX                   } from '../modules/nf-core/modules/bwa/index/main'
+include { MINIMAP2_ALIGN              } from '../modules/nf-core/modules/minimap2/align/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -234,7 +239,38 @@ workflow CRISPRSEQ {
 
     */
 
+    if (arams.aligner == "minimap2") {
+        MINIMAP2_ALIGN (
+            SEQTK_SEQ.out.fastx,
+            ORIENT_REFERENCE.out.reference..map { it[1] },
+            true,
+            false,
+            true
+        )
+    }
 
+    if (arams.aligner == "bwa") {
+        BWA_INDEX (
+            ORIENT_REFERENCE.out.reference..map { it[1] }
+        )
+        BWA_MEM (
+            SEQTK_SEQ.out.fastx,
+            BWA_INDEX.out.index,
+            true
+        )
+    }
+
+    if (arams.aligner == "bowtie2") {
+        BOWTIE2_BUILD (
+            ORIENT_REFERENCE.out.reference..map { it[1] }
+        )
+        BOWTIE2_ALIGN (
+            SEQTK_SEQ.out.fastx,
+            BOWTIE2_BUILD.out.index,
+            false,
+            true
+        )
+    }
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
