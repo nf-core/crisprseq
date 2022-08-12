@@ -35,10 +35,13 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK   } from '../subworkflows/local/input_check'
-include { FIND_ADAPTERS } from '../modules/local/find_adapters'
-include { CUTADAPT      } from '../modules/local/cutadapt_custom'
-include { EXTRACT_UMIS   } from '../modules/local/extract_umis'
+include { INPUT_CHECK                      } from '../subworkflows/local/input_check'
+include { FIND_ADAPTERS                    } from '../modules/local/find_adapters'
+include { CUTADAPT                         } from '../modules/local/cutadapt_custom'
+include { EXTRACT_UMIS                     } from '../modules/local/extract_umis'
+include { SEQ_TO_FILE as SEQ_TO_FILE_REF   } from '../modules/local/seq_to_file'
+include { SEQ_TO_FILE as SEQ_TO_FILE_TEMPL } from '../modules/local/seq_to_file'
+include { ORIENT_REFERENCE                 } from '../modules/local/orient_reference'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,7 +82,9 @@ workflow CRISPRSEQ {
     .map {
         meta, fastq ->
             def meta_clone = meta.clone()
-            meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
+            if (meta_clone.id.split('_').size() > 1) {
+                meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
+            }
             [ meta_clone, fastq ]
     }
     .groupTuple(by: [0])
@@ -93,6 +98,41 @@ workflow CRISPRSEQ {
     }
     .set { ch_fastq }
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+
+
+    // Add reference sequences to file
+    SEQ_TO_FILE_REF (
+        INPUT_CHECK.out.reference,
+        "reference"
+    )
+
+    //
+    // Add template sequences to file
+    //
+    SEQ_TO_FILE_TEMPL (
+        INPUT_CHECK.out.template,
+        "template"
+    )
+
+    // Join channels with reference and protospacer
+    // to channel: [ meta, reference, protospacer]
+    SEQ_TO_FILE_REF.out.file
+    .map {
+        meta, ref ->
+            def new_meta = [:]
+            new_meta.id = meta.id
+            [ new_meta, ref]
+    }
+    .join(INPUT_CHECK.out.protospacer, by: 0)
+    .set{ reference_protospacer }
+
+    //
+    // MODULE: Prepare reference sequence
+    //
+    ORIENT_REFERENCE (
+        reference_protospacer
+    )
+    ch_versions = ch_versions.mix(ORIENT_REFERENCE.out.versions)
 
     //
     // MODULE: Concatenate FastQ files from same sample if required
@@ -173,12 +213,28 @@ workflow CRISPRSEQ {
         ch_trimmed
     )
 
+    /*
+    Remove this step by now as I don't have test data
     //
     // MODULE: Extract UMI sequences
     //
     EXTRACT_UMIS (
         SEQTK_SEQ.out.fastx
     )
+
+    To implement for UMIs
+
+    vsearch
+    get_ubs
+    top_read
+    polishing: minimap2, racon
+    consensus
+    join_reads
+    fa2fq
+
+    */
+
+
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
