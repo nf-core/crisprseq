@@ -3,6 +3,18 @@
     "homePage": "https://github.com/nf-core/crisprseq",
     "repos": {
         "nf-core/modules": {
+            "bowtie2/align": {
+                "git_sha": "848ee9a215d02d80be033bfa60881700f2bd914c"
+            },
+            "bowtie2/build": {
+                "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
+            },
+            "bwa/index": {
+                "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
+            },
+            "bwa/mem": {
+                "git_sha": "4f5274c3de0c9521f5033893ff61057a74c45ba9"
+            },
             "cat/fastq": {
                 "git_sha": "9aadd9a6d3f5964476582319b3a1c54a3e3fe7c9"
             },
@@ -11,6 +23,9 @@
             },
             "fastqc": {
                 "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
+            },
+            "minimap2/align": {
+                "git_sha": "1a5a9e7b4009dcf34e6867dd1a5a1d9a718b027b"
             },
             "multiqc": {
                 "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
