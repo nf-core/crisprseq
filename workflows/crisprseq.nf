@@ -36,12 +36,18 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include { INPUT_CHECK                      } from '../subworkflows/local/input_check'
+
+//
+// MODULE
+//
 include { FIND_ADAPTERS                    } from '../modules/local/find_adapters'
 include { CUTADAPT                         } from '../modules/local/cutadapt_custom'
 include { EXTRACT_UMIS                     } from '../modules/local/extract_umis'
 include { SEQ_TO_FILE as SEQ_TO_FILE_REF   } from '../modules/local/seq_to_file'
 include { SEQ_TO_FILE as SEQ_TO_FILE_TEMPL } from '../modules/local/seq_to_file'
 include { ORIENT_REFERENCE                 } from '../modules/local/orient_reference'
+include { CIGAR_PARSER                     } from '../modules/local/cigar_parser'
+include { ALIGNMENT_SUMMARY                } from '../modules/local/alignment_summary'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -129,13 +135,14 @@ workflow CRISPRSEQ {
             [ new_meta, ref]
     }
     .join(INPUT_CHECK.out.protospacer, by: 0)
+    .multiMap { it -> orient: parse: it }
     .set{ reference_protospacer }
 
     //
     // MODULE: Prepare reference sequence
     //
     ORIENT_REFERENCE (
-        reference_protospacer
+        reference_protospacer.orient
     )
     ch_versions = ch_versions.mix(ORIENT_REFERENCE.out.versions)
 
@@ -239,17 +246,21 @@ workflow CRISPRSEQ {
 
     */
 
-    if (arams.aligner == "minimap2") {
+    //ch_mapped_bam = Channel.empty()
+
+    if (params.aligner == "minimap2") {
         MINIMAP2_ALIGN (
             SEQTK_SEQ.out.fastx,
-            ORIENT_REFERENCE.out.reference..map { it[1] },
+            ORIENT_REFERENCE.out.reference.map { it[1] },
             true,
             false,
             true
         )
+        ch_mapped_bam = MINIMAP2_ALIGN.out.bam
+        ch_mapped_bam_summary = MINIMAP2_ALIGN.out.bam
     }
 
-    if (arams.aligner == "bwa") {
+    if (params.aligner == "bwa") {
         BWA_INDEX (
             ORIENT_REFERENCE.out.reference..map { it[1] }
         )
@@ -258,9 +269,11 @@ workflow CRISPRSEQ {
             BWA_INDEX.out.index,
             true
         )
+        ch_mapped_bam = BWA_MEM.out.bam
+        ch_mapped_bam_summary = BWA_MEM.out.bam
     }
 
-    if (arams.aligner == "bowtie2") {
+    if (params.aligner == "bowtie2") {
         BOWTIE2_BUILD (
             ORIENT_REFERENCE.out.reference..map { it[1] }
         )
@@ -270,7 +283,21 @@ workflow CRISPRSEQ {
             false,
             true
         )
+        ch_mapped_bam = BOWTIE2_ALIGN.out.bam
+        ch_mapped_bam_summary = BOWTIE2_ALIGN.out.bam
     }
+
+    ALIGNMENT_SUMMARY (
+        ch_mapped_bam_summary //.join(summary)
+    )
+
+    CIGAR_PARSER (
+        ch_mapped_bam
+            .join(ORIENT_REFERENCE.out.reference)
+            .join(reference_protospacer.parse)
+            .join(SEQ_TO_FILE_TEMPL.out.file)
+            .join(ALIGNMENT_SUMMARY.out.summary)
+    )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
