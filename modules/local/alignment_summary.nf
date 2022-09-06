@@ -1,4 +1,5 @@
 process ALIGNMENT_SUMMARY {
+    tag "$meta.id"
     label 'process_medium'
 
     conda (params.enable_conda ? "bioconda::samtools=1.15.1" : null)
@@ -12,7 +13,7 @@ process ALIGNMENT_SUMMARY {
     output:
     //tuple val(meta), path(summary), emit: summary
     tuple val(meta), path("*_summary.csv"), emit: summary
-    path "versions.yml"                           , emit: versions
+    path "versions.yml"                   , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

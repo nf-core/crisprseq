@@ -29,11 +29,42 @@ workflow INPUT_CHECK {
 
 }
 
+// Function to generate meta map
+def create_meta(LinkedHashMap row) {
+    // Create meta map with sample ID
+    def meta = [:]
+    meta.id = row.sample
+
+    // Add single end boolean
+    if (!file(row.fastq_2).exists()) {
+        meta.single_end = true
+    } else {
+        meta.single_end = false
+    }
+
+    // Add self reference boolean
+    if (row.reference.length() <= 0) {
+        meta.self_reference = true
+    } else {
+        meta.self_reference = false
+    }
+
+    // Add template boolean
+    if (!row.template) {
+        meta.template = false
+    } else if (!file(row.template).exists()) {
+        meta.template = true
+    } else {
+        meta.template = true
+    }
+
+    return meta
+}
+
 // Function to get list of [ meta, [ fastq_1, fastq_2 ] ]
 def create_fastq_channel(LinkedHashMap row) {
     // create meta map
-    def meta = [:]
-    meta.id = row.sample
+    def meta = create_meta(row)
 
     // add path(s) of the fastq file(s) to the meta map
     def fastq_meta = []
@@ -42,10 +73,8 @@ def create_fastq_channel(LinkedHashMap row) {
     }
     if (!file(row.fastq_2).exists()) {
         fastq_meta = [ meta, [ file(row.fastq_1) ] ]
-        meta.single_end = true
     } else {
         fastq_meta = [ meta, [ file(row.fastq_1), file(row.fastq_2) ] ]
-        meta.single_end = false
     }
     return fastq_meta
 }
@@ -53,16 +82,13 @@ def create_fastq_channel(LinkedHashMap row) {
 // Function to get a list of [ meta, reference ]
 def create_reference_channel(LinkedHashMap row) {
     // create meta map
-    def meta = [:]
-    meta.id = row.sample
+    def meta = create_meta(row)
 
     // add reference sequence to meta
     def reference_meta = []
     if (row.reference.length() <= 0) {
-        meta.self_reference = true
         reference_meta = [ meta, null ]
     } else {
-        meta.self_reference = false
         reference_meta = [ meta, row.reference ]
     }
 
@@ -72,19 +98,15 @@ def create_reference_channel(LinkedHashMap row) {
 // Function to  get a list of [ meta, template ]
 def create_template_channel(LinkedHashMap row) {
     // create meta map
-    def meta = [:]
-    meta.id = row.sample
+    def meta = create_meta(row)
 
     // add template sequence/path to meta
     def template_meta = []
     if (!row.template) {
-        meta.template = false
         template_meta = [ meta, null ]
     } else if (!file(row.template).exists()) {
-        meta.template = true
         template_meta = [ meta, row.template ]
     } else {
-        meta.template = true
         template_meta = [ meta, file(row.template) ]
     }
 
@@ -94,8 +116,7 @@ def create_template_channel(LinkedHashMap row) {
 // Function to get a list of [ meta, protospacer ]
 def create_protospacer_channel(LinkedHashMap row) {
     // create meta map
-    def meta = [:]
-    meta.id = row.sample
+    def meta = create_meta(row)
 
     // add protospacer sequence to meta
     def protospacer_meta = []

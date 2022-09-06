@@ -128,21 +128,14 @@ workflow CRISPRSEQ {
     // Join channels with reference and protospacer
     // to channel: [ meta, reference, protospacer]
     SEQ_TO_FILE_REF.out.file
-    .map {
-        meta, ref ->
-            def new_meta = [:]
-            new_meta.id = meta.id
-            [ new_meta, ref]
-    }
     .join(INPUT_CHECK.out.protospacer, by: 0)
-    .multiMap { it -> orient: parse: it }
     .set{ reference_protospacer }
 
     //
     // MODULE: Prepare reference sequence
     //
     ORIENT_REFERENCE (
-        reference_protospacer.orient
+        reference_protospacer
     )
     ch_versions = ch_versions.mix(ORIENT_REFERENCE.out.versions)
 
@@ -262,7 +255,7 @@ workflow CRISPRSEQ {
 
     if (params.aligner == "bwa") {
         BWA_INDEX (
-            ORIENT_REFERENCE.out.reference..map { it[1] }
+            ORIENT_REFERENCE.out.reference.map { it[1] }
         )
         BWA_MEM (
             SEQTK_SEQ.out.fastx,
@@ -275,7 +268,7 @@ workflow CRISPRSEQ {
 
     if (params.aligner == "bowtie2") {
         BOWTIE2_BUILD (
-            ORIENT_REFERENCE.out.reference..map { it[1] }
+            ORIENT_REFERENCE.out.reference.map { it[1] }
         )
         BOWTIE2_ALIGN (
             SEQTK_SEQ.out.fastx,
@@ -293,10 +286,10 @@ workflow CRISPRSEQ {
 
     CIGAR_PARSER (
         ch_mapped_bam
-            .join(ORIENT_REFERENCE.out.reference)
-            .join(reference_protospacer.parse)
-            .join(SEQ_TO_FILE_TEMPL.out.file)
-            .join(ALIGNMENT_SUMMARY.out.summary)
+        .join(ORIENT_REFERENCE.out.reference)
+        .join(INPUT_CHECK.out.protospacer)
+        .join(SEQ_TO_FILE_TEMPL.out.file)
+        .join(ALIGNMENT_SUMMARY.out.summary)
     )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
