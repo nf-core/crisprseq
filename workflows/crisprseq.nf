@@ -41,7 +41,6 @@ include { INPUT_CHECK                      } from '../subworkflows/local/input_c
 // MODULE
 //
 include { FIND_ADAPTERS                    } from '../modules/local/find_adapters'
-include { CUTADAPT                         } from '../modules/local/cutadapt_custom'
 include { EXTRACT_UMIS                     } from '../modules/local/extract_umis'
 include { SEQ_TO_FILE as SEQ_TO_FILE_REF   } from '../modules/local/seq_to_file'
 include { SEQ_TO_FILE as SEQ_TO_FILE_TEMPL } from '../modules/local/seq_to_file'
@@ -69,6 +68,8 @@ include { BOWTIE2_BUILD               } from '../modules/nf-core/modules/bowtie2
 include { BWA_MEM                     } from '../modules/nf-core/modules/bwa/mem/main'
 include { BWA_INDEX                   } from '../modules/nf-core/modules/bwa/index/main'
 include { MINIMAP2_ALIGN              } from '../modules/nf-core/modules/minimap2/align/main'
+include { CUTADAPT                    } from '../modules/nf-core/modules/cutadapt/main'
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
