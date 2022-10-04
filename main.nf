@@ -4,7 +4,8 @@
     nf-core/crisprseq
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Github : https://github.com/nf-core/crisprseq
-Website: https://nf-co.re/crisprseq
+
+    Website: https://nf-co.re/crisprseq
     Slack  : https://nfcore.slack.com/channels/crisprseq
 ----------------------------------------------------------------------------------------
 */
