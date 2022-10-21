@@ -2,6 +2,7 @@
 
 ############################
 #### Gene editing variant calling --> Parser CIGAR
+#### author: Marta Sanvicente
 ############################
 
 Sys.setenv(HOME="/root")
@@ -820,7 +821,7 @@ option_list = list(
     make_option(c("-c", "--cut_site"), type="numeric", default=NULL,
         help="Cut position", metavar="numeric"),
     make_option(c("-m", "--mock"), type="character", default=NULL,
-        help="Mock data", metavar="character"),
+        help="Mock data", metavar="character")
 );
 
 opt_parser = OptionParser(option_list=option_list);

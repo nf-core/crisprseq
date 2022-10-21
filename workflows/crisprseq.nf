@@ -91,14 +91,6 @@ workflow CRISPRSEQ {
         ch_input
     )
     .reads
-    .map {
-        meta, fastq ->
-            def meta_clone = meta.clone()
-            if (meta_clone.id.split('_').size() > 1) {
-                meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
-            }
-            [ meta_clone, fastq ]
-    }
     .groupTuple(by: [0])
     // Separate samples by the ones containing all reads in one file or the ones with many files to be concatenated
     .branch {
@@ -251,6 +243,7 @@ workflow CRISPRSEQ {
             true
         )
         ch_mapped_bam = MINIMAP2_ALIGN.out.bam
+        ch_mapped_bai = MINIMAP2_ALIGN.out.bai
         ch_mapped_bam_summary = MINIMAP2_ALIGN.out.bam
     }
 
@@ -264,6 +257,7 @@ workflow CRISPRSEQ {
             true
         )
         ch_mapped_bam = BWA_MEM.out.bam
+        ch_mapped_bai = BWA_MEM.out.bai
         ch_mapped_bam_summary = BWA_MEM.out.bam
     }
 
@@ -278,6 +272,7 @@ workflow CRISPRSEQ {
             true
         )
         ch_mapped_bam = BOWTIE2_ALIGN.out.bam
+        ch_mapped_bai = BOWTIE2_ALIGN.out.bai
         ch_mapped_bam_summary = BOWTIE2_ALIGN.out.bam
     }
 
@@ -287,10 +282,10 @@ workflow CRISPRSEQ {
 
     CIGAR_PARSER (
         ch_mapped_bam
-        .join(ORIENT_REFERENCE.out.reference)
-        .join(INPUT_CHECK.out.protospacer)
-        .join(SEQ_TO_FILE_TEMPL.out.file)
-        .join(ALIGNMENT_SUMMARY.out.summary)
+            .join(ORIENT_REFERENCE.out.reference)
+            .join(INPUT_CHECK.out.protospacer)
+            .join(SEQ_TO_FILE_TEMPL.out.file)
+            .join(ALIGNMENT_SUMMARY.out.summary)
     )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (

@@ -1,5 +1,9 @@
 #!/usr/bin/env Rscript
 
+############################
+#### author: Marta Sanvicente
+############################
+
 args = commandArgs(trailingOnly=TRUE)
 
 library(ShortRead)
