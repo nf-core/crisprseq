@@ -1,4 +1,4 @@
-process ALIGNMENT_SUMMARY {
+process SAMTOOLS_INDEX {
     tag "$meta.id"
     label 'process_low'
 
@@ -8,23 +8,37 @@ process ALIGNMENT_SUMMARY {
         'quay.io/biocontainers/samtools:1.15.1--h1170115_0' }"
 
     input:
-    tuple val(meta), path(reads), path(summary)
+    tuple val(meta), path(input)
 
     output:
-    tuple val(meta), path(summary), emit: summary
-    path "versions.yml"           , emit: versions
+    tuple val(meta), path("*.bai") , optional:true, emit: bai
+    tuple val(meta), path("*.csi") , optional:true, emit: csi
+    tuple val(meta), path("*.crai"), optional:true, emit: crai
+    path  "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
     """
-	mapped_count=`samtools view -c -b -F 4 $reads`
-	total=`samtools view -c -b $reads`
-	perc=`echo "scale=1;(\$mapped_count/\$total)*100" | bc`
-	echo "aligned-reads," \$mapped_count "("\$perc"%)" >> $summary
+    samtools \\
+        index \\
+        -@ ${task.cpus-1} \\
+        $args \\
+        $input
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+    END_VERSIONS
+    """
+
+    stub:
+    """
+    touch ${input}.bai
+    touch ${input}.crai
+    touch ${input}.csi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -3,6 +3,7 @@
 ############################
 #### Gene editing variant calling --> Parser CIGAR
 #### author: Marta Sanvicente
+#### modified by: @mirpedrol
 ############################
 
 Sys.setenv(HOME="/root")
@@ -10,22 +11,13 @@ Sys.setenv(HOME="/root")
 args = commandArgs(trailingOnly=TRUE)
 
 library(optparse)
-library(Rsamtools)
-library(plyr)
-library(dplyr)
-library(stringr)
-library(ShortRead)
 library(seqinr)
-library(GenomicAlignments)
-library(data.table)
-library(biomaRt)
-library(plotly)
-### HDR
-library(DECIPHER)
-library(Biostrings)
-library(parallel)
-### GenomeBrowser
+library(Rsamtools)
+library(dplyr)
+library(ShortRead)
 library(jsonlite)
+library(stringr)
+
 
 #################
 ### Functions ###
@@ -609,93 +601,19 @@ get_substitutions_pileup <- function(bam_file){
     return(fperc)
 }
 
-#########
-### Get new reference for template-based edition
-#########
-newReference <- function(template_sequence, reference_sequence){
-    ##########
-    ##### This function generates a new reference with the change of the target integrated on it
-    ##### Its based in the assumption that a template is composed by two homology arms and a modification between them
-    ##########
-
-    # Align the template in both directions to check which is the correct one
-    fw_alignment <- pairwiseAlignment(reference_sequence, template_sequence, type="local")
-    revComp_alignment <- pairwiseAlignment(reference_sequence, reverseComplement(template_sequence), type="local")
-
-    # Check if the alignment is better in forward or in reverse complement direction and save alignment and template in right
-    if (score(fw_alignment) > score(revComp_alignment)){
-        rigth_seq <- template_sequence
-        aln <- fw_alignment
-    } else {
-        rigth_seq <- reverseComplement(template_sequence)
-        aln <- revComp_alignment
-    }
-
-    # Get template start (to see if left, right or both arms have aligned) and last position of template in reference
-    temp_aln_start <- start(subject(aln))
-    ref_aln_end <- start(pattern(aln)) + nmatch(aln) + nmismatch(aln)    #nchar(pattern(aln))
-
-    # Which is the longer aligned arm? Template alignment starts at position 1 (--> left arm longer; aligns first)?
-    if (temp_aln_start != 1 && start(pattern(aln)) != 1){ # when left arm has not aligned. We also check if the template starts before
-        left_arm <- substr(rigth_seq, 1, temp_aln_start-1)
-        # The alignment starts after the change, we have to re-align the first part (short left arm) to see where in the reference starts the template
-        left_start <- start(pattern(pairwiseAlignment(reference_sequence, left_arm, type="local")))
-        new_reference <- paste0(substr(reference_sequence,1,left_start-1), rigth_seq, substr(reference_sequence,ref_aln_end,nchar(reference_sequence)))
-        # Start and end location of the modification in the reference sequence
-        change_start <- end(subject(pairwiseAlignment(reference_sequence, left_arm, type="local")))
-        change_end <- temp_aln_start
-    } else {
-        # Has the whole template aligned or we have to look for the end of the right template?
-        if (nchar(aln) >= (nchar(template_sequence) - temp_aln_start + 1) || (ref_aln_end-1 == nchar(reference_sequence)) ){ # Whole template has aligned --> corrected in case template starts before reference. Or we have arrived to the end of reference
-            # Check if there is a deletion in the template. Otherwise, we have to take into account the deletion to jump its length in the reference
-            if (!identical(width(insertion(aln))[[1]], integer(0))) {    ## There is a deletion in the template
-                ref_aln_end <- ref_aln_end + sum(width(insertion(aln))[[1]])
-                change_start <- start(insertion(aln)[[1]][1])
-                change_end <- change_start + sum(width(insertion(aln))[[1]])
-            } else if (!identical(width(deletion(aln))[[1]], integer(0))){ ## There is an insertion in the template
-                change_start <- start(deletion(aln)[[1]][1])
-                change_end <- change_start + 1 #since this is a deletion the end should be the the same position, but this causes errors later...
-            } else { ## It's just a substitution
-                change_start <- mismatchTable(aln)$SubjectStart[1]
-                change_end <- mismatchTable(aln)$SubjectEnd[dim(mismatchTable(aln))[1]]+1
-                if (is.na(change_start)){ ### This means that there is no change in the template!!
-                    change_start <- 0
-                    change_end <- 0
-                }
-            }
-            new_reference <- paste0(substr(reference_sequence,1,start(pattern(aln))-1), rigth_seq, substr(reference_sequence,ref_aln_end,nchar(reference_sequence)))
-        } else { # We have to look for the end of the right template
-            right_arm <- substr(rigth_seq, nchar(aln)+1, length(rigth_seq))
-            right_end <- end(pattern(pairwiseAlignment(reference_sequence, right_arm, type="local")))
-            new_reference <- paste0(substr(reference_sequence,1,start(pattern(aln))-1), rigth_seq, substr(reference_sequence,right_end+1,nchar(reference_sequence)))
-            change_start <- nchar(subject(aln))
-            change_end <- nchar(aln)+1
-        }
-    }
-
-    NewRef <- paste(unlist(new_reference),collapse='')
-    write.fasta(new_reference,"NewRef", file.out = "NewRef.fasta")
-
-    return(c(new_reference, change_start, change_end))
-}
-
 #############
 ### Template-based quantification
 #############
-templateCount <- function(ori_ref_file, new_ref_temp, readsAlnInfo_collaps, sampleID, alnCompleteInfo_corrected, alnCompleteInfo_NOTcorrected){
+templateCount <- function(ori_ref_file, new_ref_temp, template_bam, readsAlnInfo_collaps, sampleID, alnCompleteInfo_corrected, alnCompleteInfo_NOTcorrected){
     ########
     ### Function to get number of reads supporting template-based edits. The return will be a list with two values: count and kind of substitution
     ########
     #
-    #### Align new reference with the change led by template with original reference
-    system(paste0("minimap2 -d ", sampleID, "_reference.mmi ", ori_ref_file))
-    system(paste0("minimap2 -a -A 29 -B 17 -O 25 -E 2 ", sampleID, "_reference.mmi ", new_ref_temp, "> template.sam;"))
     #### Get cigar
     param <- ScanBamParam(
         flag=scanBamFlag(isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE, isDuplicate = FALSE, isSupplementaryAlignment = FALSE), ## Get just primary alignments
         what=c("cigar"))
-    sam_file_path = "template.sam"
-    bam=scanBam(asBam(sam_file_path), param=param)
+    bam=scanBam(template_bam, param=param)
     temp_cigar=bam[[1]]$cigar[1]
     if(is.na(temp_cigar)){
         tempCount <- c(0, "no-changes")
@@ -812,8 +730,15 @@ option_list = list(
         help="gRNA sequence", metavar="character"),
     make_option(c("-n", "--sample_name"), type="character", default=NULL,
         help="Sample ID", metavar="character"),
+    make_option(c("--template_bool"), type="character", default=NULL,
+        help="true/false if a template was provided", metavar="character"),
+    make_option(c("-b", "--template_bam"), type="character", default=NULL,
+        help="Bam file resulting of the alignment between the new reference (with template change) against the original reference",
+        metavar="character"),
     make_option(c("-t", "--template"), type="character", default=NULL,
         help="Temporary folder", metavar="character"),
+    make_option(c("-w", "--reference_template"), type="character", default=NULL,
+        help="Fasta file with the reference with changes applyed by the template", metavar="character"),
     make_option(c("-s", "--spikes"), type="character", default=NULL,
         help="If the sample is an spikes experiment [yes or no]", metavar="character"),
     make_option(c("-f", "--summary_file"), type="character", default=NULL,
@@ -837,6 +762,9 @@ spikes = opt$spikes ### yes or no
 files_summary = opt$summary_file
 cut_pos_prot = as.numeric(opt$cut_site)
 mock = opt$mock
+template_bam = opt$template_bam
+reference_template = opt$reference_template
+template_bool = opt$template_bool
 
 #### Reference sequence
 ref <- read.fasta(ref_fasta, as.string = TRUE)
@@ -996,29 +924,9 @@ if (dim(alignment_info)[1] != 0){
     #}
 
     ########### Template-based edition
-    ### Check if there is template sequence
-    if(file.size(temp) == 0 | is.na(file.size(temp))){
-        temp_seq_size <- 0
-    } else {
-        temp_seq_size <- length(sread(readFasta(temp))[[1]])
-    }
-    ### If so... Let's see how many reads are template based
-    if (temp_seq_size > 0){
-        ### Get template and reference sequences from fasta files
-        temp_seq <- sread(readFasta(temp))[[1]]
-        ref_seq <- sread(readFasta(ref_fasta))[[1]]
-        ### Generate new reference (reference with change done by the template)
-        newRef_Results <- newReference(temp_seq, ref_seq)
-        NewRef <- newRef_Results[1]
-        write.fasta(NewRef, "reference_template", "newRef.fa")
-        ### Look for the kind of change and get the number of reads with that change
-        # cigar_aligned_reads <- names(which(table(alignment_info$cigar) == max(table(alignment_info$cigar)))) #Check if there are S to slide subs search
-        # if (explodeCigarOps(cigar_aligned_reads)[[1]][1] == "S"){
-        #     cigar_s <- explodeCigarOpLengths(cigar_aligned_reads)[[1]][1]
-        # } else {
-        #     cigar_s <- 0
-        # }
-        t_info <- templateCount(ref_fasta, "newRef.fa", collapsed_df, sample_id, corrected_cigar, alignment_info) ### corrected_cigar instead of alignment_info
+    ### If there is a template sequence, let's see how many reads are template based
+    if (template_bool == "true"){
+        t_info <- templateCount(ref_fasta, reference_template, template_bam, collapsed_df, sample_id, corrected_cigar, alignment_info) ### corrected_cigar instead of alignment_info
         t_reads <- as.numeric(t_info[1])
         t_type <- t_info[2]
         write.csv(t_info[3:length(t_info)],file=paste0(results_path, "_template-reads.csv"))
@@ -1074,6 +982,7 @@ if (dim(alignment_info)[1] != 0){
 
         ########## Read counts
         summary_counts <- read.csv(files_summary)
+        print(summary_counts)
         ## Reads at the uploaded files
         pre_reads <- summary_counts %>% filter(class == "raw-reads")
         reads <- pre_reads$count
@@ -1093,6 +1002,7 @@ if (dim(alignment_info)[1] != 0){
 
         reads_classes <- c("Raw reads", "Merged reads", "Quality filtered reads", "Clustered reads", "Aligned reads")
         reads_counts <- c(as.character(reads), as.character(merged_reads), as.character(trimmed_reads), as.character(clustered_reads), as.character(aligned_reads))
+        write(reads_counts, stdout())
         reads_summary <- data.frame(classes = unlist(reads_classes), counts = unlist(reads_counts))
 
         ########### Pre-variant calling counts
@@ -1110,6 +1020,7 @@ if (dim(alignment_info)[1] != 0){
                                              "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
         prevc_counts <- c(aligned_reads, wt_reads+incorrect_wt, dim(separated_indels)[1]+trunc_reads, wt_reads, incorrect_wt, dim(separated_indels)[1], trunc_reads,
                                             ep, nep, nenp, enp)
+        write(prevc_counts, stdout())
         prevc_summary <- data.frame(classes = unlist(prevc_classes), counts = unlist(prevc_counts))
 
     } else {
@@ -1147,6 +1058,7 @@ if (dim(alignment_info)[1] != 0){
 
         reads_classes <- c("Raw reads", "Merged reads", "Quality filtered reads", "Clustered reads", "Aligned reads")
         reads_counts <- c(as.character(reads), as.character(merged_reads), as.character(trimmed_reads), as.character(clustered_reads), as.character(aligned_reads))
+        write(reads_counts, stdout())
         reads_summary <- data.frame(classes = unlist(reads_classes), counts = unlist(reads_counts))
 
         ########### Pre-variant calling counts
@@ -1160,6 +1072,7 @@ if (dim(alignment_info)[1] != 0){
                                              "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
         prevc_counts <- c(aligned_reads, wt_reads+incorrect_wt, 0+trunc_reads, wt_reads, incorrect_wt, 0, trunc_reads,
                                             ep, nep, nenp, enp)
+        write(prevc_counts, stdout())
         prevc_summary <- data.frame(classes = unlist(prevc_classes), counts = unlist(prevc_counts))
         exportJson <- toJSON(cut_site)
         write(exportJson, paste(sample_id,"_cutSite.json",sep = ""))

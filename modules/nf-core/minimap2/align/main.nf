@@ -8,8 +8,7 @@ process MINIMAP2_ALIGN {
         'quay.io/biocontainers/mulled-v2-66534bcbb7031a148b13e2ad42583020b9cd25c4:1679e915ddb9d6b4abda91880c4b48857d471bd8-0' }"
 
     input:
-    tuple val(meta), path(reads)
-    path reference
+    tuple val(meta), path(reads), path(reference)
     val bam_format
     val cigar_paf_format
     val cigar_bam
@@ -25,7 +24,6 @@ process MINIMAP2_ALIGN {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    //def input_reads = meta.single_end ? "$reads" : "${reads[0]} ${reads[1]}"
     def input_reads = "$reads"
     def bam_output = bam_format ? "-a | samtools sort | samtools view -@ ${task.cpus} -b -h -o ${prefix}.bam" : "-o ${prefix}.paf"
     def cigar_paf = cigar_paf_format && !bam_format ? "-c" : ''

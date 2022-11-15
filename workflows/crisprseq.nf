@@ -46,7 +46,11 @@ include { SEQ_TO_FILE as SEQ_TO_FILE_REF   } from '../modules/local/seq_to_file'
 include { SEQ_TO_FILE as SEQ_TO_FILE_TEMPL } from '../modules/local/seq_to_file'
 include { ORIENT_REFERENCE                 } from '../modules/local/orient_reference'
 include { CIGAR_PARSER                     } from '../modules/local/cigar_parser'
+include { MERGING_SUMMARY                  } from '../modules/local/merging_summary'
+include { CLUSTERING_SUMMARY               } from '../modules/local/clustering_summary'
 include { ALIGNMENT_SUMMARY                } from '../modules/local/alignment_summary'
+include { TEMPLATE_REFERENCE               } from '../modules/local/template_reference'
+include { DUMMY_FINAL_UMI                  } from '../modules/local/dummy_final_umi'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -57,18 +61,20 @@ include { ALIGNMENT_SUMMARY                } from '../modules/local/alignment_su
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC                      } from '../modules/nf-core/modules/fastqc/main'
-include { MULTIQC                     } from '../modules/nf-core/modules/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
-include { PEAR                        } from '../modules/nf-core/modules/pear/main'
-include { CAT_FASTQ                   } from '../modules/nf-core/modules/cat/fastq/main'
-include { SEQTK_SEQ                   } from '../modules/nf-core/modules/seqtk/seq/main'
-include { BOWTIE2_ALIGN               } from '../modules/nf-core/modules/bowtie2/align/main'
-include { BOWTIE2_BUILD               } from '../modules/nf-core/modules/bowtie2/build/main'
-include { BWA_MEM                     } from '../modules/nf-core/modules/bwa/mem/main'
-include { BWA_INDEX                   } from '../modules/nf-core/modules/bwa/index/main'
-include { MINIMAP2_ALIGN              } from '../modules/nf-core/modules/minimap2/align/main'
-include { CUTADAPT                    } from '../modules/nf-core/modules/cutadapt/main'
+include { FASTQC                      } from '../modules/nf-core/fastqc/main'
+include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { PEAR                        } from '../modules/nf-core/pear/main'
+include { CAT_FASTQ                   } from '../modules/nf-core/cat/fastq/main'
+include { SEQTK_SEQ                   } from '../modules/nf-core/seqtk/seq/main'
+include { BOWTIE2_ALIGN               } from '../modules/nf-core/bowtie2/align/main'
+include { BOWTIE2_BUILD               } from '../modules/nf-core/bowtie2/build/main'
+include { BWA_MEM                     } from '../modules/nf-core/bwa/mem/main'
+include { BWA_INDEX                   } from '../modules/nf-core/bwa/index/main'
+include { MINIMAP2_ALIGN              } from '../modules/nf-core/minimap2/align/main'
+include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_TEMPLATE     } from '../modules/nf-core/minimap2/align/main'
+include { CUTADAPT                    } from '../modules/nf-core/cutadapt/main'
+include { SAMTOOLS_INDEX              } from '../modules/nf-core/samtools/index/main'
 
 
 /*
@@ -164,6 +170,7 @@ workflow CRISPRSEQ {
     .set { ch_pear_fastq }
     ch_versions = ch_versions.mix(PEAR.out.versions)
 
+
     //
     // MODULE: Run FastQC
     //
@@ -181,10 +188,10 @@ workflow CRISPRSEQ {
     // Separate samples by containing overrepresented sequences or not
     .branch {
         meta, adapter_lines, adapter_seqs, reads ->
-            no_adapters: Integer.parseInt(adapter_lines.toString().substring(2,3)) < 6
+            no_adapters: Integer.parseInt(adapter_lines[0]) < 6
                 return [ meta, reads ]
-            adapters   : Integer.parseInt(adapter_lines.toString().substring(2,3)) >= 6
-                return [ meta, adapter_seqs, reads ]
+            adapters   : Integer.parseInt(adapter_lines[0]) >= 6
+                return [ meta, adapter_seqs[0], reads ]
     }
     .set { ch_adapter_seqs }
 
@@ -211,6 +218,14 @@ workflow CRISPRSEQ {
         ch_trimmed
     )
 
+
+    MERGING_SUMMARY {
+        ch_cat_fastq.paired
+            .join(PEAR.out.assembled)
+            .join(SEQTK_SEQ.out.fastx)
+            .join(CUTADAPT.out.log)
+    }
+
     /*
     Remove this step by now as I don't have test data
     //
@@ -232,21 +247,35 @@ workflow CRISPRSEQ {
 
     */
 
-    //ch_mapped_bam = Channel.empty()
+    // Dummy final UMI reads fastq
+    DUMMY_FINAL_UMI {
+        PEAR.out.assembled
+    }
 
+    // Add clustering summary so R script doesn't fail
+    CLUSTERING_SUMMARY (
+        DUMMY_FINAL_UMI.out.dummy
+            .join(MERGING_SUMMARY.out.summary)
+    )
+
+
+    //
+    // MODULE: Mapping with Minimap2
+    //
     if (params.aligner == "minimap2") {
         MINIMAP2_ALIGN (
-            SEQTK_SEQ.out.fastx,
-            ORIENT_REFERENCE.out.reference.map { it[1] },
+            SEQTK_SEQ.out.fastx
+                .join(ORIENT_REFERENCE.out.reference),
             true,
             false,
             true
         )
         ch_mapped_bam = MINIMAP2_ALIGN.out.bam
-        ch_mapped_bai = MINIMAP2_ALIGN.out.bai
-        ch_mapped_bam_summary = MINIMAP2_ALIGN.out.bam
     }
 
+    //
+    // MODULE: Mapping with BWA
+    //
     if (params.aligner == "bwa") {
         BWA_INDEX (
             ORIENT_REFERENCE.out.reference.map { it[1] }
@@ -257,10 +286,11 @@ workflow CRISPRSEQ {
             true
         )
         ch_mapped_bam = BWA_MEM.out.bam
-        ch_mapped_bai = BWA_MEM.out.bai
-        ch_mapped_bam_summary = BWA_MEM.out.bam
     }
 
+    //
+    // MODULE: Mapping with Bowtie2
+    //
     if (params.aligner == "bowtie2") {
         BOWTIE2_BUILD (
             ORIENT_REFERENCE.out.reference.map { it[1] }
@@ -272,22 +302,75 @@ workflow CRISPRSEQ {
             true
         )
         ch_mapped_bam = BOWTIE2_ALIGN.out.bam
-        ch_mapped_bai = BOWTIE2_ALIGN.out.bai
-        ch_mapped_bam_summary = BOWTIE2_ALIGN.out.bam
     }
 
+
+    //
+    // MODULE: Summary of mapped reads
+    //
     ALIGNMENT_SUMMARY (
-        ch_mapped_bam_summary //.join(summary)
+        ch_mapped_bam
+            .join(CLUSTERING_SUMMARY.out.summary)
     )
 
+
+    //
+    // MODULE: Obtain .bam.bai files
+    //
+    SAMTOOLS_INDEX (
+        ch_mapped_bam
+    )
+
+    //
+    // MODULE: Obtain a new reference with the template modification
+    //
+    TEMPLATE_REFERENCE (
+        ORIENT_REFERENCE.out.reference
+            .join(SEQ_TO_FILE_TEMPL.out.file)
+    )
+
+    //
+    // MODULE: Align new reference with the change led by template with original reference
+    //
+    MINIMAP2_ALIGN_TEMPLATE (
+        TEMPLATE_REFERENCE.out.fasta
+            .join(ORIENT_REFERENCE.out.reference),
+        true,
+        false,
+        true
+    )
+    .bam
+    .map {
+        meta, bam ->
+            if (bam.contains("template-align")) {
+                return [ meta, bam ]
+            } else {
+                new_file = bam.parent / bam.baseName + "_template-align." + bam.extension
+                bam.renameTo(new_file)
+                return[ meta, new_file ]
+            }
+    }
+    .set { ch_template_bam }
+
+
+    //
+    // MODULE: Parse cigar to find edits
+    //
     CIGAR_PARSER (
         ch_mapped_bam
+            .join(SAMTOOLS_INDEX.out.bai)
             .join(ORIENT_REFERENCE.out.reference)
             .join(INPUT_CHECK.out.protospacer)
             .join(SEQ_TO_FILE_TEMPL.out.file)
+            .join(ch_template_bam)
+            .join(TEMPLATE_REFERENCE.out.fasta)
             .join(ALIGNMENT_SUMMARY.out.summary)
     )
 
+
+    //
+    // MODULE: Dump software versions
+    //
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )

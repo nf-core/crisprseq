@@ -40,13 +40,18 @@
                     },
                     "minimap2/align": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "patch": "modules/nf-core/minimap2/align/minimap2-align.diff"
                     },
                     "multiqc": {
                         "branch": "master",
                         "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
                     },
                     "pear": {
+                        "branch": "master",
+                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+                    },
+                    "samtools/index": {
                         "branch": "master",
                         "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
                     },
