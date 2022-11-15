@@ -11,7 +11,7 @@ WorkflowCrisprseq.initialise(params, log)
 
 // TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.fasta ]
+def checkPathParamList = [ params.input, params.multiqc_config ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
@@ -187,13 +187,14 @@ workflow CRISPRSEQ {
     .groupTuple(by: [0])
     // Separate samples by containing overrepresented sequences or not
     .branch {
-        meta, adapter_lines, adapter_seqs, reads ->
-            no_adapters: Integer.parseInt(adapter_lines[0]) < 6
-                return [ meta, reads ]
-            adapters   : Integer.parseInt(adapter_lines[0]) >= 6
-                return [ meta, adapter_seqs[0], reads ]
+        meta, adapter_seqs, reads ->
+            no_adapters: adapter_seqs[0].size() == 0
+                return [ meta, reads[0] ]
+            adapters   : adapter_seqs[0].size() > 0
+                return [ meta, adapter_seqs[0], reads[0] ]
     }
     .set { ch_adapter_seqs }
+
 
     //
     // MODULE: Trim adapter sequences

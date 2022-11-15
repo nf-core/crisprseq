@@ -2,7 +2,7 @@ process FIND_ADAPTERS {
     tag "$meta.id"
     label 'process_single'
 
-    conda (params.enable_conda ? "conda-forge::p7zip==16.02" : null)
+    conda (params.enable_conda ? "conda-forge::r-fastqcr==0.1.2" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/p7zip:16.02' :
         'quay.io/biocontainers/p7zip:16.02' }"
@@ -11,28 +11,29 @@ process FIND_ADAPTERS {
     tuple val(meta), path(zip)
 
     output:
-    tuple val(meta), env(test_lines), env(adapter_seq), emit: adapters
+    tuple val(meta), path("overrepresented.fasta"),     emit: adapters
     path "versions.yml",                                emit: versions
 
     script:
     def args = task.ext.args ?: ''
     """
-    7za \\
-        e \\
-        -o"${zip.baseName}"/ \\
-        $args \\
-        $zip
-    test_lines=`grep -A 4 "Overrepresented sequences" $zip.baseName/fastqc_data.txt | grep -v "No Hit" | head -3 | tail -1 | awk '{print NF}'`
-    adapter_seq=`grep -A 4 "Overrepresented sequences" $zip.baseName/fastqc_data.txt | grep -v "No Hit" | head -3 | tail -1 | awk -F "\t" '{ print \$1 }'`
+    #!/usr/bin/env Rscript
+    library(fastqcr)
+    library(magrittr)
 
-    # TODO: once the bug mentioned in https://github.com/nextflow-io/nextflow/issues/2812 is fixed, remove following lines
-    echo "test_lines=\$test_lines" > .command.env
-    echo "adapter_seq=\$adapter_seq" >> .command.env
-    source .command.env
+    unzip("$zip", files = c("${zip.baseName}/fastqc_data.txt"))
 
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        7za: \$(echo \$(7za --help) | sed 's/.*p7zip Version //; s/(.*//')
-    END_VERSIONS
+    fastqcr::qc_read("${zip.baseName}/fastqc_data.txt")\$overrepresented_sequences %>%
+    dplyr::mutate(name=paste(">",1:dplyr::n(),"-",Count,sep=""),fa=paste(name,Sequence,sep="\n")) %>%
+    dplyr::pull(fa) %>%
+    readr::write_lines("overrepresented.fasta")
+
+    version_file_path <- "versions.yml"
+    version_ampir <- paste(unlist(packageVersion("fastqcr")), collapse = ".")
+    f <- file(version_file_path, "w")
+    writeLines('"${task.process}":', f)
+    writeLines("    fastqcr: ", f, sep = "")
+    writeLines(version_ampir, f)
+    close(f)
     """
 }
