@@ -7,19 +7,19 @@
                 "nf-core": {
                     "bowtie2/align": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+                        "git_sha": "cf5b9c30a2adacc581793afb79fae5f5b50bed01"
                     },
                     "bowtie2/build": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+                        "git_sha": "e797efb47b0d3b2124753beb55dc83ab9512bceb"
                     },
                     "bwa/index": {
                         "branch": "master",
-                        "git_sha": "8ddc73f0a37e6be2e852fd828d3effe9734ffa62"
+                        "git_sha": "9518fa4f65f3fb8cde24fde7d40333b39ec8fd65"
                     },
                     "bwa/mem": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+                        "git_sha": "cf5b9c30a2adacc581793afb79fae5f5b50bed01"
                     },
                     "cat/fastq": {
                         "branch": "master",
@@ -36,11 +36,11 @@
                     },
                     "fastqc": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+                        "git_sha": "3dd73937b084b547f9272bc901e0f120a7913fd8"
                     },
                     "minimap2/align": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "git_sha": "5850432aab24a1924389b660adfee3809d3e60a9",
                         "patch": "modules/nf-core/minimap2/align/minimap2-align.diff"
                     },
                     "multiqc": {
@@ -53,7 +53,7 @@
                     },
                     "samtools/index": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+                        "git_sha": "cf5b9c30a2adacc581793afb79fae5f5b50bed01"
                     },
                     "seqtk/seq": {
                         "branch": "master",
