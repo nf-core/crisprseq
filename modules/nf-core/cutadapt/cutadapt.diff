@@ -6,7 +6,7 @@ Changes in module 'nf-core/cutadapt'
  
      input:
 -    tuple val(meta), path(reads)
-+    tuple val(meta), val(adapter_seq), path(reads)
++    tuple val(meta), path(adapter_seq), path(reads)
  
      output:
 -    tuple val(meta), path('*.trim.fastq.gz'), emit: reads
@@ -16,14 +16,13 @@ Changes in module 'nf-core/cutadapt'
      path "versions.yml"                     , emit: versions
  
      when:
-@@ -21,12 +21,13 @@
+@@ -21,12 +21,12 @@
      script:
      def args = task.ext.args ?: ''
      def prefix = task.ext.prefix ?: "${meta.id}"
 -    def trimmed  = meta.single_end ? "-o ${prefix}.trim.fastq.gz" : "-o ${prefix}_1.trim.fastq.gz -p ${prefix}_2.trim.fastq.gz"
 +    if (reads != [])
      """
-+    adapter_seq=${adapter_seq}
      cutadapt \\
          --cores $task.cpus \\
          $args \\
@@ -32,7 +31,7 @@ Changes in module 'nf-core/cutadapt'
          $reads \\
          > ${prefix}.cutadapt.log
      cat <<-END_VERSIONS > versions.yml
-@@ -34,4 +35,11 @@
+@@ -34,4 +34,11 @@
          cutadapt: \$(cutadapt --version)
      END_VERSIONS
      """
