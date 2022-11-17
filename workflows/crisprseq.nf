@@ -61,20 +61,20 @@ include { DUMMY_FINAL_UMI                  } from '../modules/local/dummy_final_
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC                      } from '../modules/nf-core/fastqc/main'
-include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
-include { PEAR                        } from '../modules/nf-core/pear/main'
-include { CAT_FASTQ                   } from '../modules/nf-core/cat/fastq/main'
-include { SEQTK_SEQ                   } from '../modules/nf-core/seqtk/seq/main'
-include { BOWTIE2_ALIGN               } from '../modules/nf-core/bowtie2/align/main'
-include { BOWTIE2_BUILD               } from '../modules/nf-core/bowtie2/build/main'
-include { BWA_MEM                     } from '../modules/nf-core/bwa/mem/main'
-include { BWA_INDEX                   } from '../modules/nf-core/bwa/index/main'
-include { MINIMAP2_ALIGN              } from '../modules/nf-core/minimap2/align/main'
+include { FASTQC                                        } from '../modules/nf-core/fastqc/main'
+include { MULTIQC                                       } from '../modules/nf-core/multiqc/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { PEAR                                          } from '../modules/nf-core/pear/main'
+include { CAT_FASTQ                                     } from '../modules/nf-core/cat/fastq/main'
+include { SEQTK_SEQ                                     } from '../modules/nf-core/seqtk/seq/main'
+include { BOWTIE2_ALIGN                                 } from '../modules/nf-core/bowtie2/align/main'
+include { BOWTIE2_BUILD                                 } from '../modules/nf-core/bowtie2/build/main'
+include { BWA_MEM                                       } from '../modules/nf-core/bwa/mem/main'
+include { BWA_INDEX                                     } from '../modules/nf-core/bwa/index/main'
+include { MINIMAP2_ALIGN                                } from '../modules/nf-core/minimap2/align/main'
 include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_TEMPLATE     } from '../modules/nf-core/minimap2/align/main'
-include { CUTADAPT                    } from '../modules/nf-core/cutadapt/main'
-include { SAMTOOLS_INDEX              } from '../modules/nf-core/samtools/index/main'
+include { CUTADAPT                                      } from '../modules/nf-core/cutadapt/main'
+include { SAMTOOLS_INDEX                                } from '../modules/nf-core/samtools/index/main'
 
 
 /*
