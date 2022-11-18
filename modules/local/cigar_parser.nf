@@ -4,8 +4,8 @@ process CIGAR_PARSER {
 
     conda (params.enable_conda ? 'pandoc=2.19.2 r-seqinr=4.2_16 r-optparse=1.7.3 bioconductor-rsamtools=2.10.0 r-dplyr=1.0.10 r-plyr=1.8.7 r-stringr=1.4.1 bioconductor-shortread=1.52.0 bioconductor-genomicalignments=1.30.0 r-data.table=1.14.4 bioconductor-biomart=2.50.0 r-plotly=4.10.0 bioconductor-decipher=2.22.0 bioconductor-biostrings=2.62.0 r-parallelly=1.32.1 r-jsonlite=1.8.2' : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mulled-v2-a1551cc3e69024a9d829751175a0fe30dd5035e8:666109dfd8ca00d6bbfab5188ff2735bfcc400d7-0' :
-        'quay.io/biocontainers/mulled-v2-a1551cc3e69024a9d829751175a0fe30dd5035e8:666109dfd8ca00d6bbfab5188ff2735bfcc400d7-0' }"
+        'https://depot.galaxyproject.org/singularity/mulled-v2-39480160ac5fd8ae2aaba8eb25795cb6f304e1ca:5e51897b0f9cc614dfec8ac1df8b960aeb75dfcd-0' :
+        'quay.io/biocontainers/mulled-v2-39480160ac5fd8ae2aaba8eb25795cb6f304e1ca:5e51897b0f9cc614dfec8ac1df8b960aeb75dfcd-0' }"
 
     input:
     tuple val(meta), path(reads), path(index), path(reference), val(protospacer), path(template), path(template_bam), path(reference_template), path(summary)
