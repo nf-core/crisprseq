@@ -142,11 +142,12 @@ If multiple libraries/runs have been provided for the same sample in the input s
 <summary>Output files</summary>
 
 - `minimap2/`
-  - `*xx.html`: ...
+  - `*.bam`: BAM file containing aligned reads
+  - `*.bai`: BAI index
 
 </details>
 
-xxx
+[Minimap2](https://github.com/lh3/minimap2) is a sequence alignment program that aligns DNA sequences against a reference database.
 
 ### BWA
 
@@ -154,11 +155,12 @@ xxx
 <summary>Output files</summary>
 
 - `bwa/`
-  - `*xx.html`: ...
+  - `*.bam`: BAM file containing aligned reads
+  - `*.bai`: BAI index
 
 </details>
 
-xxx
+[BWA-MEM](https://github.com/lh3/bwa) BWA is a software package for mapping low-divergent sequences against a reference genome.
 
 ### bowtie2
 
@@ -166,11 +168,13 @@ xxx
 <summary>Output files</summary>
 
 - `bowtie2/`
-  - `*xx.html`: ...
+  - `*.bam`: BAM file containing aligned reads
+  - `*.bai`: BAI index
 
 </details>
 
-xxx
+[Bowtie2](https://bowtie-bio.sourceforge.net/bowtie2/index.shtml) aligns sequencing reads to reference sequences.
+
 
 ## Edits calling
 ### CIGAR
@@ -179,11 +183,17 @@ xxx
 <summary>Output files</summary>
 
 - `cigar/`
-  - `*xx.html`: ...
+  - `*_cutSite.json`: Contains the protospacer cut site position in the reference.
+  - `*_edition.html`: Interactive pie chart with the percentage of edition types. Reads are classified between WT (without an edit) and indels. Indes are divided between deletions, insertions and delins (deletion + insertion). Deletions and insertions can be out of frame or in frame.
+  - `*_edits.csv`: Table containing the data for the edition pie chart.
+  - `*_indels.csv`: Table containing information of all reads. Edit tipe, edit start and length, if the edition happens above the error rate, if it's located into the common eddit window, the frequence, the percentage, the pattern, surrounding nucleotides in case of insertions, the protospacer cut site, the sample id, number of aligned reads and number of reads with and without a template modification.
+  - `*_QC-indels.html`: Interactive pie chart with information about aligned reads. Reads are classified between WT and containing indels. Both types are classified between passing the filtering steps or not. Indel reads passing the filtering steps are divided in reads with a modification above the error rate and located in the common edit window, above the error rate but not in the edit region, viceversa, or any of those conditions.
+  - `*_reads.html`: Interactive pie chart with percentage of the number of raw reads, reads merged with Pear, reads passing quality filters and UMI clustered reads.
+  - `*_subs-perc.csv`: Table containing the percentage of each nucleotide found for each reference position.
 
 </details>
 
-xxx
+
 
 ## MultiQC
 
