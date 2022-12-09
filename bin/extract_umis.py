@@ -32,9 +32,7 @@ def parse_args(argv):
     :type argv: List
     """
     usage = "Command line interface to telemap"
-    parser = argparse.ArgumentParser(
-        description=usage, formatter_class=argparse.RawDescriptionHelpFormatter
-    )
+    parser = argparse.ArgumentParser(description=usage, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
         "-l",
         "--log",
@@ -76,12 +74,8 @@ def parse_args(argv):
         default=1,
         help="Number of threads.",
     )
-    parser.add_argument(
-        "--tsv", dest="TSV", type=str, required=False, help="TSV output file"
-    )
-    parser.add_argument(
-        "-o", "--output", dest="OUT", type=str, required=False, help="FASTA output file"
-    )
+    parser.add_argument("--tsv", dest="TSV", type=str, required=False, help="TSV output file")
+    parser.add_argument("-o", "--output", dest="OUT", type=str, required=False, help="FASTA output file")
     parser.add_argument(
         "--fwd-context",
         dest="FWD_CONTEXT",
@@ -110,9 +104,7 @@ def parse_args(argv):
         default="AAABBBBAABBBBAABBBBAABBBBAAA",
         help="Reverse UMI sequence",
     )
-    parser.add_argument(
-        "INPUT_FA", type=str, nargs="+", default="/dev/stdin", help="Detected UMIs"
-    )
+    parser.add_argument("INPUT_FA", type=str, nargs="+", default="/dev/stdin", help="Detected UMIs")
 
     args = parser.parse_args(argv)
 
@@ -276,25 +268,17 @@ def extract_umis(
                 for entry in fh:
                     pbar.update(1)
 
-                    read_5p_seq, read_3p_seq = extract_adapters(
-                        entry, max_adapter_length
-                    )
+                    read_5p_seq, read_3p_seq = extract_adapters(entry, max_adapter_length)
                     if not read_5p_seq or not read_3p_seq:
                         continue
 
-                    strand = detect_read_strand(
-                        read_5p_seq, upstream_context_fwd, upstream_context_rev
-                    )
+                    strand = detect_read_strand(read_5p_seq, upstream_context_fwd, upstream_context_rev)
                     strand_stats[strand] += 1
 
                     # Extract fwd UMI
-                    result_5p_fwd_dist, result_5p_fwd_seq = align(
-                        read_5p_seq, pattern_fwd, max_pattern_dist
-                    )
+                    result_5p_fwd_dist, result_5p_fwd_seq = align(read_5p_seq, pattern_fwd, max_pattern_dist)
                     # Extract rev UMI
-                    result_3p_rev_dist, result_3p_rev_seq = align(
-                        read_3p_seq, pattern_rev, max_pattern_dist
-                    )
+                    result_3p_rev_dist, result_3p_rev_seq = align(read_3p_seq, pattern_rev, max_pattern_dist)
 
                     if not result_5p_fwd_seq or not result_3p_rev_seq:
                         continue
@@ -315,17 +299,11 @@ def extract_umis(
         if strand_stats["-"]:
             fwd_rev_ratio = strand_stats["+"] / strand_stats["-"]
         logging.info(
-            "Found {} fwd and {} rev reads (ratio: {})".format(
-                strand_stats["+"], strand_stats["-"], fwd_rev_ratio
-            )
+            "Found {} fwd and {} rev reads (ratio: {})".format(strand_stats["+"], strand_stats["-"], fwd_rev_ratio)
         )
         if n_read:
             perc = 100.0 * n_both_umi / n_read
-            logging.info(
-                "{}% of reads contained both UMIs with max {} mismatches".format(
-                    perc, max_pattern_dist
-                )
-            )
+            logging.info("{}% of reads contained both UMIs with max {} mismatches".format(perc, max_pattern_dist))
         if tsv:
             print(
                 output_file,

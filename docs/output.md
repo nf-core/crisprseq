@@ -6,7 +6,6 @@ This document describes the output produced by the pipeline. Most of the plots a
 
 The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
 
-
 ## Pipeline overview
 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
@@ -46,6 +45,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 </details>
 
 Contains the input sequences (reference, protospacer and template). Sequences are preprocessed as required:
+
 - The reference is returned in the correct orientation.
   > In order to provide the reference in the correct orientation, the protospacer is searched in the reference sequence. The reverse complement is returned if the protospacer matches the reference in reverse complement.
 - The template is used to obtain a new reference with the expected changed.
@@ -134,7 +134,9 @@ If multiple libraries/runs have been provided for the same sample in the input s
 [Seqtk](https://github.com/lh3/seqtk) masks (converts to Ns) bases with quality lower than 20 and removes sequences shorter than 80 bases.
 
 <!-- ### UMI -->
+
 ## Mapping
+
 ### minimap2
 
 <details markdown="1">
@@ -174,8 +176,8 @@ If multiple libraries/runs have been provided for the same sample in the input s
 
 [Bowtie2](https://bowtie-bio.sourceforge.net/bowtie2/index.shtml) aligns sequencing reads to reference sequences.
 
-
 ## Edits calling
+
 ### CIGAR
 
 <details markdown="1">
@@ -191,8 +193,6 @@ If multiple libraries/runs have been provided for the same sample in the input s
   - `*_subs-perc.csv`: Table containing the percentage of each nucleotide found for each reference position.
 
 </details>
-
-
 
 ## MultiQC
 

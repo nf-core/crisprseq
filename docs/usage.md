@@ -40,14 +40,14 @@ hCas9-AAVS1-a,hCas9-AAVS1-a_R1.fastq.gz,hCas9-AAVS1-a_R2.fastq.gz,GCT...CCT,GGGG
 chr6,chr6-61942198-61942498_R1.fastq.gz,,CAA...GGA,TTTTATGATATTTATCTTTT,TTC...CAA
 ```
 
-| Column    | Description                                                                                                                                                                            |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
-| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
-| `reference` | Reference sequence of the target region. |
-| `protospacer` | Sequence of the protospacer used for CRISPR editing. Must not includ the PAM. |
-| `template` | Sequence of the template used in templet-based editing experiments. |
+| Column        | Description                                                                                                                                                                            |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`      | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
+| `fastq_1`     | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `fastq_2`     | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `reference`   | Reference sequence of the target region.                                                                                                                                               |
+| `protospacer` | Sequence of the protospacer used for CRISPR editing. Must not includ the PAM.                                                                                                          |
+| `template`    | Sequence of the template used in templet-based editing experiments.                                                                                                                    |
 
 An [example samplesheet](https://nf-co.re/crisprseq/dev/assets/samplesheet.csv) has been provided with the pipeline.
 

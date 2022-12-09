@@ -1,4 +1,4 @@
 repository_type: pipeline
 lint:
-    files_unchanged:
-        - .github/workflows/linting_comment.yml
+  files_unchanged:
+    - .github/workflows/linting_comment.yml
