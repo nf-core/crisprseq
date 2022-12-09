@@ -590,8 +590,8 @@ get_SNPs <- function(fasta_coords_name, genome_ref, filter=0.0001){
 get_substitutions_pileup <- function(bam_file){
     #### Get bam file and generate pileup
     p_param <- PileupParam(min_mapq=13,
-                                                 min_base_quality=10,
-                                                 min_nucleotide_depth=4)
+        min_base_quality=10,
+        min_nucleotide_depth=4)
     res <- pileup(bam_file, pileupParam = p_param)
     res <- res %>% group_by(pos, nucleotide) %>% dplyr::summarise(count = sum(count)) ### to join counts of fw with rv alignment and avoid position and nucleotides duplicates
     ### Get percentages
@@ -1017,7 +1017,7 @@ if (dim(alignment_info)[1] != 0){
         enp <- dim(enp_pre)[1]
 
         prevc_classes <- c("Aligned reads", "Wt", "Indels", "Wt passing filter", "Wt NOT passing filter", "Indels passing filter", "Indels NOT passing filter",
-                                             "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
+            "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
         prevc_counts <- c(aligned_reads, wt_reads+incorrect_wt, dim(separated_indels)[1]+trunc_reads, wt_reads, incorrect_wt, dim(separated_indels)[1], trunc_reads,
                                             ep, nep, nenp, enp)
         write(prevc_counts, stdout())
@@ -1069,7 +1069,7 @@ if (dim(alignment_info)[1] != 0){
         enp = 0
 
         prevc_classes <- c("Aligned reads", "Wt", "Indels", "Wt passing filter", "Wt NOT passing filter", "Indels passing filter", "Indels NOT passing filter",
-                                             "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
+            "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
         prevc_counts <- c(aligned_reads, wt_reads+incorrect_wt, 0+trunc_reads, wt_reads, incorrect_wt, 0, trunc_reads,
                                             ep, nep, nenp, enp)
         write(prevc_counts, stdout())
@@ -1133,42 +1133,42 @@ if (dim(alignment_info)[1] != 0){
     reads_summary$counts <- unlist(lapply(1:length(reads_summary$counts), function(x){ as.numeric(strsplit(as.character(reads_summary$counts[x]), " ")[[1]][2]) }))
     reads_summary$parents = c("", "Raw reads", "Merged reads", "Quality filtered reads", "Clustered reads")
     fig <- plot_ly(reads_summary,
-                                 labels = ~classes,
-                                 parents = ~parents,
-                                 values = ~counts,
-                                 type = 'sunburst',
-                                 branchvalues = 'total',
-                                 textinfo = "label+percent entry",
-                                 textfont = list(color = '#000000', size = 20),
-                                 marker = list(colors = c("#f2f2f2", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7")))
+        labels = ~classes,
+        parents = ~parents,
+        values = ~counts,
+        type = 'sunburst',
+        branchvalues = 'total',
+        textinfo = "label+percent entry",
+        textfont = list(color = '#000000', size = 20),
+        marker = list(colors = c("#f2f2f2", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7")))
 
     htmlwidgets::saveWidget(as_widget(fig), paste0(results_path,"_reads.html"))
 
     ### Indels quality
     prevc_summary$parents <- c("", "Aligned reads", "Aligned reads", "Wt", "Wt", "Indels", "Indels", "Indels passing filter", "Indels passing filter", "Indels passing filter", "Indels passing filter")
     fig <- plot_ly(prevc_summary,
-                                 labels = ~classes,
-                                 parents = ~parents,
-                                 values = ~counts,
-                                 type = 'sunburst',
-                                 branchvalues = 'total',
-                                 textinfo = "label+percent entry",
-                                 textfont = list(color = '#000000', size = 20),
-                                 marker = list(colors = c("#f2f2f2", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7")))
+        labels = ~classes,
+        parents = ~parents,
+        values = ~counts,
+        type = 'sunburst',
+        branchvalues = 'total',
+        textinfo = "label+percent entry",
+        textfont = list(color = '#000000', size = 20),
+        marker = list(colors = c("#f2f2f2", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7")))
 
     htmlwidgets::saveWidget(as_widget(fig), paste0(results_path,"_QC-indels.html"))
 
     ### Kinds of edits plot
     edit_summary$parents = c("", "", "", "Indels", "Indels", "Indels", "Deletions", "Deletions", "Insertions", "Insertions")
     fig <- plot_ly(edit_summary,
-                                 labels = ~classes,
-                                 parents = ~parents,
-                                 values = ~counts,
-                                 type = 'sunburst',
-                                 branchvalues = 'total',
-                                 textinfo = "label+percent entry",
-                                 textfont = list(color = '#000000', size = 20),
-                                 marker = list(colors = c("#bebebe", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7")))
+        labels = ~classes,
+        parents = ~parents,
+        values = ~counts,
+        type = 'sunburst',
+        branchvalues = 'total',
+        textinfo = "label+percent entry",
+        textfont = list(color = '#000000', size = 20),
+        marker = list(colors = c("#bebebe", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7")))
 
     htmlwidgets::saveWidget(as_widget(fig), paste0(results_path,"_edition.html"))
 
