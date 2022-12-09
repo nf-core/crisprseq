@@ -189,11 +189,7 @@ class NfcoreTemplate {
         misc_fields['nxf_timestamp']                        = workflow.nextflow.timestamp
 
         def msg_fields = [:]
-<<<<<<< HEAD
-        msg_fields['version']      = workflow.manifest.version
-=======
         msg_fields['version']      = NfcoreTemplate.version(workflow)
->>>>>>> c8cacbe4c6e1b234ece3c634dceb7ffe78fabdd0
         msg_fields['runName']      = workflow.runName
         msg_fields['success']      = workflow.success
         msg_fields['dateComplete'] = workflow.complete
@@ -201,24 +197,16 @@ class NfcoreTemplate {
         msg_fields['exitStatus']   = workflow.exitStatus
         msg_fields['errorMessage'] = (workflow.errorMessage ?: 'None')
         msg_fields['errorReport']  = (workflow.errorReport ?: 'None')
-<<<<<<< HEAD
-        msg_fields['commandLine']  = workflow.commandLine
-=======
         msg_fields['commandLine']  = workflow.commandLine.replaceFirst(/ +--hook_url +[^ ]+/, "")
->>>>>>> c8cacbe4c6e1b234ece3c634dceb7ffe78fabdd0
         msg_fields['projectDir']   = workflow.projectDir
         msg_fields['summary']      = summary << misc_fields
 
         // Render the JSON template
         def engine       = new groovy.text.GStringTemplateEngine()
-<<<<<<< HEAD
-        def hf = new File("$projectDir/assets/adaptivecard.json")
-=======
         // Different JSON depending on the service provider
         // Defaults to "Adaptive Cards" (https://adaptivecards.io), except Slack which has its own format
         def json_path     = hook_url.contains("hooks.slack.com") ? "slackreport.json" : "adaptivecard.json"
         def hf            = new File("$projectDir/assets/${json_path}")
->>>>>>> c8cacbe4c6e1b234ece3c634dceb7ffe78fabdd0
         def json_template = engine.createTemplate(hf).make(msg_fields)
         def json_message  = json_template.toString()
 
