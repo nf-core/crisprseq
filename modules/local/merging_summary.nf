@@ -40,25 +40,25 @@ process MERGING_SUMMARY {
         $trimmed_reads \\
         > NUL
 
-	#### Counts
-	pre_raw_count=`cat ${raw_reads[0].baseName} | wc -l`
-	raw_count=`echo "\$pre_raw_count/4" | bc`
-	pre_merged_count=`cat ${assembled_reads.baseName} | wc -l`
-	merged_count=`echo "\$pre_merged_count/4" | bc`
-	adapters=`grep "Reads with adapters" ${trimmed_adapters} | awk -F " " '{ print \$(NF-1)" "\$NF }'`
-	pre_filt=`cat ${trimmed_reads.baseName} | wc -l`
-	filt=`echo "\$pre_filt/4" | bc`
+    #### Counts
+    pre_raw_count=`cat ${raw_reads[0].baseName} | wc -l`
+    raw_count=`echo "\$pre_raw_count/4" | bc`
+    pre_merged_count=`cat ${assembled_reads.baseName} | wc -l`
+    merged_count=`echo "\$pre_merged_count/4" | bc`
+    adapters=`grep "Reads with adapters" ${trimmed_adapters} | awk -F " " '{ print \$(NF-1)" "\$NF }'`
+    pre_filt=`cat ${trimmed_reads.baseName} | wc -l`
+    filt=`echo "\$pre_filt/4" | bc`
 
-	#### Percentages
-	merged_perc=`echo "scale=1;(\$merged_count/\$raw_count)*100" | bc`
-	filt_perc=`echo "scale=1;(\$filt/\$merged_count)*100" | bc`
+    #### Percentages
+    merged_perc=`echo "scale=1;(\$merged_count/\$raw_count)*100" | bc`
+    filt_perc=`echo "scale=1;(\$filt/\$merged_count)*100" | bc`
 
-	#### Table
-	echo "class, count" > ${prefix}_summary.csv
-	echo "raw-reads," \$raw_count "(100.0%)" >> ${prefix}_summary.csv
-	echo "merged-reads," \$merged_count "("\$merged_perc"%)" >> ${prefix}_summary.csv
-	echo "reads-with-adapters," \${adapters//,} >> ${prefix}_summary.csv
-	echo "quality-filtered-reads," \$filt "("\$filt_perc"%)" >> ${prefix}_summary.csv
+    #### Table
+    echo "class, count" > ${prefix}_summary.csv
+    echo "raw-reads," \$raw_count "(100.0%)" >> ${prefix}_summary.csv
+    echo "merged-reads," \$merged_count "("\$merged_perc"%)" >> ${prefix}_summary.csv
+    echo "reads-with-adapters," \${adapters//,} >> ${prefix}_summary.csv
+    echo "quality-filtered-reads," \$filt "("\$filt_perc"%)" >> ${prefix}_summary.csv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

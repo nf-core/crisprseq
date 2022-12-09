@@ -40,16 +40,16 @@ process DUMMY_FINAL_UMI {
 
 process summary_reads{
 
-	input:
-	set sampleID, file(summary), file(finalReads) from summaryReport.join(readsSummary)
+    input:
+    set sampleID, file(summary), file(finalReads) from summaryReport.join(readsSummary)
 
-	output:
-	set val(sampleID), file(summary) into summaryReportReads
+    output:
+    set val(sampleID), file(summary) into summaryReportReads
 
-	script:
-	"""
-	final_count=`expr \$(cat $finalReads | wc -l) / 4`
-	echo "clustered-reads," \$final_count >> ${sampleID}_summary.csv
-	"""
+    script:
+    """
+    final_count=`expr \$(cat $finalReads | wc -l) / 4`
+    echo "clustered-reads," \$final_count >> ${sampleID}_summary.csv
+    """
 
     }

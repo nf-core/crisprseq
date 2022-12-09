@@ -11,8 +11,8 @@ process CIGAR_PARSER {
     tuple val(meta), path(reads), path(index), path(reference), val(protospacer), path(template), path(template_bam), path(reference_template), path(summary)
 
     output:
-	tuple val(meta), path("*indels.csv"), path("*_subs-perc.csv"), emit: indels
-	tuple val(meta), path("*.html"), path("*edits.csv")          , emit: edition
+    tuple val(meta), path("*indels.csv"), path("*_subs-perc.csv"), emit: indels
+    tuple val(meta), path("*.html"), path("*edits.csv")          , emit: edition
     tuple val(meta), path("*cutSite.json")                       , emit: cutsite
     path "versions.yml"                                          , emit: versions
 

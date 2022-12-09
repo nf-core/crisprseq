@@ -29,7 +29,7 @@ process CLUSTERING_SUMMARY {
 
     pre_final_count=`cat ${reads.baseName} | wc -l`
     final_count=`echo "\$pre_final_count/4" | bc`
-	echo "clustered-reads," \$final_count >> $summary
+    echo "clustered-reads," \$final_count >> $summary
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -42,16 +42,16 @@ process CLUSTERING_SUMMARY {
 
 process summary_reads{
 
-	input:
-	set sampleID, file(summary), file(finalReads) from summaryReport.join(readsSummary)
+    input:
+    set sampleID, file(summary), file(finalReads) from summaryReport.join(readsSummary)
 
-	output:
-	set val(sampleID), file(summary) into summaryReportReads
+    output:
+    set val(sampleID), file(summary) into summaryReportReads
 
-	script:
-	"""
-	final_count=`expr \$(cat $finalReads | wc -l) / 4`
-	echo "clustered-reads," \$final_count >> ${sampleID}_summary.csv
-	"""
+    script:
+    """
+    final_count=`expr \$(cat $finalReads | wc -l) / 4`
+    echo "clustered-reads," \$final_count >> ${sampleID}_summary.csv
+    """
 
     }

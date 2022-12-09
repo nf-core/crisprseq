@@ -21,10 +21,10 @@ process ALIGNMENT_SUMMARY {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-	mapped_count=`samtools view -c -b -F 4 $reads`
-	total=`samtools view -c -b $reads`
-	perc=`echo "scale=1;(\$mapped_count/\$total)*100" | bc`
-	echo "aligned-reads," \$mapped_count "("\$perc"%)" >> $summary
+    mapped_count=`samtools view -c -b -F 4 $reads`
+    total=`samtools view -c -b $reads`
+    perc=`echo "scale=1;(\$mapped_count/\$total)*100" | bc`
+    echo "aligned-reads," \$mapped_count "("\$perc"%)" >> $summary
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
