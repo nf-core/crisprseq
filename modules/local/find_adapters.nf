@@ -5,7 +5,7 @@ process FIND_ADAPTERS {
     conda (params.enable_conda ? "conda-forge::r-fastqcr==0.1.2" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/r-fastqcr:0.1.2--r351h6115d3f_0' :
-        'quay.io/biocontainers/r-fastqcr' }"
+        'quay.io/biocontainers/r-fastqcr:0.1.2--r351h6115d3f_0' }"
 
     input:
     tuple val(meta), path(zip)
