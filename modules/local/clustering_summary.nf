@@ -28,7 +28,7 @@ process CLUSTERING_SUMMARY {
         > NUL
 
     pre_final_count=`cat ${reads.baseName} | wc -l`
-    final_count=`echo "\$pre_final_count/4" | bc`
+    final_count=`echo \$(( "\$pre_final_count/4" ))`
     echo "clustered-reads," \$final_count >> $summary
 
     cat <<-END_VERSIONS > versions.yml
