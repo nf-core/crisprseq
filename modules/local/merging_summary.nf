@@ -50,8 +50,8 @@ process MERGING_SUMMARY {
     filt=`echo \$(( "\$pre_filt/4" ))`
 
     #### Percentages
-    merged_perc=`echo \$(( "scale=1;(\$merged_count/\$raw_count)*100" ))`
-    filt_perc=`echo \$(( "scale=1;(\$filt/\$merged_count)*100" ))`
+    merged_perc=`echo \$(( "\$merged_count * 100 / \$raw_count" ))`
+    filt_perc=`echo \$(( "\$filt * 100 / \$merged_count" ))`
 
     #### Table
     echo "class, count" > ${prefix}_summary.csv

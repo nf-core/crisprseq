@@ -23,7 +23,7 @@ process ALIGNMENT_SUMMARY {
     """
     mapped_count=`samtools view -c -b -F 4 $reads`
     total=`samtools view -c -b $reads`
-    perc=`echo \$(( "scale=1;(\$mapped_count/\$total)*100" ))`
+    perc=`echo \$(( "\$mapped_count *100 / \$total" ))`
     echo "aligned-reads," \$mapped_count "("\$perc"%)" >> $summary
 
     cat <<-END_VERSIONS > versions.yml
