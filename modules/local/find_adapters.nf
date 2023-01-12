@@ -4,8 +4,8 @@ process FIND_ADAPTERS {
 
     conda (params.enable_conda ? "bioconda::r-fastqcr==0.1.2" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mulled-v2-072d35963d44d865c76d05a6b1e778257e030d55:784625cbd918a106b55570f65971d907a42f3b01-0' :
-        'quay.io/biocontainers/mulled-v2-072d35963d44d865c76d05a6b1e778257e030d55:784625cbd918a106b55570f65971d907a42f3b01-0' }"
+        'https://depot.galaxyproject.org/singularity/mulled-v2-072d35963d44d865c76d05a6b1e778257e030d55:0' :
+        'quay.io/biocontainers/mulled-v2-072d35963d44d865c76d05a6b1e778257e030d55:0' }"
 
     input:
     tuple val(meta), path(zip)
