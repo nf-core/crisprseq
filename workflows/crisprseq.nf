@@ -297,7 +297,7 @@ workflow CRISPRSEQ {
 
     // Add clustering summary so R script doesn't fail
     CLUSTERING_SUMMARY (
-        DUMMY_FINAL_UMI.out.dummy
+        SEQTK_SEQ.out.fastx
             .join(MERGING_SUMMARY.out.summary)
     )
 
