@@ -98,6 +98,12 @@ workflow CRISPRSEQ {
         ch_input
     )
     .reads
+    .map {
+        meta, fastq ->
+            def meta_clone = meta.clone()
+            meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
+            [ meta_clone, fastq ]
+    }
     .groupTuple(by: [0])
     // Separate samples by the ones containing all reads in one file or the ones with many files to be concatenated
     .branch {
@@ -110,10 +116,23 @@ workflow CRISPRSEQ {
     .set { ch_fastq }
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
+    INPUT_CHECK.out.reference
+    .map {
+        meta, reference ->
+            def meta_clone = meta.clone()
+            meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
+            [ meta_clone, reference ]
+    }
 
     // Add reference sequences to file
     SEQ_TO_FILE_REF (
-        INPUT_CHECK.out.reference,
+        INPUT_CHECK.out.reference
+        .map {
+        meta, reference ->
+            def meta_clone = meta.clone()
+            meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
+            [ meta_clone, reference ]
+        },
         "reference"
     )
 
@@ -121,15 +140,28 @@ workflow CRISPRSEQ {
     // Add template sequences to file
     //
     SEQ_TO_FILE_TEMPL (
-        INPUT_CHECK.out.template,
+        INPUT_CHECK.out.template
+        .map {
+        meta, template ->
+            def meta_clone = meta.clone()
+            meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
+            [ meta_clone, template ]
+        },
         "template"
     )
 
     // Join channels with reference and protospacer
     // to channel: [ meta, reference, protospacer]
     SEQ_TO_FILE_REF.out.file
-    .join(INPUT_CHECK.out.protospacer, by: 0)
-    .set{ reference_protospacer }
+        .join(INPUT_CHECK.out.protospacer
+            .map {
+            meta, protospacer ->
+                def meta_clone = meta.clone()
+                meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
+                [ meta_clone, protospacer ]
+            },
+            by: 0)
+        .set{ reference_protospacer }
 
     //
     // MODULE: Prepare reference sequence
@@ -170,7 +202,6 @@ workflow CRISPRSEQ {
     .mix( ch_cat_fastq.single )
     .set { ch_pear_fastq }
     ch_versions = ch_versions.mix(PEAR.out.versions)
-
 
     //
     // MODULE: Run FastQC
@@ -223,10 +254,20 @@ workflow CRISPRSEQ {
 
     MERGING_SUMMARY {
         ch_cat_fastq.paired
-            .join(PEAR.out.assembled)
+            .mix(ch_cat_fastq.single)
+            .join(PEAR.out.assembled, remainder: true)
             .join(SEQTK_SEQ.out.fastx)
             .join(CUTADAPT.out.log)
+            .map { meta, reads, assembled, masked, trimmed ->
+                if (assembled == null) {
+                    dummy = file('null')
+                    return [ meta, reads, dummy, masked, trimmed ]
+                } else {
+                    return [ meta, reads, assembled, masked, trimmed ]
+                }
+            }
     }
+
 
     /*
     Remove this step by now as I don't have test data
@@ -251,7 +292,7 @@ workflow CRISPRSEQ {
 
     // Dummy final UMI reads fastq
     DUMMY_FINAL_UMI {
-        PEAR.out.assembled
+        SEQTK_SEQ.out.fastx
     }
 
     // Add clustering summary so R script doesn't fail
@@ -344,7 +385,7 @@ workflow CRISPRSEQ {
     .bam
     .map {
         meta, bam ->
-            if (bam.contains("template-align")) {
+            if (bam.baseName.contains("template-align")) {
                 return [ meta, bam ]
             } else {
                 new_file = bam.parent / bam.baseName + "_template-align." + bam.extension
@@ -354,7 +395,6 @@ workflow CRISPRSEQ {
     }
     .set { ch_template_bam }
 
-
     //
     // MODULE: Parse cigar to find edits
     //
@@ -362,7 +402,14 @@ workflow CRISPRSEQ {
         ch_mapped_bam
             .join(SAMTOOLS_INDEX.out.bai)
             .join(ORIENT_REFERENCE.out.reference)
-            .join(INPUT_CHECK.out.protospacer)
+            .join(INPUT_CHECK.out.protospacer
+                .map {
+                meta, protospacer ->
+                    def meta_clone = meta.clone()
+                    meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
+                    [ meta_clone, protospacer ]
+                }
+            )
             .join(SEQ_TO_FILE_TEMPL.out.file)
             .join(ch_template_bam)
             .join(TEMPLATE_REFERENCE.out.fasta)

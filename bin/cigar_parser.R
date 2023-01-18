@@ -1040,6 +1040,7 @@ if (dim(alignment_info)[1] != 0){
         ref_sread <- readFasta(ref_fasta)
         cut_site <- get_cutSite(gRNA_sequence, ref_sread, cut_pos_prot)
         summary_counts <- read.csv(files_summary)
+        print(class)
         ## Reads at the uploaded files
         pre_reads <- summary_counts %>% filter(class == "raw-reads")
         reads <- pre_reads$count
