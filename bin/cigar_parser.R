@@ -612,9 +612,11 @@ templateCount <- function(ori_ref_file, new_ref_temp, template_bam, readsAlnInfo
     #### Get cigar
     param <- ScanBamParam(
         flag=scanBamFlag(isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE, isDuplicate = FALSE, isSupplementaryAlignment = FALSE), ## Get just primary alignments
-        what=c("cigar"))
+        what=c("cigar", "pos"))
     bam=scanBam(template_bam, param=param)
-    temp_cigar=bam[[1]]$cigar[1]
+    first_pos_len <- explodeCigarOpLengths(bam[[1]]$cigar)[[1]][1] + bam[[1]]$pos[1] - 1
+    all_pos_len <- c(first_pos_len, explodeCigarOpLengths(bam[[1]]$cigar)[[1]][2:length(explodeCigarOpLengths(bam[[1]]$cigar)[[1]])])
+    temp_cigar=paste(unlist(mapply(c, all_pos_len, explodeCigarOps(bam[[1]]$cigar)[[1]], SIMPLIFY=FALSE)), collapse = "")
     if(is.na(temp_cigar)){
         tempCount <- c(0, "no-changes")
     } else {
@@ -642,13 +644,20 @@ templateCount <- function(ori_ref_file, new_ref_temp, template_bam, readsAlnInfo
             s_slice <- 0
         }
         ##### Check if there is any read that looks like the template!
-        if(dim(readsAlnInfo_collaps %>% filter(cigar == temp_cigar))[1] == 0){
+    ## But before update by alignment position start
+    cingLen_info <- explodeCigarOpLengths(readsAlnInfo_collaps$cigar)
+    first_pos_len_info <- lapply( c(1:length(cingLen_info)), function(p){ cingLen_info[p][[1]][1] + readsAlnInfo_collaps$pos[p] - 1 } )
+    all_pos_len_info <- lapply( c(1:length(cingLen_info)), function(l) { unlist( c(first_pos_len_info[l], explodeCigarOpLengths(readsAlnInfo_collaps$cigar[l])[[1]][2:length(explodeCigarOpLengths(readsAlnInfo_collaps$cigar[l])[[1]])])) } )
+    temp_cigar_info=lapply( c(1: length(cingLen_info)), function(k) { paste(unlist( mapply(c, all_pos_len_info[k][[1]], explodeCigarOps(readsAlnInfo_collaps$cigar[k])[[1]], SIMPLIFY=FALSE)), collapse = "") }  )
+    readsAlnInfo_collaps$cigar_pos <- unlist(temp_cigar_info)
+    ### And now let's see
+    if(dim(readsAlnInfo_collaps %>% filter(cigar_pos == temp_cigar))[1] == 0){
             tempCount <- c(0, "no-changes")
         } else {
             ##### Let's check which is the kind of mutation that we are facing
             if ("I" %in% cigar_types[[1]] || "D" %in% cigar_types[[1]]){
                 #### When it is not a simple substitution; not all nucleotides are matches of mismatches (or clipped nucleotides!!)
-                rowReads <- readsAlnInfo_collaps %>% filter(cigar == temp_cigar)
+                rowReads <- readsAlnInfo_collaps %>% filter(cigar_pos == temp_cigar)
                 if ("I" %in% cigar_types[[1]] && "D" %in% cigar_types[[1]]){
                     tempCount <- c(rowReads$count, "delin", strsplit(rowReads$ids, ","))
                 } else if ("I" %in% cigar_types[[1]]) {
