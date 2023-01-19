@@ -2,7 +2,7 @@ process FIND_ADAPTERS {
     tag "$meta.id"
     label 'process_single'
 
-    conda (params.enable_conda ? "conda-forge::r-fastqcr==0.1.2" : null)
+    conda "conda-forge::r-fastqcr==0.1.2"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/mulled-v2-072d35963d44d865c76d05a6b1e778257e030d55:0' :
         'quay.io/biocontainers/mulled-v2-072d35963d44d865c76d05a6b1e778257e030d55:0' }"

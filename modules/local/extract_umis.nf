@@ -2,7 +2,7 @@ process EXTRACT_UMIS {
     tag "$meta.id"
     label 'process_low'
 
-    conda (params.enable_conda ? "pysam=0.19.1 edlib=1.3.9 tqdm=4.64.0" : null)
+    conda "pysam=0.19.1 edlib=1.3.9 tqdm=4.64.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/mulled-v2-76fd6f1f9ee3b11637ca84d7dc19fbaae82046a1:95aaafb5dc1049377454ee94b01f176b26ec0d57-0' :
         'quay.io/biocontainers/mulled-v2-76fd6f1f9ee3b11637ca84d7dc19fbaae82046a1:95aaafb5dc1049377454ee94b01f176b26ec0d57-0' }"

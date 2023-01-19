@@ -2,7 +2,7 @@ process DUMMY_FINAL_UMI {
     tag "$meta.id"
     label 'process_single'
 
-    conda (params.enable_conda ? "conda-forge::p7zip==16.02" : null)
+    conda "conda-forge::p7zip==16.02"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/p7zip:16.02' :
         'quay.io/biocontainers/p7zip:16.02' }"
