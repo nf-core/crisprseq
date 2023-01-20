@@ -1,6 +1,6 @@
 process SEQTK_SEQ {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_single'
 
     conda "bioconda::seqtk=1.3"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -11,7 +11,7 @@ process SEQTK_SEQ {
     tuple val(meta), path(fastx)
 
     output:
-    tuple val(meta), path("*.seqtk-seq.*.gz")     , emit: fastx
+    tuple val(meta), path("*.gz")     , emit: fastx
     path "versions.yml"               , emit: versions
 
     when:
