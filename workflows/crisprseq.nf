@@ -223,7 +223,7 @@ workflow CRISPRSEQ {
             no_adapters: adapter_seqs[0].size() == 0
                 return [ meta, reads[0] ]
             adapters   : adapter_seqs[0].size() > 0
-                return [ meta, adapter_seqs[0], reads[0] ]
+                return [ meta, reads[0], adapter_seqs[0] ]
     }
     .set { ch_adapter_seqs }
 

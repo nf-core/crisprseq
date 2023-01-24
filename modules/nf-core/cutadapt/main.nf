@@ -8,7 +8,7 @@ process CUTADAPT {
         'quay.io/biocontainers/cutadapt:3.4--py39h38f01e4_1' }"
 
     input:
-    tuple val(meta), path(adapter_seq), path(reads)
+    tuple val(meta), path(reads), path(adapter_seq)
 
     output:
     tuple val(meta), path('*.trim.fastq.gz'), optional: true, emit: reads
@@ -21,7 +21,7 @@ process CUTADAPT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    if (reads != [])
+    if (adapter_seq != [])
     """
     cutadapt \\
         --cores $task.cpus \\
