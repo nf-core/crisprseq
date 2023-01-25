@@ -31,7 +31,7 @@ empty_plot <- function(title = NULL){
         config(
             displayModeBar = FALSE
         ) %>%
-        layout(
+        plotly::layout(
             title = list(
                 text = title,
                 yref = "paper",
@@ -953,7 +953,7 @@ if (dim(alignment_info)[1] != 0){
         # Indels
         indels_count <- dim(separated_indels)[1]
         if ( t_type == "ins-out" || t_type == "dels-out" || t_type == "ins-in" || t_type == "dels-in"){
-            t_in_indels <- separated_indels %>% filter(Ids %in% t_ids[[1]]) 
+            t_in_indels <- separated_indels %>% filter(Ids %in% t_ids[[1]])
             indels_count <- indels_count -  - dim(t_in_indels)[1]
         }
         dels <- separated_indels %>% filter(Modification == "del")
@@ -964,39 +964,39 @@ if (dim(alignment_info)[1] != 0){
         ins <- separated_indels %>% filter(Modification == "ins")
         ins_count <- dim(ins)[1]
         if ( t_type == "ins-out" || t_type == "ins-in"){
-            t_in_ins <- ins %>% filter(Ids %in% t_ids[[1]]) 
+            t_in_ins <- ins %>% filter(Ids %in% t_ids[[1]])
             ins_count <- ins_count - dim(t_in_ins)[1]
         }
         # Delins
         delin <- separated_indels %>% filter(Modification == "delin")
         delin_count <- dim(delin)[1]
         if ( t_type == "delin"){
-            t_in_delins <- delin %>% filter(Ids %in% t_ids[[1]]) 
+            t_in_delins <- delin %>% filter(Ids %in% t_ids[[1]])
             delin_count <- delin_count - dim(t_in_delins)[1]
         }
         # Indels out and in frame
-        all_outFrame_ins <- ins[ins$Length %% 3 != 0,] 
+        all_outFrame_ins <- ins[ins$Length %% 3 != 0,]
         out_frame_ins <- dim(all_outFrame_ins)[1]
         if ( t_type == "ins-out"){
-            t_in_ino <- all_outFrame_ins %>% filter(Ids %in% t_ids[[1]]) 
+            t_in_ino <- all_outFrame_ins %>% filter(Ids %in% t_ids[[1]])
             out_frame_ins <- out_frame_ins - dim(t_in_ino)[1]
         }
         all_inFrame_ins <- ins[ins$Length %% 3 == 0,]
         out_frame_dels <- dim(all_inFrame_ins)[1]
         if ( t_type == "dels-out"){
-            t_in_do <- all_outFrame_dels %>% filter(Ids %in% t_ids[[1]]) 
+            t_in_do <- all_outFrame_dels %>% filter(Ids %in% t_ids[[1]])
             out_frame_dels <- out_frame_dels - dim(t_in_do)[1]
         }
         all_inFrame_ins <- ins[ins$Length %% 3 == 0,]
         in_frame_ins <- dim(all_inFrame_ins)[1]
         if ( t_type == "ins-in"){
-            t_in_if <- all_inFrame_ins %>% filter(Ids %in% t_ids[[1]]) 
+            t_in_if <- all_inFrame_ins %>% filter(Ids %in% t_ids[[1]])
             in_frame_ins <- in_frame_ins - dim(t_in_if)[1]
         }
         all_inFrame_dels <- dels[dels$Length %% 3 == 0,]
         in_frame_dels <- dim(all_inFrame_dels)[1]
         if ( t_type == "dels-in"){
-            t_in_df <- all_inFrame_dels %>% filter(Ids %in% t_ids[[1]]) 
+            t_in_df <- all_inFrame_dels %>% filter(Ids %in% t_ids[[1]])
             in_frame_dels <- in_frame_dels - dim(t_in_df)[1]
         }
 
@@ -1151,7 +1151,7 @@ if (dim(alignment_info)[1] != 0){
     ### Processed reads plot
     reads_summary$counts <- unlist(lapply(1:length(reads_summary$counts), function(x){ as.numeric(strsplit(as.character(reads_summary$counts[x]), " ")[[1]][2]) }))
     reads_summary$parents = c("", "Raw reads", "Merged reads", "Quality filtered reads", "Clustered reads")
-    # Ignore merged class for single-end reads 
+    # Ignore merged class for single-end reads
     if( reads_summary %>% filter(classes == "Merged reads") %>% select(counts) == 0){
       reads_summary <- reads_summary %>% filter(!classes %in% "Merged reads")
       reads_summary$parents = c("", "Raw reads", "Quality filtered reads", "Clustered reads")
