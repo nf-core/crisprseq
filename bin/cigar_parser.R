@@ -1176,7 +1176,7 @@ if (dim(alignment_info)[1] != 0){
             textfont = list(color = '#000000', size = 20),
             marker = list(colors = c("#f2f2f2", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7")))
     }
-    htmlwidgets::saveWidget(as_widget(fig), paste0(results_path,"_reads.html"))
+    htmlwidgets::saveWidget(plotly::as_widget(fig), paste0(results_path,"_reads.html"))
 
     ### Indels quality
     prevc_summary$parents <- c("", "Aligned reads", "Aligned reads", "Wt", "Wt", "Indels", "Indels", "Indels passing filter", "Indels passing filter", "Indels passing filter", "Indels passing filter")
@@ -1190,7 +1190,7 @@ if (dim(alignment_info)[1] != 0){
         textfont = list(color = '#000000', size = 20),
         marker = list(colors = c("#f2f2f2", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7")))
 
-    htmlwidgets::saveWidget(as_widget(fig), paste0(results_path,"_QC-indels.html"))
+    htmlwidgets::saveWidget(plotly::as_widget(fig), paste0(results_path,"_QC-indels.html"))
 
     ### Kinds of edits plot
     edit_summary$parents = c("", "", "", "Indels", "Indels", "Indels", "Deletions", "Deletions", "Insertions", "Insertions")
@@ -1204,14 +1204,14 @@ if (dim(alignment_info)[1] != 0){
         textfont = list(color = '#000000', size = 20),
         marker = list(colors = c("#bebebe", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7")))
 
-    htmlwidgets::saveWidget(as_widget(fig), paste0(results_path,"_edition.html"))
+    htmlwidgets::saveWidget(plotly::as_widget(fig), paste0(results_path,"_edition.html"))
 
 }else{
     fig<-empty_plot("No alignments were produced.
     Please check your files and references")
-    htmlwidgets::saveWidget(as_widget(fig), paste0(results_path,"_edition.html"))
-    htmlwidgets::saveWidget(as_widget(fig), paste0(results_path,"_QC-indels.html"))
-    htmlwidgets::saveWidget(as_widget(fig), paste0(results_path,"_reads.html"))
+    htmlwidgets::saveWidget(plotly::as_widget(fig), paste0(results_path,"_edition.html"))
+    htmlwidgets::saveWidget(plotly::as_widget(fig), paste0(results_path,"_QC-indels.html"))
+    htmlwidgets::saveWidget(plotly::as_widget(fig), paste0(results_path,"_reads.html"))
     columns = c("Modification", "Start", "Length", "Ids", "above_error_rate", "in_pick", "freq", "Perc", "patterns", "pre_ins_nt", "ins_nt", "post_ins_nt", "sample", "cut_site","aligned_reads","wt_reads", "t_reads")
     separated_indels = data.frame(matrix(nrow = 1, ncol = length(columns)))
     colnames(separated_indels) = columns
