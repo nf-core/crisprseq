@@ -938,6 +938,7 @@ if (dim(alignment_info)[1] != 0){
         t_info <- templateCount(ref_fasta, reference_template, template_bam, collapsed_df, sample_id, corrected_cigar, alignment_info) ### corrected_cigar instead of alignment_info
         t_reads <- as.numeric(t_info[1])
         t_type <- t_info[2]
+        t_ids <- t_info[3]
         write.csv(t_info[3:length(t_info)],file=paste0(results_path, "_template-reads.csv"))
     } else {
         t_reads <- 0
@@ -954,7 +955,7 @@ if (dim(alignment_info)[1] != 0){
         indels_count <- dim(separated_indels)[1]
         if ( t_type == "ins-out" || t_type == "dels-out" || t_type == "ins-in" || t_type == "dels-in"){
             t_in_indels <- separated_indels %>% filter(Ids %in% t_ids[[1]])
-            indels_count <- indels_count -  - dim(t_in_indels)[1]
+            indels_count <- indels_count - dim(t_in_indels)[1]
         }
         dels <- separated_indels %>% filter(Modification == "del")
         dels_count <- dim(dels)[1]
@@ -1153,28 +1154,28 @@ if (dim(alignment_info)[1] != 0){
     reads_summary$parents = c("", "Raw reads", "Merged reads", "Quality filtered reads", "Clustered reads")
     # Ignore merged class for single-end reads
     if( reads_summary %>% filter(classes == "Merged reads") %>% select(counts) == 0){
-      reads_summary <- reads_summary %>% filter(!classes %in% "Merged reads")
-      reads_summary$parents = c("", "Raw reads", "Quality filtered reads", "Clustered reads")
-      fig <- plot_ly(reads_summary,
-                     labels = ~classes,
-                     parents = ~parents,
-                     values = ~counts,
-                     type = 'sunburst',
-                     branchvalues = 'total',
-                     textinfo = "label+percent entry",
-                     textfont = list(color = '#000000', size = 20),
-                     marker = list(colors = c("#f2f2f2", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7")))
+        reads_summary <- reads_summary %>% filter(!classes %in% "Merged reads")
+        reads_summary$parents = c("", "Raw reads", "Quality filtered reads", "Clustered reads")
+        fig <- plot_ly(reads_summary,
+            labels = ~classes,
+            parents = ~parents,
+            values = ~counts,
+            type = 'sunburst',
+            branchvalues = 'total',
+            textinfo = "label+percent entry",
+            textfont = list(color = '#000000', size = 20),
+            marker = list(colors = c("#f2f2f2", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7")))
     } else {
-      fig <- plot_ly(reads_summary,
-        labels = ~classes,
-        parents = ~parents,
-        values = ~counts,
-        type = 'sunburst',
-        branchvalues = 'total',
-        textinfo = "label+percent entry",
-        textfont = list(color = '#000000', size = 20),
-        marker = list(colors = c("#f2f2f2", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7")))
-
+        fig <- plot_ly(reads_summary,
+            labels = ~classes,
+            parents = ~parents,
+            values = ~counts,
+            type = 'sunburst',
+            branchvalues = 'total',
+            textinfo = "label+percent entry",
+            textfont = list(color = '#000000', size = 20),
+            marker = list(colors = c("#f2f2f2", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7")))
+    }
     htmlwidgets::saveWidget(as_widget(fig), paste0(results_path,"_reads.html"))
 
     ### Indels quality
