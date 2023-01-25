@@ -27,7 +27,7 @@ library(stringr)
 #### Empty Plots
 #######
 empty_plot <- function(title = NULL){
-    p <- plotly_empty(type = "scatter", mode = "markers") %>%
+    p <- plotly::plotly_empty(type = "scatter", mode = "markers") %>%
         plotly::config(
             displayModeBar = FALSE
         ) %>%
