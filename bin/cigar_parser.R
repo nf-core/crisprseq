@@ -953,7 +953,8 @@ if (dim(alignment_info)[1] != 0){
         # Indels
         indels_count <- dim(separated_indels)[1]
         if ( t_type == "ins-out" || t_type == "dels-out" || t_type == "ins-in" || t_type == "dels-in"){
-            indels_count <- indels_count - t_reads
+            t_in_indels <- separated_indels %>% filter(Ids %in% t_ids[[1]]) 
+            indels_count <- indels_count -  - dim(t_in_indels)[1]
         }
         dels <- separated_indels %>% filter(Modification == "del")
         dels_count <- dim(dels)[1]
@@ -963,30 +964,40 @@ if (dim(alignment_info)[1] != 0){
         ins <- separated_indels %>% filter(Modification == "ins")
         ins_count <- dim(ins)[1]
         if ( t_type == "ins-out" || t_type == "ins-in"){
-            ins_count <- ins_count - t_reads
+            t_in_ins <- ins %>% filter(Ids %in% t_ids[[1]]) 
+            ins_count <- ins_count - dim(t_in_ins)[1]
         }
         # Delins
         delin <- separated_indels %>% filter(Modification == "delin")
         delin_count <- dim(delin)[1]
         if ( t_type == "delin"){
-            delin_count <- delin_count - t_reads
+            t_in_delins <- delin %>% filter(Ids %in% t_ids[[1]]) 
+            delin_count <- delin_count - dim(t_in_delins)[1]
         }
         # Indels out and in frame
-        out_frame_ins <- dim(ins[ins$Length %% 3 != 0,])[1]
+        all_outFrame_ins <- ins[ins$Length %% 3 != 0,] 
+        out_frame_ins <- dim(all_outFrame_ins)[1]
         if ( t_type == "ins-out"){
-            out_frame_ins <- out_frame_ins - t_reads
+            t_in_ino <- all_outFrame_ins %>% filter(Ids %in% t_ids[[1]]) 
+            out_frame_ins <- out_frame_ins - dim(t_in_ino)[1]
         }
-        out_frame_dels <- dim(dels[dels$Length %% 3 != 0,])[1]
+        all_inFrame_ins <- ins[ins$Length %% 3 == 0,]
+        out_frame_dels <- dim(all_inFrame_ins)[1]
         if ( t_type == "dels-out"){
-            out_frame_dels <- out_frame_dels - t_reads
+            t_in_do <- all_outFrame_dels %>% filter(Ids %in% t_ids[[1]]) 
+            out_frame_dels <- out_frame_dels - dim(t_in_do)[1]
         }
-        in_frame_ins <- dim(ins[ins$Length %% 3 == 0,])[1]
+        all_inFrame_ins <- ins[ins$Length %% 3 == 0,]
+        in_frame_ins <- dim(all_inFrame_ins)[1]
         if ( t_type == "ins-in"){
-            in_frame_ins <- in_frame_ins - t_reads
+            t_in_if <- all_inFrame_ins %>% filter(Ids %in% t_ids[[1]]) 
+            in_frame_ins <- in_frame_ins - dim(t_in_if)[1]
         }
-        in_frame_dels <- dim(dels[dels$Length %% 3 == 0,])[1]
+        all_inFrame_dels <- dels[dels$Length %% 3 == 0,]
+        in_frame_dels <- dim(all_inFrame_dels)[1]
         if ( t_type == "dels-in"){
-            in_frame_dels <- in_frame_dels - t_reads
+            t_in_df <- all_inFrame_dels %>% filter(Ids %in% t_ids[[1]]) 
+            in_frame_dels <- in_frame_dels - dim(t_in_df)[1]
         }
 
         ########## Read counts
@@ -1140,7 +1151,21 @@ if (dim(alignment_info)[1] != 0){
     ### Processed reads plot
     reads_summary$counts <- unlist(lapply(1:length(reads_summary$counts), function(x){ as.numeric(strsplit(as.character(reads_summary$counts[x]), " ")[[1]][2]) }))
     reads_summary$parents = c("", "Raw reads", "Merged reads", "Quality filtered reads", "Clustered reads")
-    fig <- plot_ly(reads_summary,
+    # Ignore merged class for single-end reads 
+    if( reads_summary %>% filter(classes == "Merged reads") %>% select(counts) == 0){
+      reads_summary <- reads_summary %>% filter(!classes %in% "Merged reads")
+      reads_summary$parents = c("", "Raw reads", "Quality filtered reads", "Clustered reads")
+      fig <- plot_ly(reads_summary,
+                     labels = ~classes,
+                     parents = ~parents,
+                     values = ~counts,
+                     type = 'sunburst',
+                     branchvalues = 'total',
+                     textinfo = "label+percent entry",
+                     textfont = list(color = '#000000', size = 20),
+                     marker = list(colors = c("#f2f2f2", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7", "#9394f7")))
+    } else {
+      fig <- plot_ly(reads_summary,
         labels = ~classes,
         parents = ~parents,
         values = ~counts,
