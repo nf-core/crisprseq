@@ -28,7 +28,7 @@ library(stringr)
 #######
 empty_plot <- function(title = NULL){
     p <- plotly_empty(type = "scatter", mode = "markers") %>%
-        config(
+        plotly::config(
             displayModeBar = FALSE
         ) %>%
         plotly::layout(
