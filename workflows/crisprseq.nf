@@ -260,7 +260,8 @@ workflow CRISPRSEQ {
 
 
     /*
-    Remove this step by now as I don't have test data
+    The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
+
     //
     // MODULE: Extract UMI sequences
     //
@@ -268,7 +269,7 @@ workflow CRISPRSEQ {
         SEQTK_SEQ.out.fastx
     )
 
-    To implement for UMIs
+    Modules to implement:
 
     vsearch
     get_ubs
@@ -280,12 +281,14 @@ workflow CRISPRSEQ {
 
     */
 
-    // Dummy final UMI reads fastq
+    // Dummy process simulating the last UMi clustering step to obtain clusters as fastq
     DUMMY_FINAL_UMI {
         SEQTK_SEQ.out.fastx
     }
 
-    // Add clustering summary so R script doesn't fail
+    //
+    // MODULE: Summary of clustered reads
+    //
     CLUSTERING_SUMMARY (
         SEQTK_SEQ.out.fastx
             .join(MERGING_SUMMARY.out.summary)
