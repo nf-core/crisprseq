@@ -100,9 +100,7 @@ workflow CRISPRSEQ {
     .reads
     .map {
         meta, fastq ->
-            def meta_clone = meta.clone()
-            meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
-            [ meta_clone, fastq ]
+            [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
     }
     .groupTuple(by: [0])
     // Separate samples by the ones containing all reads in one file or the ones with many files to be concatenated
@@ -118,20 +116,16 @@ workflow CRISPRSEQ {
 
     INPUT_CHECK.out.reference
     .map {
-        meta, reference ->
-            def meta_clone = meta.clone()
-            meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
-            [ meta_clone, reference ]
+        meta, fastq ->
+            [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
     }
 
     // Add reference sequences to file
     SEQ_TO_FILE_REF (
         INPUT_CHECK.out.reference
         .map {
-        meta, reference ->
-            def meta_clone = meta.clone()
-            meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
-            [ meta_clone, reference ]
+            meta, fastq ->
+                [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
         },
         "reference"
     )
@@ -142,10 +136,8 @@ workflow CRISPRSEQ {
     SEQ_TO_FILE_TEMPL (
         INPUT_CHECK.out.template
         .map {
-        meta, template ->
-            def meta_clone = meta.clone()
-            meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
-            [ meta_clone, template ]
+            meta, fastq ->
+                [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
         },
         "template"
     )
@@ -155,10 +147,8 @@ workflow CRISPRSEQ {
     SEQ_TO_FILE_REF.out.file
         .join(INPUT_CHECK.out.protospacer
             .map {
-            meta, protospacer ->
-                def meta_clone = meta.clone()
-                meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
-                [ meta_clone, protospacer ]
+                meta, fastq ->
+                    [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
             },
             by: 0)
         .set{ reference_protospacer }
@@ -404,10 +394,8 @@ workflow CRISPRSEQ {
             .join(ORIENT_REFERENCE.out.reference)
             .join(INPUT_CHECK.out.protospacer
                 .map {
-                meta, protospacer ->
-                    def meta_clone = meta.clone()
-                    meta_clone.id = meta_clone.id.split('_')[0..-2].join('_')
-                    [ meta_clone, protospacer ]
+                    meta, fastq ->
+                        [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
                 }
             )
             .join(SEQ_TO_FILE_TEMPL.out.file)
