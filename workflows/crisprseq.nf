@@ -120,7 +120,9 @@ workflow CRISPRSEQ {
             [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
     }
 
-    // Add reference sequences to file
+    //
+    // MODULE: Add reference sequences to file
+    //
     SEQ_TO_FILE_REF (
         INPUT_CHECK.out.reference
         .map {
@@ -129,9 +131,10 @@ workflow CRISPRSEQ {
         },
         "reference"
     )
+    ch_versions = ch_versions.mix(SEQ_TO_FILE_REF.out.versions)
 
     //
-    // Add template sequences to file
+    // MODULE: Add template sequences to file
     //
     SEQ_TO_FILE_TEMPL (
         INPUT_CHECK.out.template
@@ -141,6 +144,7 @@ workflow CRISPRSEQ {
         },
         "template"
     )
+    ch_versions = ch_versions.mix(SEQ_TO_FILE_TEMPL.out.versions)
 
     // Join channels with reference and protospacer
     // to channel: [ meta, reference, protospacer]
@@ -201,6 +205,8 @@ workflow CRISPRSEQ {
     )
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
+    //
+    // MODULE: Find overrepresented sequences
     FIND_ADAPTERS (
         FASTQC.out.zip
     )
@@ -224,6 +230,7 @@ workflow CRISPRSEQ {
     CUTADAPT (
         ch_adapter_seqs.adapters
     )
+    ch_versions = ch_versions.mix(CUTADAPT.out.versions)
 
     ch_adapter_seqs.no_adapters
     .mix(CUTADAPT.out.reads)
@@ -240,8 +247,12 @@ workflow CRISPRSEQ {
     SEQTK_SEQ (
         ch_trimmed
     )
+    ch_versions = ch_versions.mix(SEQTK_SEQ.out.versions)
 
 
+    //
+    // MODULE: Summary of merged reads
+    //
     MERGING_SUMMARY {
         ch_cat_fastq.paired
             .mix(ch_cat_fastq.single)
@@ -307,6 +318,7 @@ workflow CRISPRSEQ {
             true
         )
         ch_mapped_bam = MINIMAP2_ALIGN.out.bam
+        ch_versions = ch_versions.mix(MINIMAP2_ALIGN.out.versions)
     }
 
     //
@@ -316,12 +328,14 @@ workflow CRISPRSEQ {
         BWA_INDEX (
             ORIENT_REFERENCE.out.reference.map { it[1] }
         )
+        ch_versions = ch_versions.mix(BWA_INDEX.out.versions)
         BWA_MEM (
             SEQTK_SEQ.out.fastx,
             BWA_INDEX.out.index,
             true
         )
         ch_mapped_bam = BWA_MEM.out.bam
+        ch_versions = ch_versions.mix(BWA_MEM.out.versions)
     }
 
     //
@@ -331,6 +345,7 @@ workflow CRISPRSEQ {
         BOWTIE2_BUILD (
             ORIENT_REFERENCE.out.reference.map { it[1] }
         )
+        ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
         BOWTIE2_ALIGN (
             SEQTK_SEQ.out.fastx,
             BOWTIE2_BUILD.out.index,
@@ -338,6 +353,7 @@ workflow CRISPRSEQ {
             true
         )
         ch_mapped_bam = BOWTIE2_ALIGN.out.bam
+        ch_versions = ch_versions.mix(BOWTIE2_ALIGN.out.versions)
     }
 
 
@@ -356,6 +372,7 @@ workflow CRISPRSEQ {
     SAMTOOLS_INDEX (
         ch_mapped_bam
     )
+    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
 
     //
     // MODULE: Obtain a new reference with the template modification
@@ -364,6 +381,7 @@ workflow CRISPRSEQ {
         ORIENT_REFERENCE.out.reference
             .join(SEQ_TO_FILE_TEMPL.out.file)
     )
+
 
     //
     // MODULE: Align new reference with the change led by template with original reference
@@ -387,6 +405,7 @@ workflow CRISPRSEQ {
             }
     }
     .set { ch_template_bam }
+    ch_versions = ch_versions.mix(MINIMAP2_ALIGN_TEMPLATE.out.versions)
 
     //
     // MODULE: Parse cigar to find edits
