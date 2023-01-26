@@ -5,6 +5,22 @@
     "description": "Pipeline for the analysis of crispr data",
     "type": "object",
     "definitions": {
+        "pipeline_parameters": {
+            "title": "Pipeline parameters",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "aligner": {
+                    "type": "string",
+                    "description": "Aligner program to use",
+                    "default": "minimap2",
+                    "fa_icon": "fas fa-align-justify",
+                    "enum": ["minimap2", "bwa", "bowtie2"]
+                }
+            },
+            "required": ["aligner"]
+        },
         "input_output_options": {
             "title": "Input/output options",
             "type": "object",
@@ -263,17 +279,14 @@
                     "description": "Show all params when using `--help`",
                     "hidden": true,
                     "help_text": "By default, parameters set as _hidden_ in the schema are not shown on the command line when a user runs with `--help`. Specifying this option will tell the pipeline to show all parameters."
-                },
-                "enable_conda": {
-                    "type": "boolean",
-                    "description": "Run this workflow with Conda. You can also use '-profile conda' instead of providing this parameter.",
-                    "hidden": true,
-                    "fa_icon": "fas fa-bacon"
                 }
             }
         }
     },
     "allOf": [
+        {
+            "$ref": "#/definitions/pipeline_parameters"
+        },
         {
             "$ref": "#/definitions/input_output_options"
         },
