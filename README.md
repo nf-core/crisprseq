@@ -15,6 +15,7 @@
 **nf-core/crisprseq** is a bioinformatics best-practice analysis pipeline for Pipeline for the analysis of CRISPR edited next generation sequencing (NGS) data. It allows the evaluation of the quality of gene editing experiments using targeted NGS data.
 
 nf-core/crisprseq can be used to analyse:
+
 - CRISPR gene knockouts (KO)
 - CRISPR knock-ins (KI)
 - Base editing (BE) and prime editing (PE) experiments
