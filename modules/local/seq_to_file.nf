@@ -15,6 +15,9 @@ process SEQ_TO_FILE {
     tuple val(meta), path('*.fasta') , emit: file
     path "versions.yml"              , emit: versions
 
+    when:
+    sequence != null
+
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"

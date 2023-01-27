@@ -39,7 +39,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - `*_reference.fasta`: Sequence used as a reference.
   - `*_template.fasta`: Provided template sequence.
   - `*_correctOrient.fasta`: Reference sequence in the correct orientation.
-  - `NewRef.fasta`: New reference generated from adding the changes made by the template to the original reference.
+  - `_NewReference.fasta`: New reference generated from adding the changes made by the template to the original reference.
   - `*_template-align.bam`: Alignment of the new reference (with template changes) to the original reference.
 
 </details>
