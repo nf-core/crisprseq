@@ -25,6 +25,7 @@ process TEMPLATE_REFERENCE {
         $args \\
         --reference=$reference \\
         --template=$template \\
+        --prefix=$prefix
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

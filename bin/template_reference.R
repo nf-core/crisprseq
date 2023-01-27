@@ -106,7 +106,9 @@ option_list = list(
     make_option(c("-r", "--reference"), type="character", default=NULL,
         help="Reference fasta file", metavar="character"),
     make_option(c("-t", "--template"), type="character", default=NULL,
-        help="Temporary folder", metavar="character")
+        help="Temporary folder", metavar="character"),
+    make_option(c("-p", "--prefix"), type="character", default=NULL,
+        help="Sample prefix", metavar="character")
 );
 
 opt_parser = OptionParser(option_list=option_list);
@@ -114,6 +116,7 @@ opt = parse_args(opt_parser);
 
 ref_fasta = opt$reference
 temp = opt$template
+prefix = opt$prefix
 
 ### Get template and reference sequences from fasta files
 temp_seq <- sread(readFasta(temp))[[1]]
@@ -121,4 +124,4 @@ ref_seq <- sread(readFasta(ref_fasta))[[1]]
 
 ### Generate new reference (reference with change done by the template)
 NewRef <- newReference(temp_seq, ref_seq)
-write.fasta(NewRef, "reference_template", file.out = "NewRef.fasta")
+write.fasta(NewRef, "reference_template", file.out = paste(prefix, "NewReference.fasta", sep="_"))
