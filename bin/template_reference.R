@@ -67,8 +67,8 @@ newReference <- function(template_sequence, reference_sequence){
         change_start <- end(subject(pairwiseAlignment(reference_sequence, left_arm, type="local")))
         change_end <- temp_aln_start
     } else {
-        # Has the whole template aligned or we have to look for the end of the right template?
-        if (nchar(aln) >= (nchar(template_sequence) - temp_aln_start + 1) || (ref_aln_end-1 == nchar(reference_sequence)) ){ # Whole template has aligned --> corrected in case template starts before reference. Or we have arrived to the end of reference
+        # Was the whole template aligned or do we have to look for the end of the right template?
+        if (nchar(aln) >= (nchar(template_sequence) - temp_aln_start + 1) || (ref_aln_end-1 == nchar(reference_sequence)) ){ # Whole template was aligned --> corrected case template starts before reference. Or we have arrived at the end of reference
             # Check if there is a deletion in the template. Otherwise, we have to take into account the deletion to jump its length in the reference
             if (!identical(width(insertion(aln))[[1]], integer(0))) {    ## There is a deletion in the template
                 ref_aln_end <- ref_aln_end + sum(width(insertion(aln))[[1]])

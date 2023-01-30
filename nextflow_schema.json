@@ -5,8 +5,8 @@
     "description": "Pipeline for the analysis of crispr data",
     "type": "object",
     "definitions": {
-        "pipeline_parameters": {
-            "title": "Pipeline parameters",
+        "alignment_parameters": {
+            "title": "Alignment parameters",
             "type": "object",
             "description": "",
             "default": "",

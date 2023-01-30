@@ -54,9 +54,9 @@ strComp=function(X){
 ignore_masked <- function(df_aln){
     # Ignore S and H at the beginning or end of the sequence
     new_cigar <- lapply(df_aln$cigar, function(x){
-            startS <- str_replace_all(x, "^\\d+[S|H]", "")
-            endS <- str_replace_all(startS, "\\d+[S|H]$", "")
-            return(endS)
+            start_s <- str_replace_all(x, "^\\d+[S|H]", "")
+            end_s <- str_replace_all(start_s, "\\d+[S|H]$", "")
+            return(end_s)
     })
     df_aln$cigar <- unlist(new_cigar)
 
@@ -69,13 +69,12 @@ ignore_masked <- function(df_aln){
 removeNotAlign <- function(df.summary){
     incorrect_aligns <- data.frame(matrix(ncol = 6, nrow = 0))
     colnames(incorrect_aligns) <- c("class", "cigar", "start", "length", "count", "ids")
-
-    not_aligned <- df.summary %>% filter(is.na(cigar))
+    df.summary <- df.summary %>% filter(!is.na(cigar))
+    not_aligned <- df.summary
     if (dim(not_aligned)[1] != 0){
         not_align_df <- data.frame("class" = rep("not_aligned", dim(not_aligned)[1]), "cigar" = not_aligned$cigar, "start" = rep("-", dim(not_aligned)[1]), "length" = rep("-", dim(not_aligned)[1]), "count" =    not_aligned$count, "ids" = not_aligned$ids)
         incorrect_aligns <- rbind(incorrect_aligns, not_align_df)
     }
-    df.summary <- df.summary %>% filter(!is.na(cigar))
     results <- list(df.summary, incorrect_aligns)
     return(results)
 }
@@ -258,8 +257,8 @@ error_rate_filter <- function(indel_count, indel_reads, wt){
             each_ins_group <- indel_reads %>% filter(Start == as.numeric(ins_grouped[i,]$Start)) %>% filter(Length == ins_grouped[i,]$Length) %>% filter(Modification == ins_grouped[i,]$Modification)
 
             ## Insertions
-            cigar_test <- bam[[1]]$cigar[which(bam[[1]]$qname %in% each_ins_group$Ids)]
-            qual_test <- bam[[1]]$qual[which(bam[[1]]$qname %in% each_ins_group$Ids)]
+            cigar_test <- bam[[1]]$cigar[bam[[1]]$qname %in% each_ins_group$Ids]
+            qual_test <- bam[[1]]$qual[bam[[1]]$qname %in% each_ins_group$Ids]
             c_l <- explodeCigarOpLengths(cigar_test)
             c_t <- explodeCigarOps(cigar_test)
 
@@ -351,7 +350,6 @@ error_rate_filter <- function(indel_count, indel_reads, wt){
 pick_filter <- function(indels_dataset){
     dels <- indels_dataset %>% filter(Modification == "del")
     # Count accumulated insertions and deletions by position
-    accum.dels=c()
     accum.dels=unlist(apply(dels,1,function(X) return( seq(as.integer(X[2]), as.integer(X[2]) + as.integer(X[3])) )))
     # Get intervals of consecutive edited positions
     intervals_list <- list("start")
@@ -453,7 +451,11 @@ classify_deletions <- function(dels_classes, reference){
     # Get the deletions sequences
     ref_seq <- as.character(sread(reference)[[1]])
     del_sequences <- lapply(c(1:dim(dels_classes)[1]), function(line) {
-        ref_deleted <- paste0(substr(x = ref_seq, start = 1, stop = dels_classes[line,]$Start-1), paste(rep("-", dels_classes[line,]$Length), collapse = ""), substr(x = ref_seq, start = dels_classes[line,]$Start+dels_classes[line,]$Length, stop = nchar(ref_seq)))
+        ref_deleted <- paste0(
+            substr(x = ref_seq, start = 1, stop = dels_classes[line,]$Start-1), 
+            paste(rep("-", dels_classes[line,]$Length), collapse = ""), 
+            substr(x = ref_seq, start = dels_classes[line,]$Start+dels_classes[line,]$Length, stop = nchar(ref_seq))
+        )
         del_nts <- substr(x = ref_seq, start = dels_classes[line,]$Start, stop = dels_classes[line,]$Start+dels_classes[line,]$Length-1)
         return(list(ref_deleted, del_nts))
     })
@@ -683,7 +685,7 @@ templateCount <- function(ori_ref_file, new_ref_temp, template_bam, readsAlnInfo
                     s <- mismatchTable(aln)$PatternStart[1]
                     e <- mismatchTable(aln)$PatternStart[length(mismatchTable(aln)$PatternStart)]
                     ### Filter alignments without indels (candidates to find template-based substitutions and previously characterized as wt)
-                    aln_cl=explodeCigarOpLengths(alnCompleteInfo_corrected$cigar) ##### Here is important to remove S!!! alnCompleteInfo <-- corrected
+                    aln_cl=explodeCigarOpLengths(alnCompleteInfo_corrected$cigar) ##### Here it is important to remove S!!! alnCompleteInfo <-- corrected
                     aln_m <- which(lapply(aln_cl, function(x){length(x)==1}) == TRUE)
                     not_indels_alins <- alnCompleteInfo_NOTcorrected[aln_m,] ####### without removing S previously!!
                     ### Get the correction factor for each read in function of it S
@@ -706,7 +708,7 @@ templateCount <- function(ori_ref_file, new_ref_temp, template_bam, readsAlnInfo
 ############
 spikes_correction <- function(vc_indels){
     ########
-    ### Function to get number of reads correcting by insert length biases in amplification. The proportion of over estimated reads in function of the change length will be removed from dataframe
+    ### Function to get number of reads correcting by insert length biases in amplification. The proportion of over-estimated reads in function of the change length will be removed from dataframe.
     ########
     #
     correction_factor <- 0.156
@@ -747,7 +749,7 @@ option_list = list(
     make_option(c("-t", "--template"), type="character", default=NULL,
         help="Temporary folder", metavar="character"),
     make_option(c("-w", "--reference_template"), type="character", default=NULL,
-        help="Fasta file with the reference with changes applyed by the template", metavar="character"),
+        help="Fasta file with the reference with changes applied by the template", metavar="character"),
     make_option(c("-s", "--spikes"), type="character", default=NULL,
         help="If the sample is an spikes experiment [yes or no]", metavar="character"),
     make_option(c("-f", "--summary_file"), type="character", default=NULL,
@@ -807,16 +809,13 @@ if (substr(data_path, nchar(data_path)-2, nchar(data_path)) == "bam"){
     alignment_info <- data.frame()
 }
 
-#If the alignment file is empty let's create empty documents to avoid the crush of the pipeline
+#If the alignment file is empty let's create empty documents to avoid a crash of the pipeline
 if (dim(alignment_info)[1] != 0){
     #### Trim masked nucleotides from alignments and remove not aligned reads
     corrected_cigar <- ignore_masked(alignment_info)
     collapsed_df <- corrected_cigar %>% group_by(cigar, pos) %>% dplyr::summarise(count = n(), ids = paste0(id, collapse = ","))
     incorrect_aln <- data.frame(matrix(ncol = 6, nrow = 0))
     colnames(incorrect_aln) <- c("class", "cigar", "start", "length", "count", "ids")
-    # collapsed_df_aligned <- removeNotAlign(collapsed_df) ### These lines are not necessary when the bam file is filtered by primary alignments
-    # collapsed_df <- collapsed_df_aligned[[1]]
-    # incorrect_aln <- collapsed_df_aligned[[2]]
 
     #### Classify the alignments into indels, wt, truncated alignments and not enough long alignment to be considered wt
     vc_result <- variant_call(collapsed_df, incorrect_aln)
@@ -826,7 +825,6 @@ if (dim(alignment_info)[1] != 0){
     incorrect_wt <- vc_result[[4]]
     incorrect_aln <- vc_result[[5]]
 
-    #### Check if there is a germ line variant that is "truncating" our alignments
 
 
     #### Re-classify reads with more than one indel
@@ -917,20 +915,8 @@ if (dim(alignment_info)[1] != 0){
         }
 
 
-        ##### Save reads with indels and stimated percentage of edition
-
-        #Now is placed down after Save edits count
-
-        # edition <- (dim(separated_indels)[1]/(dim(separated_indels)[1]+wt_reads))*100
-        # write.csv(edition,file=paste0(results_path, "_edit-perc.csv"))
 
     }
-    #else {
-    ##### Save reads with indels and stimated percentage of edition
-    # write.csv("edits-not-found",file=paste0(results_path, "_indels.csv"))
-    # edition <- 0
-    # write.csv(edition,file=paste0(results_path, "_edit-perc.csv"))
-    #}
 
     ########### Template-based edition
     ### If there is a template sequence, let's see how many reads are template based
@@ -946,9 +932,6 @@ if (dim(alignment_info)[1] != 0){
     }
 
     ##### Get SNPs from ensembl in the amplicon sequence
-    # organisme_genome <- "human" ## the other option is mouse
-    # SNPs <- get_SNPs(ref_sread, organisme_genome)
-
     ########### Edition counts
     if (dim(all_indels)[1] > 0 ) {
         # Indels

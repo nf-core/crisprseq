@@ -12,7 +12,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 - [Preprocessing](#preprocessing)
   - [Sequences](#sequences) - Input sequence preparation (reference, protospacer, template)
-  - [cat](#cat) - Concatenate sample fastq files if requiered
+  - [cat](#cat) - Concatenate sample fastq files if required
   - [Pear](#pear) - Join double-end reads if required
   - [FastQC](#fastqc) - Read Quality Control
   - [Adapters](#adapters) - Find adapters (Overrepresented sequences) in reads
@@ -108,7 +108,7 @@ If multiple libraries/runs have been provided for the same sample in the input s
 
 </details>
 
-[FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) finds overrepresented sequences found in samples. It lists all of the sequence which make up more than 0.1% of the total. For each overrepresented sequence the program will look for matches in a database of common contaminants and will report the best hit it finds. Hits must be at least 20bp in length and have no more than 1 mismatch.
+[FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) finds over-represented sequences in samples. It lists all of the sequence which make up more than 0.1% of the total reads. For each over-represented sequence the program will look for matches in a database of common contaminants and will report the best hit it finds. Hits must be at least 20bp in length and have no more than 1 mismatch.
 
 ### Cutadapt
 
@@ -186,8 +186,8 @@ If multiple libraries/runs have been provided for the same sample in the input s
 - `cigar/`
   - `*_cutSite.json`: Contains the protospacer cut site position in the reference.
   - `*_edition.html`: Interactive pie chart with the percentage of edition types. Reads are classified between WT (without an edit) and indels. Indes are divided between deletions, insertions and delins (deletion + insertion). Deletions and insertions can be out of frame or in frame.
-  - `*_edits.csv`: Table containing the data for the edition pie chart.
-  - `*_indels.csv`: Table containing information of all reads. Edit tipe, edit start and length, if the edition happens above the error rate, if it's located into the common eddit window, the frequence, the percentage, the pattern, surrounding nucleotides in case of insertions, the protospacer cut site, the sample id, number of aligned reads and number of reads with and without a template modification.
+  - `*_edits.csv`: Table containing the data visualized in the pie chart.
+  - `*_indels.csv`: Table containing information of all reads. Edit type, edit start and length, if the edition happens above the error rate, if it's located into the common edit window, the frequency, the percentage, the pattern, surrounding nucleotides in case of insertions, the protospacer cut site, the sample id, number of aligned reads and number of reads with and without a template modification.
   - `*_QC-indels.html`: Interactive pie chart with information about aligned reads. Reads are classified between WT and containing indels. Both types are classified between passing the filtering steps or not. Indel reads passing the filtering steps are divided in reads with a modification above the error rate and located in the common edit window, above the error rate but not in the edit region, viceversa, or any of those conditions.
   - `*_reads.html`: Interactive pie chart with percentage of the number of raw reads, reads merged with Pear, reads passing quality filters and UMI clustered reads.
   - `*_subs-perc.csv`: Table containing the percentage of each nucleotide found for each reference position.
