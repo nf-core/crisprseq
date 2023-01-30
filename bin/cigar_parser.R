@@ -18,6 +18,7 @@ library(dplyr)
 library(ShortRead)
 library(jsonlite)
 library(stringr)
+library(plotly)
 
 
 #################
@@ -758,8 +759,8 @@ option_list = list(
         help="gRNA sequence", metavar="character"),
     make_option(c("-n", "--sample_name"), type="character", default=NULL,
         help="Sample ID", metavar="character"),
-    make_option(c("--template_bool"), type="character", default=NULL,
-        help="true/false if a template was provided", metavar="character"),
+    make_option(c("--template_bool"), type="logical", default=FALSE,
+        action="store_true", help="set to true if a template was provided"),
     make_option(c("-b", "--template_bam"), type="character", default=NULL,
         help="Bam file resulting of the alignment between the new reference (with template change) against the original reference",
         metavar="character"),
@@ -767,8 +768,8 @@ option_list = list(
         help="Temporary folder", metavar="character"),
     make_option(c("-w", "--reference_template"), type="character", default=NULL,
         help="Fasta file with the reference with changes applied by the template", metavar="character"),
-    make_option(c("-s", "--spikes"), type="character", default=NULL,
-        help="If the sample is an spikes experiment [yes or no]", metavar="character"),
+    make_option(c("-s", "--spikes"), type="logical", default=FALSE,
+        action="store_true", help="Set to true if the sample is an spikes experiment"),
     make_option(c("-f", "--summary_file"), type="character", default=NULL,
         help="Output summary file name", metavar="character"),
     make_option(c("-c", "--cut_site"), type="numeric", default=NULL,
@@ -1147,7 +1148,6 @@ if (dim(alignment_info)[1] != 0){
     ########
     ### Interactive plots
     #########
-    library(plotly)
 
     ### Processed reads plot
     reads_summary$counts <- unlist(lapply(1:length(reads_summary$counts), function(x){ as.numeric(strsplit(as.character(reads_summary$counts[x]), " ")[[1]][2]) }))
