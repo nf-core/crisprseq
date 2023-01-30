@@ -186,10 +186,13 @@ If multiple libraries/runs have been provided for the same sample in the input s
 - `cigar/`
   - `*_cutSite.json`: Contains the protospacer cut site position in the reference.
   - `*_edition.html`: Interactive pie chart with the percentage of edition types. Reads are classified between WT (without an edit) and indels. Indes are divided between deletions, insertions and delins (deletion + insertion). Deletions and insertions can be out of frame or in frame.
+  ![Test sample hCas9-AAVS1-a edition plot](images/hCas9-AAVS1-a_edition.png)
   - `*_edits.csv`: Table containing the data visualized in the pie chart.
   - `*_indels.csv`: Table containing information of all reads. Edit type, edit start and length, if the edition happens above the error rate, if it's located into the common edit window, the frequency, the percentage, the pattern, surrounding nucleotides in case of insertions, the protospacer cut site, the sample id, number of aligned reads and number of reads with and without a template modification.
   - `*_QC-indels.html`: Interactive pie chart with information about aligned reads. Reads are classified between WT and containing indels. Both types are classified between passing the filtering steps or not. Indel reads passing the filtering steps are divided in reads with a modification above the error rate and located in the common edit window, above the error rate but not in the edit region, viceversa, or any of those conditions.
+  ![Test sample hCas9-AAVS1-a QC indels plot](images/hCas9-AAVS1-a_QC-indels.png)
   - `*_reads.html`: Interactive pie chart with percentage of the number of raw reads, reads merged with Pear, reads passing quality filters and UMI clustered reads.
+  ![Test sample hCas9-AAVS1-a reads plot](images/hCas9-AAVS1-a_reads.png)
   - `*_subs-perc.csv`: Table containing the percentage of each nucleotide found for each reference position.
 
 </details>
