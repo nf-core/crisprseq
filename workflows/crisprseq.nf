@@ -407,23 +407,39 @@ workflow CRISPRSEQ {
     .set { ch_template_bam }
     ch_versions = ch_versions.mix(MINIMAP2_ALIGN_TEMPLATE.out.versions)
 
+    ch_mapped_bam
+        .join(SAMTOOLS_INDEX.out.bai)
+        .join(ORIENT_REFERENCE.out.reference)
+        .join(INPUT_CHECK.out.protospacer
+            .map {
+                meta, fastq ->
+                    [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
+            }
+        )
+        .join(SEQ_TO_FILE_TEMPL.out.file, remainder: true)
+        .join(ch_template_bam, remainder: true)
+        .join(TEMPLATE_REFERENCE.out.fasta, remainder: true)
+        .join(ALIGNMENT_SUMMARY.out.summary)
+        .map { meta, reads, index, reference, protospacer, template, template_bam, reference_template, summary ->
+            if (template == null) {
+                template = file('null_t')
+            }
+            if (template_bam == null) {
+                template_bam = file('null_b')
+            }
+            if (reference_template == null) {
+                reference_template = file('null_r')
+            }
+            return [meta, reads, index, reference, protospacer, template, template_bam, reference_template, summary]
+        }
+        .set { ch_to_parse_cigar }
+
+
     //
     // MODULE: Parse cigar to find edits
     //
     CIGAR_PARSER (
-        ch_mapped_bam
-            .join(SAMTOOLS_INDEX.out.bai)
-            .join(ORIENT_REFERENCE.out.reference)
-            .join(INPUT_CHECK.out.protospacer
-                .map {
-                    meta, fastq ->
-                        [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
-                }
-            )
-            .join(SEQ_TO_FILE_TEMPL.out.file)
-            .join(ch_template_bam)
-            .join(TEMPLATE_REFERENCE.out.fasta)
-            .join(ALIGNMENT_SUMMARY.out.summary)
+        ch_to_parse_cigar
     )
 
 
