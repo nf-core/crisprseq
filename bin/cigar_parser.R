@@ -4,6 +4,7 @@
 #### Gene editing variant calling --> Parser CIGAR
 #### author: Marta Sanvicente
 #### modified by: @mirpedrol
+#### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
 ############################
 
 Sys.setenv(HOME="/root")
@@ -253,33 +254,49 @@ error_rate_filter <- function(indel_count, indel_reads, wt){
     ## Insertions
     good_qual_ins <- c()
     if (dim(ins_grouped)[1] > 0){
-        for (i in c(1:dim(ins_grouped)[1])){
-            each_ins_group <- indel_reads %>% filter(Start == as.numeric(ins_grouped[i,]$Start)) %>% filter(Length == ins_grouped[i,]$Length) %>% filter(Modification == ins_grouped[i,]$Modification)
+        good_qual_ins <- c()
+        each_ins_group <- lapply(1:nrow(ins_grouped), function(i) {
+            indel_reads %>% filter(Start == as.numeric(ins_grouped[i,]$Start)) %>%
+                filter(Length == ins_grouped[i,]$Length) %>%
+                filter(Modification == ins_grouped[i,]$Modification)
+        })
 
-            ## Insertions
-            cigar_test <- bam[[1]]$cigar[bam[[1]]$qname %in% each_ins_group$Ids]
-            qual_test <- bam[[1]]$qual[bam[[1]]$qname %in% each_ins_group$Ids]
-            c_l <- explodeCigarOpLengths(cigar_test)
-            c_t <- explodeCigarOps(cigar_test)
+        ## Insertions
+        cigar_test <- bam[[1]]$cigar[bam[[1]]$qname %in% unlist(lapply(each_ins_group, function(x) x$Ids))]
+        qual_test <- bam[[1]]$qual[bam[[1]]$qname %in% unlist(lapply(each_ins_group, function(x) x$Ids))]
+        c_l <- lapply(cigar_test, explodeCigarOpLengths)
+        c_t <- lapply(cigar_test, explodeCigarOps)
 
-            pos <- lapply(1:length(c_l), function(row){
-                sum(c_l[[row]][1:( which(c_t[[row]] == "I")) - 1])
+        pos <- lapply(c_l, function(cl) {
+            sapply(1:length(cl), function(row) {
+                which_I <- which(c_t[[row]] == "I")
+                if (length(which_I) == 0) {
+                    0
+                } else {
+                    sum(cl[[row]][1:(which_I[1]) - 1])
+                }
             })
+        })
 
-            phred <- lapply(1:length(pos), function(each) {
-                substr(as.character(qual_test[[each]]), pos[[each]], pos[[each]])
+        phred <- lapply(pos, function(p) {
+            lapply(1:length(p), function(each) {
+                substr(as.character(qual_test[[each]]), p[[each]], p[[each]])
             })
+        })
 
-            Q <-    lapply(1:length(phred), function(q) {
-                as.numeric(charToRaw(phred[[q]]))-33
+        Q <- lapply(phred, function(q) {
+            lapply(1:length(q), function(q_i) {
+                as.numeric(charToRaw(q[[q_i]])) - 33
             })
+        })
 
-            P <- lapply(1:length(Q), function(p) {
-                10^(-Q[[p]]/10)
+        P <- lapply(Q, function(p) {
+            lapply(1:length(p), function(p_i) {
+                10^(-p[[p_i]]/10)
             })
+        })
 
-            good_qual_ins <- c(good_qual_ins, dim(each_ins_group)[1]/(dim(indel_reads)[1]+wt) > mean(unlist(P)))
-        }
+        good_qual_ins <- c(good_qual_ins, unlist(lapply(each_ins_group, function(x) dim(x)[1] / (dim(indel_reads)[1] + wt) > mean(unlist(P)))))
         filt_ins <- ins_grouped[good_qual_ins,]
     } else {
         filt_ins <- c()
@@ -452,8 +469,8 @@ classify_deletions <- function(dels_classes, reference){
     ref_seq <- as.character(sread(reference)[[1]])
     del_sequences <- lapply(c(1:dim(dels_classes)[1]), function(line) {
         ref_deleted <- paste0(
-            substr(x = ref_seq, start = 1, stop = dels_classes[line,]$Start-1), 
-            paste(rep("-", dels_classes[line,]$Length), collapse = ""), 
+            substr(x = ref_seq, start = 1, stop = dels_classes[line,]$Start-1),
+            paste(rep("-", dels_classes[line,]$Length), collapse = ""),
             substr(x = ref_seq, start = dels_classes[line,]$Start+dels_classes[line,]$Length, stop = nchar(ref_seq))
         )
         del_nts <- substr(x = ref_seq, start = dels_classes[line,]$Start, stop = dels_classes[line,]$Start+dels_classes[line,]$Length-1)
