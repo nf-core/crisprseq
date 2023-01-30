@@ -2,6 +2,9 @@
 
 ############################
 #### author: Marta Sanvicente
+#### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
+####
+#### Orient a reference sequence according to reads orientation.
 ############################
 
 args = commandArgs(trailingOnly=TRUE)
