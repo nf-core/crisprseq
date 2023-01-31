@@ -255,32 +255,33 @@ error_rate_filter <- function(indel_count, indel_reads, wt){
     ## Insertions
     good_qual_ins <- c()
     if (dim(ins_grouped)[1] > 0){
-        lapply(1:dim(ins_grouped)[1], function(i) {
-            each_ins_group <- indel_reads %>% filter(Start == as.numeric(ins_grouped[i,]$Start)) %>% filter(Length == ins_grouped[i,]$Length) %>% filter(Modification == ins_grouped[i,]$Modification)
+        lapply(1:nrow(ins_grouped), function(i) {
+            each_ins_group <- indel_reads[indel_reads$Start == as.numeric(ins_grouped[i, "Start"]) &
+                                        indel_reads$Length == ins_grouped[i, "Length"] &
+                                        indel_reads$Modification == ins_grouped[i, "Modification"], ]
 
-            ## Insertions
             cigar_test <- bam[[1]]$cigar[bam[[1]]$qname %in% each_ins_group$Ids]
             qual_test <- bam[[1]]$qual[bam[[1]]$qname %in% each_ins_group$Ids]
             c_l <- explodeCigarOpLengths(cigar_test)
             c_t <- explodeCigarOps(cigar_test)
 
-            pos <- lapply(1:length(c_l), function(row){
-                sum(c_l[[row]][1:( which(c_t[[row]] == "I")) - 1])
+            pos <- sapply(seq_along(c_l), function(row) {
+                sum(c_l[[row]][1:(which(c_t[[row]] == "I")) - 1])
             })
 
-            phred <- lapply(1:length(pos), function(each) {
+            phred <- sapply(seq_along(pos), function(each) {
                 substr(as.character(qual_test[[each]]), pos[[each]], pos[[each]])
             })
 
-            Q <-    lapply(1:length(phred), function(q) {
-                as.numeric(charToRaw(phred[[q]]))-33
+            Q <- sapply(seq_along(phred), function(q) {
+                as.numeric(charToRaw(phred[[q]])) - 33
             })
 
-            P <- lapply(1:length(Q), function(p) {
-                10^(-Q[[p]]/10)
+            P <- sapply(seq_along(Q), function(p) {
+                10^(-Q[[p]] / 10)
             })
 
-            good_qual_ins <- c(good_qual_ins, dim(each_ins_group)[1]/(dim(indel_reads)[1]+wt) > mean(unlist(P)))
+            good_qual_ins <- c(good_qual_ins, dim(each_ins_group)[1] / (dim(indel_reads)[1] + wt) > mean(unlist(P)))
         })
         filt_ins <- ins_grouped[good_qual_ins,]
     } else {
