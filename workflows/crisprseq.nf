@@ -183,8 +183,7 @@ workflow CRISPRSEQ {
                 return [ meta, fastq ]
     }
     .set { ch_cat_fastq }
-    // comment version as there is an error (cat version is "cat: cat:")
-    //ch_versions = ch_versions.mix(CAT_FASTQ.out.versions.first().ifEmpty(null))
+    ch_versions = ch_versions.mix(CAT_FASTQ.out.versions)
 
     //
     // MODULE: Merge paired-end reads
