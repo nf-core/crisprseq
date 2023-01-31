@@ -285,7 +285,7 @@
     },
     "allOf": [
         {
-            "$ref": "#/definitions/pipeline_parameters"
+            "$ref": "#/definitions/alignment_parameters"
         },
         {
             "$ref": "#/definitions/input_output_options"

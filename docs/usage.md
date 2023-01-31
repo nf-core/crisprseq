@@ -31,7 +31,7 @@ CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz,G
 
 The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 6 columns to match those defined in the table below.
 
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 3 samples, where `chr6` is single-end and has a template sequence _(this is a reduced samplesheet, please refer to the pipeline example saplesheet to see the full version)_.
+A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 3 samples, where `chr6` is single-end and has a template sequence _(this is a reduced samplesheet, please refer to the [pipeline example saplesheet](https://nf-co.re/crisprseq/1.0/assets/samplesheet.csv) to see the full version)_.
 
 ```console
 sample,fastq_1,fastq_2,reference,protospacer,template
@@ -49,7 +49,7 @@ chr6,chr6-61942198-61942498_R1.fastq.gz,,CAA...GGA,TTTTATGATATTTATCTTTT,TTC...CA
 | `protospacer` | Sequence of the protospacer used for CRISPR editing. Must not includ the PAM.                                                                                                          |
 | `template`    | Sequence of the template used in templet-based editing experiments.                                                                                                                    |
 
-An [example samplesheet](https://nf-co.re/crisprseq/dev/assets/samplesheet.csv) has been provided with the pipeline.
+An [example samplesheet](https://nf-co.re/crisprseq/1.0/assets/samplesheet.csv) has been provided with the pipeline.
 
 ## Running the pipeline
 

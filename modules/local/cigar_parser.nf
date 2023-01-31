@@ -22,6 +22,7 @@ process CIGAR_PARSER {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def template_bool = "${meta.template}" ? "--template_bool" : ""
     """
     cigar_parser.R \\
         $args \\
@@ -31,10 +32,10 @@ process CIGAR_PARSER {
         --gRNA_sequence=$protospacer \\
         --sample_name=$prefix \\
         --reference_template=$reference_template\\
-        --template_bool=$meta.template \\
         --template_bam=$template_bam\\
         --template=$template \\
-        --summary_file=$summary
+        --summary_file=$summary \\
+        $template_bool
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

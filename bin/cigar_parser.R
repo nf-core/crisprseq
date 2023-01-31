@@ -4,6 +4,7 @@
 #### Gene editing variant calling --> Parser CIGAR
 #### author: Marta Sanvicente
 #### modified by: @mirpedrol
+#### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
 ############################
 
 Sys.setenv(HOME="/root")
@@ -17,6 +18,7 @@ library(dplyr)
 library(ShortRead)
 library(jsonlite)
 library(stringr)
+library(plotly)
 
 
 #################
@@ -253,33 +255,34 @@ error_rate_filter <- function(indel_count, indel_reads, wt){
     ## Insertions
     good_qual_ins <- c()
     if (dim(ins_grouped)[1] > 0){
-        for (i in c(1:dim(ins_grouped)[1])){
-            each_ins_group <- indel_reads %>% filter(Start == as.numeric(ins_grouped[i,]$Start)) %>% filter(Length == ins_grouped[i,]$Length) %>% filter(Modification == ins_grouped[i,]$Modification)
+        lapply(1:nrow(ins_grouped), function(i) {
+            each_ins_group <- indel_reads[indel_reads$Start == as.numeric(ins_grouped[i, "Start"]) &
+                                        indel_reads$Length == ins_grouped[i, "Length"] &
+                                        indel_reads$Modification == ins_grouped[i, "Modification"], ]
 
-            ## Insertions
             cigar_test <- bam[[1]]$cigar[bam[[1]]$qname %in% each_ins_group$Ids]
             qual_test <- bam[[1]]$qual[bam[[1]]$qname %in% each_ins_group$Ids]
             c_l <- explodeCigarOpLengths(cigar_test)
             c_t <- explodeCigarOps(cigar_test)
 
-            pos <- lapply(1:length(c_l), function(row){
-                sum(c_l[[row]][1:( which(c_t[[row]] == "I")) - 1])
+            pos <- sapply(seq_along(c_l), function(row) {
+                sum(c_l[[row]][1:(which(c_t[[row]] == "I")) - 1])
             })
 
-            phred <- lapply(1:length(pos), function(each) {
+            phred <- sapply(seq_along(pos), function(each) {
                 substr(as.character(qual_test[[each]]), pos[[each]], pos[[each]])
             })
 
-            Q <-    lapply(1:length(phred), function(q) {
-                as.numeric(charToRaw(phred[[q]]))-33
+            Q <- sapply(seq_along(phred), function(q) {
+                as.numeric(charToRaw(phred[[q]])) - 33
             })
 
-            P <- lapply(1:length(Q), function(p) {
-                10^(-Q[[p]]/10)
+            P <- sapply(seq_along(Q), function(p) {
+                10^(-Q[[p]] / 10)
             })
 
-            good_qual_ins <- c(good_qual_ins, dim(each_ins_group)[1]/(dim(indel_reads)[1]+wt) > mean(unlist(P)))
-        }
+            good_qual_ins <- c(good_qual_ins, dim(each_ins_group)[1] / (dim(indel_reads)[1] + wt) > mean(unlist(P)))
+        })
         filt_ins <- ins_grouped[good_qual_ins,]
     } else {
         filt_ins <- c()
@@ -452,8 +455,8 @@ classify_deletions <- function(dels_classes, reference){
     ref_seq <- as.character(sread(reference)[[1]])
     del_sequences <- lapply(c(1:dim(dels_classes)[1]), function(line) {
         ref_deleted <- paste0(
-            substr(x = ref_seq, start = 1, stop = dels_classes[line,]$Start-1), 
-            paste(rep("-", dels_classes[line,]$Length), collapse = ""), 
+            substr(x = ref_seq, start = 1, stop = dels_classes[line,]$Start-1),
+            paste(rep("-", dels_classes[line,]$Length), collapse = ""),
             substr(x = ref_seq, start = dels_classes[line,]$Start+dels_classes[line,]$Length, stop = nchar(ref_seq))
         )
         del_nts <- substr(x = ref_seq, start = dels_classes[line,]$Start, stop = dels_classes[line,]$Start+dels_classes[line,]$Length-1)
@@ -741,8 +744,8 @@ option_list = list(
         help="gRNA sequence", metavar="character"),
     make_option(c("-n", "--sample_name"), type="character", default=NULL,
         help="Sample ID", metavar="character"),
-    make_option(c("--template_bool"), type="character", default=NULL,
-        help="true/false if a template was provided", metavar="character"),
+    make_option(c("--template_bool"), type="logical", default=FALSE,
+        action="store_true", help="set to true if a template was provided"),
     make_option(c("-b", "--template_bam"), type="character", default=NULL,
         help="Bam file resulting of the alignment between the new reference (with template change) against the original reference",
         metavar="character"),
@@ -750,14 +753,14 @@ option_list = list(
         help="Temporary folder", metavar="character"),
     make_option(c("-w", "--reference_template"), type="character", default=NULL,
         help="Fasta file with the reference with changes applied by the template", metavar="character"),
-    make_option(c("-s", "--spikes"), type="character", default=NULL,
-        help="If the sample is an spikes experiment [yes or no]", metavar="character"),
+    make_option(c("-s", "--spikes"), type="logical", default=FALSE,
+        action="store_true", help="Set to true if the sample is an spikes experiment"),
     make_option(c("-f", "--summary_file"), type="character", default=NULL,
         help="Output summary file name", metavar="character"),
     make_option(c("-c", "--cut_site"), type="numeric", default=NULL,
         help="Cut position", metavar="numeric"),
-    make_option(c("-m", "--mock"), type="character", default=NULL,
-        help="Mock data", metavar="character")
+    make_option(c("-m", "--mock"), type="logical", default=FALSE,
+        action="store_true", help="Set if the sample is a mock sample")
 );
 
 opt_parser = OptionParser(option_list=option_list);
@@ -1130,7 +1133,6 @@ if (dim(alignment_info)[1] != 0){
     ########
     ### Interactive plots
     #########
-    library(plotly)
 
     ### Processed reads plot
     reads_summary$counts <- unlist(lapply(1:length(reads_summary$counts), function(x){ as.numeric(strsplit(as.character(reads_summary$counts[x]), " ")[[1]][2]) }))
