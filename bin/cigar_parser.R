@@ -774,8 +774,8 @@ option_list = list(
         help="Output summary file name", metavar="character"),
     make_option(c("-c", "--cut_site"), type="numeric", default=NULL,
         help="Cut position", metavar="numeric"),
-    make_option(c("-m", "--mock"), type="character", default=NULL,
-        help="Mock data", metavar="character")
+    make_option(c("-m", "--mock"), type="logical", default=FALSE,
+        action="store_true", help="Set if the sample is a mock sample")
 );
 
 opt_parser = OptionParser(option_list=option_list);
