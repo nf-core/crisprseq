@@ -968,8 +968,8 @@ if (dim(alignment_info)[1] != 0){
             t_in_ino <- all_outFrame_ins %>% filter(Ids %in% t_ids[[1]])
             out_frame_ins <- out_frame_ins - dim(t_in_ino)[1]
         }
-        all_inFrame_ins <- ins[ins$Length %% 3 == 0,]
-        out_frame_dels <- dim(all_inFrame_ins)[1]
+        all_outFrame_dels <- dels[dels$Length %% 3 != 0,] 
+        out_frame_dels <- dim(all_outFrame_dels)[1] 
         if ( t_type == "dels-out"){
             t_in_do <- all_outFrame_dels %>% filter(Ids %in% t_ids[[1]])
             out_frame_dels <- out_frame_dels - dim(t_in_do)[1]
