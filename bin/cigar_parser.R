@@ -923,7 +923,7 @@ if (dim(alignment_info)[1] != 0){
 
     ########### Template-based edition
     ### If there is a template sequence, let's see how many reads are template based
-    if (template_bool == "true"){
+    if (template_bool){
         t_info <- templateCount(ref_fasta, reference_template, template_bam, collapsed_df, sample_id, corrected_cigar, alignment_info) ### corrected_cigar instead of alignment_info
         t_reads <- as.numeric(t_info[1])
         t_type <- t_info[2]
