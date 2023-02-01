@@ -22,7 +22,7 @@ process CIGAR_PARSER {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def template_bool = "${meta.template}" ? "--template_bool" : ""
+    def template_bool = "${meta.template}" == "true" ? "--template_bool" : ""
     """
     cigar_parser.R \\
         $args \\

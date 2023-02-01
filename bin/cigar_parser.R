@@ -157,7 +157,7 @@ variant_call_truncated <- function(df.summary, ins_len_mean, mocks){
                     ### Clear delins
                     position <- df.summary_trunc$pos[i] + cigar_lengths[[i]][1] #### Alert! I have removed the -1 of the positions, since modifications starts 1 nt after the matches
                     delins[nrow(delins) + 1,] = c(df.summary_trunc$cigar[i], "delin", position, cigar_lengths[[i]][2]+cigar_lengths[[i]][3]+cigar_lengths[[i]][4], df.summary_trunc$count[i], df.summary_trunc$ids[i]) # as length we are saving the length of the deletion plus the insertion
-                } else if (mocks == "true") {
+                } else if (mocks) {
                     ### Big insertions to be delins for sure (are they edits + noise)
                     ######## FIRST INDEL #########
                     if (cigar_types[[i]][2] == "D"){
@@ -180,7 +180,7 @@ variant_call_truncated <- function(df.summary, ins_len_mean, mocks){
                 } else {
                     def_bad_alignment <- def_bad_alignment + df.summary_trunc$count[i]
                 }
-            } else if((length(cigar_types[[i]]) == 7) && (mocks == "true")){
+            } else if((length(cigar_types[[i]]) == 7) && (mocks)){
                 ######## FIRST INDEL #########
                 if (cigar_types[[i]][2] == "D"){
                     first_type <- "del"
@@ -843,7 +843,7 @@ if (dim(alignment_info)[1] != 0){
 
     if ( dim(all_indels)[1] > 0 ){
         ##### Spikes correction
-        if(spikes == "yes"){
+        if(spikes){
             ##### Remove over-represented reads and get data frame with one read in each row
             vc_result_corrected <- spikes_correction(all_indels)
             separated_indels <- indels_per_read(vc_result_corrected, TRUE)
@@ -923,7 +923,7 @@ if (dim(alignment_info)[1] != 0){
 
     ########### Template-based edition
     ### If there is a template sequence, let's see how many reads are template based
-    if (template_bool == "true"){
+    if (template_bool){
         t_info <- templateCount(ref_fasta, reference_template, template_bam, collapsed_df, sample_id, corrected_cigar, alignment_info) ### corrected_cigar instead of alignment_info
         t_reads <- as.numeric(t_info[1])
         t_type <- t_info[2]
@@ -968,8 +968,8 @@ if (dim(alignment_info)[1] != 0){
             t_in_ino <- all_outFrame_ins %>% filter(Ids %in% t_ids[[1]])
             out_frame_ins <- out_frame_ins - dim(t_in_ino)[1]
         }
-        all_inFrame_ins <- ins[ins$Length %% 3 == 0,]
-        out_frame_dels <- dim(all_inFrame_ins)[1]
+        all_outFrame_dels <- dels[dels$Length %% 3 != 0,]
+        out_frame_dels <- dim(all_outFrame_dels)[1]
         if ( t_type == "dels-out"){
             t_in_do <- all_outFrame_dels %>% filter(Ids %in% t_ids[[1]])
             out_frame_dels <- out_frame_dels - dim(t_in_do)[1]
