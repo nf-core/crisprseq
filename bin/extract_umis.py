@@ -258,7 +258,6 @@ def extract_umis(
     out,
     tsv,
 ):
-
     n_both_umi = 0
     strand_stats = {"+": 0, "-": 0}
     for fasta_filename in input_files:
