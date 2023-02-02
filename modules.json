@@ -2,21 +2,80 @@
     "name": "nf-core/crisprseq",
     "homePage": "https://github.com/nf-core/crisprseq",
     "repos": {
-        "nf-core/modules": {
-            "git_url": "https://github.com/nf-core/modules.git",
+        "https://github.com/nf-core/modules.git": {
             "modules": {
-                "custom/dumpsoftwareversions": {
-                    "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d",
-                    "branch": "master"
-                },
-                "fastqc": {
-                    "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d",
-                    "branch": "master"
-                },
-                "multiqc": {
-                    "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d",
-                    "branch": "master"
+                "nf-core": {
+                    "bowtie2/align": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "bowtie2/build": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "bwa/index": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "bwa/mem": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "cat/fastq": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "custom/dumpsoftwareversions": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "cutadapt": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/cutadapt/cutadapt.diff"
+                    },
+                    "fastqc": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "minimap2/align": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/minimap2/align/minimap2-align.diff"
+                    },
+                    "multiqc": {
+                        "branch": "master",
+                        "git_sha": "ee80d14721e76e2e079103b8dcd5d57129e584ba",
+                        "installed_by": ["modules"]
+                    },
+                    "pear": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "samtools/index": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "seqtk/seq": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    }
                 }
+            },
+            "subworkflows": {
+                "nf-core": {}
             }
         }
     }
