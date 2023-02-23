@@ -34,13 +34,16 @@ WorkflowMain.initialise(workflow, params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { CRISPRSEQ } from './workflows/crisprseq'
+include { CRISPRSEQ_EDITION } from './workflows/crisprseq_edition'
+include { CRISPRSEQ_SCREENING } from './workflows/crisprseq_screening'
 
 //
 // WORKFLOW: Run main nf-core/crisprseq analysis pipeline
 //
 workflow NFCORE_CRISPRSEQ {
-    CRISPRSEQ ()
+    // CRISPRSEQ_EDITION ()
+    CRISPRSEQ_SCREENING ()
+
 }
 
 /*
