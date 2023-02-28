@@ -1,5 +1,5 @@
 process MAGECK_TEST {
-    tag "$meta.id"
+    tag "${meta.treatment}_${meta.reference}"
     label 'process_medium'
 
     conda "bioconda::mageck=0.5.9"
@@ -21,14 +21,20 @@ process MAGECK_TEST {
 
     script:
     def args = task.ext.args ?: ''
+    def args2 = task.ext.args2 ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
 
+
     """
+    echo $meta.reference
+    echo $meta.treatment
     mageck  \\
         test \\
         $args \\
+        $args2 $meta.treatment \\
+        -c $meta.reference \\
         -k $count_table \\
-        -n $prefix
+        -n ${meta.treatment}_${meta.reference}
 
 
     cat <<-END_VERSIONS > versions.yml

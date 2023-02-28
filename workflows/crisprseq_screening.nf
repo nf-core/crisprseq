@@ -91,21 +91,21 @@ workflow CRISPRSEQ_SCREENING {
        fastqs: fastq
 }.set { splitted }
 
-splitted.metas.dump(tag: 'metas')
-splitted.fastqs.dump(tag: 'fastqs')
+//splitted.metas.dump(tag: 'metas')
+//splitted.fastqs.dump(tag: 'fastqs')
 
 splitted.metas.reduce{
     a, b -> return "$a,$b"
 }
 .set { ch_metas }
-ch_metas.dump(tag: 'joined metas')
+//ch_metas.dump(tag: 'joined metas')
 
 ch_fastqs = splitted.fastqs.collect()
-ch_fastqs.dump(tag: 'joined files')
+////ch_fastqs.dump(tag: 'joined files')
 
 joined = ch_metas.merge(ch_fastqs) { m, f -> tuple([id:m], f) }
-joined.dump(tag: 'joined final channel')
-joined.view{ "item: $it, label: ${it[0]}, fastqs: ${it[1]}" }
+//joined.dump(tag: 'joined final channel')
+//joined.view{ "item: $it, label: ${it[0]}, fastqs: ${it[1]}" }
 
     //
     // MODULE: Run mageck count
@@ -116,9 +116,31 @@ joined.view{ "item: $it, label: ${it[0]}, fastqs: ${it[1]}" }
     )
     ch_versions = ch_versions.mix(MAGECK_COUNT.out.versions.first())
 
-    MAGECK_COUNT (
-        joined,
-        params.library
+Channel.fromPath("contrasts.txt")
+    .splitCsv(header:true, sep:',' )
+    .set { ch_contrasts }
+
+//MAGECK_COUNT.out.norm.dump(tag : "MAGECK_COUNT.out.norm")
+
+MAGECK_COUNT.out.norm.map {
+    it -> it[1]
+    }.set { ch_counts }
+
+
+counts = ch_contrasts.combine(ch_counts)
+counts.dump(tag: 'counts channel')
+
+//counts.multiMap{
+  //  it ->
+   // id: it[0]
+   // test: it[1]
+   // test1: it[2]
+   // }.set{ch_test}
+
+//ch_test.test1.dump(tag : 'id')
+
+    MAGECK_TEST (
+        counts
     )
 
 
