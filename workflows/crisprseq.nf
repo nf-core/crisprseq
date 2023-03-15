@@ -269,8 +269,6 @@ workflow CRISPRSEQ {
     }
 
 
-    /*
-    The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
 
     //
     // MODULE: Extract UMI sequences
@@ -278,6 +276,10 @@ workflow CRISPRSEQ {
     EXTRACT_UMIS (
         SEQTK_SEQ.out.fastx
     )
+
+    /*
+    The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
+
 
     Modules to implement:
 
