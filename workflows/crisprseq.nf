@@ -277,6 +277,8 @@ workflow CRISPRSEQ {
         SEQTK_SEQ.out.fastx
     )
 
+    EXTRACT_UMIS.out.fasta.view()
+
     /*
     The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
 
