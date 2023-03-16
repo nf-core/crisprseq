@@ -11,12 +11,12 @@ WorkflowCrisprseq.initialise(params, log)
 
 // TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.fasta, params.library ]
+def checkPathParamList = [ params.input, params.multiqc_config, params.fasta, params.library, params.design_matrix ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
-if (params.library) { ch_library = file(params.library) } else { exit 1, 'Library not specified!' }
+if (params.library) { ch_library = file(params.library) }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
@@ -71,85 +71,95 @@ workflow CRISPRSEQ_SCREENING {
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
+if(params.design_matrix) {
+Channel.fromPath(params.design_matrix)
+    .set { ch_design}
+}
+
+
+
+if(!params.count_table){
     INPUT_CHECK_SCREENING (
         ch_input
     )
-    ch_versions = ch_versions.mix(INPUT_CHECK_SCREENING.out.versions)
-
     //
     // MODULE: Run FastQC
     //
     FASTQC (
         INPUT_CHECK_SCREENING.out.reads
     )
+
+    ch_versions = ch_versions.mix(INPUT_CHECK_SCREENING.out.versions)
+
+
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
    // INPUT_CHECK_SCREENING.out.reads.collect().view()
 
-    INPUT_CHECK_SCREENING.out.reads.multiMap{
+INPUT_CHECK_SCREENING.out.reads.multiMap{
    meta, fastq ->
        metas: meta.condition
        fastqs: fastq
 }.set { splitted }
 
-//splitted.metas.dump(tag: 'metas')
-//splitted.fastqs.dump(tag: 'fastqs')
-
 splitted.metas.reduce{
     a, b -> return "$a,$b"
 }
 .set { ch_metas }
-//ch_metas.dump(tag: 'joined metas')
+
 
 ch_fastqs = splitted.fastqs.collect()
-////ch_fastqs.dump(tag: 'joined files')
+
 
 joined = ch_metas.merge(ch_fastqs) { m, f -> tuple([id:m], f) }
-//joined.dump(tag: 'joined final channel')
-//joined.view{ "item: $it, label: ${it[0]}, fastqs: ${it[1]}" }
+
 
     //
     // MODULE: Run mageck count
     //
+
     MAGECK_COUNT (
         joined,
         params.library
     )
     ch_versions = ch_versions.mix(MAGECK_COUNT.out.versions.first())
 
-Channel.fromPath("contrasts.txt")
-    .splitCsv(header:true, sep:',' )
-    .set { ch_contrasts }
-
-//MAGECK_COUNT.out.norm.dump(tag : "MAGECK_COUNT.out.norm")
-
-MAGECK_COUNT.out.norm.map {
+    MAGECK_COUNT.out.norm.map {
     it -> it[1]
     }.set { ch_counts }
 
 
+} else {
+    Channel.fromPath(params.count_table)
+    .set { ch_counts }
+}
+
+
+if(params.contrasts) {
+Channel.fromPath(params.contrasts)
+    .splitCsv(header:true, sep:',' )
+    .set { ch_contrasts }
 counts = ch_contrasts.combine(ch_counts)
-counts.dump(tag: 'counts channel')
-
-//counts.multiMap{
-  //  it ->
-   // id: it[0]
-   // test: it[1]
-   // test1: it[2]
-   // }.set{ch_test}
-
-//ch_test.test1.dump(tag : 'id')
 
     MAGECK_TEST (
         counts
     )
+}
+
+if(params.design_matrix) {
+    ch_mle = ch_counts.combine(ch_design)
 
 
+    ch_mle.map {
+        it-> [[id: it[1].getBaseName()], it[0], it[1]]
+        }.set { ch_designed_mle }
+    MAGECK_MLE (
+        ch_designed_mle
+        )
+}
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
-
-
 
     //
     // MODULE: MultiQC
@@ -164,8 +174,9 @@ counts.dump(tag: 'counts channel')
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
-
+    //if(FASTQC.out){
+    //ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+    //}
     MULTIQC (
         ch_multiqc_files.collect(),
         ch_multiqc_config.collect().ifEmpty([]),

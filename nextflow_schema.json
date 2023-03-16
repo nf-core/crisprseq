@@ -73,6 +73,17 @@
             "description": "",
             "default": "",
             "properties": {
+                "skip_alignment": {
+                    "type": "boolean",
+                    "hidden": true
+                },
+                "design_matrix": {
+                    "type": "string"
+                },
+                "count_table": {
+                    "type": "string",
+                    "description": "when mageck test should be skipped the user can directly input their count table"
+                },
                 "library": {
                     "type": "string",
                     "default": "None",
@@ -82,11 +93,7 @@
                     "type": "string",
                     "description": "The contrasts file references the observations file to define groups of samples to compare."
                 }
-            },
-            "required": [
-                "library",
-                "contrasts"
-            ]
+            }
         },
         "reference_genome_options": {
             "title": "Reference genome options",
