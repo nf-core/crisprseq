@@ -68,6 +68,7 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-co
 include { PEAR                                          } from '../modules/nf-core/pear/main'
 include { CAT_FASTQ                                     } from '../modules/nf-core/cat/fastq/main'
 include { SEQTK_SEQ                                     } from '../modules/nf-core/seqtk/seq/main'
+include { VSEARCH_CLUSTER                               } from '../modules/nf-core/vsearch/cluster/main'
 include { BOWTIE2_ALIGN                                 } from '../modules/nf-core/bowtie2/align/main'
 include { BOWTIE2_BUILD                                 } from '../modules/nf-core/bowtie2/build/main'
 include { BWA_MEM                                       } from '../modules/nf-core/bwa/mem/main'
