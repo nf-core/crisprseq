@@ -269,7 +269,6 @@ workflow CRISPRSEQ {
     }
 
 
-
     //
     // MODULE: Extract UMI sequences
     //
