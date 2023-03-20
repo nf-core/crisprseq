@@ -282,6 +282,8 @@ workflow CRISPRSEQ {
         EXTRACT_UMIS.out.fasta
     )
 
+    VSEARCH_CLUSTER.out.clusters.transpose().view()
+
     /*
     The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
 
