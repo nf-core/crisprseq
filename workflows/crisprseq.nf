@@ -48,6 +48,7 @@ include { SEQ_TO_FILE as SEQ_TO_FILE_TEMPL } from '../modules/local/seq_to_file'
 include { ORIENT_REFERENCE                 } from '../modules/local/orient_reference'
 include { CIGAR_PARSER                     } from '../modules/local/cigar_parser'
 include { MERGING_SUMMARY                  } from '../modules/local/merging_summary'
+include { UMI_TO_SEQUENCE                  } from '../modules/local/umi_to_sequence'
 include { CLUSTERING_SUMMARY               } from '../modules/local/clustering_summary'
 include { ALIGNMENT_SUMMARY                } from '../modules/local/alignment_summary'
 include { TEMPLATE_REFERENCE               } from '../modules/local/template_reference'
@@ -77,6 +78,32 @@ include { MINIMAP2_ALIGN                                } from '../modules/nf-co
 include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_TEMPLATE     } from '../modules/nf-core/minimap2/align/main'
 include { CUTADAPT                                      } from '../modules/nf-core/cutadapt/main'
 include { SAMTOOLS_INDEX                                } from '../modules/nf-core/samtools/index/main'
+
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    DEFINE GROOVY FUNCTIONS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+sufix = ""
+
+umi_to_sequence = { meta, cluster ->
+    cluster.withReader { source ->
+        output = file("${cluster.baseName}_${sufix}.fasta")
+        output.withWriter { target ->
+            String line
+            while ( line=source.readLine() ) {
+                if (line.startsWith(">")) {
+                    sequence = (line =~ /;seq=(.*$)/)[0][1]
+                    id = (line =~ /(>.*?);/)[0][1]
+                }
+                target << id + "\n" + sequence
+            }
+        }
+    }
+    return [meta, output]
+}
 
 
 /*
@@ -278,11 +305,49 @@ workflow CRISPRSEQ {
     )
 
 
+    //
+    // MODULE: Cluster UMIs
+    //
     VSEARCH_CLUSTER (
         EXTRACT_UMIS.out.fasta
     )
 
-    VSEARCH_CLUSTER.out.clusters.transpose().view()
+    //  Obtain a file with UBS (UBI bin size) and UMI ID
+    VSEARCH_CLUSTER.out.clusters
+    .transpose()
+    .collectFile( storeDir:params.outdir ) {
+        it ->
+            [ "${it[0].id}_ubs.txt", "${it[1].countFasta()}\t${it[1].baseName}\n" ]
+    }
+
+    // Branch the clusters into the ones containing only one sequence and the ones containing more than one sequences
+    VSEARCH_CLUSTER.out.clusters
+    .transpose()
+    .branch{
+        meta, cluster ->
+            single: cluster.countFasta() == 1
+                return [meta, cluster]
+            cluster: cluster.countFasta() > 1
+                return [meta, cluster]
+    }
+    .set{ ch_umi_bysize }
+
+    // Get the correspondent fasta sequencences from single clusters
+    sufix = "consensus"
+
+    ch_umi_bysize.single
+    .map(umi_to_sequence)
+    .set{ ch_cluster_sequence }
+
+
+    ch_cluster_sequence.view()
+
+    //
+    // MODULE: Obtain longest read in cluster
+    //
+    VSEARCH_SORT(
+
+    )
 
     /*
     The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
@@ -290,8 +355,6 @@ workflow CRISPRSEQ {
 
     Modules to implement:
 
-    vsearch
-    get_ubs
     top_read
     polishing: minimap2, racon
     consensus
