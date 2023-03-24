@@ -82,32 +82,6 @@ include { SAMTOOLS_INDEX                                } from '../modules/nf-co
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    DEFINE GROOVY FUNCTIONS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-sufix = ""
-
-umi_to_sequence = { meta, cluster ->
-    cluster.withReader { source ->
-        output = file("${cluster.baseName}_${sufix}.fasta")
-        output.withWriter { target ->
-            String line
-            while ( line=source.readLine() ) {
-                if (line.startsWith(">")) {
-                    sequence = (line =~ /;seq=(.*$)/)[0][1]
-                    id = (line =~ /(>.*?);/)[0][1]
-                }
-                target << id + "\n" + sequence
-            }
-        }
-    }
-    return [meta, output]
-}
-
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
@@ -333,21 +307,18 @@ workflow CRISPRSEQ {
     .set{ ch_umi_bysize }
 
     // Get the correspondent fasta sequencences from single clusters
-    sufix = "consensus"
+    //
+    UMI_TO_SEQUENCE (
+        ch_umi_bysize.single
+    )
 
-    ch_umi_bysize.single
-    .map(umi_to_sequence)
-    .set{ ch_cluster_sequence }
-
-
-    ch_cluster_sequence.view()
 
     //
     // MODULE: Obtain longest read in cluster
     //
-    VSEARCH_SORT(
+    //VSEARCH_SORT(
 
-    )
+    //)
 
     /*
     The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
