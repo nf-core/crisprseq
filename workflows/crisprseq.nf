@@ -48,7 +48,6 @@ include { SEQ_TO_FILE as SEQ_TO_FILE_TEMPL } from '../modules/local/seq_to_file'
 include { ORIENT_REFERENCE                 } from '../modules/local/orient_reference'
 include { CIGAR_PARSER                     } from '../modules/local/cigar_parser'
 include { MERGING_SUMMARY                  } from '../modules/local/merging_summary'
-include { UMI_TO_SEQUENCE                  } from '../modules/local/umi_to_sequence'
 include { CLUSTERING_SUMMARY               } from '../modules/local/clustering_summary'
 include { ALIGNMENT_SUMMARY                } from '../modules/local/alignment_summary'
 include { TEMPLATE_REFERENCE               } from '../modules/local/template_reference'
@@ -78,6 +77,26 @@ include { MINIMAP2_ALIGN                                } from '../modules/nf-co
 include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_TEMPLATE     } from '../modules/nf-core/minimap2/align/main'
 include { CUTADAPT                                      } from '../modules/nf-core/cutadapt/main'
 include { SAMTOOLS_INDEX                                } from '../modules/nf-core/samtools/index/main'
+
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    DEFINE GROOVY FUNCTIONS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+def umi_to_sequence(cluster) {
+    cluster.withReader { source ->
+        String line
+        while ( line=source.readLine() ) {
+            if (line.startsWith(">")) {
+                sequence = (line =~ /;seq=(.*$)/)[0][1]
+                id = (line =~ /(>.*?);/)[0][1]
+            }
+        }
+    }
+    return id + "\n" + sequence
+}
 
 
 /*
@@ -307,10 +326,15 @@ workflow CRISPRSEQ {
     .set{ ch_umi_bysize }
 
     // Get the correspondent fasta sequencences from single clusters
-    //
-    UMI_TO_SEQUENCE (
-        ch_umi_bysize.single
-    )
+    ch_umi_bysize.single
+    .map{ meta, cluster ->
+        fasta_line = umi_to_sequence(cluster)
+        [meta, cluster.baseName, fasta_line]
+    }
+    .collectFile() { meta, name, fasta ->
+        [ "{$name}_consensus.fasta", fasta ]
+    }
+    .set{ ch_single_clusters_consensus }
 
 
     //
