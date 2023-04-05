@@ -42,10 +42,25 @@
                 }
             }
         },
+        "umi_parameters": {
+            "title": "UMI parameters",
+            "type": "object",
+            "description": "Parameters regarding umi molecular identifiers (UMIs)",
+            "default": "",
+            "properties": {
+                "umi_bin_size": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Minimum size of a UMI cluster.",
+                    "fa_icon": "fas fa-sort-amount-down"
+                }
+            },
+            "fa_icon": "fas fa-layer-group"
+        },
         "alignment_parameters": {
             "title": "Alignment parameters",
             "type": "object",
-            "description": "",
+            "description": "Parameters used for alignment processes",
             "default": "",
             "properties": {
                 "aligner": {
@@ -62,7 +77,7 @@
         "vsearch_parameters": {
             "title": "Vsearch parameters",
             "type": "object",
-            "description": "",
+            "description": "Parameters to use in Vsearch processes",
             "default": "",
             "properties": {
                 "vsearch_minseqlength": {
@@ -321,6 +336,9 @@
     "allOf": [
         {
             "$ref": "#/definitions/input_output_options"
+        },
+        {
+            "$ref": "#/definitions/umi_parameters"
         },
         {
             "$ref": "#/definitions/alignment_parameters"
