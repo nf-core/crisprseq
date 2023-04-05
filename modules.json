@@ -77,6 +77,11 @@
                         "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/vsearch/cluster/vsearch-cluster.diff"
+                    },
+                    "vsearch/sort": {
+                        "branch": "master",
+                        "git_sha": "2729a013f2c8930ea39d747e2fa589ca89d201ee",
+                        "installed_by": ["modules"]
                     }
                 }
             },
