@@ -384,13 +384,23 @@ workflow CRISPRSEQ {
     }
     .set{ ch_clusters_sequence }
 
+    ch_clusters_sequence
+    .join(ch_top_clusters_sequence)
+    .set{ ch_cluster_reference }
+
     //
     // MODULE: Mapping with minimap2
     //
     // Map each cluster against the top read (most abundant UMI) in the cluster
     MINIMAP2_ALIGN_UMI (
-
+        ch_clusters_sequence
+            .join(ch_top_clusters_sequence),
+        false, //output in paf format
+        false,
+        false
     )
+
+
 
     /*
     The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
