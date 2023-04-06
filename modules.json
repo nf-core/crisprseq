@@ -80,7 +80,7 @@
                     },
                     "vsearch/sort": {
                         "branch": "master",
-                        "git_sha": "2729a013f2c8930ea39d747e2fa589ca89d201ee",
+                        "git_sha": "e7801603532df26b4bb4ef324ca2c39f7a4d0eee",
                         "installed_by": ["modules"]
                     }
                 }

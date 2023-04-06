@@ -75,6 +75,7 @@ include { BOWTIE2_BUILD                                 } from '../modules/nf-co
 include { BWA_MEM                                       } from '../modules/nf-core/bwa/mem/main'
 include { BWA_INDEX                                     } from '../modules/nf-core/bwa/index/main'
 include { MINIMAP2_ALIGN                                } from '../modules/nf-core/minimap2/align/main'
+include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI          } from '../modules/nf-core/minimap2/align/main'
 include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_TEMPLATE     } from '../modules/nf-core/minimap2/align/main'
 include { CUTADAPT                                      } from '../modules/nf-core/cutadapt/main'
 include { SAMTOOLS_INDEX                                } from '../modules/nf-core/samtools/index/main'
@@ -96,6 +97,20 @@ def umi_to_sequence(cluster) {
             }
         }
     }
+    return id + "\n" + sequence
+}
+
+def umi_to_sequence_centroid(cluster) {
+    cluster.withReader { source ->
+        String line
+        while ( line=source.readLine() ) {
+            if (line.startsWith(">")) {
+                sequence = (line =~ /;seq=(.*$)/)[0][1]
+                id = (line =~ /(>.*?);/)[0][1]
+            }
+        }
+    }
+    id = id.replace(">", ">centroid_")
     return id + "\n" + sequence
 }
 
@@ -319,9 +334,9 @@ workflow CRISPRSEQ {
     .transpose()
     .branch{
         meta, cluster ->
-            single: cluster.countFasta() == 1
+            single: cluster.countFasta() >= params.umi_bin_size && cluster.countFasta() == 1
                 return [meta, cluster]
-            cluster: cluster.countFasta() > 1
+            cluster: cluster.countFasta() >= params.umi_bin_size && cluster.countFasta() > 1
                 return [meta, cluster]
     }
     .set{ ch_umi_bysize }
@@ -339,11 +354,43 @@ workflow CRISPRSEQ {
 
 
     //
-    // MODULE: Obtain longest read in cluster
+    // MODULE: Obtain most abundant UMI in cluster
     //
-    //VSEARCH_SORT(
+    VSEARCH_SORT(
+        ch_umi_bysize.cluster,
+        Channel.value("--sortbysize")
+    )
 
-    //)
+    // Get the correspondent fasta sequencences from top cluster sequences
+    // Replaces the sequence name adding the "centroid_" prefix to avoid having two sequences with the same name in following steps
+    VSEARCH_SORT.out.fasta
+    .map{ meta, fasta ->
+        fasta_line = umi_to_sequence_centroid(fasta)
+        [meta, fasta.baseName, fasta_line]
+    }
+    .collectFile() { meta, name, fasta ->
+        [ "{$name}.fasta", fasta ]
+    }
+    .set{ ch_top_clusters_sequence }
+
+    // Get the correspondent fasta sequencences from UMI clusters
+    ch_umi_bysize.cluster
+    .map{ meta, cluster ->
+        fasta_line = umi_to_sequence(cluster)
+        [meta, cluster.baseName, fasta_line]
+    }
+    .collectFile() { meta, name, fasta ->
+        [ "{$name}_sequences.fasta", fasta ]
+    }
+    .set{ ch_clusters_sequence }
+
+    //
+    // MODULE: Mapping with minimap2
+    //
+    // Map each cluster against the top read (most abundant UMI) in the cluster
+    MINIMAP2_ALIGN_UMI (
+
+    )
 
     /*
     The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
@@ -351,7 +398,6 @@ workflow CRISPRSEQ {
 
     Modules to implement:
 
-    top_read
     polishing: minimap2, racon
     consensus
     join_reads
