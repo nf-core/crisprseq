@@ -70,12 +70,15 @@ include { CAT_FASTQ                                     } from '../modules/nf-co
 include { SEQTK_SEQ                                     } from '../modules/nf-core/seqtk/seq/main'
 include { VSEARCH_CLUSTER                               } from '../modules/nf-core/vsearch/cluster/main'
 include { VSEARCH_SORT                                  } from '../modules/nf-core/vsearch/sort/main'
+include { RACON as RACON_1                              } from '../modules/nf-core/racon/main'
+include { RACON as RACON_2                              } from '../modules/nf-core/racon/main'
 include { BOWTIE2_ALIGN                                 } from '../modules/nf-core/bowtie2/align/main'
 include { BOWTIE2_BUILD                                 } from '../modules/nf-core/bowtie2/build/main'
 include { BWA_MEM                                       } from '../modules/nf-core/bwa/mem/main'
 include { BWA_INDEX                                     } from '../modules/nf-core/bwa/index/main'
 include { MINIMAP2_ALIGN                                } from '../modules/nf-core/minimap2/align/main'
-include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI          } from '../modules/nf-core/minimap2/align/main'
+include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_1        } from '../modules/nf-core/minimap2/align/main'
+include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_2        } from '../modules/nf-core/minimap2/align/main'
 include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_TEMPLATE     } from '../modules/nf-core/minimap2/align/main'
 include { CUTADAPT                                      } from '../modules/nf-core/cutadapt/main'
 include { SAMTOOLS_INDEX                                } from '../modules/nf-core/samtools/index/main'
@@ -343,15 +346,25 @@ workflow CRISPRSEQ {
 
     // Get the correspondent fasta sequencences from single clusters
     ch_umi_bysize.single
+    .tap{ meta_channel }
     .map{ meta, cluster ->
         fasta_line = umi_to_sequence(cluster)
         [meta, cluster.baseName, fasta_line]
     }
     .collectFile() { meta, name, fasta ->
-        [ "{$name}_consensus.fasta", fasta ]
+        [ "${name}_consensus.fasta", fasta ]
+    }
+    .map{ new_file ->
+        [new_file.baseName, new_file]
+    }
+    .join(meta_channel
+        .map { meta, original_file ->
+            ["${original_file.baseName}_consensus", meta]
+        })
+    .map{ file_name, new_file, meta ->
+        [meta, new_file]
     }
     .set{ ch_single_clusters_consensus }
-
 
     //
     // MODULE: Obtain most abundant UMI in cluster
@@ -364,35 +377,56 @@ workflow CRISPRSEQ {
     // Get the correspondent fasta sequencences from top cluster sequences
     // Replaces the sequence name adding the "centroid_" prefix to avoid having two sequences with the same name in following steps
     VSEARCH_SORT.out.fasta
+    .tap{ meta_channel_2 }
     .map{ meta, fasta ->
         fasta_line = umi_to_sequence_centroid(fasta)
         [meta, fasta.baseName, fasta_line]
     }
     .collectFile() { meta, name, fasta ->
-        [ "{$name}.fasta", fasta ]
+        [ "${name}.fasta", fasta ]
+    }
+    .map{ new_file ->
+        [new_file.baseName[0..-5], new_file] // Substring is removing "_top" added by VSEARCH_SORT
+    }
+    .join(meta_channel_2
+        .map { meta, original_file ->
+            ["${original_file.baseName}"[0..-5], meta] // Substring is removing "_top" added by VSEARCH_SORT
+        })
+    .map{ file_name, new_file, meta ->
+        [meta + [cluster_id: file_name], new_file] // Add cluster ID to meta map
     }
     .set{ ch_top_clusters_sequence }
 
     // Get the correspondent fasta sequencences from UMI clusters
     ch_umi_bysize.cluster
+    .tap{ meta_channel_3 }
     .map{ meta, cluster ->
         fasta_line = umi_to_sequence(cluster)
         [meta, cluster.baseName, fasta_line]
     }
     .collectFile() { meta, name, fasta ->
-        [ "{$name}_sequences.fasta", fasta ]
+        [ "${name}_sequences.fasta", fasta ]
+    }
+    .map{ new_file ->
+        [new_file.baseName[0..-11], new_file] // Substring is removing "_sequences" added by collectFile
+    }
+    .join(meta_channel_3
+        .map { meta, original_file ->
+            ["${original_file.baseName}", meta]
+        })
+    .map{ file_name, new_file, meta ->
+        [meta + [cluster_id: file_name], new_file] // Add cluster ID to meta map
     }
     .set{ ch_clusters_sequence }
 
-    ch_clusters_sequence
-    .join(ch_top_clusters_sequence)
-    .set{ ch_cluster_reference }
+    // Cluster consensus & polishing
+    // Two cycles of minimap2 + racon
 
     //
-    // MODULE: Mapping with minimap2
+    // MODULE: Mapping with minimap2 - cycle 1
     //
     // Map each cluster against the top read (most abundant UMI) in the cluster
-    MINIMAP2_ALIGN_UMI (
+    MINIMAP2_ALIGN_UMI_1 (
         ch_clusters_sequence
             .join(ch_top_clusters_sequence),
         false, //output in paf format
@@ -400,7 +434,35 @@ workflow CRISPRSEQ {
         false
     )
 
+    //
+    // MODULE: Improve top read from UMI cluster using cluster consensus - cycle 2
+    //
+    RACON_1 (
+        ch_clusters_sequence
+            .join(ch_top_clusters_sequence)
+            .join(MINIMAP2_ALIGN_UMI_1.out.paf)
+    )
 
+    //
+    // MODULE: Mapping with minimap2 - cycle 2
+    //
+    // Map each cluster against the top read (most abundant UMI) in the cluster
+    MINIMAP2_ALIGN_UMI_2 (
+        ch_clusters_sequence
+            .join(RACON_1.out.improved_assembly),
+        false, //output in paf format
+        false,
+        false
+    )
+
+    //
+    // MODULE: Improve top read from UMI cluster using cluster consensus - cycle 2
+    //
+    RACON_2 (
+        ch_clusters_sequence
+            .join(RACON_1.out.improved_assembly)
+            .join(MINIMAP2_ALIGN_UMI_2.out.paf)
+    )
 
     /*
     The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
@@ -561,9 +623,9 @@ workflow CRISPRSEQ {
     //
     // MODULE: Parse cigar to find edits
     //
-    CIGAR_PARSER (
-        ch_to_parse_cigar
-    )
+    //CIGAR_PARSER (
+    //    ch_to_parse_cigar
+    //)
 
 
     //
