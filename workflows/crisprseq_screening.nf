@@ -17,6 +17,8 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 // Check mandatory parameters
 if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 if (params.library) { ch_library = file(params.library) }
+if (params.crisprcleanr) { ch_crisprcleanr= file(params.crisprcleanr) }
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
@@ -54,7 +56,7 @@ include { MAGECK_COUNT                } from '../modules/nf-core/mageck/count/ma
 include { MAGECK_MLE                } from '../modules/nf-core/mageck/mle/main'
 include { MAGECK_TEST                } from '../modules/nf-core/mageck/test/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
-
+include { CRISPRCLEANR_NORMALIZE } from '../modules/nf-core/crisprcleanr/normalize/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -75,8 +77,6 @@ if(params.design_matrix) {
 Channel.fromPath(params.design_matrix)
     .set { ch_design}
 }
-
-
 
 if(!params.count_table){
     INPUT_CHECK_SCREENING (
@@ -121,11 +121,14 @@ joined = ch_metas.merge(ch_fastqs) { m, f -> tuple([id:m], f) }
         joined,
         params.library
     )
+
     ch_versions = ch_versions.mix(MAGECK_COUNT.out.versions.first())
 
-    MAGECK_COUNT.out.norm.map {
+
+    MAGECK_COUNT.out.count.map {
     it -> it[1]
     }.set { ch_counts }
+    ch_counts.dump(tag: 'ch_counts_mageck')
 
 
 } else {
@@ -133,6 +136,15 @@ joined = ch_metas.merge(ch_fastqs) { m, f -> tuple([id:m], f) }
     .set { ch_counts }
 }
 
+
+if(params.crisprcleanr) {
+    CRISPRCLEANR_NORMALIZE("test",ch_counts,ch_crisprcleanr,30,3)
+    CRISPRCLEANR_NORMALIZE.out.norm_count_file.map {
+    it -> it[1]
+    }.set { ch_counts }
+   // ch_counts = CRISPRCLEANR_NORMALIZE.out.norm_count_file
+    ch_counts.dump(tag: 'ch_counts_crispr')
+}
 
 if(params.contrasts) {
 Channel.fromPath(params.contrasts)
@@ -147,7 +159,7 @@ counts = ch_contrasts.combine(ch_counts)
 
 if(params.design_matrix) {
     ch_mle = ch_counts.combine(ch_design)
-
+    ch_mle.dump(tag: 'ch_mle')
 
     ch_mle.map {
         it-> [[id: it[1].getBaseName()], it[0], it[1]]

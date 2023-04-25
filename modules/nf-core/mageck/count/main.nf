@@ -12,7 +12,7 @@ process MAGECK_COUNT {
     path(library)
 
     output:
-    tuple val(meta), path("*count*.txt"), emit: count
+    tuple val(meta), path("*count.txt"), emit: count
     tuple val(meta), path("*.count_normalized.txt"), emit: norm
     path "versions.yml"           , emit: versions
 
