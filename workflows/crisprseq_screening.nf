@@ -138,12 +138,10 @@ joined = ch_metas.merge(ch_fastqs) { m, f -> tuple([id:m], f) }
 
 
 if(params.crisprcleanr) {
-    CRISPRCLEANR_NORMALIZE("test",ch_counts,ch_crisprcleanr,30,3)
+    CRISPRCLEANR_NORMALIZE("count_table_normalize",ch_counts,ch_crisprcleanr,params.min_reads,params.min_targeted_genes)
     CRISPRCLEANR_NORMALIZE.out.norm_count_file.map {
     it -> it[1]
     }.set { ch_counts }
-   // ch_counts = CRISPRCLEANR_NORMALIZE.out.norm_count_file
-    ch_counts.dump(tag: 'ch_counts_crispr')
 }
 
 if(params.contrasts) {
@@ -159,8 +157,6 @@ counts = ch_contrasts.combine(ch_counts)
 
 if(params.design_matrix) {
     ch_mle = ch_counts.combine(ch_design)
-    ch_mle.dump(tag: 'ch_mle')
-
     ch_mle.map {
         it-> [[id: it[1].getBaseName()], it[0], it[1]]
         }.set { ch_designed_mle }
@@ -186,9 +182,12 @@ if(params.design_matrix) {
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-    //if(FASTQC.out){
-    //ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
-    //}
+    if(!params.count_table) {
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+    } else {
+        ch_multiqc_files = channel.empty()
+        }
+
     MULTIQC (
         ch_multiqc_files.collect(),
         ch_multiqc_config.collect().ifEmpty([]),

@@ -83,6 +83,15 @@
                 "crisprcleanr": {
                     "type": "string"
                 },
+                "min_reads": {
+                    "type": "number",
+                    "description": "a filter threshold value for sgRNAs, based on their average counts in the control sample",
+                    "default": 30
+                },
+                "min_targeted_genes": {
+                    "type": "number",
+                    "description": "Minimal number of different genes targeted by sgRNAs in a biased segment in order for the corresponding counts to be corrected"
+                },
                 "contrasts": {
                     "type": "string",
                     "description": "The contrasts file references the observations file to define groups of samples to compare."
