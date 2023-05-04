@@ -15,7 +15,7 @@ def checkPathParamList = [ params.input, params.multiqc_config, params.fasta, pa
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
-if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+//if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 if (params.library) { ch_library = file(params.library) }
 if (params.crisprcleanr) { ch_crisprcleanr= file(params.crisprcleanr) }
 
