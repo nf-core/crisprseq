@@ -15,10 +15,14 @@ def checkPathParamList = [ params.multiqc_config, params.fasta, params.library, 
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
-if (!params.count_table) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+//if (!params.count_table) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 if (params.library) { ch_library = file(params.library) }
 if (params.crisprcleanr) { ch_crisprcleanr= file(params.crisprcleanr) }
 
+if(params.design_matrix) {
+Channel.fromPath(params.design_matrix)
+    .set { ch_design}
+}
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
@@ -73,10 +77,7 @@ workflow CRISPRSEQ_SCREENING {
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
-if(params.design_matrix) {
-Channel.fromPath(params.design_matrix)
-    .set { ch_design}
-}
+
 
 if(!params.count_table){
     INPUT_CHECK_SCREENING (
@@ -135,7 +136,7 @@ joined = ch_metas.merge(ch_fastqs) { m, f -> tuple([id:m], f) }
     Channel.fromPath(params.count_table)
     .set { ch_counts }
 }
-
+ch_counts.dump(tag: 'ch_counts_mageck')
 
 if(params.crisprcleanr) {
     CRISPRCLEANR_NORMALIZE("count_table_normalize",ch_counts,ch_crisprcleanr,params.min_reads,params.min_targeted_genes)
