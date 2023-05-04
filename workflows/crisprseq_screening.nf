@@ -11,11 +11,11 @@ WorkflowCrisprseq.initialise(params, log)
 
 // TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.fasta, params.library, params.design_matrix ]
+def checkPathParamList = [ params.multiqc_config, params.fasta, params.library, params.design_matrix ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
-//if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+if (!params.count_table) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 if (params.library) { ch_library = file(params.library) }
 if (params.crisprcleanr) { ch_crisprcleanr= file(params.crisprcleanr) }
 
