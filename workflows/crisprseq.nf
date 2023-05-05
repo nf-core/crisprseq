@@ -476,13 +476,15 @@ workflow CRISPRSEQ {
             .join(ch_minimap_2)
     )
 
+
+
+
     /*
     The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
 
 
     Modules to implement:
 
-    polishing: minimap2, racon
     consensus
     join_reads
     fa2fq
