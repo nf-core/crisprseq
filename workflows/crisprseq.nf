@@ -93,14 +93,16 @@ include { SAMTOOLS_INDEX                                } from '../modules/nf-co
 def umi_to_sequence(cluster) {
     cluster.withReader { source ->
         String line
+        sequences = ""
         while ( line=source.readLine() ) {
             if (line.startsWith(">")) {
                 sequence = (line =~ /;seq=(.*$)/)[0][1]
                 id = (line =~ /(>.*?);/)[0][1]
+                sequences = sequences + id + "\n" + sequence + "\n"
             }
         }
     }
-    return id + "\n" + sequence
+    return sequences
 }
 
 def umi_to_sequence_centroid(cluster) {
@@ -434,13 +436,18 @@ workflow CRISPRSEQ {
         false
     )
 
+    // Only continue with clusters that have aligned sequences
+    MINIMAP2_ALIGN_UMI_1.out.paf
+        .filter{ it[1].countLines() > 0 }
+        .set{ ch_minimap_1 }
+
     //
-    // MODULE: Improve top read from UMI cluster using cluster consensus - cycle 2
+    // MODULE: Improve top read from UMI cluster using cluster consensus - cycle 1
     //
     RACON_1 (
         ch_clusters_sequence
             .join(ch_top_clusters_sequence)
-            .join(MINIMAP2_ALIGN_UMI_1.out.paf)
+            .join(ch_minimap_1)
     )
 
     //
@@ -455,13 +462,18 @@ workflow CRISPRSEQ {
         false
     )
 
+    // Only continue with clusters that have aligned sequences
+    MINIMAP2_ALIGN_UMI_2.out.paf
+        .filter{ it[1].countLines() > 0 }
+        .set{ ch_minimap_2 }
+
     //
     // MODULE: Improve top read from UMI cluster using cluster consensus - cycle 2
     //
     RACON_2 (
         ch_clusters_sequence
             .join(RACON_1.out.improved_assembly)
-            .join(MINIMAP2_ALIGN_UMI_2.out.paf)
+            .join(ch_minimap_2)
     )
 
     /*
