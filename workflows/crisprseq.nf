@@ -80,6 +80,7 @@ include { MINIMAP2_ALIGN                                } from '../modules/nf-co
 include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_1        } from '../modules/nf-core/minimap2/align/main'
 include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_2        } from '../modules/nf-core/minimap2/align/main'
 include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_TEMPLATE     } from '../modules/nf-core/minimap2/align/main'
+include { SAMTOOLS_FAIDX                                } from '../modules/nf-core/samtools/faidx/main'
 include { CUTADAPT                                      } from '../modules/nf-core/cutadapt/main'
 include { SAMTOOLS_INDEX                                } from '../modules/nf-core/samtools/index/main'
 
@@ -477,7 +478,12 @@ workflow CRISPRSEQ {
     )
 
 
-
+    //
+    // MODULE: Convert reference .fa to .fai
+    //
+    SAMTOOLS_FAIDX (
+        RACON_2.out.improved_assembly
+    )
 
     /*
     The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
