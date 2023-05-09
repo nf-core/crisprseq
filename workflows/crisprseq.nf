@@ -52,7 +52,6 @@ include { CLUSTERING_SUMMARY                              } from '../modules/loc
 include { ALIGNMENT_SUMMARY                               } from '../modules/local/alignment_summary'
 include { TEMPLATE_REFERENCE                              } from '../modules/local/template_reference'
 include { DUMMY_FINAL_UMI                                 } from '../modules/local/dummy_final_umi'
-include { MODIFIED_MINIMAP2 as MINIMAP2_ALIGN_CONSENSUS_1 } from '../modules/local/modified_minimap2'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -83,9 +82,9 @@ include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_2        } from '../modules/nf-co
 include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_TEMPLATE     } from '../modules/nf-core/minimap2/align/main'
 include { SAMTOOLS_FAIDX                                } from '../modules/nf-core/samtools/faidx/main'
 include { MINIMAP2_INDEX                                } from '../modules/nf-core/minimap2/index/main'
+include { MEDAKA as MEDAKA_1                            } from '../modules/nf-core/medaka/main'
 include { CUTADAPT                                      } from '../modules/nf-core/cutadapt/main'
-include { SAMTOOLS_INDEX as SAMTOOLS_INDEX_CONSENSUS_1  } from '../modules/nf-core/samtools/index/main'
-include { SAMTOOLS_INDEX as SAMTOOLS_INDEX_ALIGNMENT    } from '../modules/nf-core/samtools/index/main'
+include { SAMTOOLS_INDEX                                } from '../modules/nf-core/samtools/index/main'
 
 
 /*
@@ -482,44 +481,11 @@ workflow CRISPRSEQ {
 
 
     //
-    // MODULE: Convert reference .fa to .fai
+    // MODULE: Obtain a consensus sequence
     //
-    SAMTOOLS_FAIDX (
-        RACON_2.out.improved_assembly
+    MEDAKA_1 (
+
     )
-
-
-    //
-    // MODULE: Indexing the reference file
-    //
-    MINIMAP2_INDEX (
-        RACON_2.out.improved_assembly
-    )
-
-    //
-    // MODULE: Alignment to obtain the consensus of an UMI cluster
-    //
-    MINIMAP2_ALIGN_CONSENSUS_1 {
-        ch_clusters_sequence
-            .join(MINIMAP2_INDEX.out.index),
-        true,
-        false,
-        true
-    }
-
-    //
-    // MODULE: Obtain .bam.bai files
-    //
-    SAMTOOLS_INDEX_CONSENSUS_1 (
-        ch_mapped_bam
-    )
-    ch_versions = ch_versions.mix(SAMTOOLS_INDEX_CONSENSUS_1.out.versions)
-
-
-    //
-    // MODULE:
-    //
-    
 
     /*
     The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
@@ -610,10 +576,10 @@ workflow CRISPRSEQ {
     //
     // MODULE: Obtain .bam.bai files
     //
-    SAMTOOLS_INDEX_ALIGNMENT (
+    SAMTOOLS_INDEX (
         ch_mapped_bam
     )
-    ch_versions = ch_versions.mix(SAMTOOLS_INDEX_ALIGNMENT.out.versions)
+    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
 
     //
     // MODULE: Obtain a new reference with the template modification
@@ -649,7 +615,7 @@ workflow CRISPRSEQ {
     ch_versions = ch_versions.mix(MINIMAP2_ALIGN_TEMPLATE.out.versions)
 
     ch_mapped_bam
-        .join(SAMTOOLS_INDEX_ALIGNMENT.out.bai)
+        .join(SAMTOOLS_INDEX.out.bai)
         .join(ORIENT_REFERENCE.out.reference)
         .join(INPUT_CHECK.out.protospacer
             .map {
