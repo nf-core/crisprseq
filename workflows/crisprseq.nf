@@ -518,7 +518,7 @@ workflow CRISPRSEQ {
     // MODULE: Summary of clustered reads
     //
     CLUSTERING_SUMMARY (
-        SEQTK_SEQ_MASK.out.fastx
+        SEQTK_SEQ_FATOFQ.out.fastx
             .join(MERGING_SUMMARY.out.summary)
     )
 
