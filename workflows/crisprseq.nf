@@ -67,7 +67,8 @@ include { MULTIQC                                       } from '../modules/nf-co
 include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { PEAR                                          } from '../modules/nf-core/pear/main'
 include { CAT_FASTQ                                     } from '../modules/nf-core/cat/fastq/main'
-include { SEQTK_SEQ                                     } from '../modules/nf-core/seqtk/seq/main'
+include { SEQTK_SEQ as SEQTK_SEQ_MASK                   } from '../modules/nf-core/seqtk/seq/main'
+include { SEQTK_SEQ as SEQTK_SEQ_FATOFQ                 } from '../modules/nf-core/seqtk/seq/main'
 include { VSEARCH_CLUSTER                               } from '../modules/nf-core/vsearch/cluster/main'
 include { VSEARCH_SORT                                  } from '../modules/nf-core/vsearch/sort/main'
 include { RACON as RACON_1                              } from '../modules/nf-core/racon/main'
@@ -288,10 +289,10 @@ workflow CRISPRSEQ {
     //
     // MODULE: Mask (convert to Ns) bases with quality lower than 20 and remove sequences shorter than 80
     //
-    SEQTK_SEQ (
+    SEQTK_SEQ_MASK (
         ch_trimmed
     )
-    ch_versions = ch_versions.mix(SEQTK_SEQ.out.versions)
+    ch_versions = ch_versions.mix(SEQTK_SEQ_MASK.out.versions)
 
 
     //
@@ -301,7 +302,7 @@ workflow CRISPRSEQ {
         ch_cat_fastq.paired
             .mix(ch_cat_fastq.single)
             .join(PEAR.out.assembled, remainder: true)
-            .join(SEQTK_SEQ.out.fastx)
+            .join(SEQTK_SEQ_MASK.out.fastx)
             .join(CUTADAPT.out.log)
             .map { meta, reads, assembled, masked, trimmed ->
                 if (assembled == null) {
@@ -318,7 +319,7 @@ workflow CRISPRSEQ {
     // MODULE: Extract UMI sequences
     //
     EXTRACT_UMIS (
-        SEQTK_SEQ.out.fastx
+        SEQTK_SEQ_MASK.out.fastx
     )
 
 
@@ -506,6 +507,13 @@ workflow CRISPRSEQ {
 
     ch_umi_consensus.view()
 
+    //
+    // MODULE: Convert fasta to fastq
+    //
+    SEQTK_SEQ_FATOFQ (
+        ch_umi_consensus
+    )
+
     /*
     The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
 
@@ -518,14 +526,14 @@ workflow CRISPRSEQ {
 
     // Dummy process simulating the last UMi clustering step to obtain clusters as fastq
     DUMMY_FINAL_UMI {
-        SEQTK_SEQ.out.fastx
+        SEQTK_SEQ_MASK.out.fastx
     }
 
     //
     // MODULE: Summary of clustered reads
     //
     CLUSTERING_SUMMARY (
-        SEQTK_SEQ.out.fastx
+        SEQTK_SEQ_MASK.out.fastx
             .join(MERGING_SUMMARY.out.summary)
     )
 
@@ -535,7 +543,7 @@ workflow CRISPRSEQ {
     //
     if (params.aligner == "minimap2") {
         MINIMAP2_ALIGN (
-            SEQTK_SEQ.out.fastx
+            SEQTK_SEQ_MASK.out.fastx
                 .join(ORIENT_REFERENCE.out.reference),
             true,
             false,
@@ -554,7 +562,7 @@ workflow CRISPRSEQ {
         )
         ch_versions = ch_versions.mix(BWA_INDEX.out.versions)
         BWA_MEM (
-            SEQTK_SEQ.out.fastx,
+            SEQTK_SEQ_MASK.out.fastx,
             BWA_INDEX.out.index,
             true
         )
@@ -571,7 +579,7 @@ workflow CRISPRSEQ {
         )
         ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
         BOWTIE2_ALIGN (
-            SEQTK_SEQ.out.fastx,
+            SEQTK_SEQ_MASK.out.fastx,
             BOWTIE2_BUILD.out.index,
             false,
             true
