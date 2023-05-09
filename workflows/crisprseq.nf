@@ -82,7 +82,7 @@ include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_2        } from '../modules/nf-co
 include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_TEMPLATE     } from '../modules/nf-core/minimap2/align/main'
 include { SAMTOOLS_FAIDX                                } from '../modules/nf-core/samtools/faidx/main'
 include { MINIMAP2_INDEX                                } from '../modules/nf-core/minimap2/index/main'
-include { MEDAKA as MEDAKA_1                            } from '../modules/nf-core/medaka/main'
+include { MEDAKA                                        } from '../modules/nf-core/medaka/main'
 include { CUTADAPT                                      } from '../modules/nf-core/cutadapt/main'
 include { SAMTOOLS_INDEX                                } from '../modules/nf-core/samtools/index/main'
 
@@ -483,8 +483,9 @@ workflow CRISPRSEQ {
     //
     // MODULE: Obtain a consensus sequence
     //
-    MEDAKA_1 (
-
+    MEDAKA (
+        ch_clusters_sequence
+            .join(RACON_2.out.improved_assembly)
     )
 
     /*

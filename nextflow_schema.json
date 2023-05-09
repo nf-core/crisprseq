@@ -53,6 +53,12 @@
                     "default": 1,
                     "description": "Minimum size of a UMI cluster.",
                     "fa_icon": "fas fa-sort-amount-down"
+                },
+                "medaka_model": {
+                    "type": "string",
+                    "default": "r941_min_high_g360",
+                    "fa_icon": "fas fa-font",
+                    "description": "Medaka model (-m) to use according to the basecaller used."
                 }
             },
             "fa_icon": "fas fa-layer-group"
