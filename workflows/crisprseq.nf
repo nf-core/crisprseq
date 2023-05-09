@@ -528,7 +528,7 @@ workflow CRISPRSEQ {
     //
     if (params.aligner == "minimap2") {
         MINIMAP2_ALIGN (
-            SEQTK_SEQ_MASK.out.fastx
+            SEQTK_SEQ_FATOFQ.out.fastx
                 .join(ORIENT_REFERENCE.out.reference),
             true,
             false,
@@ -547,7 +547,7 @@ workflow CRISPRSEQ {
         )
         ch_versions = ch_versions.mix(BWA_INDEX.out.versions)
         BWA_MEM (
-            SEQTK_SEQ_MASK.out.fastx,
+            SEQTK_SEQ_FATOFQ.out.fastx,
             BWA_INDEX.out.index,
             true
         )
@@ -564,7 +564,7 @@ workflow CRISPRSEQ {
         )
         ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
         BOWTIE2_ALIGN (
-            SEQTK_SEQ_MASK.out.fastx,
+            SEQTK_SEQ_FATOFQ.out.fastx,
             BOWTIE2_BUILD.out.index,
             false,
             true
