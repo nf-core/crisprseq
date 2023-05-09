@@ -51,7 +51,6 @@ include { MERGING_SUMMARY                                 } from '../modules/loc
 include { CLUSTERING_SUMMARY                              } from '../modules/local/clustering_summary'
 include { ALIGNMENT_SUMMARY                               } from '../modules/local/alignment_summary'
 include { TEMPLATE_REFERENCE                              } from '../modules/local/template_reference'
-include { DUMMY_FINAL_UMI                                 } from '../modules/local/dummy_final_umi'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -514,20 +513,6 @@ workflow CRISPRSEQ {
         ch_umi_consensus
     )
 
-    /*
-    The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
-
-
-    Modules to implement:
-
-    fa2fq
-
-    */
-
-    // Dummy process simulating the last UMi clustering step to obtain clusters as fastq
-    DUMMY_FINAL_UMI {
-        SEQTK_SEQ_MASK.out.fastx
-    }
 
     //
     // MODULE: Summary of clustered reads
