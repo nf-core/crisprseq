@@ -488,14 +488,30 @@ workflow CRISPRSEQ {
             .join(RACON_2.out.improved_assembly)
     )
 
+    // Collect all consensus UMI sequences into one single file per sample
+    MEDAKA.out.assembly
+    .tap{ meta_channel_4 }
+    .collectFile() { meta, file ->
+        [ "${meta.id}_consensus.fasta", file ]
+    }
+    .join(meta_channel_4
+        .map{ meta, consensus ->
+            ["${consensus.baseName}", meta]
+        }
+    )
+    .map{ name, file, meta ->
+        [meta - meta.subMap('cluster_id'), file]
+    }
+    .set{ ch_umi_consensus }
+
+    ch_umi_consensus.view()
+
     /*
     The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
 
 
     Modules to implement:
 
-    consensus
-    join_reads
     fa2fq
 
     */
