@@ -41,17 +41,18 @@ include { INPUT_CHECK                      } from '../subworkflows/local/input_c
 //
 // MODULE
 //
-include { FIND_ADAPTERS                    } from '../modules/local/find_adapters'
-include { EXTRACT_UMIS                     } from '../modules/local/extract_umis'
-include { SEQ_TO_FILE as SEQ_TO_FILE_REF   } from '../modules/local/seq_to_file'
-include { SEQ_TO_FILE as SEQ_TO_FILE_TEMPL } from '../modules/local/seq_to_file'
-include { ORIENT_REFERENCE                 } from '../modules/local/orient_reference'
-include { CIGAR_PARSER                     } from '../modules/local/cigar_parser'
-include { MERGING_SUMMARY                  } from '../modules/local/merging_summary'
-include { CLUSTERING_SUMMARY               } from '../modules/local/clustering_summary'
-include { ALIGNMENT_SUMMARY                } from '../modules/local/alignment_summary'
-include { TEMPLATE_REFERENCE               } from '../modules/local/template_reference'
-include { DUMMY_FINAL_UMI                  } from '../modules/local/dummy_final_umi'
+include { FIND_ADAPTERS                                   } from '../modules/local/find_adapters'
+include { EXTRACT_UMIS                                    } from '../modules/local/extract_umis'
+include { SEQ_TO_FILE as SEQ_TO_FILE_REF                  } from '../modules/local/seq_to_file'
+include { SEQ_TO_FILE as SEQ_TO_FILE_TEMPL                } from '../modules/local/seq_to_file'
+include { ORIENT_REFERENCE                                } from '../modules/local/orient_reference'
+include { CIGAR_PARSER                                    } from '../modules/local/cigar_parser'
+include { MERGING_SUMMARY                                 } from '../modules/local/merging_summary'
+include { CLUSTERING_SUMMARY                              } from '../modules/local/clustering_summary'
+include { ALIGNMENT_SUMMARY                               } from '../modules/local/alignment_summary'
+include { TEMPLATE_REFERENCE                              } from '../modules/local/template_reference'
+include { DUMMY_FINAL_UMI                                 } from '../modules/local/dummy_final_umi'
+include { MODIFIED_MINIMAP2 as MINIMAP2_ALIGN_CONSENSUS_1 } from '../modules/local/modified_minimap2'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -81,8 +82,10 @@ include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_1        } from '../modules/nf-co
 include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_2        } from '../modules/nf-core/minimap2/align/main'
 include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_TEMPLATE     } from '../modules/nf-core/minimap2/align/main'
 include { SAMTOOLS_FAIDX                                } from '../modules/nf-core/samtools/faidx/main'
+include { MINIMAP2_INDEX                                } from '../modules/nf-core/minimap2/index/main'
 include { CUTADAPT                                      } from '../modules/nf-core/cutadapt/main'
-include { SAMTOOLS_INDEX                                } from '../modules/nf-core/samtools/index/main'
+include { SAMTOOLS_INDEX as SAMTOOLS_INDEX_CONSENSUS_1  } from '../modules/nf-core/samtools/index/main'
+include { SAMTOOLS_INDEX as SAMTOOLS_INDEX_ALIGNMENT    } from '../modules/nf-core/samtools/index/main'
 
 
 /*
@@ -485,6 +488,39 @@ workflow CRISPRSEQ {
         RACON_2.out.improved_assembly
     )
 
+
+    //
+    // MODULE: Indexing the reference file
+    //
+    MINIMAP2_INDEX (
+        RACON_2.out.improved_assembly
+    )
+
+    //
+    // MODULE: Alignment to obtain the consensus of an UMI cluster
+    //
+    MINIMAP2_ALIGN_CONSENSUS_1 {
+        ch_clusters_sequence
+            .join(MINIMAP2_INDEX.out.index),
+        true,
+        false,
+        true
+    }
+
+    //
+    // MODULE: Obtain .bam.bai files
+    //
+    SAMTOOLS_INDEX_CONSENSUS_1 (
+        ch_mapped_bam
+    )
+    ch_versions = ch_versions.mix(SAMTOOLS_INDEX_CONSENSUS_1.out.versions)
+
+
+    //
+    // MODULE:
+    //
+    
+
     /*
     The UMI clustering step is posponed until the next release, the steps to be implemented are listed below:
 
@@ -574,10 +610,10 @@ workflow CRISPRSEQ {
     //
     // MODULE: Obtain .bam.bai files
     //
-    SAMTOOLS_INDEX (
+    SAMTOOLS_INDEX_ALIGNMENT (
         ch_mapped_bam
     )
-    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
+    ch_versions = ch_versions.mix(SAMTOOLS_INDEX_ALIGNMENT.out.versions)
 
     //
     // MODULE: Obtain a new reference with the template modification
@@ -613,7 +649,7 @@ workflow CRISPRSEQ {
     ch_versions = ch_versions.mix(MINIMAP2_ALIGN_TEMPLATE.out.versions)
 
     ch_mapped_bam
-        .join(SAMTOOLS_INDEX.out.bai)
+        .join(SAMTOOLS_INDEX_ALIGNMENT.out.bai)
         .join(ORIENT_REFERENCE.out.reference)
         .join(INPUT_CHECK.out.protospacer
             .map {
