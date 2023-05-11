@@ -21,6 +21,9 @@ process MEDAKA {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
+    gzip -cdf $reads > ${reads.baseName}
+    gzip -cdf $assembly > ${assembly.baseName}
+
     medaka_consensus \\
         -t $task.cpus \\
         $args \\

@@ -1,0 +1,15 @@
+Changes in module 'nf-core/medaka'
+--- modules/nf-core/medaka/main.nf
++++ modules/nf-core/medaka/main.nf
+@@ -21,6 +21,9 @@
+     def args = task.ext.args ?: ''
+     def prefix = task.ext.prefix ?: "${meta.id}"
+     """
++    gzip -cdf $reads > ${reads.baseName}
++    gzip -cdf $assembly > ${assembly.baseName}
++
+     medaka_consensus \\
+         -t $task.cpus \\
+         $args \\
+
+************************************************************
