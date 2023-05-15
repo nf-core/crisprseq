@@ -291,7 +291,6 @@ workflow CRISPRSEQ {
         ch_trimmed = ch_pear_fastq
     }
 
-    ch_trimmed.view()
 
     //
     // MODULE: Mask (convert to Ns) bases with quality lower than 20 and remove sequences shorter than 80
@@ -389,48 +388,49 @@ workflow CRISPRSEQ {
 
     // Get the correspondent fasta sequencences from top cluster sequences
     // Replaces the sequence name adding the "centroid_" prefix to avoid having two sequences with the same name in following steps
-    VSEARCH_SORT.out.fasta
-    .tap{ meta_channel_2 }
+    VSEARCH_SORT.out.fasta // [[id:sample_id, ...], sample_top.fasta]
+    .tap{ meta_channel_2 } // [[id:sample_id, ...], sample_top.fasta]
     .map{ meta, fasta ->
         fasta_line = umi_to_sequence_centroid(fasta)
-        [meta, fasta.baseName, fasta_line]
+        [meta, fasta.baseName, fasta_line] // [[id:sample_id, ...], sample_top, >centroid_...]
     }
     .collectFile() { meta, name, fasta ->
-        [ "${name}.fasta", fasta ]
+        [ "${name}.fasta", fasta ] // >centroid_... -> sample_top.fasta
     }
     .map{ new_file ->
-        [new_file.baseName[0..-5], new_file] // Substring is removing "_top" added by VSEARCH_SORT
+        [new_file.baseName, new_file] // Substring is removing "_top" added by VSEARCH_SORT // [sample, sample_top.fasta]
     }
     .join(meta_channel_2
         .map { meta, original_file ->
-            ["${original_file.baseName}"[0..-5], meta] // Substring is removing "_top" added by VSEARCH_SORT
-        })
+            ["${original_file.baseName}", meta] // Substring is removing "_top" added by VSEARCH_SORT // [sample, [id:sample_id, ...]]
+        }) // [sample, sample_top.fasta, [id:sample_id, ...]]
     .map{ file_name, new_file, meta ->
-        [meta + [cluster_id: file_name], new_file] // Add cluster ID to meta map
+        [meta + [cluster_id: file_name[0..-5]], new_file] // Add cluster ID to meta map // [[id:sample_id, ..., cluster_id:sample], sample_top.fasta]
     }
-    .set{ ch_top_clusters_sequence }
+    .set{ ch_top_clusters_sequence } // [[id:sample_id, ..., cluster_id:sample], sample_top.fasta]
 
     // Get the correspondent fasta sequencences from UMI clusters
-    ch_umi_bysize.cluster
-    .tap{ meta_channel_3 }
+    ch_umi_bysize.cluster // [[id:sample_id, ...], sample]
+    .tap{ meta_channel_3 } // [[id:sample_id, ...], sample]
     .map{ meta, cluster ->
         fasta_line = umi_to_sequence(cluster)
-        [meta, cluster.baseName, fasta_line]
+        [meta, cluster.baseName, fasta_line] // [[id:sample_id, ...], sample, >...]
     }
     .collectFile() { meta, name, fasta ->
-        [ "${name}_sequences.fasta", fasta ]
+        [ "${name}_sequences.fasta", fasta ] // >... -> sample_sequences.fasta
     }
     .map{ new_file ->
-        [new_file.baseName[0..-11], new_file] // Substring is removing "_sequences" added by collectFile
+        [new_file.baseName[0..-11], new_file] // Substring is removing "_sequences" added by collectFile // [sample, sample_sequences.fasta]
     }
     .join(meta_channel_3
         .map { meta, original_file ->
-            ["${original_file.baseName}", meta]
-        })
+            ["${original_file.baseName}", meta] // [sample, [id:sample_id, ...]]
+        }) // [sample, sample_sequences.fasta, [id:sample_id, ...]]
     .map{ file_name, new_file, meta ->
-        [meta + [cluster_id: file_name], new_file] // Add cluster ID to meta map
+        [meta + [cluster_id: file_name], new_file] // Add cluster ID to meta map // [[id:sample_id, ..., cluster_id:sample], sample_sequences.fasta]
     }
     .set{ ch_clusters_sequence }
+
 
     // Cluster consensus & polishing
     // Two cycles of minimap2 + racon

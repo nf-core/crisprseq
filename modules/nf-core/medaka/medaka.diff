@@ -1,15 +1,50 @@
 Changes in module 'nf-core/medaka'
 --- modules/nf-core/medaka/main.nf
 +++ modules/nf-core/medaka/main.nf
-@@ -21,6 +21,9 @@
+@@ -11,8 +11,8 @@
+     tuple val(meta), path(reads), path(assembly)
+ 
+     output:
+-    tuple val(meta), path("*.fa.gz"), emit: assembly
+-    path "versions.yml"             , emit: versions
++    tuple val(meta), path("*.fasta.gz"), emit: assembly
++    path "versions.yml"                , emit: versions
+ 
+     when:
+     task.ext.when == null || task.ext.when
+@@ -21,16 +21,29 @@
      def args = task.ext.args ?: ''
      def prefix = task.ext.prefix ?: "${meta.id}"
      """
-+    gzip -cdf $reads > ${reads.baseName}
-+    gzip -cdf $assembly > ${assembly.baseName}
++    if [[ "${reads.extension}" == "gz" ]]; then
++        gzip -df $reads
++        reads=$reads.baseName
++    else
++        reads=$reads
++    fi
++    if [[ "${assembly.extension}" == "gz" ]]; then
++        gzip -df $assembly
++        assembly=$assembly.baseName
++    else
++        assembly=$assembly.baseName
++    fi
 +
      medaka_consensus \\
          -t $task.cpus \\
          $args \\
+-        -i $reads \\
+-        -d $assembly \\
++        -i \$reads \\
++        -d \$assembly \\
+         -o ./
+ 
+-    mv consensus.fasta ${prefix}.fa
++    mv consensus.fasta ${prefix}.fasta
+ 
+-    gzip -n ${prefix}.fa
++    gzip -n ${prefix}.fasta
+ 
+     cat <<-END_VERSIONS > versions.yml
+     "${task.process}":
 
 ************************************************************
