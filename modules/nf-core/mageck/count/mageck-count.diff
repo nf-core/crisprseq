@@ -1,0 +1,14 @@
+Changes in module 'nf-core/mageck/count'
+--- modules/nf-core/mageck/count/main.nf
++++ modules/nf-core/mageck/count/main.nf
+@@ -12,7 +12,7 @@
+     path(library)
+ 
+     output:
+-    tuple val(meta), path("*count*.txt"), emit: count
++    tuple val(meta), path("*count.txt"), emit: count
+     tuple val(meta), path("*.count_normalized.txt"), emit: norm
+     path "versions.yml"           , emit: versions
+ 
+
+************************************************************
