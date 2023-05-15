@@ -5,6 +5,20 @@
     "description": "Pipeline for the analysis of crispr data",
     "type": "object",
     "definitions": {
+        "popeline_steps": {
+            "title": "Popeline steps",
+            "type": "object",
+            "description": "Alternative pipeline steps to include in the analysis.",
+            "default": "",
+            "properties": {
+                "overrepresented": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-sort-numeric-up-alt",
+                    "description": "Trim overrepresented sequences from reads (cutadapt)"
+                }
+            },
+            "fa_icon": "fas fa-shoe-prints"
+        },
         "input_output_options": {
             "title": "Input/output options",
             "type": "object",
@@ -340,6 +354,9 @@
         }
     },
     "allOf": [
+        {
+            "$ref": "#/definitions/popeline_steps"
+        },
         {
             "$ref": "#/definitions/input_output_options"
         },

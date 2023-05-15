@@ -249,41 +249,49 @@ workflow CRISPRSEQ {
     )
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
-    //
-    // MODULE: Find overrepresented sequences
-    FIND_ADAPTERS (
-        FASTQC.out.zip
-    )
-    .adapters
-    .join(ch_pear_fastq)
-    .groupTuple(by: [0])
-    // Separate samples by containing overrepresented sequences or not
-    .branch {
-        meta, adapter_seqs, reads ->
-            no_adapters: adapter_seqs[0].size() == 0
-                return [ meta, reads[0] ]
-            adapters   : adapter_seqs[0].size() > 0
-                return [ meta, reads[0], adapter_seqs[0] ]
+    ch_trimmed = Channel.empty()
+
+    if (params.overrepresented) {
+        //
+        // MODULE: Find overrepresented sequences
+        FIND_ADAPTERS (
+            FASTQC.out.zip
+        )
+        .adapters
+        .join(ch_pear_fastq)
+        .groupTuple(by: [0])
+        // Separate samples by containing overrepresented sequences or not
+        .branch {
+            meta, adapter_seqs, reads ->
+                no_adapters: adapter_seqs[0].size() == 0
+                    return [ meta, reads[0] ]
+                adapters   : adapter_seqs[0].size() > 0
+                    return [ meta, reads[0], adapter_seqs[0] ]
+        }
+        .set { ch_adapter_seqs }
+
+
+        //
+        // MODULE: Trim adapter sequences
+        //
+        CUTADAPT (
+            ch_adapter_seqs.adapters
+        )
+        ch_versions = ch_versions.mix(CUTADAPT.out.versions)
+
+        ch_adapter_seqs.no_adapters
+        .mix(CUTADAPT.out.reads)
+        .groupTuple(by: [0])
+        .map {
+            meta, fastq ->
+                    return [ meta, fastq.flatten() ]
+        }
+        .set{ ch_trimmed }
+    } else {
+        ch_trimmed = ch_pear_fastq
     }
-    .set { ch_adapter_seqs }
 
-
-    //
-    // MODULE: Trim adapter sequences
-    //
-    CUTADAPT (
-        ch_adapter_seqs.adapters
-    )
-    ch_versions = ch_versions.mix(CUTADAPT.out.versions)
-
-    ch_adapter_seqs.no_adapters
-    .mix(CUTADAPT.out.reads)
-    .groupTuple(by: [0])
-    .map {
-        meta, fastq ->
-                return [ meta, fastq.flatten() ]
-    }
-    .set{ ch_trimmed }
+    ch_trimmed.view()
 
     //
     // MODULE: Mask (convert to Ns) bases with quality lower than 20 and remove sequences shorter than 80
@@ -302,7 +310,7 @@ workflow CRISPRSEQ {
             .mix(ch_cat_fastq.single)
             .join(PEAR.out.assembled, remainder: true)
             .join(SEQTK_SEQ_MASK.out.fastx)
-            .join(CUTADAPT.out.log)
+            .join(( params.overrepresented ? CUTADAPT.out.log : Channel.value("null") ))
             .map { meta, reads, assembled, masked, trimmed ->
                 if (assembled == null) {
                     dummy = file('null')
