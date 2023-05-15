@@ -499,12 +499,19 @@ workflow CRISPRSEQ {
     // Collect all consensus UMI sequences into one single file per sample
     MEDAKA.out.assembly
     .tap{ meta_channel_4 }
+    .map{ meta, file ->
+        file_content = file.getText()
+        [meta, file_content] // [[id:sample_id, ...], consensus_content]
+    }
     .collectFile() { meta, file ->
         [ "${meta.id}_consensus.fasta", file ]
     }
+    .map{ new_file ->
+        [new_file.baseName, new_file] 
+    }
     .join(meta_channel_4
         .map{ meta, consensus ->
-            ["${consensus.baseName}", meta]
+            ["${meta.id}_consensus", meta]
         }
     )
     .map{ name, file, meta ->
@@ -512,7 +519,6 @@ workflow CRISPRSEQ {
     }
     .set{ ch_umi_consensus }
 
-    ch_umi_consensus.view()
 
     //
     // MODULE: Convert fasta to fastq

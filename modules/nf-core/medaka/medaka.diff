@@ -7,12 +7,12 @@ Changes in module 'nf-core/medaka'
      output:
 -    tuple val(meta), path("*.fa.gz"), emit: assembly
 -    path "versions.yml"             , emit: versions
-+    tuple val(meta), path("*.fasta.gz"), emit: assembly
-+    path "versions.yml"                , emit: versions
++    tuple val(meta), path("*_medakaConsensus.fasta"), emit: assembly
++    path "versions.yml"                             , emit: versions
  
      when:
      task.ext.when == null || task.ext.when
-@@ -21,16 +21,29 @@
+@@ -21,16 +21,27 @@
      def args = task.ext.args ?: ''
      def prefix = task.ext.prefix ?: "${meta.id}"
      """
@@ -26,7 +26,7 @@ Changes in module 'nf-core/medaka'
 +        gzip -df $assembly
 +        assembly=$assembly.baseName
 +    else
-+        assembly=$assembly.baseName
++        assembly=$assembly
 +    fi
 +
      medaka_consensus \\
@@ -39,10 +39,9 @@ Changes in module 'nf-core/medaka'
          -o ./
  
 -    mv consensus.fasta ${prefix}.fa
-+    mv consensus.fasta ${prefix}.fasta
- 
+-
 -    gzip -n ${prefix}.fa
-+    gzip -n ${prefix}.fasta
++    mv consensus.fasta ${prefix}.fasta
  
      cat <<-END_VERSIONS > versions.yml
      "${task.process}":

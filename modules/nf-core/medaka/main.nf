@@ -11,8 +11,8 @@ process MEDAKA {
     tuple val(meta), path(reads), path(assembly)
 
     output:
-    tuple val(meta), path("*.fasta.gz"), emit: assembly
-    path "versions.yml"                , emit: versions
+    tuple val(meta), path("*_medakaConsensus.fasta"), emit: assembly
+    path "versions.yml"                             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -31,7 +31,7 @@ process MEDAKA {
         gzip -df $assembly
         assembly=$assembly.baseName
     else
-        assembly=$assembly.baseName
+        assembly=$assembly
     fi
 
     medaka_consensus \\
@@ -42,8 +42,6 @@ process MEDAKA {
         -o ./
 
     mv consensus.fasta ${prefix}.fasta
-
-    gzip -n ${prefix}.fasta
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
