@@ -9,7 +9,6 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 // Validate input parameters
 WorkflowCrisprseq.initialise(params, log)
 
-// TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
 def checkPathParamList = [ params.multiqc_config, params.fasta, params.library, params.design_matrix ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
