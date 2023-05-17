@@ -9,13 +9,12 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 // Validate input parameters
 WorkflowCrisprseq.initialise(params, log)
 
-// TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
 def checkPathParamList = [ params.multiqc_config, params.fasta, params.library, params.design_matrix ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
-//if (!params.count_table) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+if (!params.count_table) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 if (params.library) { ch_library = file(params.library) }
 if (params.crisprcleanr) { ch_crisprcleanr= file(params.crisprcleanr) }
 
@@ -57,10 +56,10 @@ include { INPUT_CHECK_SCREENING } from '../subworkflows/local/input_check_screen
 include { FASTQC                      } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
 include { MAGECK_COUNT                } from '../modules/nf-core/mageck/count/main'
-include { MAGECK_MLE                } from '../modules/nf-core/mageck/mle/main'
-include { MAGECK_TEST                } from '../modules/nf-core/mageck/test/main'
+include { MAGECK_MLE                  } from '../modules/nf-core/mageck/mle/main'
+include { MAGECK_TEST                 } from '../modules/nf-core/mageck/test/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
-include { CRISPRCLEANR_NORMALIZE } from '../modules/nf-core/crisprcleanr/normalize/main'
+include { CRISPRCLEANR_NORMALIZE      } from '../modules/nf-core/crisprcleanr/normalize/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -129,14 +128,12 @@ joined = ch_metas.merge(ch_fastqs) { m, f -> tuple([id:m], f) }
     MAGECK_COUNT.out.count.map {
     it -> it[1]
     }.set { ch_counts }
-    ch_counts.dump(tag: 'ch_counts_mageck')
-
 
 } else {
     Channel.fromPath(params.count_table)
     .set { ch_counts }
 }
-ch_counts.dump(tag: 'ch_counts_mageck')
+
 
 if(params.crisprcleanr) {
     CRISPRCLEANR_NORMALIZE("count_table_normalize",ch_counts,ch_crisprcleanr,params.min_reads,params.min_targeted_genes)
