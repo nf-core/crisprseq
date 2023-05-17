@@ -44,9 +44,8 @@ For crispr screening :
 2. Read mapping ([`MAGeCK count`](https://sourceforge.net/p/mageck/wiki/usage/#count))
 3. Optional : CNV correction and normalization with ([`CRISPRcleanR`](https://github.com/francescojm/CRISPRcleanR))
 4. Rank sgRNAs and genes ;
-    a. ([MAGeCK test](https://sourceforge.net/p/mageck/wiki/usage/#test))
-    b. ([MAGeCK mle](https://sourceforge.net/p/mageck/wiki/Home/#mle))
-
+   a. ([MAGeCK test](https://sourceforge.net/p/mageck/wiki/usage/#test))
+   b. ([MAGeCK mle](https://sourceforge.net/p/mageck/wiki/Home/#mle))
 
 ## Quick Start
 
@@ -95,7 +94,7 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 
 ## Citations
 
-If you use  nf-core/crisprseq for your analysis, please cite it using the following doi: [10.5281/zenodo.7598497
+If you use nf-core/crisprseq for your analysis, please cite it using the following doi: [10.5281/zenodo.7598497
 ](https://doi.org/10.5281/zenodo.7598497)
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
