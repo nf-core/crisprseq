@@ -60,15 +60,12 @@
         "screening_parameters": {
             "title": "Screening parameters",
             "type": "object",
-            "description": "",
+            "description": "Parameters used for functional genomic screenings",
             "default": "",
             "properties": {
-                "skip_alignment": {
-                    "type": "boolean",
-                    "hidden": true
-                },
                 "design_matrix": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Design matrix used for MAGeCK MLE to call essential genes under multiple conditions while considering sgRNA knockout efficiency"
                 },
                 "count_table": {
                     "type": "string",
@@ -76,11 +73,12 @@
                 },
                 "library": {
                     "type": "string",
-                    "default": "None",
-                    "fa_icon": "far fa-address-book"
+                    "fa_icon": "far fa-address-book",
+                    "description": "sgRNA sequences and targeting genes"
                 },
                 "crisprcleanr": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "sgRNA library annotation for crisprcleanR"
                 },
                 "min_reads": {
                     "type": "number",
@@ -89,7 +87,8 @@
                 },
                 "min_targeted_genes": {
                     "type": "number",
-                    "description": "Minimal number of different genes targeted by sgRNAs in a biased segment in order for the corresponding counts to be corrected"
+                    "description": "Minimal number of different genes targeted by sgRNAs in a biased segment in order for the corresponding counts to be corrected",
+                    "default": 3
                 },
                 "contrasts": {
                     "type": "string",
