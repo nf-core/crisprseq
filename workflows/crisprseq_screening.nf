@@ -73,95 +73,97 @@ workflow CRISPRSEQ_SCREENING {
 
     ch_versions = Channel.empty()
 
-    //
-    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
-    //
-
-
-if(!params.count_table){
-    INPUT_CHECK_SCREENING (
-        ch_input
-    )
-    //
-    // MODULE: Run FastQC
-    //
-    FASTQC (
-        INPUT_CHECK_SCREENING.out.reads
-    )
-
-    ch_versions = ch_versions.mix(INPUT_CHECK_SCREENING.out.versions)
-
-
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
-   // INPUT_CHECK_SCREENING.out.reads.collect().view()
-
-INPUT_CHECK_SCREENING.out.reads.multiMap{
-   meta, fastq ->
-       metas: meta.condition
-       fastqs: fastq
-}.set { splitted }
-
-splitted.metas.reduce{
-    a, b -> return "$a,$b"
-}
-.set { ch_metas }
-
-
-ch_fastqs = splitted.fastqs.collect()
-
-
-joined = ch_metas.merge(ch_fastqs) { m, f -> tuple([id:m], f) }
-
-
-    //
-    // MODULE: Run mageck count
-    //
-
-    MAGECK_COUNT (
-        joined,
-        params.library
-    )
-
-    ch_versions = ch_versions.mix(MAGECK_COUNT.out.versions.first())
-
-
-    MAGECK_COUNT.out.count.map {
-    it -> it[1]
-    }.set { ch_counts }
-
-} else {
-    Channel.fromPath(params.count_table)
-    .set { ch_counts }
-}
-
-
-if(params.crisprcleanr) {
-    CRISPRCLEANR_NORMALIZE("count_table_normalize",ch_counts,ch_crisprcleanr,params.min_reads,params.min_targeted_genes)
-    CRISPRCLEANR_NORMALIZE.out.norm_count_file.map {
-    it -> it[1]
-    }.set { ch_counts }
-}
-
-if(params.contrasts) {
-Channel.fromPath(params.contrasts)
-    .splitCsv(header:true, sep:',' )
-    .set { ch_contrasts }
-counts = ch_contrasts.combine(ch_counts)
-
-    MAGECK_TEST (
-        counts
-    )
-}
-
-if(params.design_matrix) {
-    ch_mle = ch_counts.combine(ch_design)
-    ch_mle.map {
-        it-> [[id: it[1].getBaseName()], it[0], it[1]]
-        }.set { ch_designed_mle }
-    MAGECK_MLE (
-        ch_designed_mle
+    if(!params.count_table){
+        //
+        // SUBWORKFLOW: Read in samplesheet, validate and stage input files
+        //
+        INPUT_CHECK_SCREENING (
+            ch_input
         )
-}
+        ch_versions = ch_versions.mix(INPUT_CHECK_SCREENING.out.versions)
+
+        //
+        // MODULE: Run FastQC
+        //
+        FASTQC (
+            INPUT_CHECK_SCREENING.out.reads
+        )
+        ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+
+        INPUT_CHECK_SCREENING.out.reads.multiMap{
+        meta, fastq ->
+            metas: meta.condition
+            fastqs: fastq
+        }.set { splitted }
+
+        splitted.metas.reduce{
+            a, b -> return "$a,$b"
+        }
+        .set { ch_metas }
+
+
+        ch_fastqs = splitted.fastqs.collect()
+
+
+        joined = ch_metas.merge(ch_fastqs) { m, f -> tuple([id:m], f) }
+
+
+        //
+        // MODULE: Run mageck count
+        //
+        MAGECK_COUNT (
+            joined,
+            params.library
+        )
+
+        ch_versions = ch_versions.mix(MAGECK_COUNT.out.versions.first())
+
+
+        MAGECK_COUNT.out.count.map {
+        it -> it[1]
+        }.set { ch_counts }
+
+    } else {
+        Channel.fromPath(params.count_table)
+        .set { ch_counts }
+    }
+
+
+    if(params.crisprcleanr) {
+        CRISPRCLEANR_NORMALIZE(
+            "count_table_normalize",
+            ch_counts,
+            ch_crisprcleanr,
+            params.min_reads,
+            params.min_targeted_genes
+        )
+
+        CRISPRCLEANR_NORMALIZE.out.norm_count_file.map {
+            it -> it[1]
+        }.set { ch_counts }
+    }
+
+    if(params.contrasts) {
+        Channel.fromPath(params.contrasts)
+            .splitCsv(header:true, sep:',' )
+            .set { ch_contrasts }
+        counts = ch_contrasts.combine(ch_counts)
+
+        MAGECK_TEST (
+            counts
+        )
+    }
+
+    if(params.design_matrix) {
+        ch_mle = ch_counts.combine(ch_design)
+        ch_mle.map {
+            it-> [[id: it[1].getBaseName()], it[0], it[1]]
+        }.set { ch_designed_mle }
+
+        MAGECK_MLE (
+            ch_designed_mle
+        )
+    }
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
@@ -184,7 +186,7 @@ if(params.design_matrix) {
         ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
     } else {
         ch_multiqc_files = channel.empty()
-        }
+    }
 
     MULTIQC (
         ch_multiqc_files.collect(),
