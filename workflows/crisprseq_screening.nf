@@ -19,8 +19,8 @@ if (params.library) { ch_library = file(params.library) }
 if (params.crisprcleanr) { ch_crisprcleanr= file(params.crisprcleanr) }
 
 if(params.design_matrix) {
-Channel.fromPath(params.design_matrix)
-    .set { ch_design}
+    Channel.fromPath(params.design_matrix)
+        .set { ch_design }
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
