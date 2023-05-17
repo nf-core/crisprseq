@@ -5,6 +5,21 @@
     "description": "Pipeline for the analysis of crispr data",
     "type": "object",
     "definitions": {
+        "alignment_parameters": {
+            "title": "Alignment parameters",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "aligner": {
+                    "type": "string",
+                    "description": "Aligner program to use",
+                    "default": "minimap2",
+                    "fa_icon": "fas fa-align-justify",
+                    "enum": ["minimap2", "bwa", "bowtie2"]
+                }
+            }
+        },
         "input_output_options": {
             "title": "Input/output options",
             "type": "object",
@@ -329,6 +344,9 @@
         },
         {
             "$ref": "#/definitions/alignment_parameters"
+        },
+        {
+            "$ref": "#/definitions/input_output_options"
         },
         {
             "$ref": "#/definitions/screening_parameters"
