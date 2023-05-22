@@ -93,15 +93,17 @@ include { SAMTOOLS_INDEX                                } from '../modules/nf-co
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-def umi_to_sequence(cluster) {
-    cluster.withReader { source ->
-        String line
-        sequences = ""
-        while ( line=source.readLine() ) {
-            if (line.startsWith(">")) {
-                sequence = (line =~ /;seq=(.*$)/)[0][1]
-                id = (line =~ /(>.*?);/)[0][1]
-                sequences = sequences + id + "\n" + sequence + "\n"
+def umi_to_sequence(cluster1) {
+    String line1
+    String sequences = ""
+    String sequence1
+    String id1
+    cluster1.withReader {
+        while ( line1=it.readLine() ) {
+            if (line1.startsWith(">")) {
+                sequence1 = (line1 =~ /;seq=(.*$)/)[0][1]
+                id1 = (line1 =~ /(>.*?);/)[0][1]
+                sequences = sequences + id1 + "\n" + sequence1 + "\n"
             }
         }
     }
@@ -109,17 +111,18 @@ def umi_to_sequence(cluster) {
 }
 
 def umi_to_sequence_centroid(cluster) {
-    cluster.withReader { source ->
-        String line
-        while ( line=source.readLine() ) {
+    String line
+    String sequence
+    String id
+    cluster.withReader {
+        while ( line=it.readLine() ) {
             if (line.startsWith(">")) {
                 sequence = (line =~ /;seq=(.*$)/)[0][1]
                 id = (line =~ /(>.*?);/)[0][1]
+                return id.replace(">", ">centroid_") + "\n" + sequence
             }
         }
     }
-    id = id.replace(">", ">centroid_")
-    return id + "\n" + sequence
 }
 
 
@@ -386,6 +389,9 @@ workflow CRISPRSEQ {
         Channel.value("--sortbysize")
     )
 
+    //VSEARCH_SORT.out.fasta.dump(tag:'vsearch_sort_output')
+    //ch_umi_bysize.cluster.dump(tag:'umi_clusters')
+
     // Get the correspondent fasta sequencences from top cluster sequences
     // Replaces the sequence name adding the "centroid_" prefix to avoid having two sequences with the same name in following steps
     VSEARCH_SORT.out.fasta // [[id:sample_id, ...], sample_top.fasta]
@@ -394,9 +400,10 @@ workflow CRISPRSEQ {
         fasta_line = umi_to_sequence_centroid(fasta)
         [meta, fasta.baseName, fasta_line] // [[id:sample_id, ...], sample_top, >centroid_...]
     }
-    .collectFile() { meta, name, fasta ->
+    .collectFile(cache:true,sort:true) { meta, name, fasta ->
         [ "${name}.fasta", fasta ] // >centroid_... -> sample_top.fasta
     }
+    .dump(tag:"collectfile output")
     .map{ new_file ->
         [new_file.baseName, new_file] // Substring is removing "_top" added by VSEARCH_SORT // [sample, sample_top.fasta]
     }
@@ -408,6 +415,7 @@ workflow CRISPRSEQ {
         [meta + [cluster_id: file_name[0..-5]], new_file] // Add cluster ID to meta map // [[id:sample_id, ..., cluster_id:sample], sample_top.fasta]
     }
     .set{ ch_top_clusters_sequence } // [[id:sample_id, ..., cluster_id:sample], sample_top.fasta]
+    
 
     // Get the correspondent fasta sequencences from UMI clusters
     ch_umi_bysize.cluster // [[id:sample_id, ...], sample]
@@ -416,9 +424,11 @@ workflow CRISPRSEQ {
         fasta_line = umi_to_sequence(cluster)
         [meta, cluster.baseName, fasta_line] // [[id:sample_id, ...], sample, >...]
     }
-    .collectFile() { meta, name, fasta ->
+    .dump(tag:'map allreads output')
+    .collectFile(cache:true,sort:true) { meta, name, fasta ->
         [ "${name}_sequences.fasta", fasta ] // >... -> sample_sequences.fasta
     }
+    .dump(tag:"collectfile allreads output")
     .map{ new_file ->
         [new_file.baseName[0..-11], new_file] // Substring is removing "_sequences" added by collectFile // [sample, sample_sequences.fasta]
     }
@@ -447,11 +457,21 @@ workflow CRISPRSEQ {
         false
     )
 
+    MINIMAP2_ALIGN_UMI_1.out.paf.dump(tag:'minimap_unfiltered')
+
     // Only continue with clusters that have aligned sequences
     MINIMAP2_ALIGN_UMI_1.out.paf
         .filter{ it[1].countLines() > 0 }
         .set{ ch_minimap_1 }
 
+    //ch_clusters_sequence.dump(tag:'ch_umi_clusters')
+    //ch_top_clusters_sequence.dump(tag:'ch_vsearch_top')
+    ch_minimap_1.dump(tag:'minimap')
+    //ch_clusters_sequence
+    //    .join(ch_top_clusters_sequence)
+    //    .join(ch_minimap_1)
+    //    .dump(tag:'clusters_top_alignment')
+    
     //
     // MODULE: Improve top read from UMI cluster using cluster consensus - cycle 1
     //
