@@ -8,17 +8,15 @@ Changes in module 'nf-core/mageck/test'
      label 'process_medium'
  
      conda "bioconda::mageck=0.5.9"
-@@ -21,14 +21,20 @@
+@@ -21,14 +21,18 @@
  
      script:
      def args = task.ext.args ?: ''
 +    def args2 = task.ext.args2 ?: ''
      def prefix = task.ext.prefix ?: "${meta.id}"
- 
 +
+ 
      """
-+    echo $meta.reference
-+    echo $meta.treatment
      mageck  \\
          test \\
          $args \\
@@ -30,7 +28,7 @@ Changes in module 'nf-core/mageck/test'
  
  
      cat <<-END_VERSIONS > versions.yml
-@@ -36,4 +42,4 @@
+@@ -36,4 +40,4 @@
          mageck: \$(mageck -v)
      END_VERSIONS
      """

@@ -26,8 +26,6 @@ process MAGECK_TEST {
 
 
     """
-    echo $meta.reference
-    echo $meta.treatment
     mageck  \\
         test \\
         $args \\
