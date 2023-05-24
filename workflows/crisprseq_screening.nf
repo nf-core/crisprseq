@@ -113,7 +113,7 @@ workflow CRISPRSEQ_SCREENING {
         //
         MAGECK_COUNT (
             joined,
-            params.library
+            ch_library
         )
 
         ch_versions = ch_versions.mix(MAGECK_COUNT.out.versions.first())
