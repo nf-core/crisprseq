@@ -1,4 +1,3 @@
 repository_type: pipeline
 lint:
-  files_exist:
-    conf/test.config
+  files_exist: conf/test.config
