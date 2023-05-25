@@ -6,7 +6,7 @@
 
 ## Introduction
 
-The **nf-core/crisprseq** pipeline allows the analysis of CRISPR edited next generation sequencing (NGS) data. It evaluates the quality of gene editing experiments using targeted NGS data.
+The **nf-core/crisprseq** pipeline allows the analysis of CRISPR edited next generation sequencing (NGS) data and CRISPR pooled DNA. It evaluates the quality of gene editing experiments using targeted NGS data.
 
 ## Samplesheet input
 

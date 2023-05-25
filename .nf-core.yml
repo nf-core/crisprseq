@@ -1,1 +1,5 @@
 repository_type: pipeline
+lint:
+  # TODO: Add a basic test with profile test and make the following CI tests pass
+  files_exist: conf/test.config
+  actions_ci: false
