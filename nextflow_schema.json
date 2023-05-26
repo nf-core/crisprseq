@@ -88,12 +88,12 @@
                 "min_reads": {
                     "type": "number",
                     "description": "a filter threshold value for sgRNAs, based on their average counts in the control sample",
-                    "default": 30
+                    "default": 30.0
                 },
                 "min_targeted_genes": {
                     "type": "number",
                     "description": "Minimal number of different genes targeted by sgRNAs in a biased segment in order for the corresponding counts to be corrected",
-                    "default": 3
+                    "default": 3.0
                 },
                 "contrasts": {
                     "type": "string",
