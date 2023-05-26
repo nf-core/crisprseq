@@ -41,9 +41,9 @@ include { CRISPRSEQ_SCREENING } from './workflows/crisprseq_screening'
 // WORKFLOW: Run main nf-core/crisprseq analysis pipeline
 //
 workflow NFCORE_CRISPRSEQ {
-    if params.analysis == "targeted" {
+    if ( params.analysis == "targeted" ) {
         CRISPRSEQ_TARGETED ()
-    } else if params.analysis == "screening" {
+    } else if ( params.analysis == "screening" ) {
         CRISPRSEQ_SCREENING ()
     }
 }
