@@ -8,7 +8,17 @@ Changes in module 'nf-core/mageck/test'
      label 'process_medium'
  
      conda "bioconda::mageck=0.5.9"
-@@ -21,14 +21,18 @@
+@@ -14,6 +14,9 @@
+     tuple val(meta), path("*.gene_summary.txt")  , emit: gene_summary
+     tuple val(meta), path("*.sgrna_summary.txt") , emit: sgrna_summary
+     tuple val(meta), path("*.R")                 , emit: r_script
++    tuple val(meta), path("*.Rmd")               , emit: r_report
++    tuple val(meta), path("*.Rnw")               , emit: r_summary
++    tuple val(meta), path("*.log")               , emit: logs
+     path "versions.yml"                          , emit: versions
+ 
+     when:
+@@ -21,14 +24,18 @@
  
      script:
      def args = task.ext.args ?: ''
@@ -28,7 +38,7 @@ Changes in module 'nf-core/mageck/test'
  
  
      cat <<-END_VERSIONS > versions.yml
-@@ -36,4 +40,4 @@
+@@ -36,4 +43,4 @@
          mageck: \$(mageck -v)
      END_VERSIONS
      """
