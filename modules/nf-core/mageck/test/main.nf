@@ -14,6 +14,9 @@ process MAGECK_TEST {
     tuple val(meta), path("*.gene_summary.txt")  , emit: gene_summary
     tuple val(meta), path("*.sgrna_summary.txt") , emit: sgrna_summary
     tuple val(meta), path("*.R")                 , emit: r_script
+    tuple val(meta), path("*.Rmd")               , emit: r_report
+    tuple val(meta), path("*.Rnw")               , emit: r_summary
+    tuple val(meta), path("*.log")               , emit: logs
     path "versions.yml"                          , emit: versions
 
     when:
