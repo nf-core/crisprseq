@@ -48,10 +48,10 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 <summary>Output files</summary>
 
 - `mageck/count`
-  - `*_count.txt`: FastQC report containing quality metrics.
+  - `*_count.txt`: read counts per sample per sgRNA and gene, tab separated
   - `*_count_normalized.txt`: normalized read counts, tab separated
   - `*_count_summary.txt`: tab separated summary of the quality controls of the count table
-  - `*_count_table.log`: logging information of the run
+  - `*_count_table.log`: log information of the run
 
 
 </details>
@@ -64,9 +64,9 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 <summary>Output files</summary>
 
 - `mageck/mle`
-  - `*_gene_summary.txt`: FastQC report containing quality metrics.
-  - `*_sgrna_summary.txt`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
-  - `*_count_table.log`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
+  - `*_gene_summary.txt`: ranked table of the genes and their associated p-values
+  - `*_sgrna_summary.txt`: sgRNA ranking results, tab separated file
+  - `*.log`:  log of the run
 
 
 </details>
@@ -77,14 +77,15 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 <summary>Output files</summary>
 
 - `mageck/rra`
-  - `*_gene_summary.txt`: FastQC report containing quality metrics.
-  - `*_count_sgrna_summary.txt`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
-  - `*.report.Rmd`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
-  - `*_count_table.log`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
+  - `*_gene_summary.txt`: ranked table of the genes and their associated p-values
+  - `*_count_sgrna_summary.txt`: sgRNA ranking results, tab separated file containing means, p-values
+  - `*.report.Rmd`: markdown report recapping essential genes
+  - `*_count_table.log`: log of the run
 
 
 </details>
 
+[MAGeCK](https://sourceforge.net/p/mageck/wiki/Home/) is a computational tool to identify important genes from CRISPR-Cas9 screens.
 
 ## MultiQC
 
