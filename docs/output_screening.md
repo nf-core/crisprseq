@@ -19,7 +19,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - [CRISPRcleanR](#crisprcleanr) - Copy Number Variation correction and read normalization in case of knock-out screens.
 - [Gene essentiality](#gene-essentiality)
   - [MAGeCK rra](#rra) - modified robust ranking aggregation (RRA) algorithm
-  - [MAGeCK mle](#mle) -  maximum-likelihood estimation (MLE) for robust identification of CRISPR-screen hits
+  - [MAGeCK mle](#mle) - maximum-likelihood estimation (MLE) for robust identification of CRISPR-screen hits
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
@@ -38,8 +38,6 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 [FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your sequenced reads. It provides information about the quality score distribution across your reads, per base sequence content (%A/T/G/C), adapter contamination and overrepresented sequences. For further reading and documentation see the [FastQC help pages](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
 
-
-
 ## Counting
 
 ### MAGeCK count
@@ -53,7 +51,6 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - `*_count_summary.txt`: tab separated summary of the quality controls of the count table
   - `*_count_table.log`: log information of the run
 
-
 </details>
 
 ## Gene essentiality computation
@@ -66,8 +63,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - `mageck/mle`
   - `*_gene_summary.txt`: ranked table of the genes and their associated p-values
   - `*_sgrna_summary.txt`: sgRNA ranking results, tab separated file
-  - `*.log`:  log of the run
-
+  - `*.log`: log of the run
 
 </details>
 
@@ -81,7 +77,6 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - `*_count_sgrna_summary.txt`: sgRNA ranking results, tab separated file containing means, p-values
   - `*.report.Rmd`: markdown report recapping essential genes
   - `*_count_table.log`: log of the run
-
 
 </details>
 
