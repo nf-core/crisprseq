@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix warning "module used more than once" ([#25](https://github.com/nf-core/crisprseq/pull/25))
+
 ### Dependencies
 
 ### Deprecated
