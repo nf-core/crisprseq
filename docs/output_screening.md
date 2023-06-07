@@ -38,8 +38,6 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 [FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your sequenced reads. It provides information about the quality score distribution across your reads, per base sequence content (%A/T/G/C), adapter contamination and overrepresented sequences. For further reading and documentation see the [FastQC help pages](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
 
-
-
 ## Counting
 
 ### MAGeCK count
@@ -51,7 +49,6 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - `*_count.txt`: read counts per sample per sgRNA and gene, tab separated
   - `*_count_normalized.txt`: normalized read counts, tab separated
   - `*_count_table.log`: log information of the run
-
 
 </details>
 
@@ -65,8 +62,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - `mageck/mle`
   - `*_gene_summary.txt`: ranked table of the genes and their associated p-values
   - `*_sgrna_summary.txt`: sgRNA ranking results, tab separated file
-  - `*.log`:  log of the run
-
+  - `*.log`: log of the run
 
 </details>
 
@@ -80,7 +76,6 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - `*_count_sgrna_summary.txt`: sgRNA ranking results, tab separated file containing means, p-values
   - `*.report.Rmd`: markdown report recapping essential genes
   - `*_count_table.log`: log of the run
-
 
 </details>
 
