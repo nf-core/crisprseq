@@ -10,7 +10,7 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 WorkflowCrisprseq.initialise(params, log)
 
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.multiqc_config, params.fasta, params.library, params.design_matrix ]
+def checkPathParamList = [ params.multiqc_config, params.fasta, params.library, params.mle_design_matrix ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
@@ -18,8 +18,8 @@ if (!params.count_table) { ch_input = file(params.input) } else { exit 1, 'Input
 if (params.library) { ch_library = file(params.library) }
 if (params.crisprcleanr) { ch_crisprcleanr= file(params.crisprcleanr) }
 
-if(params.design_matrix) {
-    Channel.fromPath(params.design_matrix)
+if(params.mle_design_matrix) {
+    Channel.fromPath(params.mle_design_matrix)
         .set { ch_design }
 }
 /*
@@ -131,7 +131,7 @@ workflow CRISPRSEQ_SCREENING {
 
     if(params.crisprcleanr) {
         CRISPRCLEANR_NORMALIZE(
-            "count_table_normalize",
+            [id: "count_table_normalize"],
             ch_counts,
             ch_crisprcleanr,
             params.min_reads,
@@ -143,8 +143,8 @@ workflow CRISPRSEQ_SCREENING {
         }.set { ch_counts }
     }
 
-    if(params.contrasts) {
-        Channel.fromPath(params.contrasts)
+    if(params.rra_contrasts) {
+        Channel.fromPath(params.rra_contrasts)
             .splitCsv(header:true, sep:',' )
             .set { ch_contrasts }
         counts = ch_contrasts.combine(ch_counts)
@@ -154,7 +154,7 @@ workflow CRISPRSEQ_SCREENING {
         )
     }
 
-    if(params.design_matrix) {
+    if(params.mle_design_matrix) {
         ch_mle = ch_counts.combine(ch_design)
         ch_mle.map {
             it-> [[id: it[1].getBaseName()], it[0], it[1]]
