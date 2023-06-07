@@ -8,31 +8,6 @@
 
 The **nf-core/crisprseq** pipeline allows the analysis of CRISPR edited CRISPR pooled DNA. It can evaluate important genes from knock-out or activation CRISPR-Cas9 screens.
 
-## Samplesheet input editing
-
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 6 columns, and a header row as shown in the examples below.
-
-### Full samplesheet
-
-The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 6 columns to match those defined in the table below.
-
-A final samplesheet file consisting of single-end data may look something like the one below. This is for 2 samples, where `chr6` is single-end and has a template sequence _(this is a reduced samplesheet, please refer to the [pipeline example saplesheet](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/samplesheet_test.csv) to see the full version)_.
-
-```console
-sample,fastq_1,fastq_2,condition
-SRR8983579,SRR8983579.small.fastq.gz,control
-SRR8983580,SRR8983580.small.fastq.gz,,treatment
-```
-
-| Column      | Description                                                                                                                |
-| ----------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `sample`    | Custom sample name. . Spaces in sample names are automatically converted to underscores (`_`).                             |
-| `fastq_1`   | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
-| `fastq_2`   | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
-| `condition` | Condition if you want mageck rra to be ran. The first condition noted should be the control or plasmid.                    |
-
-An [example samplesheet](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/samplesheet_test.csv) has been provided with the pipeline.
-
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:
@@ -45,7 +20,7 @@ The following required parameters are here described.
 
 ### Full samplesheet
 
-The pipeline will auto-detect whether a sample is single- using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 4 columns to match those defined in the table below.
+The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 4 columns to match those defined in the table below.
 
 ```console
 sample,fastq_1,fastq_2,condition
@@ -58,7 +33,7 @@ SRR8983580,SRR8983580.small.fastq.gz,,treatment
 | `sample`    | Custom sample name. . Spaces in sample names are automatically converted to underscores (`_`).                             |
 | `fastq_1`   | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
 | `fastq_2`   | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
-| `condition` | Condition if you want mageck rra to be ran. The first condition noted should be the control or plasmid.                    |
+| `condition` | Condition of the sample, for instance "treatment" or "control".                                                            |
 
 An [example samplesheet](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/samplesheet_test.csv) has been provided with the pipeline.
 
@@ -66,7 +41,7 @@ The pipeline currently supports 2 algorithms to detect gene essentiality, MAGeCK
 
 ### MAGeCK rra
 
-MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, the condition column of the samplesheet should be filled, the process will then automatically be run.
+MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, `--rra_contrasts` should be used with a `csv` separated file stating the two conditions to be compared
 
 ### MAGeCK mle
 
