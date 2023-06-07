@@ -48,7 +48,6 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - `mageck/count`
   - `*_count.txt`: read counts per sample per sgRNA and gene, tab separated
   - `*_count_normalized.txt`: normalized read counts, tab separated
-  - `*_count_summary.txt`: tab separated summary of the quality controls of the count table
   - `*_count_table.log`: log information of the run
 
 </details>
