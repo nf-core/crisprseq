@@ -10,7 +10,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["outdir"],
+            "required": ["outdir", "analysis"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -27,6 +27,11 @@
                     "format": "directory-path",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
+                },
+                "analysis": {
+                    "type": "string",
+                    "fa_icon": "fas fa-cog",
+                    "enum": ["screening", "targeted"]
                 },
                 "email": {
                     "type": "string",
@@ -87,12 +92,20 @@
                 "min_reads": {
                     "type": "number",
                     "description": "a filter threshold value for sgRNAs, based on their average counts in the control sample",
-                    "default": 30
+                    "default": 30.0
                 },
                 "min_targeted_genes": {
                     "type": "number",
                     "description": "Minimal number of different genes targeted by sgRNAs in a biased segment in order for the corresponding counts to be corrected",
+<<<<<<< HEAD
                     "default": 3
+=======
+                    "default": 3.0
+                },
+                "contrasts": {
+                    "type": "string",
+                    "description": "The contrasts file references the observations file to define groups of samples to compare."
+>>>>>>> c0d79cb81b7aa89840eb84d710a06efc1927e9df
                 }
             }
         },

@@ -90,23 +90,17 @@ workflow CRISPRSEQ_SCREENING {
         )
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
-        INPUT_CHECK_SCREENING.out.reads.multiMap{
-        meta, fastq ->
-            metas: meta.condition
-            fastqs: fastq
-        }.set { splitted }
-
-        splitted.metas.reduce{
-            a, b -> return "$a,$b"
+        INPUT_CHECK_SCREENING.out.reads
+        .map { meta, fastq ->
+            [meta.condition, fastq]
         }
-        .set { ch_metas }
-
-
-        ch_fastqs = splitted.fastqs.collect()
-
-
-        joined = ch_metas.merge(ch_fastqs) { m, f -> tuple([id:m], f) }
-
+        .reduce { a, b ->
+            ["${a[0]},${b[0]}", a[1] + b[1]]
+        }
+        .map { condition, fastqs ->
+            [[id: condition], fastqs]
+        }
+        .set { joined }
 
         //
         // MODULE: Run mageck count
