@@ -13,5 +13,6 @@ The **nf-core/crisprseq** pipeline allows the analysis of CRISPR edited DNA. It 
 The `--analysis` parameter specifies whether the user intends to perform editing or screening in the crisprseq pipeline.
 
 Please refer to the respective Usage documentation:
+
 - [Usage targeted](usage-targeted)
 - [Usage screening](usage-screening)

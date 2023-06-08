@@ -8,7 +8,6 @@
 
 The **nf-core/crisprseq** pipeline allows the analysis of CRISPR edited DNA. It evaluates the quality of gene editing experiments using targeted next generation sequencing (NGS) data.
 
-
 ## Samplesheet input
 
 You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 6 columns, and a header row as shown in the examples below.
