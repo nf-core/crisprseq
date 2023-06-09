@@ -14,8 +14,8 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - [FastQC](#fastqc) - Read Quality Control
 - [Counting](#counting)
   - [MAGeCK count](#count) - Mapping reads to reference
-- [CNV correction](#counting)
-  - [CRISPRcleanR](#crisprcleanr) - Copy Number Variation correction and read normalization in case of knock-out screens.
+- [CNV correction](#cnv-correction)
+  - [CRISPRcleanR](#crisprcleanr-normalization) - Copy Number Variation correction and read normalization in case of knock-out screens.
 - [Gene essentiality](#gene-essentiality)
   - [MAGeCK rra](#rra) - modified robust ranking aggregation (RRA) algorithm
   - [MAGeCK mle](#mle) -  maximum-likelihood estimation (MLE) for robust identification of CRISPR-screen hits
@@ -40,7 +40,6 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 
 ## Counting
-
 ### MAGeCK count
 
 <details markdown="1">
@@ -54,6 +53,8 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 
 </details>
+
+## CNV correction
 
 ### CRISPRcleanR normalization
 
