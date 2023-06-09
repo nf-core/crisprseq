@@ -80,10 +80,9 @@ class WorkflowMain {
         NfcoreTemplate.awsBatch(workflow, params)
 
         // Check input has been provided
-        //if (!params.input) {
-            // log.error "Please provide an input samplesheet to the pipeline e.g. '--input samplesheet.csv'"
-            // System.exit(1)
-        // }
+        if (params.analysis == 'targeted' && !params.input) {
+            throw new Exception("Please provide an input samplesheet to the pipeline e.g. '--input samplesheet.csv'")
+        }
     }
     //
     // Get attribute from genome config file e.g. fasta

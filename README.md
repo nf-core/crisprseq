@@ -26,16 +26,16 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
 ## Pipeline summary
 
-For crispr editing :
+For crispr targeted :
 
-1. Merge paired-end reads (([`Pear`](https://cme.h-its.org/exelixis/web/software/pear/doc.html)))
+1. Merge paired-end reads ([`Pear`](https://cme.h-its.org/exelixis/web/software/pear/doc.html))
 2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 3. Adapter trimming ([`Cutadapt`](http://dx.doi.org/10.14806/ej.17.1.200))
 4. Quality filtering ([`Seqtk`](https://github.com/lh3/seqtk))
 5. Read mapping:
-   a. ([`minimap2`](https://github.com/lh3/minimap2), _default_)
-   b. ([`bwa`](http://bio-bwa.sourceforge.net/))
-   c. ([`bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml))
+   - ([`minimap2`](https://github.com/lh3/minimap2), _default_)
+   - ([`bwa`](http://bio-bwa.sourceforge.net/))
+   - ([`bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml))
 6. CIGAR parsing for edit calling ([`R`](https://www.r-project.org/))
 
 For crispr screening :
@@ -94,8 +94,7 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 
 ## Citations
 
-If you use nf-core/crisprseq for your analysis, please cite it using the following doi: [10.5281/zenodo.7598497
-](https://doi.org/10.5281/zenodo.7598497)
+If you use nf-core/crisprseq for your analysis, please cite it using the following doi: [10.5281/zenodo.7598497](https://doi.org/10.5281/zenodo.7598497)
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
