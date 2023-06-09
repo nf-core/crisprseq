@@ -87,7 +87,7 @@ include { SAMTOOLS_INDEX                                } from '../modules/nf-co
 // Info required for completion email and summary
 def multiqc_report = []
 
-workflow CRISPRSEQ {
+workflow CRISPRSEQ_TARGETED {
 
     ch_versions = Channel.empty()
 
