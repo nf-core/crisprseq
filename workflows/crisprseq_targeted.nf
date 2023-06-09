@@ -72,7 +72,7 @@ include { BOWTIE2_ALIGN                                 } from '../modules/nf-co
 include { BOWTIE2_BUILD                                 } from '../modules/nf-core/bowtie2/build/main'
 include { BWA_MEM                                       } from '../modules/nf-core/bwa/mem/main'
 include { BWA_INDEX                                     } from '../modules/nf-core/bwa/index/main'
-include { MINIMAP2_ALIGN                                } from '../modules/nf-core/minimap2/align/main'
+include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_ORIGINAL     } from '../modules/nf-core/minimap2/align/main'
 include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_TEMPLATE     } from '../modules/nf-core/minimap2/align/main'
 include { CUTADAPT                                      } from '../modules/nf-core/cutadapt/main'
 include { SAMTOOLS_INDEX                                } from '../modules/nf-core/samtools/index/main'
@@ -309,15 +309,15 @@ workflow CRISPRSEQ_TARGETED {
     // MODULE: Mapping with Minimap2
     //
     if (params.aligner == "minimap2") {
-        MINIMAP2_ALIGN (
+        MINIMAP2_ALIGN_ORIGINAL (
             SEQTK_SEQ.out.fastx
                 .join(ORIENT_REFERENCE.out.reference),
             true,
             false,
             true
         )
-        ch_mapped_bam = MINIMAP2_ALIGN.out.bam
-        ch_versions = ch_versions.mix(MINIMAP2_ALIGN.out.versions)
+        ch_mapped_bam = MINIMAP2_ALIGN_ORIGINAL.out.bam
+        ch_versions = ch_versions.mix(MINIMAP2_ALIGN_ORIGINAL.out.versions)
     }
 
     //
