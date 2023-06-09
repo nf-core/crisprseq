@@ -16,6 +16,7 @@ process CRISPRCLEANR_NORMALIZE {
 
     output:
     tuple val(meta), path("*_norm_table.tsv"), emit: norm_count_file
+    tuple val(meta), path("*.RData"),          emit: counts_rdata
     path "versions.yml",                       emit: versions
 
     when:
