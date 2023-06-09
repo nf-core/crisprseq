@@ -26,7 +26,7 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
 ## Pipeline summary
 
-For crispr editing :
+For crispr targeted :
 
 1. Merge paired-end reads (([`Pear`](https://cme.h-its.org/exelixis/web/software/pear/doc.html)))
 2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
