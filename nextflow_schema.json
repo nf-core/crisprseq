@@ -5,8 +5,8 @@
     "description": "Pipeline for the analysis of crispr data",
     "type": "object",
     "definitions": {
-        "popeline_steps": {
-            "title": "Popeline steps",
+        "pipeline_steps": {
+            "title": "pipeline steps",
             "type": "object",
             "description": "Alternative pipeline steps to include in the analysis.",
             "default": "",
@@ -401,7 +401,7 @@
             "$ref": "#/definitions/input_output_options"
         },
         {
-            "$ref": "#/definitions/popeline_steps"
+            "$ref": "#/definitions/pipeline_steps"
         },
         {
             "$ref": "#/definitions/screening_parameters"
