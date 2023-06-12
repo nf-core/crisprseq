@@ -1,3 +1,7 @@
+---
+order: 1
+---
+
 # nf-core/crisprseq: Output
 
 ## Introduction
