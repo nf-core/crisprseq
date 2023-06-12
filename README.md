@@ -26,6 +26,8 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
 ## Pipeline summary
 
+For crispr targeted :
+
 1. Merge paired-end reads ([`Pear`](https://cme.h-its.org/exelixis/web/software/pear/doc.html))
 2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 3. Adapter trimming ([`Cutadapt`](http://dx.doi.org/10.14806/ej.17.1.200))
@@ -35,6 +37,15 @@ On release, automated continuous integration tests run the pipeline on a full-si
    - ([`bwa`](http://bio-bwa.sourceforge.net/))
    - ([`bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml))
 6. CIGAR parsing for edit calling ([`R`](https://www.r-project.org/))
+
+For crispr screening :
+
+1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+2. Read mapping ([`MAGeCK count`](https://sourceforge.net/p/mageck/wiki/usage/#count))
+3. Optional : CNV correction and normalization with ([`CRISPRcleanR`](https://github.com/francescojm/CRISPRcleanR))
+4. Rank sgRNAs and genes ;
+   a. ([MAGeCK test](https://sourceforge.net/p/mageck/wiki/usage/#test))
+   b. ([MAGeCK mle](https://sourceforge.net/p/mageck/wiki/Home/#mle))
 
 ## Quick Start
 

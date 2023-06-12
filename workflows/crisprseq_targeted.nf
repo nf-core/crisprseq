@@ -135,7 +135,7 @@ def umi_to_sequence_centroid(cluster) {
 // Info required for completion email and summary
 def multiqc_report = []
 
-workflow CRISPRSEQ {
+workflow CRISPRSEQ_TARGETED {
 
     ch_versions = Channel.empty()
 

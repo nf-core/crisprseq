@@ -24,7 +24,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir"],
+            "required": ["outdir", "analysis"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -41,6 +41,11 @@
                     "format": "directory-path",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
+                },
+                "analysis": {
+                    "type": "string",
+                    "fa_icon": "fas fa-cog",
+                    "enum": ["screening", "targeted"]
                 },
                 "email": {
                     "type": "string",
@@ -91,7 +96,6 @@
                     "enum": ["minimap2", "bwa", "bowtie2"]
                 }
             },
-            "required": ["aligner"],
             "fa_icon": "fas fa-align-justify"
         },
         "vsearch_parameters": {
@@ -127,6 +131,45 @@
                 }
             },
             "fa_icon": "fas fa-layer-group"
+        },
+        "screening_parameters": {
+            "title": "Screening parameters",
+            "type": "object",
+            "description": "Parameters used for functional genomic screenings",
+            "default": "",
+            "properties": {
+                "mle_design_matrix": {
+                    "type": "string",
+                    "description": "Design matrix used for MAGeCK MLE to call essential genes under multiple conditions while considering sgRNA knockout efficiency"
+                },
+                "rra_contrasts": {
+                    "type": "string",
+                    "description": "file comma separated on the conditions needing to be compared. The first one will be the reference (control)"
+                },
+                "count_table": {
+                    "type": "string",
+                    "description": "when mageck test should be skipped the user can directly input their count table"
+                },
+                "library": {
+                    "type": "string",
+                    "fa_icon": "far fa-address-book",
+                    "description": "sgRNA sequences and targeting genes"
+                },
+                "crisprcleanr": {
+                    "type": "string",
+                    "description": "sgRNA library annotation for crisprcleanR"
+                },
+                "min_reads": {
+                    "type": "number",
+                    "description": "a filter threshold value for sgRNAs, based on their average counts in the control sample",
+                    "default": 30.0
+                },
+                "min_targeted_genes": {
+                    "type": "number",
+                    "description": "Minimal number of different genes targeted by sgRNAs in a biased segment in order for the corresponding counts to be corrected",
+                    "default": 3.0
+                }
+            }
         },
         "reference_genome_options": {
             "title": "Reference genome options",
@@ -355,10 +398,13 @@
     },
     "allOf": [
         {
+            "$ref": "#/definitions/input_output_options"
+        },
+        {
             "$ref": "#/definitions/popeline_steps"
         },
         {
-            "$ref": "#/definitions/input_output_options"
+            "$ref": "#/definitions/screening_parameters"
         },
         {
             "$ref": "#/definitions/umi_parameters"
