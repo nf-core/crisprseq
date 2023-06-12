@@ -1,3 +1,6 @@
+---
+order: 1
+---
 # nf-core/crisprseq: Usage
 
 ## :warning: Please read this documentation on the nf-core website: [https://nf-co.re/crisprseq/usage](https://nf-co.re/crisprseq/usage)
