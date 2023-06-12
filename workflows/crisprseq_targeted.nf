@@ -389,9 +389,6 @@ workflow CRISPRSEQ_TARGETED {
         Channel.value("--sortbysize")
     )
 
-    //VSEARCH_SORT.out.fasta.dump(tag:'vsearch_sort_output')
-    //ch_umi_bysize.cluster.dump(tag:'umi_clusters')
-
     // Get the correspondent fasta sequencences from top cluster sequences
     // Replaces the sequence name adding the "centroid_" prefix to avoid having two sequences with the same name in following steps
     VSEARCH_SORT.out.fasta // [[id:sample_id, ...], sample_top.fasta]
@@ -463,14 +460,6 @@ workflow CRISPRSEQ_TARGETED {
     MINIMAP2_ALIGN_UMI_1.out.paf
         .filter{ it[1].countLines() > 0 }
         .set{ ch_minimap_1 }
-
-    //ch_clusters_sequence.dump(tag:'ch_umi_clusters')
-    //ch_top_clusters_sequence.dump(tag:'ch_vsearch_top')
-    ch_minimap_1.dump(tag:'minimap')
-    //ch_clusters_sequence
-    //    .join(ch_top_clusters_sequence)
-    //    .join(ch_minimap_1)
-    //    .dump(tag:'clusters_top_alignment')
 
     //
     // MODULE: Improve top read from UMI cluster using cluster consensus - cycle 1

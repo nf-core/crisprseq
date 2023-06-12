@@ -11,14 +11,18 @@ The directories listed below will be created in the results directory after the 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
 - [Preprocessing](#preprocessing)
-  - [Sequences](#sequences) - Input sequence preparation (reference, protospacer, template)
+  - [sequences](#sequences) - Input sequence preparation (reference, protospacer, template)
   - [cat](#cat) - Concatenate sample fastq files if required
-  - [Pear](#pear) - Join double-end reads if required
-  - [FastQC](#fastqc) - Read Quality Control
-  - [Adapters](#adapters) - Find adapters (Overrepresented sequences) in reads
-  - [Cutadapt](#cutadapt) - Trim adapters
-  - [Seqtk](#seqtk) - Mask low-quality bases
-  <!-- -UMI(#umi) -->
+  - [pear](#pear) - Join double-end reads if required
+  - [fastqc](#fastqc) - Read Quality Control
+  - [adapters](#adapters) - Find adapters (Overrepresented sequences) in reads
+  - [cutadapt](#cutadapt) - Trim adapters
+  - [seqtk](#seqtk) - Mask low-quality bases
+- [UMI clustering](#umi-clustering)
+  - [vsearch](#vsearch)
+  - [minimap2 umi](#minimap2-umi)
+  - [racon](#racon)
+  - [medaka](#medaka)
 - [Mapping](#mapping)
   - [minimap2](#minimap2) - Mapping reads to reference
   - [BWA](#bwa) - Mapping reads to reference
@@ -133,7 +137,56 @@ If multiple libraries/runs have been provided for the same sample in the input s
 
 [Seqtk](https://github.com/lh3/seqtk) masks (converts to Ns) bases with quality lower than 20 and removes sequences shorter than 80 bases.
 
-<!-- ### UMI -->
+## UMI clustering
+
+### vsearch
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `vsearch/`
+  - `*_clusters*`: Contains all UMI sequences which clustered together.
+  - `*_clusters*_top.fasta`: Contains the most abundant UMI sequence from the cluster.
+
+</details>
+
+[VSEARCH](https://github.com/torognes/vsearch) is a versatile open-source tool which includes chimera detection, clustering, dereplication and rereplication, extraction, FASTA/FASTQ/SFF file processing, masking, orienting, pair-wise alignment, restriction site cutting, searching, shuffling, sorting, subsampling, and taxonomic classification of amplicon sequences for metagenomics, genomics, and population genetics. `vsearch/clsuter` can cluster sequences using a single-pass, greedy centroid-based clustering algorithm. `vsearch/sort` can sort fasta entries by decreasing abundance (`--sortbysize`) or sequence length (`--sortbylength`).
+
+### minimap2_umi
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `minimap2_umi/`
+  - `*_sequences_clycle[1,2].paf`: Alignment of the cluster sequences against the top UMi sequence in paf format.
+
+</details>
+
+[Minimap2](https://github.com/lh3/minimap2) is a sequence alignment program that aligns DNA sequences against a reference database.
+
+### racon
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `racon/`
+  - `*_sequences_clycle[1,2]_assembly_consensus.fasta.gz`: Consensus sequence obtained from the cluster multiple sequence alignment.
+
+</details>
+
+[Racon](https://github.com/lbcb-sci/racon) is an ultrafast consensus module for raw de novo genome assembly of long uncorrected reads.
+
+### medaka
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `medaka/`
+  - `*_medakaConsensus.fasta`: Final consensus sequence of each UMI cluster. Obtained after two rounds of minimap2 + racon.
+
+</details>
+
+[Medaka](https://nanoporetech.github.io/medaka/index.html) is a tool to create consensus sequences and variant calls from nanopore sequencing data.
 
 ## Mapping
 

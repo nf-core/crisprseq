@@ -32,11 +32,19 @@ For crispr targeted :
 2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 3. Adapter trimming ([`Cutadapt`](http://dx.doi.org/10.14806/ej.17.1.200))
 4. Quality filtering ([`Seqtk`](https://github.com/lh3/seqtk))
-5. Read mapping:
+5. UMI clustering (optional):
+  1. Extract UMI sequences (Python script)
+  2. Cluster UMI sequences ([`Vsearch`](https://github.com/torognes/vsearch))
+  3. Obtain the most abundant UMI sequence for each cluster ([`Vsearch`](https://github.com/torognes/vsearch))
+  4. Obtain a consensus for each cluster ([`minimap2`](https://github.com/lh3/minimap2))
+  5. Polish consensus sequence ([`racon`](https://github.com/lbcb-sci/racon))
+  6. Repeat a second rand of consensus + polishing (`minimap2` + `racon`)
+  7. Obtain the final consensus of each cluster ([Medaka](https://nanoporetech.github.io/medaka/index.html))
+6. Read mapping:
    - ([`minimap2`](https://github.com/lh3/minimap2), _default_)
    - ([`bwa`](http://bio-bwa.sourceforge.net/))
    - ([`bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml))
-6. CIGAR parsing for edit calling ([`R`](https://www.r-project.org/))
+7. CIGAR parsing for edit calling ([`R`](https://www.r-project.org/))
 
 For crispr screening :
 
@@ -56,7 +64,9 @@ For crispr screening :
 3. Download the pipeline and test it on a minimal dataset with a single command:
 
    ```bash
-   nextflow run nf-core/crisprseq -profile test,YOURPROFILE --outdir <OUTDIR>
+   nextflow run nf-core/crisprseq -profile test_screening,YOURPROFILE --outdir <OUTDIR>
+   # or
+   nextflow run nf-core/crisprseq -profile test_targeted,YOURPROFILE --outdir <OUTDIR>
    ```
 
    Note that some form of configuration will be needed so that Nextflow knows how to fetch the required software. This is usually done in the form of a config profile (`YOURPROFILE` in the example command above). You can chain multiple config profiles in a comma-separated string.
@@ -69,7 +79,7 @@ For crispr screening :
 4. Start running your own analysis!
 
    ```bash
-   nextflow run nf-core/crisprseq --input samplesheet.csv --outdir <OUTDIR> -profile <docker/singularity/podman/shifter/charliecloud/conda/institute>
+   nextflow run nf-core/crisprseq --input samplesheet.csv --analysis <targeted/screening> --outdir <OUTDIR> -profile <docker/singularity/podman/shifter/charliecloud/conda/institute>
    ```
 
 ## Documentation

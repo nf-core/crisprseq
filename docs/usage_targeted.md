@@ -53,10 +53,10 @@ An [example samplesheet](https://nf-co.re/crisprseq/1.0/assets/samplesheet.csv) 
 
 ## Running the pipeline
 
-The typical command for running the pipeline is as follows:
+The typical command for running the pipeline for targeted CIRSPR analysis is as follows:
 
 ```bash
-nextflow run nf-core/crisprseq --input samplesheet.csv --outdir <OUTDIR> -profile docker
+nextflow run nf-core/crisprseq --input samplesheet.csv --analysis targeted --outdir <OUTDIR> -profile docker
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
