@@ -5,20 +5,6 @@
     "description": "Pipeline for the analysis of crispr data",
     "type": "object",
     "definitions": {
-        "pipeline_steps": {
-            "title": "pipeline steps",
-            "type": "object",
-            "description": "Alternative pipeline steps to include in the analysis.",
-            "default": "",
-            "properties": {
-                "overrepresented": {
-                    "type": "boolean",
-                    "fa_icon": "fas fa-sort-numeric-up-alt",
-                    "description": "Trim overrepresented sequences from reads (cutadapt)"
-                }
-            },
-            "fa_icon": "fas fa-shoe-prints"
-        },
         "input_output_options": {
             "title": "Input/output options",
             "type": "object",
@@ -45,7 +31,8 @@
                 "analysis": {
                     "type": "string",
                     "fa_icon": "fas fa-cog",
-                    "enum": ["screening", "targeted"]
+                    "enum": ["screening", "targeted"],
+                    "description": "Type of analysis to perform"
                 },
                 "email": {
                     "type": "string",
@@ -60,6 +47,20 @@
                     "fa_icon": "fas fa-file-signature"
                 }
             }
+        },
+        "targeted_pipeline_steps": {
+            "title": "targeted pipeline steps",
+            "type": "object",
+            "description": "Alternative pipeline steps to include in the targeted analysis.",
+            "default": "",
+            "properties": {
+                "overrepresented": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-sort-numeric-up-alt",
+                    "description": "Trim overrepresented sequences from reads (cutadapt)"
+                }
+            },
+            "fa_icon": "fas fa-shoe-prints"
         },
         "umi_parameters": {
             "title": "UMI parameters",
@@ -162,12 +163,12 @@
                 "min_reads": {
                     "type": "number",
                     "description": "a filter threshold value for sgRNAs, based on their average counts in the control sample",
-                    "default": 30.0
+                    "default": 30
                 },
                 "min_targeted_genes": {
                     "type": "number",
                     "description": "Minimal number of different genes targeted by sgRNAs in a biased segment in order for the corresponding counts to be corrected",
-                    "default": 3.0
+                    "default": 3
                 }
             }
         },
@@ -401,10 +402,7 @@
             "$ref": "#/definitions/input_output_options"
         },
         {
-            "$ref": "#/definitions/pipeline_steps"
-        },
-        {
-            "$ref": "#/definitions/screening_parameters"
+            "$ref": "#/definitions/targeted_pipeline_steps"
         },
         {
             "$ref": "#/definitions/umi_parameters"
@@ -414,6 +412,9 @@
         },
         {
             "$ref": "#/definitions/vsearch_parameters"
+        },
+        {
+            "$ref": "#/definitions/screening_parameters"
         },
         {
             "$ref": "#/definitions/reference_genome_options"
@@ -427,5 +428,11 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "schema_ignore_params": {
+            "type": "string",
+            "default": "genomes"
+        }
+    }
 }
