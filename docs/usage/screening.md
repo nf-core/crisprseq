@@ -1,3 +1,7 @@
+---
+order: 2
+---
+
 # nf-core/crisprseq: Usage
 
 ## :warning: Please read this documentation on the nf-core website: [https://nf-co.re/crisprseq/usage](https://nf-co.re/crisprseq/usage)
@@ -6,58 +10,52 @@
 
 ## Introduction
 
-The **nf-core/crisprseq** pipeline allows the analysis of CRISPR edited DNA. It evaluates the quality of gene editing experiments using targeted next generation sequencing (NGS) data.
-
-## Samplesheet input
-
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 6 columns, and a header row as shown in the examples below.
-
-```bash
---input '[path to samplesheet file]'
-```
-
-### Multiple runs of the same sample
-
-The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across 3 lanes _(see section below for an explanation of samplesheet columns)_:
-
-```console
-sample,fastq_1,fastq_2,reference,protospacer,template
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,GCT...CCT,GGGGCCACTAGGGACAGGAT,
-CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz,GCT...CCT,GGGGCCACTAGGGACAGGAT,
-CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz,GCT...CCT,GGGGCCACTAGGGACAGGAT,
-```
-
-### Full samplesheet
-
-The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 6 columns to match those defined in the table below.
-
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 3 samples, where `chr6` is single-end and has a template sequence _(this is a reduced samplesheet, please refer to the [pipeline example saplesheet](https://nf-co.re/crisprseq/1.0/assets/samplesheet.csv) to see the full version)_.
-
-```console
-sample,fastq_1,fastq_2,reference,protospacer,template
-hCas9-TRAC-a,hCas9-TRAC-a_R1.fastq.gz,hCas9-TRAC-a_R2.fastq.gz,GCT...CCT,GGGGCCACTAGGGACAGGAT,
-hCas9-AAVS1-a,hCas9-AAVS1-a_R1.fastq.gz,hCas9-AAVS1-a_R2.fastq.gz,GCT...CCT,GGGGCCACTAGGGACAGGAT,
-chr6,chr6-61942198-61942498_R1.fastq.gz,,CAA...GGA,TTTTATGATATTTATCTTTT,TTC...CAA
-```
-
-| Column        | Description                                                                                                                                                                            |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`      | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1`     | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2`     | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `reference`   | Reference sequence of the target region.                                                                                                                                               |
-| `protospacer` | Sequence of the protospacer used for CRISPR editing. Must not includ the PAM.                                                                                                          |
-| `template`    | Sequence of the template used in templet-based editing experiments.                                                                                                                    |
-
-An [example samplesheet](https://nf-co.re/crisprseq/1.0/assets/samplesheet.csv) has been provided with the pipeline.
+The **nf-core/crisprseq** pipeline allows the analysis of CRISPR edited CRISPR pooled DNA. It can evaluate important genes from knock-out or activation CRISPR-Cas9 screens.
 
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run nf-core/crisprseq --input samplesheet.csv --outdir <OUTDIR> -profile docker
+nextflow run nf-core/crisprseq --analysis screening --input samplesheet.csv --library library.csv --outdir <OUTDIR> -profile docker
 ```
+
+The following required parameters are here described.
+
+### Full samplesheet
+
+The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 4 columns to match those defined in the table below.
+
+```console
+sample,fastq_1,fastq_2,condition
+SRR8983579,SRR8983579.small.fastq.gz,control
+SRR8983580,SRR8983580.small.fastq.gz,,treatment
+```
+
+| Column      | Description                                                                                                                |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `sample`    | Custom sample name. . Spaces in sample names are automatically converted to underscores (`_`).                             |
+| `fastq_1`   | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
+| `fastq_2`   | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
+| `condition` | Condition of the sample, for instance "treatment" or "control".                                                            |
+
+An [example samplesheet](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/samplesheet_test.csv) has been provided with the pipeline.
+
+The pipeline currently supports 2 algorithms to detect gene essentiality, MAGeCK rra and MAGeCK mle. MAGeCK MLE (Maximum Likelihood Estimation) and MAGeCK RRA (Robust Ranking Aggregation) are two different methods provided by the MAGeCK software package to analyze CRISPR-Cas9 screens.
+
+### MAGeCK rra
+
+MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, `--rra_contrasts` should be used with a `csv` separated file stating the two conditions to be compared
+
+### MAGeCK mle
+
+MAGeCK MLE uses a maximum likelihood estimation approach to estimate the effects of gene knockout on cell fitness. It models the read count data of guide RNAs targeting each gene and estimates the dropout probability for each gene. MAGeCK mle requires a design matrix. The design matrix is a txt file indicating the effects of different conditions on different samples.
+An [example design matrix](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/design_matrix.txt) has been provided with the pipeline.
+If there are several designs to be run, you can input a folder containing all the design matrices. The output results will automatically take the name of the design matrice, so make sure you give a significant name to the file, for instance "Drug_vs_control.txt".
+
+### Running CRISPRcleanR
+
+CRISPRcleanR is used for gene count normalization and removal of biases for genomic segment that are copy number amplified. The pipeline for the moment only supports annotation libraries already present in the R package and which can be found [here](https://github.com/francescojm/CRISPRcleanR/blob/master/Reference_Manual.pdf). To use CRISPRcleanR normalization, use `--crisprcleanr library`, `library` being the exact name as the library in the CRISPRcleanR documentation (e.g: "AVANA_Library").
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
 
@@ -88,7 +86,9 @@ This version number will be logged in reports when you run the pipeline, so that
 
 ## Core Nextflow arguments
 
-> **NB:** These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen).
+:::info
+These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen).
+:::
 
 ### `-profile`
 
@@ -96,7 +96,9 @@ Use this parameter to choose a configuration profile. Profiles can give configur
 
 Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Shifter, Charliecloud, Conda) - see below.
 
-> We highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported.
+:::note
+We highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported.
+:::
 
 The pipeline also dynamically loads configurations from [https://github.com/nf-core/configs](https://github.com/nf-core/configs) when it runs, making multiple config profiles for various institutional clusters available at run time. For more information and to see if your system is available in these configs please see the [nf-core/configs documentation](https://github.com/nf-core/configs#documentation).
 
@@ -190,9 +192,11 @@ process {
 }
 ```
 
-> **NB:** We specify the full process name i.e. `NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN` in the config file because this takes priority over the short name (`STAR_ALIGN`) and allows existing configuration using the full process name to be correctly overridden.
->
-> If you get a warning suggesting that the process selector isn't recognised check that the process name has been specified correctly.
+:::info
+We specify the full process name i.e. `NFCORE_RNASEQ:RNASEQ:ALIGN_STAR:STAR_ALIGN` in the config file because this takes priority over the short name (`STAR_ALIGN`) and allows existing configuration using the full process name to be correctly overridden.
+
+If you get a warning suggesting that the process selector isn't recognised check that the process name has been specified correctly.
+:::
 
 ### Updating containers (advanced users)
 
@@ -232,7 +236,9 @@ The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementatio
      }
      ```
 
-> **NB:** If you wish to periodically update individual tool-specific results (e.g. Pangolin) generated by the pipeline then you must ensure to keep the `work/` directory otherwise the `-resume` ability of the pipeline will be compromised and it will restart from scratch.
+:::info
+If you wish to periodically update individual tool-specific results (e.g. Pangolin) generated by the pipeline then you must ensure to keep the `work/` directory otherwise the `-resume` ability of the pipeline will be compromised and it will restart from scratch.
+:::
 
 ### nf-core/configs
 
