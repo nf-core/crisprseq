@@ -14,5 +14,5 @@ The `--analysis` parameter specifies whether the user intends to perform editing
 
 Please refer to the respective Usage documentation:
 
-- [Usage targeted](usage-targeted)
-- [Usage screening](usage-screening)
+- [Usage targeted](usage/targeted.md)
+- [Usage screening](usage/screening.md)
