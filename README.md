@@ -28,6 +28,8 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
 For crispr targeted :
 
+![nf-core/crisprseq targeted metro map](docs/images/crisprseq_targeted_metro_map.png#gh-light-mode-only) ![nf-core/crisprseq targeted metro map](docs/images/crisprseq_targeted_metro_map_dark.png#gh-dark-mode-only)
+
 1. Merge paired-end reads ([`Pear`](https://cme.h-its.org/exelixis/web/software/pear/doc.html))
 2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 3. Adapter trimming ([`Cutadapt`](http://dx.doi.org/10.14806/ej.17.1.200))
