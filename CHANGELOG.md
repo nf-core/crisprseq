@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- criprseq screening analysis : mageck mle, mageck rra, mageck count and crisprcleanr-normalize ([#22]https://github.com/nf-core/crisprseq/pull/22)
+- criprseq screening analysis : mageck mle, mageck rra, mageck count and crisprcleanr-normalize ([#22]https://github.com/nf-core/crisprseq/pull/22))
 - Add new parameter `--analysis` to select analysis type (screening/targeted) ([#27](https://github.com/nf-core/crisprseq/pull/27))
 - tests to run screening analysis ([#926]https://github.com/nf-core/test-datasets/pull/926)
 - Metro map for targeted analysis ([#35](https://github.com/nf-core/crisprseq/pull/35))
