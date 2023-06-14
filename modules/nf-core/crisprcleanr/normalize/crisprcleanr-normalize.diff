@@ -8,7 +8,14 @@ Changes in module 'nf-core/crisprcleanr/normalize'
      label 'process_medium'
  
      conda "bioconda::r-crisprcleanr=3.0.0"
-@@ -14,6 +14,7 @@
+@@ -8,12 +8,13 @@
+         'quay.io/biocontainers/r-crisprcleanr:3.0.0--r42hdfd78af_1' }"
+ 
+     input:
+-    tuple val(meta), path(count_file), path(library_file)
++    tuple val(meta), path(count_file), val(library_file)
+     val(min_reads)
+     val(min_targeted_genes)
  
      output:
      tuple val(meta), path("*_norm_table.tsv"), emit: norm_count_file

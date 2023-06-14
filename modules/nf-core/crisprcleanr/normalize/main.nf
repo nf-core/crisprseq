@@ -8,7 +8,7 @@ process CRISPRCLEANR_NORMALIZE {
         'quay.io/biocontainers/r-crisprcleanr:3.0.0--r42hdfd78af_1' }"
 
     input:
-    tuple val(meta), path(count_file), path(library_file)
+    tuple val(meta), path(count_file), val(library_file)
     val(min_reads)
     val(min_targeted_genes)
 
