@@ -33,7 +33,6 @@ For crispr targeted:
   <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_targeted_metro_map.png">
 </picture>
 
-
 1. Merge paired-end reads ([`Pear`](https://cme.h-its.org/exelixis/web/software/pear/doc.html))
 2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 3. Adapter trimming ([`Cutadapt`](http://dx.doi.org/10.14806/ej.17.1.200))
