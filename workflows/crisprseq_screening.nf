@@ -16,7 +16,7 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 // Check mandatory parameters
 if (!params.count_table) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 if (params.library) { ch_library = file(params.library) }
-if (params.crisprcleanr) { ch_crisprcleanr= file(params.crisprcleanr) }
+if (params.crisprcleanr) { ch_crisprcleanr= Channel.value(params.crisprcleanr) }
 
 if(params.mle_design_matrix) {
     Channel.fromPath(params.mle_design_matrix)
@@ -124,10 +124,11 @@ workflow CRISPRSEQ_SCREENING {
 
 
     if(params.crisprcleanr) {
+        ch_crispr_normalize = Channel.of([id: "count_table_normalize"])
+        ch_counts.view()
+        ch_crisprcleanr.view()
         CRISPRCLEANR_NORMALIZE(
-            [id: "count_table_normalize"],
-            ch_counts,
-            ch_crisprcleanr,
+            ch_crispr_normalize.concat(ch_counts,ch_crisprcleanr).collect(),
             params.min_reads,
             params.min_targeted_genes
         )
