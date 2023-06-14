@@ -26,9 +26,12 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
 ## Pipeline summary
 
-For crispr targeted :
+For crispr targeted:
 
-![nf-core/crisprseq targeted metro map](docs/images/crisprseq_targeted_metro_map.png#gh-light-mode-only) ![nf-core/crisprseq targeted metro map](docs/images/crisprseq_targeted_metro_map_dark.png#gh-dark-mode-only)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_targeted_metro_map_dark.png">
+  <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_targeted_metro_map.png">
+</picture>
 
 1. Merge paired-end reads ([`Pear`](https://cme.h-its.org/exelixis/web/software/pear/doc.html))
 2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
@@ -40,11 +43,11 @@ For crispr targeted :
    - ([`bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml))
 6. CIGAR parsing for edit calling ([`R`](https://www.r-project.org/))
 
-For crispr screening :
+For crispr screening:
 
 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 2. Read mapping ([`MAGeCK count`](https://sourceforge.net/p/mageck/wiki/usage/#count))
-3. Optional : CNV correction and normalization with ([`CRISPRcleanR`](https://github.com/francescojm/CRISPRcleanR))
+3. Optional: CNV correction and normalization with ([`CRISPRcleanR`](https://github.com/francescojm/CRISPRcleanR))
 4. Rank sgRNAs and genes ;
    a. ([MAGeCK test](https://sourceforge.net/p/mageck/wiki/usage/#test))
    b. ([MAGeCK mle](https://sourceforge.net/p/mageck/wiki/Home/#mle))
