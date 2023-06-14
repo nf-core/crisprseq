@@ -124,10 +124,10 @@ workflow CRISPRSEQ_SCREENING {
 
 
     if(params.crisprcleanr) {
+        ch_crispr_normalize = Channel.of([id: "count_table_normalize"])
+
         CRISPRCLEANR_NORMALIZE(
-            [id: "count_table_normalize"],
-            ch_counts,
-            ch_crisprcleanr,
+            ch_crispr_normalize.concat(ch_counts,ch_crisprcleanr).collect(),
             params.min_reads,
             params.min_targeted_genes
         )
