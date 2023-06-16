@@ -26,7 +26,7 @@ jobs:
         NXF_VER:
           - "22.10.1"
           - "latest-everything"
-          ANALYSIS:
+        ANALYSIS:
           - "test_screening"
           - "test_targeted"
     steps:
