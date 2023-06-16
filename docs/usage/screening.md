@@ -55,7 +55,7 @@ If there are several designs to be run, you can input a folder containing all th
 
 ### Running CRISPRcleanR
 
-CRISPRcleanR is used for gene count normalization and the removal of biases for genomic segments for which copy numbers are amplified.  Currently, the pipeline only supports annotation libraries already present in the R package and which can be found [here](https://github.com/francescojm/CRISPRcleanR/blob/master/Reference_Manual.pdf). To use CRISPRcleanR normalization, use `--crisprcleanr library`, `library` being the exact name as the library in the CRISPRcleanR documentation (e.g: "AVANA_Library").
+CRISPRcleanR is used for gene count normalization and the removal of biases for genomic segments for which copy numbers are amplified. Currently, the pipeline only supports annotation libraries already present in the R package and which can be found [here](https://github.com/francescojm/CRISPRcleanR/blob/master/Reference_Manual.pdf). To use CRISPRcleanR normalization, use `--crisprcleanr library`, `library` being the exact name as the library in the CRISPRcleanR documentation (e.g: "AVANA_Library").
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
 
