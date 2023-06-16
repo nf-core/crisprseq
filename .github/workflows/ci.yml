@@ -26,7 +26,7 @@ jobs:
         NXF_VER:
           - "22.10.1"
           - "latest-everything"
-        config:
+          ANALYSIS:
           - "test_screening"
           - "test_targeted"
     steps:
@@ -38,6 +38,6 @@ jobs:
         with:
           version: "${{ matrix.NXF_VER }}"
 
-      - name: Run pipeline with test data
+      - name: Run pipeline with test data (${{ matrix.ANALYSIS }})
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.config }},docker --outdir ./results_targeted
+          nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.ANALYSIS }},docker --outdir ./results_targeted
