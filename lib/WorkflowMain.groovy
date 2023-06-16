@@ -81,7 +81,7 @@ class WorkflowMain {
 
         // Check input has been provided
         if (params.analysis == 'targeted' && !params.input) {
-            throw new Exception("Please provide an input samplesheet to the pipeline e.g. '--input samplesheet.csv'")
+            Nextflow.error("Please provide an input samplesheet to the pipeline e.g. '--input samplesheet.csv'")
         }
     }
     //

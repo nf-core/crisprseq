@@ -32,12 +32,12 @@ SRR8983579,SRR8983579.small.fastq.gz,,control
 SRR8983580,SRR8983580.small.fastq.gz,,treatment
 ```
 
-| Column      | Description                                                                                                                |
-| ----------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `sample`    | Custom sample name. . Spaces in sample names are automatically converted to underscores (`_`).                             |
-| `fastq_1`   | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
-| `fastq_2`   | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
-| `condition` | Condition of the sample, for instance "treatment" or "control".                                                            |
+| Column      | Description                                                                                                                           |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`    | Custom sample name. Spaces in sample names are automatically converted to underscores (`_`).                                          |
+| `fastq_1`   | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".            |
+| `fastq_2`   | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". (Optional) |
+| `condition` | Condition of the sample, for instance "treatment" or "control".                                                                       |
 
 An [example samplesheet](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/samplesheet_test.csv) has been provided with the pipeline.
 
