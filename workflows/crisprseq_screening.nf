@@ -125,8 +125,6 @@ workflow CRISPRSEQ_SCREENING {
 
     if(params.crisprcleanr) {
         ch_crispr_normalize = Channel.of([id: "count_table_normalize"])
-        ch_counts.view()
-        ch_crisprcleanr.view()
         CRISPRCLEANR_NORMALIZE(
             ch_crispr_normalize.concat(ch_counts,ch_crisprcleanr).collect(),
             params.min_reads,
@@ -152,7 +150,7 @@ workflow CRISPRSEQ_SCREENING {
     if(params.mle_design_matrix) {
         ch_mle = ch_counts.combine(ch_design)
         ch_mle.map {
-            it-> [[id: it[1].getBaseName()], it[0], it[1]]
+            it -> [[id: it[1].getBaseName()], it[0], it[1]]
         }.set { ch_designed_mle }
 
         MAGECK_MLE (

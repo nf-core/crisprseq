@@ -74,11 +74,11 @@
                 },
                 "rra_contrasts": {
                     "type": "string",
-                    "description": "file comma separated on the conditions needing to be compared. The first one will be the reference (control)"
+                    "description": "Comma-separated file with the conditions to be compared. The first one will be the reference (control)"
                 },
                 "count_table": {
                     "type": "string",
-                    "description": "when mageck test should be skipped the user can directly input their count table"
+                    "description": "Please provide your count table if the mageck test should be skipped."
                 },
                 "library": {
                     "type": "string",

@@ -28,7 +28,7 @@ The samplesheet can have as many columns as you desire, however, there is a stri
 
 ```console
 sample,fastq_1,fastq_2,condition
-SRR8983579,SRR8983579.small.fastq.gz,control
+SRR8983579,SRR8983579.small.fastq.gz,,control
 SRR8983580,SRR8983580.small.fastq.gz,,treatment
 ```
 
@@ -45,17 +45,17 @@ The pipeline currently supports 2 algorithms to detect gene essentiality, MAGeCK
 
 ### MAGeCK rra
 
-MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, `--rra_contrasts` should be used with a `csv` separated file stating the two conditions to be compared
+MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, `--rra_contrasts` should be used with a `csv` separated file stating the two conditions to be compared.
 
 ### MAGeCK mle
 
-MAGeCK MLE uses a maximum likelihood estimation approach to estimate the effects of gene knockout on cell fitness. It models the read count data of guide RNAs targeting each gene and estimates the dropout probability for each gene. MAGeCK mle requires a design matrix. The design matrix is a txt file indicating the effects of different conditions on different samples.
+MAGeCK MLE uses a maximum likelihood estimation approach to estimate the effects of gene knockout on cell fitness. It models the read count data of guide RNAs targeting each gene and estimates the dropout probability for each gene. MAGeCK mle requires a design matrix. The design matrix is a `txt` file indicating the effects of different conditions on different samples.
 An [example design matrix](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/design_matrix.txt) has been provided with the pipeline.
-If there are several designs to be run, you can input a folder containing all the design matrices. The output results will automatically take the name of the design matrice, so make sure you give a significant name to the file, for instance "Drug_vs_control.txt".
+If there are several designs to be run, you can input a folder containing all the design matrices. The output results will automatically take the name of the design matrix, so make sure you give a meaningful name to the file, for instance "Drug_vs_control.txt".
 
 ### Running CRISPRcleanR
 
-CRISPRcleanR is used for gene count normalization and removal of biases for genomic segment that are copy number amplified. The pipeline for the moment only supports annotation libraries already present in the R package and which can be found [here](https://github.com/francescojm/CRISPRcleanR/blob/master/Reference_Manual.pdf). To use CRISPRcleanR normalization, use `--crisprcleanr library`, `library` being the exact name as the library in the CRISPRcleanR documentation (e.g: "AVANA_Library").
+CRISPRcleanR is used for gene count normalization and the removal of biases for genomic segments for which copy numbers are amplified.  Currently, the pipeline only supports annotation libraries already present in the R package and which can be found [here](https://github.com/francescojm/CRISPRcleanR/blob/master/Reference_Manual.pdf). To use CRISPRcleanR normalization, use `--crisprcleanr library`, `library` being the exact name as the library in the CRISPRcleanR documentation (e.g: "AVANA_Library").
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
 
@@ -65,12 +65,12 @@ Note that the pipeline will create the following files in your working directory
 work                # Directory containing the nextflow working files
 <OUTDIR>            # Finished results in specified location (defined with --outdir)
 .nextflow_log       # Log file from Nextflow
-# Other nextflow hidden files, eg. history of pipeline runs and old logs.
+# Other hidden nextflow files, eg. history of pipeline runs and old logs.
 ```
 
 ### Updating the pipeline
 
-When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
+When you run the command below, Nextflow will automatically pull the pipeline code from GitHub and store it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
 
 ```bash
 nextflow pull nf-core/crisprseq
