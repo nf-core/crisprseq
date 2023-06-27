@@ -78,6 +78,7 @@ You also have the option to select other alignment tools by suing the parameter 
 
 The default alignment with `minimap2` uses adapted parameters which were seen to improve the alignment and reduce potential sequencing or alignment errors.
 The default parameters are:
+
 - A matching score of 29
 - A mismatching penalty of 17
 - A gap open penalty of 25
@@ -86,6 +87,7 @@ The default parameters are:
 Please refer to the original [CRISPR-Analytics](https://doi.org/10.1371/journal.pcbi.1011137) publication to see the benchmarking of such parameters.
 
 In order to customise such parameters, you can override the arguments given to `minimap2` by creating a configuration file and provide it to your nextflow run with `-c`:
+
 ```groovy
 // Custom config file custom.config
 process {
@@ -96,6 +98,7 @@ process {
 ```
 
 Command:
+
 ```bash
 nextflow run nf-core/crisprseq --input samplesheet.csv --analysis targeted --outdir <OUTDIR> -profile docker -c custom.config
 ```
