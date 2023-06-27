@@ -12,13 +12,14 @@
 
 ## Introduction
 
-**nf-core/crisprseq** is a bioinformatics best-practice analysis pipeline for the analysis of CRISPR edited next generation sequencing (NGS) data. It allows the evaluation of the quality of gene editing experiments using targeted NGS data.
+**nf-core/crisprseq** is a bioinformatics best-practice analysis pipeline for the analysis of CRISPR edited data. It allows the evaluation of the quality of gene editing experiments using targeted next generation sequencing (NGS) data (`targeted`) as well as the discovery of important genes from knock-out or activation CRISPR-Cas9 screens using CRISPR pooled DNA (`screening`).
 
 nf-core/crisprseq can be used to analyse:
 
 - CRISPR gene knockouts (KO)
 - CRISPR knock-ins (KI)
 - Base editing (BE) and prime editing (PE) experiments
+- CRISPR screening experiments (KO, CRISPRa (activation) or CRISPRi (interference))
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from [nf-core/modules](https://github.com/nf-core/modules) in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!
 
@@ -26,31 +27,36 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
 ## Pipeline summary
 
-For crispr targeted :
+For crispr targeted:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_targeted_metro_map_dark.png">
+  <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_targeted_metro_map.png">
+</picture>
 
 1. Merge paired-end reads ([`Pear`](https://cme.h-its.org/exelixis/web/software/pear/doc.html))
 2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 3. Adapter trimming ([`Cutadapt`](http://dx.doi.org/10.14806/ej.17.1.200))
 4. Quality filtering ([`Seqtk`](https://github.com/lh3/seqtk))
 5. UMI clustering (optional):
-  1. Extract UMI sequences (Python script)
-  2. Cluster UMI sequences ([`Vsearch`](https://github.com/torognes/vsearch))
-  3. Obtain the most abundant UMI sequence for each cluster ([`Vsearch`](https://github.com/torognes/vsearch))
-  4. Obtain a consensus for each cluster ([`minimap2`](https://github.com/lh3/minimap2))
-  5. Polish consensus sequence ([`racon`](https://github.com/lbcb-sci/racon))
-  6. Repeat a second rand of consensus + polishing (`minimap2` + `racon`)
-  7. Obtain the final consensus of each cluster ([Medaka](https://nanoporetech.github.io/medaka/index.html))
+   a. Extract UMI sequences (Python script)
+   b. Cluster UMI sequences ([`Vsearch`](https://github.com/torognes/vsearch))
+   c. Obtain the most abundant UMI sequence for each cluster ([`Vsearch`](https://github.com/torognes/vsearch))
+   d. Obtain a consensus for each cluster ([`minimap2`](https://github.com/lh3/minimap2))
+   e. Polish consensus sequence ([`racon`](https://github.com/lbcb-sci/racon))
+   f. Repeat a second rand of consensus + polishing (`minimap2` + `racon`)
+   g. Obtain the final consensus of each cluster ([Medaka](https://nanoporetech.github.io/medaka/index.html))
 6. Read mapping:
    - ([`minimap2`](https://github.com/lh3/minimap2), _default_)
    - ([`bwa`](http://bio-bwa.sourceforge.net/))
    - ([`bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml))
 7. CIGAR parsing for edit calling ([`R`](https://www.r-project.org/))
 
-For crispr screening :
+For crispr screening:
 
 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 2. Read mapping ([`MAGeCK count`](https://sourceforge.net/p/mageck/wiki/usage/#count))
-3. Optional : CNV correction and normalization with ([`CRISPRcleanR`](https://github.com/francescojm/CRISPRcleanR))
+3. Optional: CNV correction and normalization with ([`CRISPRcleanR`](https://github.com/francescojm/CRISPRcleanR))
 4. Rank sgRNAs and genes ;
    a. ([MAGeCK test](https://sourceforge.net/p/mageck/wiki/usage/#test))
    b. ([MAGeCK mle](https://sourceforge.net/p/mageck/wiki/Home/#mle))
@@ -88,9 +94,11 @@ The nf-core/crisprseq pipeline comes with documentation about the pipeline [usag
 
 ## Credits
 
-nf-core/crisprseq is based on [CRISPR-A](https://doi.org/10.1101/2022.09.02.506351), originally written by Marta Sanvicente García at [Translational Synthetic Biology](https://synbio.upf.edu/) from [Universitat Pompeu Fabra](https://www.upf.edu/home).
+nf-core/crisprseq targeted is based on [CRISPR-A](https://doi.org/10.1101/2022.09.02.506351) [[Sanvicente-García, et.al. (2023)](https://doi.org/10.1371/journal.pcbi.1011137)], originally written by Marta Sanvicente García at [Translational Synthetic Biology](https://synbio.upf.edu/) from [Universitat Pompeu Fabra](https://www.upf.edu/home).
 
 The pipeline was re-written in Nextflow DSL2 and is primarily maintained by Júlia Mir Pedrol (@mirpedrol) at [Quantitative Biology Center (QBiC)](https://www.qbic.uni-tuebingen.de/) from [Universität Tübingen](https://uni-tuebingen.de/en/).
+
+nf-core/crisprseq screening was written and is primarly maintained by Laurence Kuhlburger (@LaurenceKuhl) at [Quantitative Biology Center (QBiC)](https://www.qbic.uni-tuebingen.de/) from [Universität Tübingen](https://uni-tuebingen.de/en/).
 
 <!--We thank the following people for their extensive assistance in the development of this pipeline:
 
@@ -115,3 +123,8 @@ You can cite the `nf-core` publication as follows:
 > Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
 >
 > _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
+
+Crispr-Analytics:
+
+> Sanvicente-García M, García-Valiente A, Jouide S, Jaraba-Wallace J, Bautista E, Escobosa M, et al. (2023)
+> CRISPR-Analytics (CRISPR-A): A platform for precise analytics and simulations for gene editing. PLoS Comput Biol 19(5): e1011137. https://doi.org/10.1371/journal.pcbi.1011137

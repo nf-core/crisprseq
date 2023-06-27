@@ -29,3 +29,24 @@ jobs:
         with:
           name: Tower debug log file
           path: tower_action_*.log
+  run-tower-screening:
+    name: Run AWS full tests screening
+    if: github.repository == 'nf-core/crisprseq'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Launch workflow via tower
+        uses: nf-core/tower-action@v3
+        with:
+          workspace_id: ${{ secrets.TOWER_WORKSPACE_ID }}
+          access_token: ${{ secrets.TOWER_ACCESS_TOKEN }}
+          compute_env: ${{ secrets.TOWER_COMPUTE_ENV }}
+          workdir: s3://${{ secrets.AWS_S3_BUCKET }}/work/crisprseq/work-${{ github.sha }}
+          parameters: |
+            {
+              "outdir": "s3://${{ secrets.AWS_S3_BUCKET }}/crisprseq/results-${{ github.sha }}"
+            }
+          profiles: test_screening_full,aws_tower
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Tower debug log file
+          path: tower_action_*.log

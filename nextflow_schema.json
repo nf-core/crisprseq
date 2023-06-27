@@ -10,7 +10,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["outdir", "analysis"],
+            "required": ["input", "outdir", "analysis"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -31,8 +31,8 @@
                 "analysis": {
                     "type": "string",
                     "fa_icon": "fas fa-cog",
-                    "enum": ["screening", "targeted"],
-                    "description": "Type of analysis to perform"
+                    "description": "Type of analysis to perform. Targeted for targeted CRISPR experiments and screening for CRISPR screening experiments.",
+                    "enum": ["screening", "targeted"]
                 },
                 "email": {
                     "type": "string",
@@ -145,11 +145,11 @@
                 },
                 "rra_contrasts": {
                     "type": "string",
-                    "description": "file comma separated on the conditions needing to be compared. The first one will be the reference (control)"
+                    "description": "Comma-separated file with the conditions to be compared. The first one will be the reference (control)"
                 },
                 "count_table": {
                     "type": "string",
-                    "description": "when mageck test should be skipped the user can directly input their count table"
+                    "description": "Please provide your count table if the mageck test should be skipped."
                 },
                 "library": {
                     "type": "string",
