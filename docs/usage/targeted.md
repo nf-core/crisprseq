@@ -61,11 +61,11 @@ An [example samplesheet](https://nf-co.re/crisprseq/1.0/assets/samplesheet.csv) 
 
 To trim the overrepresented sequences found with FastQC from the reads, use the parameter `--overrepresented`.
 Such sequences are not trimmed by default.
-When using the `--overrepresented` parameter, cutadapt is used to trim overrepresented sequences from the input FASTQ files.
+When using the `--overrepresented` parameter, Cutadapt is used to trim overrepresented sequences from the input FASTQ files.
 
 ### UMI clustering
 
-If the provided samples were sequenced using umi-molecular identifyers (UMIs), use the parameter `--umi_clustering` in order to run the clustering steps.
+If the provided samples were sequenced using umi-molecular identifiers (UMIs), use the parameter `--umi_clustering` in order to run the clustering steps.
 
 1. Extract UMI sequences (Python script)
 2. Cluster UMI sequences ([`Vsearch`](https://github.com/torognes/vsearch))
