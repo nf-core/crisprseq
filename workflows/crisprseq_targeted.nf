@@ -303,24 +303,36 @@ workflow CRISPRSEQ_TARGETED {
     )
     ch_versions = ch_versions.mix(SEQTK_SEQ_MASK.out.versions)
 
+    if (params.overrepresented) {
+        ch_cat_fastq.paired
+            .mix(ch_cat_fastq.single)
+            .join(PEAR.out.assembled, remainder: true)
+            .join(SEQTK_SEQ_MASK.out.fastx)
+            .join(CUTADAPT.out.log)
+            .set { ch_merging_summary_data }
+    } else {
+        ch_cat_fastq.paired
+            .mix(ch_cat_fastq.single)
+            .join(PEAR.out.assembled, remainder: true)
+            .join(SEQTK_SEQ_MASK.out.fastx)
+            .combine(Channel.value("null"))
+            .map { meta, reads, assembled, masked, trimmed ->
+                if (assembled == null) {
+                    assembled = file('null_a')
+                }
+                if (trimmed == "null") {
+                    trimmed = file('null_t')
+                }
+                return [ meta, reads, assembled, masked, trimmed ]
+            }
+            .set { ch_merging_summary_data }
+    }
 
     //
     // MODULE: Summary of merged reads
     //
     MERGING_SUMMARY {
-        ch_cat_fastq.paired
-            .mix(ch_cat_fastq.single)
-            .join(PEAR.out.assembled, remainder: true)
-            .join(SEQTK_SEQ_MASK.out.fastx)
-            .join(( params.overrepresented ? CUTADAPT.out.log : Channel.value("null") ))
-            .map { meta, reads, assembled, masked, trimmed ->
-                if (assembled == null) {
-                    dummy = file('null')
-                    return [ meta, reads, dummy, masked, trimmed ]
-                } else {
-                    return [ meta, reads, assembled, masked, trimmed ]
-                }
-            }
+        ch_merging_summary_data
     }
 
 
