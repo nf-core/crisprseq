@@ -142,7 +142,7 @@ workflow CRISPRSEQ_TARGETED {
 
     // Join channels with reference and protospacer
     // to channel: [ meta, reference, protospacer]
-    if (!params.reference_fasta) {
+    if (!params.reference_fasta && !params.protospacer) {
         SEQ_TO_FILE_REF.out.file
             .join(INPUT_CHECK.out.protospacer
                 .map {
@@ -151,7 +151,13 @@ workflow CRISPRSEQ_TARGETED {
                 },
                 by: 0)
             .set{ reference_protospacer }
-    } else {
+    } else if (!params.reference_fasta) {
+        // If a protospacer was provided through the --protospacer param instead of the samplesheet
+        ch_protospacer = Channel.of(params.protospacer)
+        SEQ_TO_FILE_REF.out.file
+            .combine(ch_protospacer)
+            .set{ reference_protospacer }
+    } else if (!params.protospacer) {
         // If a reference was provided through a fasta file or igenomes instead of the samplesheet
         ch_reference = Channel.fromPath(params.reference_fasta)
         INPUT_CHECK.out.protospacer
@@ -160,7 +166,18 @@ workflow CRISPRSEQ_TARGETED {
                 [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], reference, protospacer ]
             }
             .set{ reference_protospacer }
+    } else {
+        ch_reference = Channel.fromPath(params.reference_fasta)
+        ch_protospacer = Channel.of(params.protospacer)
+        INPUT_CHECK.out.reads
+            .combine(ch_reference)
+            .combine(ch_protospacer)
+            .map{ meta, reads, reference, protospacer ->
+                [meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], reference, protospacer]
+            }
+            .set{ reference_protospacer }
     }
+
 
     //
     // MODULE: Prepare reference sequence

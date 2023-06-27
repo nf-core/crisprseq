@@ -47,8 +47,8 @@
                 }
             }
         },
-        "alignment_parameters": {
-            "title": "Alignment parameters",
+        "targeted_parameters": {
+            "title": "Targeted parameters",
             "type": "object",
             "description": "",
             "default": "",
@@ -59,6 +59,11 @@
                     "default": "minimap2",
                     "fa_icon": "fas fa-align-justify",
                     "enum": ["minimap2", "bwa", "bowtie2"]
+                },
+                "protospacer": {
+                    "type": "string",
+                    "fa_icon": "fas fa-grip-lines",
+                    "description": "Provide the same protospacer sequence for all samples."
                 }
             }
         },
@@ -92,12 +97,12 @@
                 "min_reads": {
                     "type": "number",
                     "description": "a filter threshold value for sgRNAs, based on their average counts in the control sample",
-                    "default": 30
+                    "default": 30.0
                 },
                 "min_targeted_genes": {
                     "type": "number",
                     "description": "Minimal number of different genes targeted by sgRNAs in a biased segment in order for the corresponding counts to be corrected",
-                    "default": 3
+                    "default": 3.0
                 }
             }
         },
@@ -329,7 +334,7 @@
             "$ref": "#/definitions/input_output_options"
         },
         {
-            "$ref": "#/definitions/alignment_parameters"
+            "$ref": "#/definitions/targeted_parameters"
         },
         {
             "$ref": "#/definitions/screening_parameters"
