@@ -63,7 +63,7 @@
                 "protospacer": {
                     "type": "string",
                     "fa_icon": "fas fa-grip-lines",
-                    "description": "Provide the same protospacer sequence for all samples."
+                    "description": "Provide the same protospacer sequence for all samples. Will override protospacer sequences provided by an input samplesheet."
                 }
             }
         },
@@ -121,7 +121,7 @@
                 "reference_fasta": {
                     "type": "string",
                     "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
-                    "description": "Path to the reference FASTA file.",
+                    "description": "Path to the reference FASTA file. Will override reference sequences provided by an input sample sheet.",
                     "fa_icon": "far fa-file-alt",
                     "format": "file-path"
                 },
