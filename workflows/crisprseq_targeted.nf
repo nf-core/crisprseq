@@ -538,7 +538,7 @@ workflow CRISPRSEQ_TARGETED {
         )
     }
 
-    ch_preprocess_reads = params.umi_clustering ? SEQTK_SEQ_FATOFQ.out.fastx : SEQTK_SEQ.out.fastx
+    ch_preprocess_reads = params.umi_clustering ? SEQTK_SEQ_FATOFQ.out.fastx : SEQTK_SEQ_MASK.out.fastx
 
     //
     // MODULE: Summary of clustered reads
