@@ -324,224 +324,227 @@ workflow CRISPRSEQ_TARGETED {
     }
 
 
-    //
-    // MODULE: Extract UMI sequences
-    //
-    EXTRACT_UMIS (
-        SEQTK_SEQ_MASK.out.fastx
-    )
+    if (params.umi_clustering) {
+        //
+        // MODULE: Extract UMI sequences
+        //
+        EXTRACT_UMIS (
+            SEQTK_SEQ_MASK.out.fastx
+        )
 
 
-    //
-    // MODULE: Cluster UMIs
-    //
-    VSEARCH_CLUSTER (
-        EXTRACT_UMIS.out.fasta
-    )
+        //
+        // MODULE: Cluster UMIs
+        //
+        VSEARCH_CLUSTER (
+            EXTRACT_UMIS.out.fasta
+        )
 
-    //  Obtain a file with UBS (UBI bin size) and UMI ID
-    VSEARCH_CLUSTER.out.clusters
-    .transpose()
-    .collectFile( storeDir:params.outdir ) {
-        it ->
-            [ "${it[0].id}_ubs.txt", "${it[1].countFasta()}\t${it[1].baseName}\n" ]
-    }
-
-    // Branch the clusters into the ones containing only one sequence and the ones containing more than one sequences
-    VSEARCH_CLUSTER.out.clusters
-    .transpose()
-    .branch{
-        meta, cluster ->
-            single: cluster.countFasta() >= params.umi_bin_size && cluster.countFasta() == 1
-                return [meta, cluster]
-            cluster: cluster.countFasta() >= params.umi_bin_size && cluster.countFasta() > 1
-                return [meta, cluster]
-    }
-    .set{ ch_umi_bysize }
-
-    // Get the correspondent fasta sequencences from single clusters
-    ch_umi_bysize.single
-    .tap{ meta_channel }
-    .map{ meta, cluster ->
-        fasta_line = umi_to_sequence(cluster)
-        [meta, cluster.baseName, fasta_line]
-    }
-    .collectFile() { meta, name, fasta ->
-        [ "${name}_consensus.fasta", fasta ]
-    }
-    .map{ new_file ->
-        [new_file.baseName, new_file]
-    }
-    .join(meta_channel
-        .map { meta, original_file ->
-            ["${original_file.baseName}_consensus", meta]
-        })
-    .map{ file_name, new_file, meta ->
-        [meta, new_file]
-    }
-    .set{ ch_single_clusters_consensus }
-
-    //
-    // MODULE: Obtain most abundant UMI in cluster
-    //
-    VSEARCH_SORT(
-        ch_umi_bysize.cluster,
-        Channel.value("--sortbysize")
-    )
-
-    // Get the correspondent fasta sequencences from top cluster sequences
-    // Replaces the sequence name adding the "centroid_" prefix to avoid having two sequences with the same name in following steps
-    VSEARCH_SORT.out.fasta // [[id:sample_id, ...], sample_top.fasta]
-    .tap{ meta_channel_2 } // [[id:sample_id, ...], sample_top.fasta]
-    .map{ meta, fasta ->
-        fasta_line = umi_to_sequence_centroid(fasta)
-        [meta, fasta.baseName, fasta_line] // [[id:sample_id, ...], sample_top, >centroid_...]
-    }
-    .collectFile(cache:true,sort:true) { meta, name, fasta ->
-        [ "${name}.fasta", fasta ] // >centroid_... -> sample_top.fasta
-    }
-    .dump(tag:"collectfile output")
-    .map{ new_file ->
-        [new_file.baseName, new_file] // Substring is removing "_top" added by VSEARCH_SORT // [sample, sample_top.fasta]
-    }
-    .join(meta_channel_2
-        .map { meta, original_file ->
-            ["${original_file.baseName}", meta] // Substring is removing "_top" added by VSEARCH_SORT // [sample, [id:sample_id, ...]]
-        }) // [sample, sample_top.fasta, [id:sample_id, ...]]
-    .map{ file_name, new_file, meta ->
-        [meta + [cluster_id: file_name[0..-5]], new_file] // Add cluster ID to meta map // [[id:sample_id, ..., cluster_id:sample], sample_top.fasta]
-    }
-    .set{ ch_top_clusters_sequence } // [[id:sample_id, ..., cluster_id:sample], sample_top.fasta]
-
-
-    // Get the correspondent fasta sequencences from UMI clusters
-    ch_umi_bysize.cluster // [[id:sample_id, ...], sample]
-    .tap{ meta_channel_3 } // [[id:sample_id, ...], sample]
-    .map{ meta, cluster ->
-        fasta_line = umi_to_sequence(cluster)
-        [meta, cluster.baseName, fasta_line] // [[id:sample_id, ...], sample, >...]
-    }
-    .dump(tag:'map allreads output')
-    .collectFile(cache:true,sort:true) { meta, name, fasta ->
-        [ "${name}_sequences.fasta", fasta ] // >... -> sample_sequences.fasta
-    }
-    .dump(tag:"collectfile allreads output")
-    .map{ new_file ->
-        [new_file.baseName[0..-11], new_file] // Substring is removing "_sequences" added by collectFile // [sample, sample_sequences.fasta]
-    }
-    .join(meta_channel_3
-        .map { meta, original_file ->
-            ["${original_file.baseName}", meta] // [sample, [id:sample_id, ...]]
-        }) // [sample, sample_sequences.fasta, [id:sample_id, ...]]
-    .map{ file_name, new_file, meta ->
-        [meta + [cluster_id: file_name], new_file] // Add cluster ID to meta map // [[id:sample_id, ..., cluster_id:sample], sample_sequences.fasta]
-    }
-    .set{ ch_clusters_sequence }
-
-
-    // Cluster consensus & polishing
-    // Two cycles of minimap2 + racon
-
-    //
-    // MODULE: Mapping with minimap2 - cycle 1
-    //
-    // Map each cluster against the top read (most abundant UMI) in the cluster
-    MINIMAP2_ALIGN_UMI_1 (
-        ch_clusters_sequence
-            .join(ch_top_clusters_sequence),
-        false, //output in paf format
-        false,
-        false
-    )
-
-    MINIMAP2_ALIGN_UMI_1.out.paf.dump(tag:'minimap_unfiltered')
-
-    // Only continue with clusters that have aligned sequences
-    MINIMAP2_ALIGN_UMI_1.out.paf
-        .filter{ it[1].countLines() > 0 }
-        .set{ ch_minimap_1 }
-
-    //
-    // MODULE: Improve top read from UMI cluster using cluster consensus - cycle 1
-    //
-    RACON_1 (
-        ch_clusters_sequence
-            .join(ch_top_clusters_sequence)
-            .join(ch_minimap_1)
-    )
-
-    //
-    // MODULE: Mapping with minimap2 - cycle 2
-    //
-    // Map each cluster against the top read (most abundant UMI) in the cluster
-    MINIMAP2_ALIGN_UMI_2 (
-        ch_clusters_sequence
-            .join(RACON_1.out.improved_assembly),
-        false, //output in paf format
-        false,
-        false
-    )
-
-    // Only continue with clusters that have aligned sequences
-    MINIMAP2_ALIGN_UMI_2.out.paf
-        .filter{ it[1].countLines() > 0 }
-        .set{ ch_minimap_2 }
-
-    //
-    // MODULE: Improve top read from UMI cluster using cluster consensus - cycle 2
-    //
-    RACON_2 (
-        ch_clusters_sequence
-            .join(RACON_1.out.improved_assembly)
-            .join(ch_minimap_2)
-    )
-
-
-    //
-    // MODULE: Obtain a consensus sequence
-    //
-    MEDAKA (
-        ch_clusters_sequence
-            .join(RACON_2.out.improved_assembly)
-    )
-
-    // Collect all consensus UMI sequences into one single file per sample
-    MEDAKA.out.assembly
-    .tap{ meta_channel_4 }
-    .map{ meta, file ->
-        file_content = file.getText()
-        [meta, file_content] // [[id:sample_id, ...], consensus_content]
-    }
-    .collectFile() { meta, file ->
-        [ "${meta.id}_consensus.fasta", file ]
-    }
-    .map{ new_file ->
-        [new_file.baseName, new_file]
-    }
-    .join(meta_channel_4
-        .map{ meta, consensus ->
-            ["${meta.id}_consensus", meta]
+        //  Obtain a file with UBS (UBI bin size) and UMI ID
+        VSEARCH_CLUSTER.out.clusters
+        .transpose()
+        .collectFile( storeDir:params.outdir ) {
+            it ->
+                [ "${it[0].id}_ubs.txt", "${it[1].countFasta()}\t${it[1].baseName}\n" ]
         }
-    )
-    .map{ name, file, meta ->
-        [meta - meta.subMap('cluster_id'), file]
+
+        // Branch the clusters into the ones containing only one sequence and the ones containing more than one sequences
+        VSEARCH_CLUSTER.out.clusters
+        .transpose()
+        .branch{
+            meta, cluster ->
+                single: cluster.countFasta() >= params.umi_bin_size && cluster.countFasta() == 1
+                    return [meta, cluster]
+                cluster: cluster.countFasta() >= params.umi_bin_size && cluster.countFasta() > 1
+                    return [meta, cluster]
+        }
+        .set{ ch_umi_bysize }
+
+        // Get the correspondent fasta sequencences from single clusters
+        ch_umi_bysize.single
+        .tap{ meta_channel }
+        .map{ meta, cluster ->
+            fasta_line = umi_to_sequence(cluster)
+            [meta, cluster.baseName, fasta_line]
+        }
+        .collectFile() { meta, name, fasta ->
+            [ "${name}_consensus.fasta", fasta ]
+        }
+        .map{ new_file ->
+            [new_file.baseName, new_file]
+        }
+        .join(meta_channel
+            .map { meta, original_file ->
+                ["${original_file.baseName}_consensus", meta]
+            })
+        .map{ file_name, new_file, meta ->
+            [meta, new_file]
+        }
+        .set{ ch_single_clusters_consensus }
+
+        //
+        // MODULE: Obtain most abundant UMI in cluster
+        //
+        VSEARCH_SORT(
+            ch_umi_bysize.cluster,
+            Channel.value("--sortbysize")
+        )
+
+        // Get the correspondent fasta sequencences from top cluster sequences
+        // Replaces the sequence name adding the "centroid_" prefix to avoid having two sequences with the same name in following steps
+        VSEARCH_SORT.out.fasta // [[id:sample_id, ...], sample_top.fasta]
+        .tap{ meta_channel_2 } // [[id:sample_id, ...], sample_top.fasta]
+        .map{ meta, fasta ->
+            fasta_line = umi_to_sequence_centroid(fasta)
+            [meta, fasta.baseName, fasta_line] // [[id:sample_id, ...], sample_top, >centroid_...]
+        }
+        .collectFile(cache:true,sort:true) { meta, name, fasta ->
+            [ "${name}.fasta", fasta ] // >centroid_... -> sample_top.fasta
+        }
+        .dump(tag:"collectfile output")
+        .map{ new_file ->
+            [new_file.baseName, new_file] // Substring is removing "_top" added by VSEARCH_SORT // [sample, sample_top.fasta]
+        }
+        .join(meta_channel_2
+            .map { meta, original_file ->
+                ["${original_file.baseName}", meta] // Substring is removing "_top" added by VSEARCH_SORT // [sample, [id:sample_id, ...]]
+            }) // [sample, sample_top.fasta, [id:sample_id, ...]]
+        .map{ file_name, new_file, meta ->
+            [meta + [cluster_id: file_name[0..-5]], new_file] // Add cluster ID to meta map // [[id:sample_id, ..., cluster_id:sample], sample_top.fasta]
+        }
+        .set{ ch_top_clusters_sequence } // [[id:sample_id, ..., cluster_id:sample], sample_top.fasta]
+
+
+        // Get the correspondent fasta sequencences from UMI clusters
+        ch_umi_bysize.cluster // [[id:sample_id, ...], sample]
+        .tap{ meta_channel_3 } // [[id:sample_id, ...], sample]
+        .map{ meta, cluster ->
+            fasta_line = umi_to_sequence(cluster)
+            [meta, cluster.baseName, fasta_line] // [[id:sample_id, ...], sample, >...]
+        }
+        .dump(tag:'map allreads output')
+        .collectFile(cache:true,sort:true) { meta, name, fasta ->
+            [ "${name}_sequences.fasta", fasta ] // >... -> sample_sequences.fasta
+        }
+        .dump(tag:"collectfile allreads output")
+        .map{ new_file ->
+            [new_file.baseName[0..-11], new_file] // Substring is removing "_sequences" added by collectFile // [sample, sample_sequences.fasta]
+        }
+        .join(meta_channel_3
+            .map { meta, original_file ->
+                ["${original_file.baseName}", meta] // [sample, [id:sample_id, ...]]
+            }) // [sample, sample_sequences.fasta, [id:sample_id, ...]]
+        .map{ file_name, new_file, meta ->
+            [meta + [cluster_id: file_name], new_file] // Add cluster ID to meta map // [[id:sample_id, ..., cluster_id:sample], sample_sequences.fasta]
+        }
+        .set{ ch_clusters_sequence }
+
+
+        // Cluster consensus & polishing
+        // Two cycles of minimap2 + racon
+
+        //
+        // MODULE: Mapping with minimap2 - cycle 1
+        //
+        // Map each cluster against the top read (most abundant UMI) in the cluster
+        MINIMAP2_ALIGN_UMI_1 (
+            ch_clusters_sequence
+                .join(ch_top_clusters_sequence),
+            false, //output in paf format
+            false,
+            false
+        )
+
+        MINIMAP2_ALIGN_UMI_1.out.paf.dump(tag:'minimap_unfiltered')
+
+        // Only continue with clusters that have aligned sequences
+        MINIMAP2_ALIGN_UMI_1.out.paf
+            .filter{ it[1].countLines() > 0 }
+            .set{ ch_minimap_1 }
+
+        //
+        // MODULE: Improve top read from UMI cluster using cluster consensus - cycle 1
+        //
+        RACON_1 (
+            ch_clusters_sequence
+                .join(ch_top_clusters_sequence)
+                .join(ch_minimap_1)
+        )
+
+        //
+        // MODULE: Mapping with minimap2 - cycle 2
+        //
+        // Map each cluster against the top read (most abundant UMI) in the cluster
+        MINIMAP2_ALIGN_UMI_2 (
+            ch_clusters_sequence
+                .join(RACON_1.out.improved_assembly),
+            false, //output in paf format
+            false,
+            false
+        )
+
+        // Only continue with clusters that have aligned sequences
+        MINIMAP2_ALIGN_UMI_2.out.paf
+            .filter{ it[1].countLines() > 0 }
+            .set{ ch_minimap_2 }
+
+        //
+        // MODULE: Improve top read from UMI cluster using cluster consensus - cycle 2
+        //
+        RACON_2 (
+            ch_clusters_sequence
+                .join(RACON_1.out.improved_assembly)
+                .join(ch_minimap_2)
+        )
+
+
+        //
+        // MODULE: Obtain a consensus sequence
+        //
+        MEDAKA (
+            ch_clusters_sequence
+                .join(RACON_2.out.improved_assembly)
+        )
+
+        // Collect all consensus UMI sequences into one single file per sample
+        MEDAKA.out.assembly
+        .tap{ meta_channel_4 }
+        .map{ meta, file ->
+            file_content = file.getText()
+            [meta, file_content] // [[id:sample_id, ...], consensus_content]
+        }
+        .collectFile() { meta, file ->
+            [ "${meta.id}_consensus.fasta", file ]
+        }
+        .map{ new_file ->
+            [new_file.baseName, new_file]
+        }
+        .join(meta_channel_4
+            .map{ meta, consensus ->
+                ["${meta.id}_consensus", meta]
+            }
+        )
+        .map{ name, file, meta ->
+            [meta - meta.subMap('cluster_id'), file]
+        }
+        .set{ ch_umi_consensus }
+
+
+        //
+        // MODULE: Convert fasta to fastq
+        //
+        SEQTK_SEQ_FATOFQ (
+            ch_umi_consensus
+        )
     }
-    .set{ ch_umi_consensus }
 
-
-    //
-    // MODULE: Convert fasta to fastq
-    //
-    SEQTK_SEQ_FATOFQ (
-        ch_umi_consensus
-    )
-
+    ch_preprocess_reads = params.umi_clustering ? SEQTK_SEQ_FATOFQ.out.fastx : SEQTK_SEQ.out.fastx
 
     //
     // MODULE: Summary of clustered reads
     //
     CLUSTERING_SUMMARY (
-        SEQTK_SEQ_FATOFQ.out.fastx
+        ch_preprocess_reads
             .join(MERGING_SUMMARY.out.summary)
     )
 
@@ -551,7 +554,7 @@ workflow CRISPRSEQ_TARGETED {
     //
     if (params.aligner == "minimap2") {
         MINIMAP2_ALIGN_ORIGINAL (
-            SEQTK_SEQ_FATOFQ.out.fastx
+            ch_preprocess_reads
                 .join(ORIENT_REFERENCE.out.reference),
             true,
             false,
@@ -570,7 +573,7 @@ workflow CRISPRSEQ_TARGETED {
         )
         ch_versions = ch_versions.mix(BWA_INDEX.out.versions)
         BWA_MEM (
-            SEQTK_SEQ_FATOFQ.out.fastx,
+            ch_preprocess_reads,
             BWA_INDEX.out.index,
             true
         )
@@ -587,7 +590,7 @@ workflow CRISPRSEQ_TARGETED {
         )
         ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
         BOWTIE2_ALIGN (
-            SEQTK_SEQ_FATOFQ.out.fastx,
+            ch_preprocess_reads,
             BOWTIE2_BUILD.out.index,
             false,
             true

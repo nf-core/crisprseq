@@ -58,6 +58,11 @@
                     "type": "boolean",
                     "fa_icon": "fas fa-sort-numeric-up-alt",
                     "description": "Trim overrepresented sequences from reads (cutadapt)"
+                },
+                "umi_clustering": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-layer-group",
+                    "description": "If the sample contains umi-molecular identifyers (UMIs), run the UMI extraction, clustering and consensus steps."
                 }
             },
             "fa_icon": "fas fa-shoe-prints"
@@ -393,6 +398,13 @@
                     "description": "Show all params when using `--help`",
                     "hidden": true,
                     "help_text": "By default, parameters set as _hidden_ in the schema are not shown on the command line when a user runs with `--help`. Specifying this option will tell the pipeline to show all parameters."
+                },
+                "schema_ignore_params": {
+                    "type": "string",
+                    "default": "genomes",
+                    "description": "Ignore JSON schema validation of the following params",
+                    "fa_icon": "fas fa-ban",
+                    "hidden": true
                 }
             }
         }
@@ -428,11 +440,5 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ],
-    "properties": {
-        "schema_ignore_params": {
-            "type": "string",
-            "default": "genomes"
-        }
-    }
+    ]
 }
