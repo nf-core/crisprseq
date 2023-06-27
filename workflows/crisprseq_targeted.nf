@@ -678,9 +678,9 @@ workflow CRISPRSEQ_TARGETED {
     //
     // MODULE: Parse cigar to find edits
     //
-    //CIGAR_PARSER (
-    //    ch_to_parse_cigar
-    //)
+    CIGAR_PARSER (
+        ch_to_parse_cigar
+    )
 
 
     //
