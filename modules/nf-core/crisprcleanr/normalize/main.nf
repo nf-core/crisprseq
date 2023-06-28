@@ -56,6 +56,10 @@ process CRISPRCLEANR_NORMALIZE {
     version_file_path <- "versions.yml"
     version_crisprcleanr <- paste(unlist(packageVersion("CRISPRcleanR")), collapse = ".")
     f <- file(version_file_path, "w")
+    writeLines('"${task.process}":', f)
+    writeLines("    crisprcleanr: ", f, sep = "")
+    writeLines(version_crisprcleanr, f)
+    close(f)
 
     """
 }
