@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   test_targeted:
-    name: Run pipeline with test data for targeted experiment
+    name: Run pipeline with test data
     # Only run on push if this is the nf-core dev branch (merged PRs)
     if: "${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'nf-core/crisprseq') }}"
     runs-on: ubuntu-latest
@@ -26,6 +26,10 @@ jobs:
         NXF_VER:
           - "22.10.1"
           - "latest-everything"
+        ANALYSIS:
+          - "test_screening"
+          - "test_targeted"
+          - "test_umis"
     steps:
       - name: Check out pipeline code
         uses: actions/checkout@v3
@@ -35,29 +39,6 @@ jobs:
         with:
           version: "${{ matrix.NXF_VER }}"
 
-      - name: Run pipeline with test data
+      - name: Run pipeline with test data (${{ matrix.ANALYSIS }})
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test_targeted,docker --outdir ./results_targeted
-
-  test_screening:
-    name: Run pipeline with test data for screening experiment
-    # Only run on push if this is the nf-core dev branch (merged PRs)
-    if: "${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'nf-core/crisprseq') }}"
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        NXF_VER:
-          - "22.10.1"
-          - "latest-everything"
-    steps:
-      - name: Check out pipeline code
-        uses: actions/checkout@v3
-
-      - name: Install Nextflow
-        uses: nf-core/setup-nextflow@v1
-        with:
-          version: "${{ matrix.NXF_VER }}"
-
-      - name: Run pipeline with test data - screening
-        run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test_screening,docker --outdir ./results_screening
+          nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.ANALYSIS }},docker --outdir ./results_${{ matrix.ANALYSIS }}

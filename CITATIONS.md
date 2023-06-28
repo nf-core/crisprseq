@@ -8,6 +8,10 @@
 
 > Di Tommaso P, Chatzou M, Floden EW, Barja PP, Palumbo E, Notredame C. Nextflow enables reproducible computational workflows. Nat Biotechnol. 2017 Apr 11;35(4):316-319. doi: 10.1038/nbt.3820. PubMed PMID: 28398311.
 
+## [Crispr-Analytics](https://doi.org/10.1371/journal.pcbi.1011137)
+
+> Sanvicente-García M, García-Valiente A, Jouide S, Jaraba-Wallace J, Bautista E, Escobosa M, et al. (2023) CRISPR-Analytics (CRISPR-A): A platform for precise analytics and simulations for gene editing. PLoS Comput Biol 19(5): e1011137. https://doi.org/10.1371/journal.pcbi.1011137
+
 ## Pipeline tools
 
 - [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
@@ -48,6 +52,14 @@
 - [Bioconda](https://pubmed.ncbi.nlm.nih.gov/29967506/)
 
   > Grüning B, Dale R, Sjödin A, Chapman BA, Rowe J, Tomkins-Tinch CH, Valieris R, Köster J; Bioconda Team. Bioconda: sustainable and comprehensive software distribution for the life sciences. Nat Methods. 2018 Jul;15(7):475-476. doi: 10.1038/s41592-018-0046-7. PubMed PMID: 29967506.
+
+- [MAGeCK](https://pubmed.ncbi.nlm.nih.gov/25476604/)
+
+  > Li W, Xu H, Xiao T, Cong L, Love MI, Zhang F, Irizarry RA, Liu JS, Brown M, Liu XS. MAGeCK enables robust identification of essential genes from genome-scale CRISPR/Cas9 knockout screens. Genome Biol. 2014;15(12):554.
+
+- [CRISPRcleanR](https://pubmed.ncbi.nlm.nih.gov/30103702/)
+
+  > Li, W. et al. Quality control, modeling, and visualization of CRISPR screens with MAGeCK-VISPR. Genome Biology 16, 281, doi:10.1186/s13059-015-0843-6 (2015).
 
 - [BioContainers](https://pubmed.ncbi.nlm.nih.gov/28379341/)
 

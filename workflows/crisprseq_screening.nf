@@ -10,13 +10,13 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 WorkflowCrisprseq.initialise(params, log)
 
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.multiqc_config, params.fasta, params.library, params.mle_design_matrix ]
+def checkPathParamList = [ params.multiqc_config, params.reference_fasta, params.library, params.mle_design_matrix ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
 if (!params.count_table) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 if (params.library) { ch_library = file(params.library) }
-if (params.crisprcleanr) { ch_crisprcleanr= file(params.crisprcleanr) }
+if (params.crisprcleanr) { ch_crisprcleanr= Channel.value(params.crisprcleanr) }
 
 if(params.mle_design_matrix) {
     Channel.fromPath(params.mle_design_matrix)
@@ -28,9 +28,9 @@ if(params.mle_design_matrix) {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-ch_multiqc_config          = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-ch_multiqc_custom_config   = params.multiqc_config ? Channel.fromPath( params.multiqc_config, checkIfExists: true ) : Channel.empty()
-ch_multiqc_logo            = params.multiqc_logo   ? Channel.fromPath( params.multiqc_logo, checkIfExists: true ) : Channel.empty()
+ch_multiqc_config                     = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
+ch_multiqc_custom_config              = params.multiqc_config ? Channel.fromPath( params.multiqc_config, checkIfExists: true ) : Channel.empty()
+ch_multiqc_logo                       = params.multiqc_logo   ? Channel.fromPath( params.multiqc_logo, checkIfExists: true ) : Channel.empty()
 ch_multiqc_custom_methods_description = params.multiqc_methods_description ? file(params.multiqc_methods_description, checkIfExists: true) : file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
 
 /*
@@ -124,10 +124,9 @@ workflow CRISPRSEQ_SCREENING {
 
 
     if(params.crisprcleanr) {
+        ch_crispr_normalize = Channel.of([id: "count_table_normalize"])
         CRISPRCLEANR_NORMALIZE(
-            [id: "count_table_normalize"],
-            ch_counts,
-            ch_crisprcleanr,
+            ch_crispr_normalize.concat(ch_counts,ch_crisprcleanr).collect(),
             params.min_reads,
             params.min_targeted_genes
         )
@@ -151,7 +150,7 @@ workflow CRISPRSEQ_SCREENING {
     if(params.mle_design_matrix) {
         ch_mle = ch_counts.combine(ch_design)
         ch_mle.map {
-            it-> [[id: it[1].getBaseName()], it[0], it[1]]
+            it -> [[id: it[1].getBaseName()], it[0], it[1]]
         }.set { ch_designed_mle }
 
         MAGECK_MLE (

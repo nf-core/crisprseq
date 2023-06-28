@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add new parameter `--analysis` to select analysis type (screening/targeted) ([#27](https://github.com/nf-core/crisprseq/pull/27))
 - tests to run screening analysis ([#926]https://github.com/nf-core/test-datasets/pull/926)
 - Metro map for targeted analysis ([#35](https://github.com/nf-core/crisprseq/pull/35))
+- Add new parameters --reference and --protospacer ([#45](https://github.com/nf-core/crisprseq/pull/45))
+- Add UMI clustering to crisprseq-targeted ([#24](https://github.com/nf-core/crisprseq/pull/24))
+- Template update v2.8 ([#21](https://github.com/nf-core/crisprseq/pull/21))
 
 ### Fixed
 
