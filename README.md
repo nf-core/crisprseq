@@ -27,6 +27,25 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
 ## Pipeline summary
 
+For crispr targeted:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_targeted_metro_map_dark.png">
+  <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_targeted_metro_map.png">
+</picture>
+
+1. Merge paired-end reads ([`Pear`](https://cme.h-its.org/exelixis/web/software/pear/doc.html))
+2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+3. Adapter trimming ([`Cutadapt`](http://dx.doi.org/10.14806/ej.17.1.200))
+4. Quality filtering ([`Seqtk`](https://github.com/lh3/seqtk))
+5. Read mapping:
+   - ([`minimap2`](https://github.com/lh3/minimap2), _default_)
+   - ([`bwa`](http://bio-bwa.sourceforge.net/))
+   - ([`bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml))
+6. CIGAR parsing for edit calling ([`R`](https://www.r-project.org/))
+
+For crispr screening:
+
 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 2. Read mapping ([`MAGeCK count`](https://sourceforge.net/p/mageck/wiki/usage/#count))
 3. Optional: CNV correction and normalization with ([`CRISPRcleanR`](https://github.com/francescojm/CRISPRcleanR))
@@ -41,18 +60,25 @@ On release, automated continuous integration tests run the pipeline on a full-si
 > to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline)
 > with `-profile test_targeted` or `-profile test_screening` before running the workflow on actual data.
 
-
 First, prepare a samplesheet with your input data that looks as follows:
 
 `samplesheet.csv`:
 
 ```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+sample,fastq_1,fastq_2,reference,protospacer,template
+SAMPLE1,SAMPLE1_R1.fastq.gz,SAMPLE1_R2.fastq.gz,ACTG,ACTG,ACTG
 ```
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
+or
 
+`samplesheet.csv`:
+
+```csv
+sample,fastq_1,fastq_2,condition
+SAMPLE1,SAMPLE1_R1.fastq.gz,SAMPLE1_R2.fastq.gz,control
+```
+
+For more details on how to build a sample sheet, please refer to the [usage documentation](https://nf-co.re/crisprseq/usage)
 
 Now, you can run the pipeline using:
 
