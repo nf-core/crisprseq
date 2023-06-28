@@ -10,7 +10,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir"],
+            "required": ["input", "outdir", "analysis"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -28,6 +28,12 @@
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
                 },
+                "analysis": {
+                    "type": "string",
+                    "fa_icon": "fas fa-cog",
+                    "description": "Type of analysis to perform. Targeted for targeted CRISPR experiments and screening for CRISPR screening experiments.",
+                    "enum": ["screening", "targeted"]
+                },
                 "email": {
                     "type": "string",
                     "description": "Email address for completion summary.",
@@ -39,6 +45,60 @@
                     "type": "string",
                     "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
                     "fa_icon": "fas fa-file-signature"
+                }
+            }
+        },
+        "alignment_parameters": {
+            "title": "Alignment parameters",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "aligner": {
+                    "type": "string",
+                    "description": "Aligner program to use",
+                    "default": "minimap2",
+                    "fa_icon": "fas fa-align-justify",
+                    "enum": ["minimap2", "bwa", "bowtie2"]
+                }
+            }
+        },
+        "screening_parameters": {
+            "title": "Screening parameters",
+            "type": "object",
+            "description": "Parameters used for functional genomic screenings",
+            "default": "",
+            "properties": {
+                "mle_design_matrix": {
+                    "type": "string",
+                    "description": "Design matrix used for MAGeCK MLE to call essential genes under multiple conditions while considering sgRNA knockout efficiency"
+                },
+                "rra_contrasts": {
+                    "type": "string",
+                    "description": "Comma-separated file with the conditions to be compared. The first one will be the reference (control)"
+                },
+                "count_table": {
+                    "type": "string",
+                    "description": "Please provide your count table if the mageck test should be skipped."
+                },
+                "library": {
+                    "type": "string",
+                    "fa_icon": "far fa-address-book",
+                    "description": "sgRNA sequences and targeting genes"
+                },
+                "crisprcleanr": {
+                    "type": "string",
+                    "description": "sgRNA library annotation for crisprcleanR"
+                },
+                "min_reads": {
+                    "type": "number",
+                    "description": "a filter threshold value for sgRNAs, based on their average counts in the control sample",
+                    "default": 30.0
+                },
+                "min_targeted_genes": {
+                    "type": "number",
+                    "description": "Minimal number of different genes targeted by sgRNAs in a biased segment in order for the corresponding counts to be corrected",
+                    "default": 3.0
                 }
             }
         },
@@ -270,6 +330,12 @@
     "allOf": [
         {
             "$ref": "#/definitions/input_output_options"
+        },
+        {
+            "$ref": "#/definitions/alignment_parameters"
+        },
+        {
+            "$ref": "#/definitions/screening_parameters"
         },
         {
             "$ref": "#/definitions/reference_genome_options"
