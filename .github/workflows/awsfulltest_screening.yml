@@ -1,4 +1,4 @@
-name: nf-core AWS full size tests targeted
+name: nf-core AWS full size tests screening
 # This workflow is triggered on published releases.
 # It can be additionally triggered manually with GitHub actions workflow dispatch button.
 # It runs the -profile 'test_full' on AWS batch
@@ -19,12 +19,12 @@ jobs:
           workspace_id: ${{ secrets.TOWER_WORKSPACE_ID }}
           access_token: ${{ secrets.TOWER_ACCESS_TOKEN }}
           compute_env: ${{ secrets.TOWER_COMPUTE_ENV }}
-          workdir: s3://${{ secrets.AWS_S3_BUCKET }}/work/crisprseq/work-${{ github.sha }}/targeted_test
+          workdir: s3://${{ secrets.AWS_S3_BUCKET }}/work/crisprseq/work-${{ github.sha }}/screening_test
           parameters: |
             {
-              "outdir": "s3://${{ secrets.AWS_S3_BUCKET }}/crisprseq/results-${{ github.sha }}/targeted_test"
+              "outdir": "s3://${{ secrets.AWS_S3_BUCKET }}/crisprseq/results-${{ github.sha }}/screening_test"
             }
-          profiles: test_full,aws_tower
+          profiles: test_screening_full,aws_tower
       - uses: actions/upload-artifact@v3
         with:
           name: Tower debug log file
