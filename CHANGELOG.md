@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Template update v2.8
+- Template update v2.8 ([#21](https://github.com/nf-core/crisprseq/pull/21))
 
 ### Fixed
 
