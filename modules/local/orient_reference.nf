@@ -11,8 +11,8 @@ process ORIENT_REFERENCE {
     tuple val(meta), file(reference), val(protospacer)
 
     output:
-    tuple val(meta), path('*_reference-correctOrient.fasta') , emit: reference
-    path "versions.yml"                                      , emit: versions
+    tuple val(meta), path('*-correctOrient.fasta') , emit: reference
+    path "versions.yml"                            , emit: versions
 
     script:
     def args = task.ext.args ?: ''
@@ -20,7 +20,7 @@ process ORIENT_REFERENCE {
     """
     revComp_reference.R \\
         $reference \\
-        ${meta.id}_reference-correctOrient.fasta \\
+        ${prefix}-correctOrient.fasta \\
         $protospacer;
 
     cat <<-END_VERSIONS > versions.yml
