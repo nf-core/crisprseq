@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix warning "module used more than once" ([#25](https://github.com/nf-core/crisprseq/pull/25))
 - Remove profile `aws_tower`, update from nf-core/tools v2.9 to make full tests pass ([#50](https://github.com/nf-core/crisprseq/pull/50))
+- Remove `quay.io` from all containers ([#50](https://github.com/nf-core/crisprseq/pull/50))
 
 ## [v1.0 - Salted Hypatia](https://github.com/nf-core/crisprseq/releases/tag/1.0) - [02.02.2023]
 
