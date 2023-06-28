@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Template update v2.8
+
 ### Fixed
 
 - Fix warning "module used more than once" ([#25](https://github.com/nf-core/crisprseq/pull/25))
