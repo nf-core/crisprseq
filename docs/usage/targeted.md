@@ -89,12 +89,12 @@ Please refer to the [nf-core website](https://nf-co.re/usage/reference_genomes) 
 If you want to provide the same protospacer sequence for every sample, you can provide the sequence with the parameter `--protospacer`.
 Using this parameter will override any protospacer sequence provided through an input sample sheet.
 
-Providing a protospacer, either through a sample sheet or by using the parameter `--protospacer` is requeired.
+Providing a protospacer, either through a sample sheet or by using the parameter `--protospacer` is required.
 
 ## Alignment options
 
 By default, the pipeline uses `minimap2` (i.e. `--aligner minimap2`) to map the sequenced FASTQ reads to the reference.
-You also have the option to select other alignment tools by suing the parameter `--alignment`. Possible options are `minimap2`, `bwa` or `bowtie2`.
+You also have the option to select other alignment tools by using the parameter `--alignment`. Possible options are `minimap2`, `bwa` or `bowtie2`.
 
 The default alignment with `minimap2` uses adapted parameters which were seen to improve the alignment and reduce potential sequencing or alignment errors.
 The default parameters are:

@@ -435,7 +435,6 @@ workflow CRISPRSEQ_TARGETED {
         .collectFile(cache:true,sort:true) { meta, name, fasta ->
             [ "${name}.fasta", fasta ] // >centroid_... -> sample_top.fasta
         }
-        .dump(tag:"collectfile output")
         .map{ new_file ->
             [new_file.baseName, new_file] // Substring is removing "_top" added by VSEARCH_SORT // [sample, sample_top.fasta]
         }
@@ -456,11 +455,9 @@ workflow CRISPRSEQ_TARGETED {
             fasta_line = umi_to_sequence(cluster)
             [meta, cluster.baseName, fasta_line] // [[id:sample_id, ...], sample, >...]
         }
-        .dump(tag:'map allreads output')
         .collectFile(cache:true,sort:true) { meta, name, fasta ->
             [ "${name}_sequences.fasta", fasta ] // >... -> sample_sequences.fasta
         }
-        .dump(tag:"collectfile allreads output")
         .map{ new_file ->
             [new_file.baseName[0..-11], new_file] // Substring is removing "_sequences" added by collectFile // [sample, sample_sequences.fasta]
         }
@@ -489,7 +486,6 @@ workflow CRISPRSEQ_TARGETED {
             false
         )
 
-        MINIMAP2_ALIGN_UMI_1.out.paf.dump(tag:'minimap_unfiltered')
 
         // Only continue with clusters that have aligned sequences
         MINIMAP2_ALIGN_UMI_1.out.paf
