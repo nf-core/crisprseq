@@ -1,15 +1,8 @@
 Changes in module 'nf-core/cutadapt'
 --- modules/nf-core/cutadapt/main.nf
 +++ modules/nf-core/cutadapt/main.nf
-@@ -2,17 +2,17 @@
-     tag "$meta.id"
-     label 'process_medium'
- 
--    conda "bioconda::cutadapt=3.4"
-+    conda 'bioconda::cutadapt=3.4'
-     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-         'https://depot.galaxyproject.org/singularity/cutadapt:3.4--py39h38f01e4_1' :
-         'quay.io/biocontainers/cutadapt:3.4--py39h38f01e4_1' }"
+@@ -8,11 +8,11 @@
+         'biocontainers/cutadapt:3.4--py39h38f01e4_1' }"
  
      input:
 -    tuple val(meta), path(reads)
@@ -23,7 +16,7 @@ Changes in module 'nf-core/cutadapt'
      path "versions.yml"                     , emit: versions
  
      when:
-@@ -21,12 +21,12 @@
+@@ -21,14 +21,21 @@
      script:
      def args = task.ext.args ?: ''
      def prefix = task.ext.prefix ?: "${meta.id}"
@@ -37,18 +30,15 @@ Changes in module 'nf-core/cutadapt'
 +        -o ${prefix}.trim.fastq.gz \\
          $reads \\
          > ${prefix}.cutadapt.log
-     cat <<-END_VERSIONS > versions.yml
-@@ -34,4 +34,11 @@
-         cutadapt: \$(cutadapt --version)
-     END_VERSIONS
-     """
-+    else
-+    """
 +    cat <<-END_VERSIONS > versions.yml
 +    "${task.process}":
 +        cutadapt: \$(cutadapt --version)
 +    END_VERSIONS
 +    """
- }
++    else
++    """
+     cat <<-END_VERSIONS > versions.yml
+     "${task.process}":
+         cutadapt: \$(cutadapt --version)
 
 ************************************************************
