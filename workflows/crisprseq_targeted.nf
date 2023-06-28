@@ -10,7 +10,7 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 WorkflowCrisprseq.initialise(params, log)
 
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config ]
+def checkPathParamList = [ params.input, params.multiqc_config, params.reference_fasta ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
@@ -162,12 +162,6 @@ workflow CRISPRSEQ_TARGETED {
     .set { ch_fastq }
     ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
 
-    INPUT_CHECK.out.reference
-    .map {
-        meta, fastq ->
-            [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
-    }
-
     //
     // MODULE: Add reference sequences to file
     //
@@ -196,14 +190,42 @@ workflow CRISPRSEQ_TARGETED {
 
     // Join channels with reference and protospacer
     // to channel: [ meta, reference, protospacer]
-    SEQ_TO_FILE_REF.out.file
-        .join(INPUT_CHECK.out.protospacer
-            .map {
-                meta, fastq ->
-                    [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
-            },
-            by: 0)
-        .set{ reference_protospacer }
+    if (!params.reference_fasta && !params.protospacer) {
+        SEQ_TO_FILE_REF.out.file
+            .join(INPUT_CHECK.out.protospacer
+                .map {
+                    meta, fastq ->
+                        [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
+                },
+                by: 0)
+            .set{ reference_protospacer }
+    } else if (!params.reference_fasta) {
+        // If a protospacer was provided through the --protospacer param instead of the samplesheet
+        ch_protospacer = Channel.of(params.protospacer)
+        SEQ_TO_FILE_REF.out.file
+            .combine(ch_protospacer)
+            .set{ reference_protospacer }
+    } else if (!params.protospacer) {
+        // If a reference was provided through a fasta file or igenomes instead of the samplesheet
+        ch_reference = Channel.fromPath(params.reference_fasta)
+        INPUT_CHECK.out.protospacer
+            .combine(ch_reference)
+            .map{ meta, protospacer, reference ->
+                [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], reference, protospacer ]
+            }
+            .set{ reference_protospacer }
+    } else {
+        ch_reference = Channel.fromPath(params.reference_fasta)
+        ch_protospacer = Channel.of(params.protospacer)
+        INPUT_CHECK.out.reads
+            .combine(ch_reference)
+            .combine(ch_protospacer)
+            .map{ meta, reads, reference, protospacer ->
+                [meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], reference, protospacer]
+            }
+            .set{ reference_protospacer }
+    }
+
 
     //
     // MODULE: Prepare reference sequence

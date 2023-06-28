@@ -120,7 +120,7 @@ def create_protospacer_channel(LinkedHashMap row) {
 
     // add protospacer sequence to meta
     def protospacer_meta = []
-    if (row.protospacer.length() <= 0) {
+    if (row.protospacer.length() <= 0 && !params.protospacer) {
         exit 1, "ERROR: Please check input samplesheet -> Protospacer sequence is not provided!\n"
     } else {
         protospacer_meta = [ meta, row.protospacer ]

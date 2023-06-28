@@ -88,8 +88,8 @@
             },
             "fa_icon": "fas fa-layer-group"
         },
-        "alignment_parameters": {
-            "title": "Alignment parameters",
+        "targeted_parameters": {
+            "title": "Targeted parameters",
             "type": "object",
             "description": "Parameters used for alignment processes",
             "default": "",
@@ -100,6 +100,11 @@
                     "default": "minimap2",
                     "fa_icon": "fas fa-align-justify",
                     "enum": ["minimap2", "bwa", "bowtie2"]
+                },
+                "protospacer": {
+                    "type": "string",
+                    "fa_icon": "fas fa-grip-lines",
+                    "description": "Provide the same protospacer sequence for all samples. Will override protospacer sequences provided by an input samplesheet."
                 }
             },
             "fa_icon": "fas fa-align-justify"
@@ -189,14 +194,12 @@
                     "fa_icon": "fas fa-book",
                     "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`. \n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
                 },
-                "fasta": {
+                "reference_fasta": {
                     "type": "string",
-                    "format": "file-path",
-                    "mimetype": "text/plain",
                     "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
-                    "description": "Path to FASTA genome file.",
-                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
-                    "fa_icon": "far fa-file-code"
+                    "description": "Path to the reference FASTA file. Will override reference sequences provided by an input sample sheet.",
+                    "fa_icon": "far fa-file-alt",
+                    "format": "file-path"
                 },
                 "igenomes_base": {
                     "type": "string",
@@ -420,7 +423,16 @@
             "$ref": "#/definitions/umi_parameters"
         },
         {
-            "$ref": "#/definitions/alignment_parameters"
+            "$ref": "#/definitions/targeted_pipeline_steps"
+        },
+        {
+            "$ref": "#/definitions/umi_parameters"
+        },
+        {
+            "$ref": "#/definitions/targeted_parameters"
+        },
+        {
+            "$ref": "#/definitions/vsearch_parameters"
         },
         {
             "$ref": "#/definitions/vsearch_parameters"
