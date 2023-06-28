@@ -2,7 +2,7 @@ Changes in module 'nf-core/mageck/mle'
 --- modules/nf-core/mageck/mle/main.nf
 +++ modules/nf-core/mageck/mle/main.nf
 @@ -8,8 +8,7 @@
-         'quay.io/biocontainers/mageck:0.5.9--py37h6bb024c_0' }"
+         'biocontainers/mageck:0.5.9--py37h6bb024c_0' }"
  
      input:
 -    tuple val(meta), path(count_table)
