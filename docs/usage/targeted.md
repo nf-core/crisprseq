@@ -55,6 +55,26 @@ chr6,chr6-61942198-61942498_R1.fastq.gz,,CAA...GGA,TTTTATGATATTTATCTTTT,TTC...CA
 
 An [example samplesheet](https://nf-co.re/crisprseq/1.0/assets/samplesheet.csv) has been provided with the pipeline.
 
+## Optional pipeline steps
+
+### Trimming of overrepresented sequences
+
+To trim the overrepresented sequences found with FastQC from the reads, use the parameter `--overrepresented`.
+Such sequences are not trimmed by default.
+When using the `--overrepresented` parameter, Cutadapt is used to trim overrepresented sequences from the input FASTQ files.
+
+### UMI clustering
+
+If the provided samples were sequenced using umi-molecular identifiers (UMIs), use the parameter `--umi_clustering` in order to run the clustering steps.
+
+1. Extract UMI sequences (Python script)
+2. Cluster UMI sequences ([`Vsearch`](https://github.com/torognes/vsearch))
+3. Obtain the most abundant UMI sequence for each cluster ([`Vsearch`](https://github.com/torognes/vsearch))
+4. Obtain a consensus for each cluster ([`minimap2`](https://github.com/lh3/minimap2))
+5. Polish consensus sequence ([`racon`](https://github.com/lbcb-sci/racon))
+6. Repeat a second rand of consensus + polishing (`minimap2` + `racon`)
+7. Obtain the final consensus of each cluster ([Medaka](https://nanoporetech.github.io/medaka/index.html))
+
 ## Other input parameters
 
 ### Reference

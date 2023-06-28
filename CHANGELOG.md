@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add new parameters --reference and --protospacer ([#45](https://github.com/nf-core/crisprseq/pull/45))
+- Add UMI clustering to crisprseq-targeted ([#24](https://github.com/nf-core/crisprseq/pull/24))
 
 ### Fixed
 

@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
-# FROM: pipeline-umi-amplicon distributed by ONT https://github.com/nanoporetech/pipeline-umi-amplicon
-# https://github.com/nanoporetech/pipeline-umi-amplicon/blob/69ec3907879aea406b5fb02e3db83b579bfb8b45/lib/umi_amplicon_tools/extract_umis.py
+#
+# This code is obtained from Oxford Nanopore Technologies pipeline-umi-amplicon
+# Distributed under the Mozilla Public License, v. 2.0
+#
+# Original source code: https://github.com/nanoporetech/pipeline-umi-amplicon/blob/69ec3907879aea406b5fb02e3db83b579bfb8b45/lib/umi_amplicon_tools/extract_umis.py
+#
 
 import argparse
 import logging

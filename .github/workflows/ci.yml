@@ -29,6 +29,7 @@ jobs:
         ANALYSIS:
           - "test_screening"
           - "test_targeted"
+          - "test_umis"
     steps:
       - name: Check out pipeline code
         uses: actions/checkout@v3
@@ -40,4 +41,4 @@ jobs:
 
       - name: Run pipeline with test data (${{ matrix.ANALYSIS }})
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.ANALYSIS }},docker --outdir ./results_targeted
+          nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.ANALYSIS }},docker --outdir ./results_${{ matrix.ANALYSIS }}
