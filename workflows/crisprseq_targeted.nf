@@ -629,7 +629,7 @@ workflow CRISPRSEQ_TARGETED {
             false,
             true
         )
-        ch_mapped_bam = BOWTIE2_ALIGN.out.bam
+        ch_mapped_bam = BOWTIE2_ALIGN.out.aligned
         ch_versions = ch_versions.mix(BOWTIE2_ALIGN.out.versions)
     }
 
