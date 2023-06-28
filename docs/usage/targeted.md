@@ -72,7 +72,7 @@ If the provided samples were sequenced using umi-molecular identifiers (UMIs), u
 3. Obtain the most abundant UMI sequence for each cluster ([`Vsearch`](https://github.com/torognes/vsearch))
 4. Obtain a consensus for each cluster ([`minimap2`](https://github.com/lh3/minimap2))
 5. Polish consensus sequence ([`racon`](https://github.com/lbcb-sci/racon))
-6. Repeat a second rand of consensus + polishing (`minimap2` + `racon`)
+6. Repeat a second round of consensus + polishing (`minimap2` + `racon`)
 7. Obtain the final consensus of each cluster ([Medaka](https://nanoporetech.github.io/medaka/index.html))
 
 ## Other input parameters
