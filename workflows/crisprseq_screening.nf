@@ -10,7 +10,7 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 WorkflowCrisprseq.initialise(params, log)
 
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.multiqc_config, params.fasta, params.library, params.mle_design_matrix ]
+def checkPathParamList = [ params.multiqc_config, params.reference_fasta, params.library, params.mle_design_matrix ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters

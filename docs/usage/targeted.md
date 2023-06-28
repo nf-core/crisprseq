@@ -55,6 +55,74 @@ chr6,chr6-61942198-61942498_R1.fastq.gz,,CAA...GGA,TTTTATGATATTTATCTTTT,TTC...CA
 
 An [example samplesheet](https://nf-co.re/crisprseq/1.0/assets/samplesheet.csv) has been provided with the pipeline.
 
+## Optional pipeline steps
+
+### Trimming of overrepresented sequences
+
+To trim the overrepresented sequences found with FastQC from the reads, use the parameter `--overrepresented`.
+Such sequences are not trimmed by default.
+When using the `--overrepresented` parameter, Cutadapt is used to trim overrepresented sequences from the input FASTQ files.
+
+### UMI clustering
+
+If the provided samples were sequenced using umi-molecular identifiers (UMIs), use the parameter `--umi_clustering` in order to run the clustering steps.
+
+1. Extract UMI sequences (Python script)
+2. Cluster UMI sequences ([`Vsearch`](https://github.com/torognes/vsearch))
+3. Obtain the most abundant UMI sequence for each cluster ([`Vsearch`](https://github.com/torognes/vsearch))
+4. Obtain a consensus for each cluster ([`minimap2`](https://github.com/lh3/minimap2))
+5. Polish consensus sequence ([`racon`](https://github.com/lbcb-sci/racon))
+6. Repeat a second rand of consensus + polishing (`minimap2` + `racon`)
+7. Obtain the final consensus of each cluster ([Medaka](https://nanoporetech.github.io/medaka/index.html))
+
+## Other input parameters
+
+### Reference
+
+If you want to provide the same reference for every sample, you can select a genome with `--genome` or provide a reference FASTA file with `--reference_fasta`.
+Using any of these two parameters will override any reference sequence provided through an input sample sheet.
+
+Please refer to the [nf-core website](https://nf-co.re/usage/reference_genomes) for general usage docs and guidelines regarding reference genomes.
+
+### Protospacer
+
+If you want to provide the same protospacer sequence for every sample, you can provide the sequence with the parameter `--protospacer`.
+Using this parameter will override any protospacer sequence provided through an input sample sheet.
+
+Providing a protospacer, either through a sample sheet or by using the parameter `--protospacer` is requeired.
+
+## Alignment options
+
+By default, the pipeline uses `minimap2` (i.e. `--aligner minimap2`) to map the sequenced FASTQ reads to the reference.
+You also have the option to select other alignment tools by suing the parameter `--alignment`. Possible options are `minimap2`, `bwa` or `bowtie2`.
+
+The default alignment with `minimap2` uses adapted parameters which were seen to improve the alignment and reduce potential sequencing or alignment errors.
+The default parameters are:
+
+- A matching score of 29
+- A mismatching penalty of 17
+- A gap open penalty of 25
+- A gap extension penalty of 2.
+
+Please refer to the original [CRISPR-Analytics](https://doi.org/10.1371/journal.pcbi.1011137) publication to see the benchmarking of such parameters.
+
+In order to customise such parameters, you can override the arguments given to `minimap2` by creating a configuration file and provide it to your nextflow run with `-c`:
+
+```groovy
+// Custom config file custom.config
+process {
+    withName: MINIMAP2_ALIGN_ORIGINAL {
+        ext.args = '-A 29 -B 17 -O 25 -E 2'
+    }
+}
+```
+
+Command:
+
+```bash
+nextflow run nf-core/crisprseq --input samplesheet.csv --analysis targeted --outdir <OUTDIR> -profile docker -c custom.config
+```
+
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:

@@ -11,9 +11,9 @@ process EXTRACT_UMIS {
     tuple val(meta), path(reads)
 
     output:
-    tuple val(meta), path(fasta) , emit: fasta
-    tuple val(meta), path(tsv)   , emit: tsv
-    path "versions.yml"          , emit: versions
+    tuple val(meta), path("*.fasta") , emit: fasta
+    tuple val(meta), path("*.tsv")   , emit: tsv
+    path "versions.yml"              , emit: versions
 
     script:
     def args = task.ext.args ?: ''

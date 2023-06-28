@@ -38,11 +38,19 @@ For crispr targeted:
 2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 3. Adapter trimming ([`Cutadapt`](http://dx.doi.org/10.14806/ej.17.1.200))
 4. Quality filtering ([`Seqtk`](https://github.com/lh3/seqtk))
-5. Read mapping:
+5. UMI clustering (optional):
+   a. Extract UMI sequences (Python script)
+   b. Cluster UMI sequences ([`Vsearch`](https://github.com/torognes/vsearch))
+   c. Obtain the most abundant UMI sequence for each cluster ([`Vsearch`](https://github.com/torognes/vsearch))
+   d. Obtain a consensus for each cluster ([`minimap2`](https://github.com/lh3/minimap2))
+   e. Polish consensus sequence ([`racon`](https://github.com/lbcb-sci/racon))
+   f. Repeat a second rand of consensus + polishing (`minimap2` + `racon`)
+   g. Obtain the final consensus of each cluster ([Medaka](https://nanoporetech.github.io/medaka/index.html))
+6. Read mapping:
    - ([`minimap2`](https://github.com/lh3/minimap2), _default_)
    - ([`bwa`](http://bio-bwa.sourceforge.net/))
    - ([`bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml))
-6. CIGAR parsing for edit calling ([`R`](https://www.r-project.org/))
+7. CIGAR parsing for edit calling ([`R`](https://www.r-project.org/))
 
 For crispr screening:
 

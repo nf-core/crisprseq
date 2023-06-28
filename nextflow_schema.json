@@ -48,20 +48,100 @@
                 }
             }
         },
-        "alignment_parameters": {
-            "title": "Alignment parameters",
+        "targeted_pipeline_steps": {
+            "title": "targeted pipeline steps",
             "type": "object",
-            "description": "",
+            "description": "Alternative pipeline steps to include in the targeted analysis.",
+            "default": "",
+            "properties": {
+                "overrepresented": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-sort-numeric-up-alt",
+                    "description": "Trim overrepresented sequences from reads (cutadapt)"
+                },
+                "umi_clustering": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-layer-group",
+                    "description": "If the sample contains umi-molecular identifyers (UMIs), run the UMI extraction, clustering and consensus steps."
+                }
+            },
+            "fa_icon": "fas fa-shoe-prints"
+        },
+        "umi_parameters": {
+            "title": "UMI parameters",
+            "type": "object",
+            "description": "Parameters regarding umi molecular identifiers (UMIs)",
+            "default": "",
+            "properties": {
+                "umi_bin_size": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Minimum size of a UMI cluster.",
+                    "fa_icon": "fas fa-sort-amount-down"
+                },
+                "medaka_model": {
+                    "type": "string",
+                    "default": "r941_min_high_g360",
+                    "fa_icon": "fas fa-font",
+                    "description": "Medaka model (-m) to use according to the basecaller used."
+                }
+            },
+            "fa_icon": "fas fa-layer-group"
+        },
+        "targeted_parameters": {
+            "title": "Targeted parameters",
+            "type": "object",
+            "description": "Parameters used for alignment processes",
             "default": "",
             "properties": {
                 "aligner": {
                     "type": "string",
-                    "description": "Aligner program to use",
+                    "description": "Aligner program to use.",
                     "default": "minimap2",
                     "fa_icon": "fas fa-align-justify",
                     "enum": ["minimap2", "bwa", "bowtie2"]
+                },
+                "protospacer": {
+                    "type": "string",
+                    "fa_icon": "fas fa-grip-lines",
+                    "description": "Provide the same protospacer sequence for all samples. Will override protospacer sequences provided by an input samplesheet."
                 }
-            }
+            },
+            "fa_icon": "fas fa-align-justify"
+        },
+        "vsearch_parameters": {
+            "title": "Vsearch parameters",
+            "type": "object",
+            "description": "Parameters to use in Vsearch processes",
+            "default": "",
+            "properties": {
+                "vsearch_minseqlength": {
+                    "type": "integer",
+                    "default": 55,
+                    "fa_icon": "fas fa-minus",
+                    "description": "Vsearch minimum sequence length.",
+                    "help_text": "Discard sequences shorter than vsearch_minseqlength.",
+                    "minimum": 1
+                },
+                "vsearch_maxseqlength": {
+                    "type": "integer",
+                    "default": 57,
+                    "fa_icon": "fas fa-plus",
+                    "description": "Vsearch maximum sequence length.",
+                    "help_text": "Discard sequences longer than vsearch_minseqlength.",
+                    "minimum": 1
+                },
+                "vsearch_id": {
+                    "type": "number",
+                    "default": 0.99,
+                    "fa_icon": "fas fa-equals",
+                    "description": "Vsearch pairwise identity threshold.",
+                    "help_text": "Do not add the target to the cluster if the pairwise identity with the centroid is lower than id. The pairwise identity is defined as the number of (matching columns) / (alignment length - terminal gaps).",
+                    "minimum": 0,
+                    "maximum": 1
+                }
+            },
+            "fa_icon": "fas fa-layer-group"
         },
         "screening_parameters": {
             "title": "Screening parameters",
@@ -93,12 +173,12 @@
                 "min_reads": {
                     "type": "number",
                     "description": "a filter threshold value for sgRNAs, based on their average counts in the control sample",
-                    "default": 30.0
+                    "default": 30
                 },
                 "min_targeted_genes": {
                     "type": "number",
                     "description": "Minimal number of different genes targeted by sgRNAs in a biased segment in order for the corresponding counts to be corrected",
-                    "default": 3.0
+                    "default": 3
                 }
             }
         },
@@ -114,14 +194,12 @@
                     "fa_icon": "fas fa-book",
                     "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`. \n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
                 },
-                "fasta": {
+                "reference_fasta": {
                     "type": "string",
-                    "format": "file-path",
-                    "mimetype": "text/plain",
                     "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
-                    "description": "Path to FASTA genome file.",
-                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
-                    "fa_icon": "far fa-file-code"
+                    "description": "Path to the reference FASTA file. Will override reference sequences provided by an input sample sheet.",
+                    "fa_icon": "far fa-file-alt",
+                    "format": "file-path"
                 },
                 "igenomes_base": {
                     "type": "string",
@@ -323,6 +401,13 @@
                     "description": "Show all params when using `--help`",
                     "hidden": true,
                     "help_text": "By default, parameters set as _hidden_ in the schema are not shown on the command line when a user runs with `--help`. Specifying this option will tell the pipeline to show all parameters."
+                },
+                "schema_ignore_params": {
+                    "type": "string",
+                    "default": "genomes",
+                    "description": "Ignore JSON schema validation of the following params",
+                    "fa_icon": "fas fa-ban",
+                    "hidden": true
                 }
             }
         }
@@ -332,7 +417,25 @@
             "$ref": "#/definitions/input_output_options"
         },
         {
-            "$ref": "#/definitions/alignment_parameters"
+            "$ref": "#/definitions/targeted_pipeline_steps"
+        },
+        {
+            "$ref": "#/definitions/umi_parameters"
+        },
+        {
+            "$ref": "#/definitions/targeted_pipeline_steps"
+        },
+        {
+            "$ref": "#/definitions/umi_parameters"
+        },
+        {
+            "$ref": "#/definitions/targeted_parameters"
+        },
+        {
+            "$ref": "#/definitions/vsearch_parameters"
+        },
+        {
+            "$ref": "#/definitions/vsearch_parameters"
         },
         {
             "$ref": "#/definitions/screening_parameters"
