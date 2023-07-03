@@ -6,7 +6,7 @@ order: 1
 
 ## Introduction
 
-This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.
+This document describes the output produced by the analysis of targeted editing. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.
 
 The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
 
@@ -15,14 +15,18 @@ The directories listed below will be created in the results directory after the 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
 - [Preprocessing](#preprocessing)
-  - [Sequences](#sequences) - Input sequence preparation (reference, protospacer, template)
+  - [sequences](#sequences) - Input sequence preparation (reference, protospacer, template)
   - [cat](#cat) - Concatenate sample fastq files if required
-  - [Pear](#pear) - Join double-end reads if required
-  - [FastQC](#fastqc) - Read Quality Control
-  - [Adapters](#adapters) - Find adapters (Overrepresented sequences) in reads
-  - [Cutadapt](#cutadapt) - Trim adapters
-  - [Seqtk](#seqtk) - Mask low-quality bases
-  <!-- -UMI(#umi) -->
+  - [pear](#pear) - Join double-end reads if required
+  - [fastqc](#fastqc) - Read Quality Control
+  - [adapters](#adapters) - Find adapters (Overrepresented sequences) in reads
+  - [cutadapt](#cutadapt) - Trim adapters
+  - [seqtk](#seqtk) - Mask low-quality bases
+- [UMI clustering](#umi-clustering)
+  - [vsearch](#vsearch)
+  - [minimap2 umi](#minimap2-umi)
+  - [racon](#racon)
+  - [medaka](#medaka)
 - [Mapping](#mapping)
   - [minimap2](#minimap2) - Mapping reads to reference
   - [BWA](#bwa) - Mapping reads to reference
@@ -105,7 +109,7 @@ If multiple libraries/runs have been provided for the same sample in the input s
 ![MultiQC - FastQC adapter content plot](../images/mqc_fastqc_adapter.png)
 
 :::info
-The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality.
+The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequences and potentially regions with low quality.
 :::
 
 ### Adapters
@@ -143,7 +147,56 @@ The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They m
 
 [Seqtk](https://github.com/lh3/seqtk) masks (converts to Ns) bases with quality lower than 20 and removes sequences shorter than 80 bases.
 
-<!-- ### UMI -->
+## UMI clustering
+
+### vsearch
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `vsearch/`
+  - `*_clusters*`: Contains all UMI sequences which clustered together.
+  - `*_clusters*_top.fasta`: Contains the most abundant UMI sequence from the cluster.
+
+</details>
+
+[VSEARCH](https://github.com/torognes/vsearch) is a versatile open-source tool which includes chimera detection, clustering, dereplication and rereplication, extraction, FASTA/FASTQ/SFF file processing, masking, orienting, pair-wise alignment, restriction site cutting, searching, shuffling, sorting, subsampling, and taxonomic classification of amplicon sequences for metagenomics, genomics, and population genetics. `vsearch/clsuter` can cluster sequences using a single-pass, greedy centroid-based clustering algorithm. `vsearch/sort` can sort fasta entries by decreasing abundance (`--sortbysize`) or sequence length (`--sortbylength`).
+
+### minimap2_umi
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `minimap2_umi/`
+  - `*_sequences_clycle[1,2].paf`: Alignment of the cluster sequences against the top UMi sequence in paf format.
+
+</details>
+
+[Minimap2](https://github.com/lh3/minimap2) is a sequence alignment program that aligns DNA sequences against a reference database.
+
+### racon
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `racon/`
+  - `*_sequences_clycle[1,2]_assembly_consensus.fasta.gz`: Consensus sequence obtained from the cluster multiple sequence alignment.
+
+</details>
+
+[Racon](https://github.com/lbcb-sci/racon) is an ultrafast consensus module for raw de novo genome assembly of long uncorrected reads.
+
+### medaka
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `medaka/`
+  - `*_medakaConsensus.fasta`: Final consensus sequence of each UMI cluster. Obtained after two rounds of minimap2 + racon.
+
+</details>
+
+[Medaka](https://nanoporetech.github.io/medaka/index.html) is a tool to create consensus sequences and variant calls from nanopore sequencing data.
 
 ## Mapping
 
@@ -188,6 +241,8 @@ The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They m
 
 ## Edits calling
 
+This section contains the final output of the pipeline. It contains information about the type and abundance of editions produced by CRISPR found in each sample.
+
 ### CIGAR
 
 <details markdown="1">
@@ -195,11 +250,11 @@ The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They m
 
 - `cigar/`
   - `*_cutSite.json`: Contains the protospacer cut site position in the reference.
-  - `*_edition.html`: Interactive pie chart with the percentage of edition types. Reads are classified between WT (without an edit) and indels. Indes are divided between deletions, insertions and delins (deletion + insertion). Deletions and insertions can be out of frame or in frame.
+  - `*_edition.html`: Interactive pie chart with the percentage of edition types. Reads are classified between WT (without an edit) and indels. Indels are divided between deletions, insertions and delins (deletion + insertion). Deletions and insertions can be out of frame or in frame.
     ![Test sample hCas9-AAVS1-a edition plot](../images/hCas9-AAVS1-a_edition.png)
   - `*_edits.csv`: Table containing the data visualized in the pie chart.
   - `*_indels.csv`: Table containing information of all reads. Edit type, edit start and length, if the edition happens above the error rate, if it's located into the common edit window, the frequency, the percentage, the pattern, surrounding nucleotides in case of insertions, the protospacer cut site, the sample id, number of aligned reads and number of reads with and without a template modification.
-  - `*_QC-indels.html`: Interactive pie chart with information about aligned reads. Reads are classified between WT and containing indels. Both types are classified between passing the filtering steps or not. Indel reads passing the filtering steps are divided in reads with a modification above the error rate and located in the common edit window, above the error rate but not in the edit region, viceversa, or any of those conditions.
+  - `*_QC-indels.html`: Interactive pie chart with information about aligned reads. Reads are classified between WT and containing indels. Both types are classified between passing the filtering steps or not. Indel reads passing the filtering steps are divided in reads with a modification above the error rate and located in the common edit window, above the error rate but not in the edit region, vice versa, or any of those conditions.
     ![Test sample hCas9-AAVS1-a QC indels plot](../images/hCas9-AAVS1-a_QC-indels.png)
   - `*_reads.html`: Interactive pie chart with percentage of the number of raw reads, reads merged with Pear, reads passing quality filters and UMI clustered reads.
     ![Test sample hCas9-AAVS1-a reads plot](../images/hCas9-AAVS1-a_reads.png)
@@ -219,7 +274,7 @@ The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They m
 
 </details>
 
-[MultiQC](http://multiqc.info) is a visualization tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.
+[MultiQC](http://multiqc.info) is a visualisation tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.
 
 Results generated by MultiQC collate pipeline QC from supported tools e.g. FastQC. The pipeline has special steps which also allow the software versions to be reported in the MultiQC output for future traceability. For more information about how to use MultiQC reports, see <http://multiqc.info>.
 

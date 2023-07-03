@@ -34,7 +34,7 @@ class RowChecker:
         sample_col="sample",
         first_col="fastq_1",
         second_col="fastq_2",
-        single_col="single_end",
+        condition="control",
         **kwargs,
     ):
         """
@@ -47,16 +47,14 @@ class RowChecker:
                 FASTQ file path (default "fastq_1").
             second_col (str): The name of the column that contains the second (if any)
                 FASTQ file path (default "fastq_2").
-            single_col (str): The name of the new column that will be inserted and
-                records whether the sample contains single- or paired-end sequencing
-                reads (default "single_end").
+            condition (str): The name of the condition of the sample.
 
         """
         super().__init__(**kwargs)
         self._sample_col = sample_col
         self._first_col = first_col
         self._second_col = second_col
-        self._single_col = single_col
+        self._condition = condition
         self._seen = set()
         self.modified = []
 
@@ -97,13 +95,10 @@ class RowChecker:
     def _validate_pair(self, row):
         """Assert that read pairs have the same file extension. Report pair status."""
         if row[self._first_col] and row[self._second_col]:
-            row[self._single_col] = False
             first_col_suffix = Path(row[self._first_col]).suffixes[-2:]
             second_col_suffix = Path(row[self._second_col]).suffixes[-2:]
             if first_col_suffix != second_col_suffix:
                 raise AssertionError("FASTQ pairs must have the same file extensions.")
-        else:
-            row[self._single_col] = True
 
     def _validate_fastq_format(self, filename):
         """Assert that a given filename has one of the expected FASTQ extensions."""
@@ -158,9 +153,6 @@ def sniff_format(handle):
     peek = read_head(handle)
     handle.seek(0)
     sniffer = csv.Sniffer()
-    if not sniffer.has_header(peek):
-        logger.critical("The given sample sheet does not appear to contain a header.")
-        sys.exit(1)
     dialect = sniffer.sniff(peek)
     return dialect
 
@@ -182,10 +174,9 @@ def check_samplesheet(file_in, file_out):
         This function checks that the samplesheet follows the following structure,
         see also the `viral recon samplesheet`_::
 
-            sample,fastq_1,fastq_2
-            SAMPLE_PE,SAMPLE_PE_RUN1_1.fastq.gz,SAMPLE_PE_RUN1_2.fastq.gz
-            SAMPLE_PE,SAMPLE_PE_RUN2_1.fastq.gz,SAMPLE_PE_RUN2_2.fastq.gz
-            SAMPLE_SE,SAMPLE_SE_RUN1_1.fastq.gz,
+            sample,fastq_1,fastq_2,condition
+            SAMPLE_PE,SAMPLE_PE_RUN1_1.fastq.gz,SAMPLE_PE_RUN1_2.fastq.gz,control
+            SAMPLE_SE,SAMPLE_SE_RUN1_1.fastq.gz,,tratment
 
     .. _viral recon samplesheet:
         https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/samplesheet/samplesheet_test_illumina_amplicon.csv
