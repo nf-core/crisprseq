@@ -2,4 +2,3 @@ repository_type: pipeline
 lint:
   # We skip these linting as we have splitted tests between targeted and screening
   files_exist: conf/test.config
-  actions_ci: false
