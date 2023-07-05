@@ -1,5 +1,5 @@
 process CRISPRCLEANR_NORMALIZE {
-    tag "$meta"
+    tag "$meta.id"
     label 'process_medium'
 
     conda "bioconda::r-crisprcleanr=3.0.0"
@@ -22,7 +22,7 @@ process CRISPRCLEANR_NORMALIZE {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
     #!/usr/bin/env Rscript

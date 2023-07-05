@@ -10,7 +10,7 @@ def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 WorkflowCrisprseq.initialise(params, log)
 
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.multiqc_config, params.reference_fasta, params.library, params.mle_design_matrix ]
+def checkPathParamList = [ params.multiqc_config, params.reference_fasta, params.library]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
@@ -19,7 +19,7 @@ if (params.library) { ch_library = file(params.library) }
 if (params.crisprcleanr) { ch_crisprcleanr= Channel.value(params.crisprcleanr) }
 
 if(params.mle_design_matrix) {
-    Channel.fromPath(params.mle_design_matrix)
+    Channel.fromPath(params.mle_design_matrix,checkIfExists: true)
         .set { ch_design }
 }
 /*
