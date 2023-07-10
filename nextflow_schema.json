@@ -201,8 +201,7 @@
                     "mimetype": "text/plain",
                     "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
                     "description": "Path to the reference FASTA file. Will override reference sequences provided by an input sample sheet.",
-                    "fa_icon": "far fa-file-alt",
-                    "format": "file-path"
+                    "fa_icon": "far fa-file-alt"
                 },
                 "igenomes_base": {
                     "type": "string",
