@@ -2,7 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "$id": "https://raw.githubusercontent.com/nf-core/crisprseq/master/nextflow_schema.json",
     "title": "nf-core/crisprseq pipeline parameters",
-    "description": "Pipeline for the analysis of crispr data",
+    "description": "Pipeline for the analysis of CRISPR data",
     "type": "object",
     "definitions": {
         "input_output_options": {
