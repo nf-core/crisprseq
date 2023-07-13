@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Template update v2.9 ([#52](https://github.com/nf-core/crisprseq/pull/52))
+
 ### Fixed
 
 ### Deprecated
