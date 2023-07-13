@@ -15,16 +15,14 @@ log.info logo + paramsSummaryLog(workflow) + citation
 
 WorkflowCrisprseq.initialise(params, log)
 
-// Check mandatory parameters
-//if (!params.count_table) { ch_input = file(params.input) } else { error('Input samplesheet not specified!') }
-//if (params.library) { ch_library = file(params.library) }
-//if (params.crisprcleanr) { ch_crisprcleanr= Channel.value(params.crisprcleanr) }
+// Set screening parameters and channels
+if (params.library) { ch_library = file(params.library) }
+if (params.crisprcleanr) { ch_crisprcleanr = Channel.value(params.crisprcleanr) }
 
-//if(params.mle_design_matrix) {
-//    Channel.fromPath(params.mle_design_matrix,checkIfExists: true)
-//        .set { ch_design }
-//}
-// TODO check with the schema
+if(params.mle_design_matrix) {
+    Channel.fromPath(params.mle_design_matrix)
+        .set { ch_design }
+}
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
