@@ -164,7 +164,7 @@
                 "count_table": {
                     "type": "string",
                     "format": "file-path",
-                    "pattern": "^\\S+\\.tsv$",
+                    "pattern": "^\\S+\\.(tsv|txt)$",
                     "mimetype": "text/tsv",
                     "exists": true,
                     "description": "Please provide your count table if the mageck test should be skipped."
@@ -172,7 +172,7 @@
                 "library": {
                     "type": "string",
                     "format": "file-path",
-                    "pattern": "^\\S+\\.csv$",
+                    "pattern": "^\\S+\\.(tsv|txt)$",
                     "mimetype": "text/tsv",
                     "exists": true,
                     "fa_icon": "far fa-address-book",
