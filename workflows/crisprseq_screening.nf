@@ -1,27 +1,29 @@
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    VALIDATE INPUTS
+    PRINT PARAMS SUMMARY
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
+include { paramsSummaryLog; paramsSummaryMap } from 'plugin/nf-validation'
 
-// Validate input parameters
+def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
+def citation = '\n' + WorkflowMain.citation(workflow) + '\n'
+def summary_params = paramsSummaryMap(workflow)
+
+// Print parameter summary log to screen
+log.info logo + paramsSummaryLog(workflow) + citation
+
 WorkflowCrisprseq.initialise(params, log)
 
-// Check input path parameters to see if they exist
-def checkPathParamList = [ params.multiqc_config, params.reference_fasta, params.library]
-for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
-
-// Check mandatory parameters
-if (!params.count_table) { ch_input = file(params.input) } else { error('Input samplesheet not specified!') }
+// Set screening parameters and channels
 if (params.library) { ch_library = file(params.library) }
-if (params.crisprcleanr) { ch_crisprcleanr= Channel.value(params.crisprcleanr) }
+if (params.crisprcleanr) { ch_crisprcleanr = Channel.value(params.crisprcleanr) }
 
 if(params.mle_design_matrix) {
-    Channel.fromPath(params.mle_design_matrix,checkIfExists: true)
+    Channel.fromPath(params.mle_design_matrix)
         .set { ch_design }
 }
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
@@ -78,7 +80,7 @@ workflow CRISPRSEQ_SCREENING {
         // SUBWORKFLOW: Read in samplesheet, validate and stage input files
         //
         INPUT_CHECK_SCREENING (
-            ch_input
+            file(params.input)
         )
         ch_versions = ch_versions.mix(INPUT_CHECK_SCREENING.out.versions)
 
@@ -168,7 +170,7 @@ workflow CRISPRSEQ_SCREENING {
     workflow_summary    = WorkflowCrisprseq.paramsSummaryMultiqc(workflow, summary_params)
     ch_workflow_summary = Channel.value(workflow_summary)
 
-    methods_description    = WorkflowCrisprseq.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description)
+    methods_description    = WorkflowCrisprseq.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description, params)
     ch_methods_description = Channel.value(methods_description)
 
     ch_multiqc_files = Channel.empty()
