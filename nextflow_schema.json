@@ -164,15 +164,17 @@
                 "count_table": {
                     "type": "string",
                     "format": "file-path",
+                    "mimetype": "text/tsv",
                     "exists": true,
                     "description": "Please provide your count table if the mageck test should be skipped."
                 },
                 "library": {
                     "type": "string",
                     "format": "file-path",
+                    "mimetype": "text/tsv",
                     "exists": true,
                     "fa_icon": "far fa-address-book",
-                    "description": "sgRNA sequences and targeting genes"
+                    "description": "sgRNA and targetting genes, tab separated"
                 },
                 "crisprcleanr": {
                     "type": "string",
@@ -185,7 +187,7 @@
                 },
                 "min_targeted_genes": {
                     "type": "number",
-                    "description": "Minimal number of different genes targeted by sgRNAs in a biased segment in order for the corresponding counts to be corrected",
+                    "description": "Minimal number of different genes targeted by sgRNAs in a biased segment in order for the corresponding counts to be corrected for CRISPRcleanR",
                     "default": 3
                 }
             }
