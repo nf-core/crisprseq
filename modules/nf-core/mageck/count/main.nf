@@ -16,7 +16,6 @@ process MAGECK_COUNT {
     tuple val(meta), path("*.count_normalized.txt"), emit: norm
     tuple val(meta), path("*.countsummary.txt"), emit: summary
     tuple val(meta), path("*.count_normalized.txt"), emit: normalized
-    tuple val(meta), path("*.count_report.Rmd"), emit: report
     tuple val(meta), path("*.log"), emit: logs
 
     path "versions.yml"           , emit: versions

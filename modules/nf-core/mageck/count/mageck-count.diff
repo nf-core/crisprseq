@@ -1,7 +1,7 @@
 Changes in module 'nf-core/mageck/count'
 --- modules/nf-core/mageck/count/main.nf
 +++ modules/nf-core/mageck/count/main.nf
-@@ -12,8 +12,13 @@
+@@ -12,8 +12,12 @@
      path(library)
  
      output:
@@ -10,13 +10,12 @@ Changes in module 'nf-core/mageck/count'
      tuple val(meta), path("*.count_normalized.txt"), emit: norm
 +    tuple val(meta), path("*.countsummary.txt"), emit: summary
 +    tuple val(meta), path("*.count_normalized.txt"), emit: normalized
-+    tuple val(meta), path("*.count_report.Rmd"), emit: report
 +    tuple val(meta), path("*.log"), emit: logs
 +
      path "versions.yml"           , emit: versions
  
      when:
-@@ -22,7 +27,7 @@
+@@ -22,7 +26,7 @@
      script:
      def args = task.ext.args ?: ''
      def prefix = task.ext.prefix ?: "${meta.id}"
