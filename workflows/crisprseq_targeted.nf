@@ -140,12 +140,12 @@ workflow CRISPRSEQ_TARGETED {
     // Create input channel from input file provided through params.input
     //
     Channel.fromSamplesheet("input")
-    .multiMap {
-        meta, fastq_1, fastq_2, x, reference, protospacer, template ->
-            reads:   [ meta.id, meta + [ single_end:false, self_reference:reference?false:true, template:template?true:false ], fastq_2?[ fastq_1, fastq_2 ]:[ fastq_1 ] ]
-            reference:   [meta + [ single_end:true, self_reference:reference?false:true, template:template?true:false ], reference]
-            protospacer: [meta + [ single_end:true, self_reference:reference?false:true, template:template?true:false ], protospacer]
-            template:    [meta + [ single_end:true, self_reference:reference?false:true, template:template?true:false ], template]
+    .multiMap { meta, fastq_1, fastq_2, reference, protospacer, template ->
+        // meta.condition is part of the screening pipeline and we need to remove it
+        reads:   [ meta.id, meta - meta.subMap('condition') + [ single_end:false, self_reference:reference?false:true, template:template?true:false ], fastq_2?[ fastq_1, fastq_2 ]:[ fastq_1 ] ]
+        reference:   [meta - meta.subMap('condition') + [ single_end:true, self_reference:reference?false:true, template:template?true:false ], reference]
+        protospacer: [meta - meta.subMap('condition') + [ single_end:true, self_reference:reference?false:true, template:template?true:false ], protospacer]
+        template:    [meta - meta.subMap('condition') + [ single_end:true, self_reference:reference?false:true, template:template?true:false ], template]
     }
     .set { ch_input }
 

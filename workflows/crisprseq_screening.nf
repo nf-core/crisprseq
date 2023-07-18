@@ -76,22 +76,28 @@ workflow CRISPRSEQ_SCREENING {
 
     if(!params.count_table){
         //
-        // SUBWORKFLOW: Read in samplesheet, validate and stage input files
+        // Create input channel from input file provided through params.input
         //
-        INPUT_CHECK_SCREENING (
-            file(params.input)
-        )
-        ch_versions = ch_versions.mix(INPUT_CHECK_SCREENING.out.versions)
+        Channel.fromSamplesheet("input")
+        .map{ meta, fastq_1, fastq_2, x, y, z ->
+            // x (reference), y (protospacer), and z (template) are part of the targeted workflows and we don't need them
+            if (!fastq_2) {
+                return [ meta, [ fastq_1 ] ]
+            } else {
+                return [ meta, [ fastq_1, fastq_2 ] ]
+            }
+        }
+        .set { ch_input }
 
         //
         // MODULE: Run FastQC
         //
         FASTQC (
-            INPUT_CHECK_SCREENING.out.reads
+            ch_input
         )
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
-        INPUT_CHECK_SCREENING.out.reads
+        ch_input
         .map { meta, fastq ->
             [meta.condition, fastq]
         }

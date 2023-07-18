@@ -38,7 +38,8 @@
                 "type": "string",
                 "pattern": "^\\S+$",
                 "enum": ["control", "treatment"],
-                "errorMessage": "Condition name must be one of 'control' or 'treatment'"
+                "errorMessage": "Condition name must be one of 'control' or 'treatment'",
+                "meta": ["condition"]
             },
             "reference": {
                 "type": "string",
