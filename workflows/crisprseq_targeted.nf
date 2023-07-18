@@ -4,7 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { paramsSummaryLog; paramsSummaryMap } from 'plugin/nf-validation'
+include { paramsSummaryLog; paramsSummaryMap; fromSamplesheet } from 'plugin/nf-validation'
 
 def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
 def citation = '\n' + WorkflowMain.citation(workflow) + '\n'
@@ -21,9 +21,9 @@ WorkflowCrisprseq.initialise(params, log)
 */
 
 ch_multiqc_config          = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-ch_multiqc_custom_config   = params.multiqc_config ? Channel.fromPath( params.multiqc_config, checkIfExists: true ) : Channel.empty()
-ch_multiqc_logo            = params.multiqc_logo   ? Channel.fromPath( params.multiqc_logo, checkIfExists: true ) : Channel.empty()
-ch_multiqc_custom_methods_description = params.multiqc_methods_description ? file(params.multiqc_methods_description, checkIfExists: true) : file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
+ch_multiqc_custom_config   = params.multiqc_config ? Channel.fromPath( params.multiqc_config ) : Channel.empty()
+ch_multiqc_logo            = params.multiqc_logo   ? Channel.fromPath( params.multiqc_logo )   : Channel.empty()
+ch_multiqc_custom_methods_description = params.multiqc_methods_description ? file(params.multiqc_methods_description) : file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,7 +34,6 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK                      } from '../subworkflows/local/input_check'
 
 //
 // MODULE
@@ -138,36 +137,43 @@ workflow CRISPRSEQ_TARGETED {
     ch_versions = Channel.empty()
 
     //
-    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
+    // Create input channel from input file provided through params.input
     //
-    INPUT_CHECK (
-        file(params.input)
-    )
-    .reads
-    .map {
-        meta, fastq ->
-            [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
+    Channel.fromSamplesheet("input")
+    .multiMap {
+        meta, fastq_1, fastq_2, condition, reference, protospacer, template ->
+            reads:   [ meta.id, meta + [ single_end:false, self_reference:reference?false:true, template:template?true:false ], fastq_2?[ fastq_1, fastq_2 ]:[ fastq_1 ] ]
+            reference:   [meta + [ single_end:true, self_reference:reference?false:true, template:template?true:false ], reference]
+            protospacer: [meta + [ single_end:true, self_reference:reference?false:true, template:template?true:false ], protospacer]
+            template:    [meta + [ single_end:true, self_reference:reference?false:true, template:template?true:false ], template]
     }
-    .groupTuple(by: [0])
+    .set { ch_input }
+
+    ch_input
+    .reads
+    .groupTuple()
+    .map {
+        WorkflowCrisprseq.validateInput(it)
+    }
     // Separate samples by the ones containing all reads in one file or the ones with many files to be concatenated
     .branch {
-        meta, fastq ->
-            single  : fastq.size() == 1
-                return [ meta, fastq.flatten() ]
-            multiple: fastq.size() > 1
-                return [ meta, fastq.flatten() ]
+        meta, fastqs ->
+            single  : fastqs.size() == 1
+                return [ meta, fastqs.flatten() ]
+            multiple: fastqs.size() > 1
+                return [ meta, fastqs.flatten() ]
     }
     .set { ch_fastq }
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+
 
     //
     // MODULE: Add reference sequences to file
     //
     SEQ_TO_FILE_REF (
-        INPUT_CHECK.out.reference
+        ch_input.reference
         .map {
             meta, fastq ->
-                [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
+                [ meta , fastq ]
         },
         "reference"
     )
@@ -177,10 +183,10 @@ workflow CRISPRSEQ_TARGETED {
     // MODULE: Add template sequences to file
     //
     SEQ_TO_FILE_TEMPL (
-        INPUT_CHECK.out.template
+        ch_input.template
         .map {
             meta, fastq ->
-                [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
+                [ meta , fastq ]
         },
         "template"
     )
@@ -190,10 +196,10 @@ workflow CRISPRSEQ_TARGETED {
     // to channel: [ meta, reference, protospacer]
     if (!params.reference_fasta && !params.protospacer) {
         SEQ_TO_FILE_REF.out.file
-            .join(INPUT_CHECK.out.protospacer
+            .join(ch_input.protospacer
                 .map {
                     meta, fastq ->
-                        [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
+                        [ meta , fastq ]
                 },
                 by: 0)
             .set{ reference_protospacer }
@@ -206,20 +212,20 @@ workflow CRISPRSEQ_TARGETED {
     } else if (!params.protospacer) {
         // If a reference was provided through a fasta file or igenomes instead of the samplesheet
         ch_reference = Channel.fromPath(params.reference_fasta)
-        INPUT_CHECK.out.protospacer
+        ch_input.protospacer
             .combine(ch_reference)
             .map{ meta, protospacer, reference ->
-                [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], reference, protospacer ]
+                [ meta , reference, protospacer ]
             }
             .set{ reference_protospacer }
     } else {
         ch_reference = Channel.fromPath(params.reference_fasta)
         ch_protospacer = Channel.of(params.protospacer)
-        INPUT_CHECK.out.reads
+        ch_input.reads
             .combine(ch_reference)
             .combine(ch_protospacer)
             .map{ meta, reads, reference, protospacer ->
-                [meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], reference, protospacer]
+                [meta , reference, protospacer]
             }
             .set{ reference_protospacer }
     }
@@ -681,10 +687,10 @@ workflow CRISPRSEQ_TARGETED {
     ch_mapped_bam
         .join(SAMTOOLS_INDEX.out.bai)
         .join(ORIENT_REFERENCE.out.reference)
-        .join(INPUT_CHECK.out.protospacer
+        .join(ch_input.protospacer
             .map {
                 meta, fastq ->
-                    [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
+                    [ meta , fastq ]
             }
         )
         .join(SEQ_TO_FILE_TEMPL.out.file, remainder: true)
