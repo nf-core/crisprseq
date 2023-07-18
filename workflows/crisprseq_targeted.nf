@@ -141,7 +141,7 @@ workflow CRISPRSEQ_TARGETED {
     //
     Channel.fromSamplesheet("input")
     .multiMap {
-        meta, fastq_1, fastq_2, condition, reference, protospacer, template ->
+        meta, fastq_1, fastq_2, x, reference, protospacer, template ->
             reads:   [ meta.id, meta + [ single_end:false, self_reference:reference?false:true, template:template?true:false ], fastq_2?[ fastq_1, fastq_2 ]:[ fastq_1 ] ]
             reference:   [meta + [ single_end:true, self_reference:reference?false:true, template:template?true:false ], reference]
             protospacer: [meta + [ single_end:true, self_reference:reference?false:true, template:template?true:false ], protospacer]
