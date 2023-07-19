@@ -38,14 +38,14 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // MODULE
 //
-include { FIND_ADAPTERS                                   } from '../modules/local/find_adapters'
-include { EXTRACT_UMIS                                    } from '../modules/local/extract_umis'
-include { ORIENT_REFERENCE                                } from '../modules/local/orient_reference'
-include { CIGAR_PARSER                                    } from '../modules/local/cigar_parser'
-include { MERGING_SUMMARY                                 } from '../modules/local/merging_summary'
-include { CLUSTERING_SUMMARY                              } from '../modules/local/clustering_summary'
-include { ALIGNMENT_SUMMARY                               } from '../modules/local/alignment_summary'
-include { TEMPLATE_REFERENCE                              } from '../modules/local/template_reference'
+include { FIND_ADAPTERS      } from '../modules/local/find_adapters'
+include { EXTRACT_UMIS       } from '../modules/local/extract_umis'
+include { ORIENT_REFERENCE   } from '../modules/local/orient_reference'
+include { CIGAR_PARSER       } from '../modules/local/cigar_parser'
+include { MERGING_SUMMARY    } from '../modules/local/merging_summary'
+include { CLUSTERING_SUMMARY } from '../modules/local/clustering_summary'
+include { ALIGNMENT_SUMMARY  } from '../modules/local/alignment_summary'
+include { TEMPLATE_REFERENCE } from '../modules/local/template_reference'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,30 +56,30 @@ include { TEMPLATE_REFERENCE                              } from '../modules/loc
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC                                        } from '../modules/nf-core/fastqc/main'
-include { MULTIQC                                       } from '../modules/nf-core/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
-include { PEAR                                          } from '../modules/nf-core/pear/main'
-include { CAT_FASTQ                                     } from '../modules/nf-core/cat/fastq/main'
-include { SEQTK_SEQ as SEQTK_SEQ_MASK                   } from '../modules/nf-core/seqtk/seq/main'
-include { SEQTK_SEQ as SEQTK_SEQ_FATOFQ                 } from '../modules/nf-core/seqtk/seq/main'
-include { VSEARCH_CLUSTER                               } from '../modules/nf-core/vsearch/cluster/main'
-include { VSEARCH_SORT                                  } from '../modules/nf-core/vsearch/sort/main'
-include { RACON as RACON_1                              } from '../modules/nf-core/racon/main'
-include { RACON as RACON_2                              } from '../modules/nf-core/racon/main'
-include { BOWTIE2_ALIGN                                 } from '../modules/nf-core/bowtie2/align/main'
-include { BOWTIE2_BUILD                                 } from '../modules/nf-core/bowtie2/build/main'
-include { BWA_MEM                                       } from '../modules/nf-core/bwa/mem/main'
-include { BWA_INDEX                                     } from '../modules/nf-core/bwa/index/main'
-include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_ORIGINAL     } from '../modules/nf-core/minimap2/align/main'
-include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_1        } from '../modules/nf-core/minimap2/align/main'
-include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_2        } from '../modules/nf-core/minimap2/align/main'
-include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_TEMPLATE     } from '../modules/nf-core/minimap2/align/main'
-include { SAMTOOLS_FAIDX                                } from '../modules/nf-core/samtools/faidx/main'
-include { MINIMAP2_INDEX                                } from '../modules/nf-core/minimap2/index/main'
-include { MEDAKA                                        } from '../modules/nf-core/medaka/main'
-include { CUTADAPT                                      } from '../modules/nf-core/cutadapt/main'
-include { SAMTOOLS_INDEX                                } from '../modules/nf-core/samtools/index/main'
+include { FASTQC                                    } from '../modules/nf-core/fastqc/main'
+include { MULTIQC                                   } from '../modules/nf-core/multiqc/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS               } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { PEAR                                      } from '../modules/nf-core/pear/main'
+include { CAT_FASTQ                                 } from '../modules/nf-core/cat/fastq/main'
+include { SEQTK_SEQ as SEQTK_SEQ_MASK               } from '../modules/nf-core/seqtk/seq/main'
+include { SEQTK_SEQ as SEQTK_SEQ_FATOFQ             } from '../modules/nf-core/seqtk/seq/main'
+include { VSEARCH_CLUSTER                           } from '../modules/nf-core/vsearch/cluster/main'
+include { VSEARCH_SORT                              } from '../modules/nf-core/vsearch/sort/main'
+include { RACON as RACON_1                          } from '../modules/nf-core/racon/main'
+include { RACON as RACON_2                          } from '../modules/nf-core/racon/main'
+include { BOWTIE2_ALIGN                             } from '../modules/nf-core/bowtie2/align/main'
+include { BOWTIE2_BUILD                             } from '../modules/nf-core/bowtie2/build/main'
+include { BWA_MEM                                   } from '../modules/nf-core/bwa/mem/main'
+include { BWA_INDEX                                 } from '../modules/nf-core/bwa/index/main'
+include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_ORIGINAL } from '../modules/nf-core/minimap2/align/main'
+include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_1    } from '../modules/nf-core/minimap2/align/main'
+include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_2    } from '../modules/nf-core/minimap2/align/main'
+include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_TEMPLATE } from '../modules/nf-core/minimap2/align/main'
+include { SAMTOOLS_FAIDX                            } from '../modules/nf-core/samtools/faidx/main'
+include { MINIMAP2_INDEX                            } from '../modules/nf-core/minimap2/index/main'
+include { MEDAKA                                    } from '../modules/nf-core/medaka/main'
+include { CUTADAPT                                  } from '../modules/nf-core/cutadapt/main'
+include { SAMTOOLS_INDEX                            } from '../modules/nf-core/samtools/index/main'
 
 
 /*
@@ -170,15 +170,15 @@ workflow CRISPRSEQ_TARGETED {
     ch_input.reference
     .tap{ meta_reference }
     .collectFile() { meta, reference ->
-        [ "${meta.id}_reference.fasta", ">${meta.id}\n${item}\n" ] // Write each reference sequence to a file
+        [ "${meta.id}_reference.fasta", ">${meta.id}\n${reference}\n" ] // Write each reference sequence to a file
     }
     .map{ new_file ->
         [new_file.baseName.split("_reference")[0], new_file] // create a channel with the meta.id and the new file
     }
     .join(meta_reference
         .map{ meta, reference ->
-                [meta.id, meta] // Join the channel by meta.id with the meta map
-            }
+            [meta.id, meta] // Join the channel by meta.id with the meta map
+        }
     )
     .map{ metaid, new_file, meta ->
         [meta, new_file] // Obtain the final channel with meta map and the new file
@@ -192,15 +192,15 @@ workflow CRISPRSEQ_TARGETED {
     ch_input.template
     .tap{ meta_template }
     .collectFile() { meta, template ->
-        [ "${meta.if}_template.fasta", ">${meta.id}\n${item}\n" ] // Write each template sequence to a file
+        [ "${meta.if}_template.fasta", ">${meta.id}\n${template}\n" ] // Write each template sequence to a file
     }
     .map{ new_file ->
         [new_file.baseName.split("_template")[0], new_file] // create a channel with the meta.id and the new file
     }
     .join(meta_template
         .map{ meta, template ->
-                [meta.id, meta] // Join the channel by meta.id with the meta map
-            }
+            [meta.id, meta] // Join the channel by meta.id with the meta map
+        }
     )
     .map{ metaid, new_file, meta ->
         [meta, new_file] // Obtain the final channel with meta map and the new file
