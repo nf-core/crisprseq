@@ -40,8 +40,6 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 include { FIND_ADAPTERS                                   } from '../modules/local/find_adapters'
 include { EXTRACT_UMIS                                    } from '../modules/local/extract_umis'
-include { SEQ_TO_FILE as SEQ_TO_FILE_REF                  } from '../modules/local/seq_to_file'
-include { SEQ_TO_FILE as SEQ_TO_FILE_TEMPL                } from '../modules/local/seq_to_file'
 include { ORIENT_REFERENCE                                } from '../modules/local/orient_reference'
 include { CIGAR_PARSER                                    } from '../modules/local/cigar_parser'
 include { MERGING_SUMMARY                                 } from '../modules/local/merging_summary'
@@ -447,11 +445,11 @@ workflow CRISPRSEQ_TARGETED {
             [ "${name}.fasta", fasta ] // >centroid_... -> sample_top.fasta
         }
         .map{ new_file ->
-            [new_file.baseName, new_file] // Substring is removing "_top" added by VSEARCH_SORT // [sample, sample_top.fasta]
+            [new_file.baseName, new_file] // [sample, sample_top.fasta]
         }
         .join(meta_channel_2
             .map { meta, original_file ->
-                ["${original_file.baseName}", meta] // Substring is removing "_top" added by VSEARCH_SORT // [sample, [id:sample_id, ...]]
+                ["${original_file.baseName}", meta] // [sample, [id:sample_id, ...]]
             }) // [sample, sample_top.fasta, [id:sample_id, ...]]
         .map{ file_name, new_file, meta ->
             [meta + [cluster_id: file_name[0..-5]], new_file] // Add cluster ID to meta map // [[id:sample_id, ..., cluster_id:sample], sample_top.fasta]
@@ -470,7 +468,7 @@ workflow CRISPRSEQ_TARGETED {
             [ "${name}_sequences.fasta", fasta ] // >... -> sample_sequences.fasta
         }
         .map{ new_file ->
-            [new_file.baseName[0..-11], new_file] // Substring is removing "_sequences" added by collectFile // [sample, sample_sequences.fasta]
+            [new_file.baseName[0..-11], new_file] // [sample, sample_sequences.fasta]
         }
         .join(meta_channel_3
             .map { meta, original_file ->
