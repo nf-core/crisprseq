@@ -167,46 +167,59 @@ workflow CRISPRSEQ_TARGETED {
 
 
     //
-    // MODULE: Add reference sequences to file
+    // Add reference sequences to file
     //
-    SEQ_TO_FILE_REF (
-        ch_input.reference
-        .map {
-            meta, fastq ->
-                [ meta , fastq ]
-        },
-        "reference"
+    ch_input.reference
+    .tap{ meta_reference }
+    .collectFile() { meta, reference ->
+        [ "${meta.id}_reference.fasta", ">${meta.id}\n${item}\n" ] // Write each reference sequence to a file
+    }
+    .map{ new_file ->
+        [new_file.baseName.split("_reference")[0], new_file] // create a channel with the meta.id and the new file
+    }
+    .join(meta_reference
+        .map{ meta, reference ->
+                [meta.id, meta] // Join the channel by meta.id with the meta map
+            }
     )
-    ch_versions = ch_versions.mix(SEQ_TO_FILE_REF.out.versions)
+    .map{ metaid, new_file, meta ->
+        [meta, new_file] // Obtain the final channel with meta map and the new file
+    }
+    .set{ ch_seq_reference }
+
 
     //
-    // MODULE: Add template sequences to file
+    // Add template sequences to file
     //
-    SEQ_TO_FILE_TEMPL (
-        ch_input.template
-        .map {
-            meta, fastq ->
-                [ meta , fastq ]
-        },
-        "template"
+    ch_input.template
+    .tap{ meta_template }
+    .collectFile() { meta, template ->
+        [ "${meta.if}_template.fasta", ">${meta.id}\n${item}\n" ] // Write each template sequence to a file
+    }
+    .map{ new_file ->
+        [new_file.baseName.split("_template")[0], new_file] // create a channel with the meta.id and the new file
+    }
+    .join(meta_template
+        .map{ meta, template ->
+                [meta.id, meta] // Join the channel by meta.id with the meta map
+            }
     )
-    ch_versions = ch_versions.mix(SEQ_TO_FILE_TEMPL.out.versions)
+    .map{ metaid, new_file, meta ->
+        [meta, new_file] // Obtain the final channel with meta map and the new file
+    }
+    .set{ ch_seq_template }
+
 
     // Join channels with reference and protospacer
     // to channel: [ meta, reference, protospacer]
     if (!params.reference_fasta && !params.protospacer) {
-        SEQ_TO_FILE_REF.out.file
-            .join(ch_input.protospacer
-                .map {
-                    meta, fastq ->
-                        [ meta , fastq ]
-                },
-                by: 0)
+        ch_seq_reference
+            .join(ch_input.protospacer)
             .set{ reference_protospacer }
     } else if (!params.reference_fasta) {
         // If a protospacer was provided through the --protospacer param instead of the samplesheet
         ch_protospacer = Channel.of(params.protospacer)
-        SEQ_TO_FILE_REF.out.file
+        ch_seq_reference
             .combine(ch_protospacer)
             .set{ reference_protospacer }
     } else if (!params.protospacer) {
@@ -214,9 +227,6 @@ workflow CRISPRSEQ_TARGETED {
         ch_reference = Channel.fromPath(params.reference_fasta)
         ch_input.protospacer
             .combine(ch_reference)
-            .map{ meta, protospacer, reference ->
-                [ meta , reference, protospacer ]
-            }
             .set{ reference_protospacer }
     } else {
         ch_reference = Channel.fromPath(params.reference_fasta)
@@ -224,9 +234,6 @@ workflow CRISPRSEQ_TARGETED {
         ch_input.reads
             .combine(ch_reference)
             .combine(ch_protospacer)
-            .map{ meta, reads, reference, protospacer ->
-                [meta , reference, protospacer]
-            }
             .set{ reference_protospacer }
     }
 
@@ -656,7 +663,7 @@ workflow CRISPRSEQ_TARGETED {
     //
     TEMPLATE_REFERENCE (
         ORIENT_REFERENCE.out.reference
-            .join(SEQ_TO_FILE_TEMPL.out.file)
+            .join(ch_seq_template)
     )
 
 
@@ -693,7 +700,7 @@ workflow CRISPRSEQ_TARGETED {
                     [ meta , fastq ]
             }
         )
-        .join(SEQ_TO_FILE_TEMPL.out.file, remainder: true)
+        .join(ch_seq_template, remainder: true)
         .join(ch_template_bam, remainder: true)
         .join(TEMPLATE_REFERENCE.out.fasta, remainder: true)
         .join(ALIGNMENT_SUMMARY.out.summary)
