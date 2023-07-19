@@ -169,6 +169,7 @@ workflow CRISPRSEQ_TARGETED {
     //
     ch_input.reference
     .tap{ meta_reference }
+    .filter{ meta, sequence -> sequence instanceof String }
     .collectFile() { meta, reference ->
         [ "${meta.id}_reference.fasta", ">${meta.id}\n${reference}\n" ] // Write each reference sequence to a file
     }
@@ -191,8 +192,9 @@ workflow CRISPRSEQ_TARGETED {
     //
     ch_input.template
     .tap{ meta_template }
+    .filter{ meta, sequence -> sequence instanceof String }
     .collectFile() { meta, template ->
-        [ "${meta.if}_template.fasta", ">${meta.id}\n${template}\n" ] // Write each template sequence to a file
+        [ "${meta.id}_template.fasta", ">${meta.id}\n${template}\n" ] // Write each template sequence to a file
     }
     .map{ new_file ->
         [new_file.baseName.split("_template")[0], new_file] // create a channel with the meta.id and the new file
