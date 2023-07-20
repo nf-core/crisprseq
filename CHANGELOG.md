@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Template update v2.9 ([#52](https://github.com/nf-core/crisprseq/pull/52))
+- Use `Channel.fromSamplesheet()` from `nf-validation` to validate input sample sheets and create an input channel ([#58](https://github.com/nf-core/crisprseq/pull/58))
 
 ### Fixed
 

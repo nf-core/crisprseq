@@ -16,6 +16,7 @@
                     "type": "string",
                     "format": "file-path",
                     "exists": true,
+                    "schema": "assets/schema_input.json",
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.csv$",
                     "description": "Path to comma-separated file containing information about the samples in the experiment.",
@@ -381,18 +382,23 @@
                 "multiqc_config": {
                     "type": "string",
                     "format": "file-path",
+                    "exists": true,
                     "description": "Custom config file to supply to MultiQC.",
                     "fa_icon": "fas fa-cog",
                     "hidden": true
                 },
                 "multiqc_logo": {
                     "type": "string",
+                    "format": "file-path",
+                    "exists": true,
                     "description": "Custom logo file to supply to MultiQC. File name must also be set in the MultiQC config file",
                     "fa_icon": "fas fa-image",
                     "hidden": true
                 },
                 "multiqc_methods_description": {
                     "type": "string",
+                    "format": "file-path",
+                    "exists": true,
                     "description": "Custom MultiQC yaml file containing HTML including a methods description.",
                     "fa_icon": "fas fa-cog"
                 },
