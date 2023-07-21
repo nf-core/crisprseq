@@ -1,12 +1,18 @@
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    VALIDATE INPUTS
+    PRINT PARAMS SUMMARY
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
+include { paramsSummaryLog; paramsSummaryMap; fromSamplesheet } from 'plugin/nf-validation'
 
-// Validate input parameters
+def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
+def citation = '\n' + WorkflowMain.citation(workflow) + '\n'
+def summary_params = paramsSummaryMap(workflow)
+
+// Print parameter summary log to screen
+log.info logo + paramsSummaryLog(workflow) + citation
+
 WorkflowCrisprseq.initialise(params, log)
 
 // Check input path parameters to see if they exist
@@ -16,12 +22,13 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 // Check mandatory parameters
 //if (!params.count_table) { ch_input = file(params.input) } else { error('Input samplesheet not specified!') }
 if (params.library) { ch_library = file(params.library) }
-if (params.crisprcleanr) { ch_crisprcleanr= Channel.value(params.crisprcleanr) }
+if (params.crisprcleanr) { ch_crisprcleanr = Channel.value(params.crisprcleanr) }
 
 if(params.mle_design_matrix) {
-    Channel.fromPath(params.mle_design_matrix,checkIfExists: true)
+    Channel.fromPath(params.mle_design_matrix)
         .set { ch_design }
 }
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
@@ -29,9 +36,9 @@ if(params.mle_design_matrix) {
 */
 
 ch_multiqc_config                     = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-ch_multiqc_custom_config              = params.multiqc_config ? Channel.fromPath( params.multiqc_config, checkIfExists: true ) : Channel.empty()
-ch_multiqc_logo                       = params.multiqc_logo   ? Channel.fromPath( params.multiqc_logo, checkIfExists: true ) : Channel.empty()
-ch_multiqc_custom_methods_description = params.multiqc_methods_description ? file(params.multiqc_methods_description, checkIfExists: true) : file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
+ch_multiqc_custom_config              = params.multiqc_config ? Channel.fromPath( params.multiqc_config ) : Channel.empty()
+ch_multiqc_logo                       = params.multiqc_logo   ? Channel.fromPath( params.multiqc_logo )   : Channel.empty()
+ch_multiqc_custom_methods_description = params.multiqc_methods_description ? file(params.multiqc_methods_description) : file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -42,7 +49,6 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK_SCREENING } from '../subworkflows/local/input_check_screening'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -77,22 +83,28 @@ workflow CRISPRSEQ_SCREENING {
 
     if(!params.count_table){
         //
-        // SUBWORKFLOW: Read in samplesheet, validate and stage input files
+        // Create input channel from input file provided through params.input
         //
-        INPUT_CHECK_SCREENING (
-            ch_input
-        )
-        ch_versions = ch_versions.mix(INPUT_CHECK_SCREENING.out.versions)
+        Channel.fromSamplesheet("input")
+        .map{ meta, fastq_1, fastq_2, x, y, z ->
+            // x (reference), y (protospacer), and z (template) are part of the targeted workflows and we don't need them
+            if (!fastq_2) {
+                return [ meta, [ fastq_1 ] ]
+            } else {
+                return [ meta, [ fastq_1, fastq_2 ] ]
+            }
+        }
+        .set { ch_input }
 
         //
         // MODULE: Run FastQC
         //
         FASTQC (
-            INPUT_CHECK_SCREENING.out.reads
+            ch_input
         )
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
-        INPUT_CHECK_SCREENING.out.reads
+        ch_input
         .map { meta, fastq ->
             [meta.condition, fastq]
         }
@@ -182,7 +194,7 @@ workflow CRISPRSEQ_SCREENING {
     workflow_summary    = WorkflowCrisprseq.paramsSummaryMultiqc(workflow, summary_params)
     ch_workflow_summary = Channel.value(workflow_summary)
 
-    methods_description    = WorkflowCrisprseq.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description)
+    methods_description    = WorkflowCrisprseq.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description, params)
     ch_methods_description = Channel.value(methods_description)
 
     ch_multiqc_files = Channel.empty()

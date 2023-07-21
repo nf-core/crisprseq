@@ -11,7 +11,35 @@ class WorkflowCrisprseq {
     // Check and validate parameters
     //
     public static void initialise(params, log) {
+
         genomeExistsError(params, log)
+    }
+
+    //
+    // Function to validate channels from input samplesheet
+    //
+    public static ArrayList validateInput(input) {
+        def (metas, fastqs) = input[1..2]
+
+        // Check that multiple runs of the same sample are of the same datatype i.e. single-end / paired-end
+        def endedness_ok = metas.collect{ it.single_end }.unique().size == 1
+        if (!endedness_ok) {
+            Nextflow.error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${metas[0].id}")
+        }
+
+        // Check that multiple runs of the same sample contain a reference or not
+        def reference_ok = metas.collect{ it.self_reference }.unique().size == 1
+        if (!reference_ok) {
+            Nextflow.error("Please check input samplesheet -> Multiple runs of a sample must all contain a reference or not: ${metas[0].id}")
+        }
+
+        // Check that multiple runs of the same sample contain a template or not
+        def template_ok = metas.collect{ it.template }.unique().size == 1
+        if (!template_ok) {
+            Nextflow.error("Please check input samplesheet -> Multiple runs of a sample must all contain a template or not: ${metas[0].id}")
+        }
+
+        return [ metas[0], fastqs ]
     }
 
     //
@@ -41,14 +69,56 @@ class WorkflowCrisprseq {
         return yaml_file_text
     }
 
-    public static String methodsDescriptionText(run_workflow, mqc_methods_yaml) {
+    //
+    // Generate methods description for MultiQC
+    //
+
+    public static String toolCitationText(params) {
+
+        // TODO Optionally add in-text citation tools to this list.
+        // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "Tool (Foo et al. 2023)" : "",
+        // Uncomment function in methodsDescriptionText to render in MultiQC report
+        def citation_text = [
+                "Tools used in the workflow included:",
+                "FastQC (Andrews 2010),",
+                "MultiQC (Ewels et al. 2016)",
+                "."
+            ].join(' ').trim()
+
+        return citation_text
+    }
+
+    public static String toolBibliographyText(params) {
+
+        // TODO Optionally add bibliographic entries to this list.
+        // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "<li>Author (2023) Pub name, Journal, DOI</li>" : "",
+        // Uncomment function in methodsDescriptionText to render in MultiQC report
+        def reference_text = [
+                "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>",
+                "<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics , 32(19), 3047–3048. doi: /10.1093/bioinformatics/btw354</li>"
+            ].join(' ').trim()
+
+        return reference_text
+    }
+
+    public static String methodsDescriptionText(run_workflow, mqc_methods_yaml, params) {
         // Convert  to a named map so can be used as with familar NXF ${workflow} variable syntax in the MultiQC YML file
         def meta = [:]
         meta.workflow = run_workflow.toMap()
         meta["manifest_map"] = run_workflow.manifest.toMap()
 
+        // Pipeline DOI
         meta["doi_text"] = meta.manifest_map.doi ? "(doi: <a href=\'https://doi.org/${meta.manifest_map.doi}\'>${meta.manifest_map.doi}</a>)" : ""
         meta["nodoi_text"] = meta.manifest_map.doi ? "": "<li>If available, make sure to update the text to include the Zenodo DOI of version of the pipeline used. </li>"
+
+        // Tool references
+        meta["tool_citations"] = ""
+        meta["tool_bibliography"] = ""
+
+        // TODO Only uncomment below if logic in toolCitationText/toolBibliographyText has been filled!
+        //meta["tool_citations"] = toolCitationText(params).replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
+        //meta["tool_bibliography"] = toolBibliographyText(params)
+
 
         def methods_text = mqc_methods_yaml.text
 
