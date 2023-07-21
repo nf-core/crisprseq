@@ -14,7 +14,7 @@ def checkPathParamList = [ params.multiqc_config, params.reference_fasta, params
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
-if (!params.count_table) { ch_input = file(params.input) } else { error('Input samplesheet not specified!') }
+//if (!params.count_table) { ch_input = file(params.input) } else { error('Input samplesheet not specified!') }
 if (params.library) { ch_library = file(params.library) }
 if (params.crisprcleanr) { ch_crisprcleanr= Channel.value(params.crisprcleanr) }
 
@@ -60,6 +60,8 @@ include { MAGECK_MLE                  } from '../modules/nf-core/mageck/mle/main
 include { MAGECK_TEST                 } from '../modules/nf-core/mageck/test/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { CRISPRCLEANR_NORMALIZE      } from '../modules/nf-core/crisprcleanr/normalize/main'
+include { BAGEL2_FC                   } from '../modules/local/bagel2_fc'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -138,7 +140,7 @@ workflow CRISPRSEQ_SCREENING {
 
     if(params.rra_contrasts) {
         Channel.fromPath(params.rra_contrasts)
-            .splitCsv(header:true, sep:',' )
+            .splitCsv(header:true, sep:';' )
             .set { ch_contrasts }
         counts = ch_contrasts.combine(ch_counts)
 
@@ -146,6 +148,18 @@ workflow CRISPRSEQ_SCREENING {
             counts
         )
     }
+
+    if(params.rra_contrasts) {
+        Channel.fromPath(params.rra_contrasts)
+            .splitCsv(header:true, sep:';' )
+            .set { ch_bagel }
+    counts = ch_bagel.combine(ch_counts)
+
+    BAGEL2_FC (
+            counts
+        )
+    }
+
 
     if(params.mle_design_matrix) {
         ch_mle = ch_counts.combine(ch_design)
