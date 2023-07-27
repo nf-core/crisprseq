@@ -67,6 +67,7 @@ include { MAGECK_TEST                 } from '../modules/nf-core/mageck/test/mai
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { CRISPRCLEANR_NORMALIZE      } from '../modules/nf-core/crisprcleanr/normalize/main'
 include { BAGEL2_FC                   } from '../modules/local/bagel2_fc'
+include { BAGEL2_BF                   } from '../modules/local/bagel2_bf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -85,17 +86,19 @@ workflow CRISPRSEQ_SCREENING {
         //
         // Create input channel from input file provided through params.input
         //
+        single_end = true
         Channel.fromSamplesheet("input")
         .map{ meta, fastq_1, fastq_2, x, y, z ->
             // x (reference), y (protospacer), and z (template) are part of the targeted workflows and we don't need them
             if (!fastq_2) {
+                single_end = true
                 return [ meta, [ fastq_1 ] ]
             } else {
+                single_end = false
                 return [ meta, [ fastq_1, fastq_2 ] ]
             }
         }
         .set { ch_input }
-
         //
         // MODULE: Run FastQC
         //
@@ -104,6 +107,7 @@ workflow CRISPRSEQ_SCREENING {
         )
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
+        if(single_end==true) {
         ch_input
         .map { meta, fastq ->
             [meta.condition, fastq]
@@ -115,6 +119,10 @@ workflow CRISPRSEQ_SCREENING {
             [[id: condition], fastqs]
         }
         .set { joined }
+
+        joined.dump(tag: "input joined")
+        }
+
 
         //
         // MODULE: Run mageck count
@@ -167,10 +175,28 @@ workflow CRISPRSEQ_SCREENING {
             .set { ch_bagel }
     counts = ch_bagel.combine(ch_counts)
 
+    if(!params.bagel_reference_essentials) {
+        ch_bagel_reference_essentials = Channel.fromPath("${projectDir}/assets/CEGv2.txt", checkIfExists: true)
+    }
+
+    ch_bagel_reference_essentials.dump(tag: "input joined")
+
+    if(!params.bagel_reference_nonessentials) {
+        ch_bagel_reference_nonessentials = Channel.fromPath("${projectDir}/assets/NEGv1.txt", checkIfExists: true)
+    }
+
+
     BAGEL2_FC (
-            counts
+            counts,
+            ch_bagel_reference_essentials,
+            ch_bagel_reference_nonessentials
         )
     }
+
+
+    //BAGEL2_BF (
+      //  BAGEL2_FC.out.foldchange
+    //)
 
 
     if(params.mle_design_matrix) {
