@@ -23,7 +23,7 @@ process BAGEL2_FC {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    BAGEL.py fc -i $count_table -o ${meta.treatment}_${meta.reference} -c $meta.reference $args
+    BAGEL.py fc -i $count_table -o ${meta.treatment}_vs_${meta.reference} -c $meta.reference $args
 
     """
 

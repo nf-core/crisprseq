@@ -175,28 +175,37 @@ workflow CRISPRSEQ_SCREENING {
             .set { ch_bagel }
     counts = ch_bagel.combine(ch_counts)
 
+    //MAKE THIS PRETTIER
     if(!params.bagel_reference_essentials) {
-        ch_bagel_reference_essentials = Channel.fromPath("${projectDir}/assets/CEGv2.txt", checkIfExists: true)
-    }
+        ch_bagel_reference_essentials = Channel.fromPath("${projectDir}/assets/CEGv2.txt")
+    } else {
+            ch_bagel_reference_essentials = Channel.fromPath(params.bagel_reference_essentials)
+            }
 
     ch_bagel_reference_essentials.dump(tag: "input joined")
 
     if(!params.bagel_reference_nonessentials) {
-        ch_bagel_reference_nonessentials = Channel.fromPath("${projectDir}/assets/NEGv1.txt", checkIfExists: true)
-    }
+        ch_bagel_reference_nonessentials = Channel.fromPath("${projectDir}/assets/NEGv1.txt")
+    } else {
+        ch_bagel_reference_nonessentials = Channel.fromPath(params.bagel_reference_nonessentials)    }
 
 
     BAGEL2_FC (
-            counts,
-            ch_bagel_reference_essentials,
-            ch_bagel_reference_nonessentials
+            counts
         )
     }
 
+    BAGEL2_FC.out.foldchange.dump(tag: "BAGEL2_FC dump")
 
-    //BAGEL2_BF (
-      //  BAGEL2_FC.out.foldchange
-    //)
+    test = ch_bagel_reference_essentials.combine(BAGEL2_FC.out.foldchange)
+    test.dump(tag: "TEST")
+
+
+    BAGEL2_BF (
+        BAGEL2_FC.out.foldchange,
+        ch_bagel_reference_essentials,
+        ch_bagel_reference_nonessentials
+    )
 
 
     if(params.mle_design_matrix) {
