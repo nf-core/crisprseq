@@ -10,9 +10,7 @@ process BAGEL2_BF {
 
 
     input:
-    tuple val(meta), path(foldchange)
-    path(reference_essentials)
-    path(reference_nonessentials)
+    tuple val(meta), path(foldchange), path(reference_essentials), path(reference_nonessentials)
 
     output:
     tuple val(meta), path("*.pr"), emit: pr

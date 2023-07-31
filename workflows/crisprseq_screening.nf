@@ -182,7 +182,7 @@ workflow CRISPRSEQ_SCREENING {
             ch_bagel_reference_essentials = Channel.fromPath(params.bagel_reference_essentials)
             }
 
-    ch_bagel_reference_essentials.dump(tag: "input joined")
+    //ch_bagel_reference_essentials.dump(tag: "input joined")
 
     if(!params.bagel_reference_nonessentials) {
         ch_bagel_reference_nonessentials = Channel.fromPath("${projectDir}/assets/NEGv1.txt")
@@ -195,16 +195,15 @@ workflow CRISPRSEQ_SCREENING {
         )
     }
 
-    BAGEL2_FC.out.foldchange.dump(tag: "BAGEL2_FC dump")
 
-    test = ch_bagel_reference_essentials.combine(BAGEL2_FC.out.foldchange)
+    test = BAGEL2_FC.out.foldchange.combine(ch_bagel_reference_essentials)
+                                        .combine(ch_bagel_reference_nonessentials)
+
     test.dump(tag: "TEST")
 
 
     BAGEL2_BF (
-        BAGEL2_FC.out.foldchange,
-        ch_bagel_reference_essentials,
-        ch_bagel_reference_nonessentials
+        test
     )
 
 
