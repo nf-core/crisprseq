@@ -39,7 +39,7 @@ process CIGAR_PARSER {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        R: \$(R --version)
+        Rscript: \$(Rscript --version)
     END_VERSIONS
     """
 }
