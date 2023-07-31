@@ -305,6 +305,7 @@ workflow CRISPRSEQ_TARGETED {
                     return [ meta, reads[0], adapter_seqs[0] ]
         }
         .set { ch_adapter_seqs }
+        ch_versions = ch_versions.mix(FIND_ADAPTERS.out.versions.first())
 
 
         //
@@ -376,6 +377,7 @@ workflow CRISPRSEQ_TARGETED {
         EXTRACT_UMIS (
             SEQTK_SEQ_MASK.out.fastx
         )
+        ch_versions = ch_versions.mix(EXTRACT_UMIS.out.versions.first())
 
 
         //
@@ -384,6 +386,7 @@ workflow CRISPRSEQ_TARGETED {
         VSEARCH_CLUSTER (
             EXTRACT_UMIS.out.fasta
         )
+        ch_versions = ch_versions.mix(VSEARCH_CLUSTER.out.versions.first())
 
         //  Obtain a file with UBS (UBI bin size) and UMI ID
         VSEARCH_CLUSTER.out.clusters
@@ -434,6 +437,7 @@ workflow CRISPRSEQ_TARGETED {
             ch_umi_bysize.cluster,
             Channel.value("--sortbysize")
         )
+        ch_versions = ch_versions.mix(VSEARCH_SORT.out.versions.first())
 
         // Get the correspondent fasta sequencences from top cluster sequences
         // Replaces the sequence name adding the "centroid_" prefix to avoid having two sequences with the same name in following steps
@@ -496,6 +500,7 @@ workflow CRISPRSEQ_TARGETED {
             false,
             false
         )
+        ch_versions = ch_versions.mix(MINIMAP2_ALIGN_UMI_1.out.versions.first())
 
 
         // Only continue with clusters that have aligned sequences
@@ -511,6 +516,7 @@ workflow CRISPRSEQ_TARGETED {
                 .join(ch_top_clusters_sequence)
                 .join(ch_minimap_1)
         )
+        ch_versions = ch_versions.mix(RACON_1.out.versions.first())
 
         //
         // MODULE: Mapping with minimap2 - cycle 2
@@ -523,6 +529,7 @@ workflow CRISPRSEQ_TARGETED {
             false,
             false
         )
+        ch_versions = ch_versions.mix(MINIMAP2_ALIGN_UMI_2.out.versions.first())
 
         // Only continue with clusters that have aligned sequences
         MINIMAP2_ALIGN_UMI_2.out.paf
@@ -537,6 +544,7 @@ workflow CRISPRSEQ_TARGETED {
                 .join(RACON_1.out.improved_assembly)
                 .join(ch_minimap_2)
         )
+        ch_versions = ch_versions.mix(RACON_2.out.versions.first())
 
 
         //
@@ -546,6 +554,7 @@ workflow CRISPRSEQ_TARGETED {
             ch_clusters_sequence
                 .join(RACON_2.out.improved_assembly)
         )
+        ch_versions = ch_versions.mix(MEDAKA.out.versions.first())
 
         // Collect all consensus UMI sequences into one single file per sample
         MEDAKA.out.assembly
@@ -577,6 +586,7 @@ workflow CRISPRSEQ_TARGETED {
         SEQTK_SEQ_FATOFQ (
             ch_umi_consensus
         )
+        ch_versions = ch_versions.mix(SEQTK_SEQ_FATOFQ.out.versions.first())
     }
 
     ch_preprocess_reads = params.umi_clustering ? SEQTK_SEQ_FATOFQ.out.fastx : SEQTK_SEQ_MASK.out.fastx
@@ -665,6 +675,7 @@ workflow CRISPRSEQ_TARGETED {
         ORIENT_REFERENCE.out.reference
             .join(ch_seq_template)
     )
+    ch_versions = ch_versions.mix(TEMPLATE_REFERENCE.out.versions.first())
 
 
     //
@@ -725,6 +736,7 @@ workflow CRISPRSEQ_TARGETED {
     CIGAR_PARSER (
         ch_to_parse_cigar
     )
+    ch_versions = ch_versions.mix(CIGAR_PARSER.out.versions.first())
 
 
     //
