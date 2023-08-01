@@ -66,8 +66,10 @@ include { MAGECK_MLE                  } from '../modules/nf-core/mageck/mle/main
 include { MAGECK_TEST                 } from '../modules/nf-core/mageck/test/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { CRISPRCLEANR_NORMALIZE      } from '../modules/nf-core/crisprcleanr/normalize/main'
-include { BAGEL2_FC                   } from '../modules/local/bagel2_fc'
-include { BAGEL2_BF                   } from '../modules/local/bagel2_bf'
+include { BAGEL2_FC                   } from '../modules/local/bagel2/fc'
+include { BAGEL2_BF                   } from '../modules/local/bagel2/bf'
+include { BAGEL2_PR                   } from '../modules/local/bagel2/pr'
+include { BAGEL2_GRAPH                   } from '../modules/local/bagel2/graph'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -175,7 +177,7 @@ workflow CRISPRSEQ_SCREENING {
             .set { ch_bagel }
     counts = ch_bagel.combine(ch_counts)
 
-    //MAKE THIS PRETTIER
+    //TO DO MAKE THIS PRETTIER
     if(!params.bagel_reference_essentials) {
         ch_bagel_reference_essentials = Channel.fromPath("${projectDir}/assets/CEGv2.txt")
     } else {
@@ -184,6 +186,7 @@ workflow CRISPRSEQ_SCREENING {
 
     //ch_bagel_reference_essentials.dump(tag: "input joined")
 
+    //TO DO make this prettier
     if(!params.bagel_reference_nonessentials) {
         ch_bagel_reference_nonessentials = Channel.fromPath("${projectDir}/assets/NEGv1.txt")
     } else {
@@ -195,17 +198,25 @@ workflow CRISPRSEQ_SCREENING {
         )
     }
 
-
-    test = BAGEL2_FC.out.foldchange.combine(ch_bagel_reference_essentials)
+    ch_bagel_bf = BAGEL2_FC.out.foldchange.combine(ch_bagel_reference_essentials)
                                         .combine(ch_bagel_reference_nonessentials)
-
-    test.dump(tag: "TEST")
 
 
     BAGEL2_BF (
-        test
+        ch_bagel_bf
     )
 
+    BAGEL2_BF.out.bf.dump(tag:"BAGEL2_BF dump")
+    ch_bagel_pr = BAGEL2_BF.out.bf.combine(ch_bagel_reference_essentials)
+                                        .combine(ch_bagel_reference_nonessentials)
+
+    BAGEL2_PR (
+        ch_bagel_pr
+    )
+    BAGEL2_PR.out.pr.dump(tag:"TEST PR DUMP")
+    BAGEL2_GRAPH (
+        BAGEL2_PR.out.pr
+    )
 
     if(params.mle_design_matrix) {
         ch_mle = ch_counts.combine(ch_design)

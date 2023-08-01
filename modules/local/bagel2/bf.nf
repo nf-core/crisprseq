@@ -13,7 +13,7 @@ process BAGEL2_BF {
     tuple val(meta), path(foldchange), path(reference_essentials), path(reference_nonessentials)
 
     output:
-    tuple val(meta), path("*.pr"), emit: pr
+    tuple val(meta), path("*.bf"), emit: bf
     //path "versions.yml"           , emit: versions
 
     when:
@@ -24,7 +24,7 @@ process BAGEL2_BF {
     def prefix = task.ext.prefix ?: "${meta.treatment}"
 
     """
-    BAGEL.py bf -i $foldchange -o '${meta.treatment}.pr' $args -e $reference_essentials -n $reference_nonessentials -c ${meta.treatment}
+    BAGEL.py bf -i $foldchange -o '${meta.treatment}.bf' $args -e $reference_essentials -n $reference_nonessentials -c ${meta.treatment}
 
     """
 
