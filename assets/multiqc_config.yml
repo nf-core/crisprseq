@@ -11,3 +11,51 @@ report_section_order:
     order: -1002
 
 export_plots: true
+
+# Custom tables and plots
+custom_data:
+  # Summary of edition plot
+  edition_plot:
+    plot_type: "bargraph"
+    file_format: "csv"
+    section_name: "RESULTS: Type of edition"
+    description: |
+      Number of reads classified according to edition types.
+      Reads are classified between WT (without an edit), template based modifications and indels.
+      Indels are divided between deletions, insertions and delins (deletion + insertion).
+      Deletions and insertions can be out of frame or in frame.
+    categories:
+      Wt:
+        name: "WT reads"
+        color: "#C0C0C0"
+      Template-based:
+        name: "Template-based modifications"
+        color: "#E9AF82"
+      Delins:
+        name: "DelIns"
+        color: "#D5B1F5"
+      Ins_inframe:
+        name: "Insertions in frame"
+        color: "#B5D5C1"
+      Ins_outframe:
+        name: "Insertions out of frame"
+        color: "#80D09F"
+      Dels_inframe:
+        name: "Deletions in frame"
+        color: "#BFD0EB"
+      Dels_outframe:
+        name: "Deletions out of frame"
+        color: "#699AE9"
+    pconfig:
+      id: "edition_bargraph"
+      title: "Reads by edition type"
+      ylab: "Read count"
+sp:
+  edition_plot:
+    fn: "*_edits.csv"
+
+# Define the order of sections
+# Show FastQC before Custom results
+module_order:
+  - fastqc
+  - custom_content

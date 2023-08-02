@@ -1088,7 +1088,7 @@ if (dim(alignment_info)[1] != 0){
     ##### Summary: edition
     ###########
 
-    edit_classes <- c("Wt", "Template-based", "Indels", "Insertions", "Deletions", "Delins", "Dels inframe", "Dels outfarme", "Ins inframe", "Ins outfarme")
+    edit_classes <- c("Wt", "Template-based", "Indels", "Insertions", "Deletions", "Delins", "Dels_inframe", "Dels_outframe", "Ins_inframe", "Ins_outframe")
 
     ##### Update wt if template-based is a substitution
     if ( t_type == "subs"){
@@ -1098,21 +1098,11 @@ if (dim(alignment_info)[1] != 0){
     edit_counts <- c(wt_reads, t_reads, indels_count, ins_count, dels_count, delin_count, in_frame_dels, out_frame_dels, in_frame_ins, out_frame_ins )
     edit_summary <- data.frame(classes = unlist(edit_classes), counts = unlist(edit_counts))
 
-    total_reads <- wt_reads+t_reads+indels_count
-    wt_perc <- (wt_reads/total_reads)*100
-    temp_perc <- ((t_reads)/total_reads)*100
-    indels_perc <- (indels_count/total_reads)*100
-    ins_perc <- (ins_count/indels_count)*100
-    dels_perc <- (dels_count/indels_count)*100
-    delins_perc <- (delin_count/indels_count)*100
-    in_frame_ins_perc <- (in_frame_ins/ins_count)*100
-    out_frame_ins_perc <- (out_frame_ins/ins_count)*100
-    in_frame_dels_perc <- (in_frame_dels/dels_count)*100
-    out_frame_dels_perc <- (out_frame_dels/dels_count)*100
-
-    edit_classes_perc <- c("Wt", "Template-based", "Indels", "Delins", "Insertions", "Ins inframe", "Ins outfarme", "Deletions", "Dels inframe", "Dels outfarme")
-    edit_counts_perc <- c(round(wt_perc,2), round(temp_perc,2), round(indels_perc,2),    round(delins_perc,2), round(ins_perc,2), round(in_frame_ins_perc,2), round(out_frame_ins_perc,2), round(dels_perc,2), round(in_frame_dels_perc,2), round(out_frame_dels_perc,2 ))
-    edit_summary_perc <- data.frame(classes = unlist(edit_classes_perc), counts = unlist(edit_counts_perc))
+    edit_classes_perc <- c("Wt", "Template-based", "Delins", "Ins_inframe", "Ins_outframe", "Dels_inframe", "Dels_outframe")
+    edit_counts_perc <- c(wt_reads, t_reads, delin_count, in_frame_ins, out_frame_ins, in_frame_dels, out_frame_dels)
+    edit_summary_perc <- data.frame(sample = unlist(edit_counts_perc), row.names = unlist(edit_classes_perc))
+    colnames(edit_summary_perc)[1] = results_path # Rename the column to add the sample ID
+    edit_summary_perc <- t(edit_summary_perc) # t() will add classes as columns and counts as values, 1 row per sample
 
     ### Save edits count
     write.csv(edit_summary_perc,file=paste0(results_path, "_edits.csv"))
@@ -1201,8 +1191,10 @@ if (dim(alignment_info)[1] != 0){
     separated_indels = data.frame(matrix(nrow = 1, ncol = length(columns)))
     colnames(separated_indels) = columns
     write.csv(separated_indels,file=paste0(results_path, "_Badlyindels.csv"))
-    edit_classes_perc <- c("Wt", "Template-based", "Indels", "Delins", "Insertions", "Ins inframe", "Ins outfarme", "Deletions", "Dels inframe", "Dels outfarme")
-    edit_counts_perc <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-    edit_summary_perc <- data.frame(classes = unlist(edit_classes_perc), counts = unlist(edit_counts_perc))
+    edit_classes_perc <- c("Wt", "Template-based", "Delins", "Ins_inframe", "Ins_outframe", "Dels_inframe", "Dels_outframe")
+    edit_counts_perc <- c(0, 0, 0, 0, 0, 0, 0)
+    edit_summary_perc <- data.frame(sample = unlist(edit_counts_perc), row.names = unlist(edit_classes_perc))
+    colnames(edit_summary_perc)[1] = results_path# Rename the column to add the sample ID
+    edit_summary_perc <- t(edit_summary_perc) # t() will add classes as columns and counts as values, 1 row per sample
     write.csv(edit_summary_perc,file=paste0(results_path, "_edits.csv"))
 }
