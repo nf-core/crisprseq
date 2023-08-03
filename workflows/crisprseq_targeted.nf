@@ -342,6 +342,15 @@ workflow CRISPRSEQ_TARGETED {
             .join(PEAR.out.assembled, remainder: true)
             .join(SEQTK_SEQ_MASK.out.fastx)
             .join(CUTADAPT.out.log)
+            .map { meta, reads, assembled, masked, trimmed ->
+                if (assembled == null) {
+                    assembled = file('null_a')
+                }
+                if (trimmed == "null") {
+                    trimmed = file('null_t')
+                }
+                return [ meta, reads, assembled, masked, trimmed ]
+            }
             .set { ch_merging_summary_data }
     } else {
         ch_cat_fastq.paired
@@ -762,6 +771,9 @@ workflow CRISPRSEQ_TARGETED {
     ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.qcindels.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+    if  (params.overrepresented) {
+        ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT.out.log.collect{it[1]}.ifEmpty([]))
+    }
 
     MULTIQC (
         ch_multiqc_files.collect(),

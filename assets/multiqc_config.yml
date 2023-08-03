@@ -12,6 +12,12 @@ report_section_order:
 
 export_plots: true
 
+# Modules to run
+run_modules:
+  - custom_content
+  - fastqc
+  - cutadapt
+
 # Custom tables and plots
 custom_data:
   # Summary of edition plot
@@ -104,7 +110,6 @@ custom_data:
       id: "read_processing"
       namespace: "Read processing summary"
       table_title: "Read processing summary"
-      sortRows: False
     headers:
       Raw reads:
         title: "Raw reads"
@@ -145,10 +150,13 @@ sp:
     fn: "*_QC-indels.csv"
   read_processing:
     fn: "*_reads-summary.csv"
+  cutadapt:
+    fn: "*.cutadapt.log"
 
 # Define the order of sections
 module_order:
   - fastqc
+  - cutadapt
   - custom_content
 
 # Set the order of custom code plots and tables
@@ -157,3 +165,16 @@ custom_content:
     - read_processing
     - edition_plot
     - indel_qc_plot
+
+# Order of table columns
+table_columns_placement:
+  Read processing summary:
+    Raw reads: 100
+    Merged reads: 200
+    Quality filtered reads: 300
+    Clustered reads: 400
+    Aligned reads: 500
+
+# Add a comment to cutadapt section showing filtered reads
+section_comments:
+  cutadapt_filtered_reads: "Cutadapt is selecting reads passing quality filters."
