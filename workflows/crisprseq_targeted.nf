@@ -341,6 +341,15 @@ workflow CRISPRSEQ_TARGETED {
             .join(PEAR.out.assembled, remainder: true)
             .join(SEQTK_SEQ_MASK.out.fastx)
             .join(CUTADAPT.out.log)
+            .map { meta, reads, assembled, masked, trimmed ->
+                if (assembled == null) {
+                    assembled = file('null_a')
+                }
+                if (trimmed == "null") {
+                    trimmed = file('null_t')
+                }
+                return [ meta, reads, assembled, masked, trimmed ]
+            }
             .set { ch_merging_summary_data }
     } else {
         ch_cat_fastq.paired

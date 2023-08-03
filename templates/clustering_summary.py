@@ -12,7 +12,8 @@ with open("$summary", "r") as summary:
     summary_lines = summary.readlines()
 
 add_line = True
-with open("$summary", "w") as output_file:
+outname = "$summary".replace("_merging_summary.csv", "_clustering_summary.csv")
+with open(outname, "w") as output_file:
     for line in summary_lines:
         if "clustered-reads" not in line:
             output_file.write(line)
