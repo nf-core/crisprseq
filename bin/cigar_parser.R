@@ -1008,7 +1008,6 @@ if (dim(alignment_info)[1] != 0){
 
         reads_classes <- c("Raw reads", "Merged reads", "Quality filtered reads", "Clustered reads", "Aligned reads")
         reads_counts <- c(as.character(reads), as.character(merged_reads), as.character(trimmed_reads), as.character(clustered_reads), as.character(aligned_reads))
-        write(reads_counts, stdout())
         reads_summary <- data.frame(classes = unlist(reads_classes), counts = unlist(reads_counts))
 
         ########### Pre-variant calling counts
@@ -1026,8 +1025,15 @@ if (dim(alignment_info)[1] != 0){
             "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
         prevc_counts <- c(aligned_reads, wt_reads+incorrect_wt, dim(separated_indels)[1]+trunc_reads, wt_reads, incorrect_wt, dim(separated_indels)[1], trunc_reads,
                                             ep, nep, nenp, enp)
-        write(prevc_counts, stdout())
         prevc_summary <- data.frame(classes = unlist(prevc_classes), counts = unlist(prevc_counts))
+        # Write prevc_summary data to a csv for multiQC plots
+        prevc_classes_mqc <- c("Wt passing filter", "Wt NOT passing filter", "Indels NOT passing filter",
+            "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
+        prevc_counts_mqc <- c(wt_reads, incorrect_wt, trunc_reads, ep, nep, nenp, enp)
+        indel_filters <- data.frame(sample = unlist(prevc_counts_mqc), row.names = unlist(prevc_classes_mqc))
+        colnames(indel_filters)[1] = results_path # Rename the column to add the sample ID
+        indel_filters <- t(indel_filters) # t() will add classes as columns and counts as values, 1 row per sample
+        write.csv(indel_filters,file=paste0(results_path, "_QC-indels.csv"))
 
     } else {
         ###########################In case we don't have indels but maybe there are template based editions
@@ -1064,7 +1070,6 @@ if (dim(alignment_info)[1] != 0){
 
         reads_classes <- c("Raw reads", "Merged reads", "Quality filtered reads", "Clustered reads", "Aligned reads")
         reads_counts <- c(as.character(reads), as.character(merged_reads), as.character(trimmed_reads), as.character(clustered_reads), as.character(aligned_reads))
-        write(reads_counts, stdout())
         reads_summary <- data.frame(classes = unlist(reads_classes), counts = unlist(reads_counts))
 
         ########### Pre-variant calling counts
@@ -1076,12 +1081,19 @@ if (dim(alignment_info)[1] != 0){
 
         prevc_classes <- c("Aligned reads", "Wt", "Indels", "Wt passing filter", "Wt NOT passing filter", "Indels passing filter", "Indels NOT passing filter",
             "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
-        prevc_counts <- c(aligned_reads, wt_reads+incorrect_wt, 0+trunc_reads, wt_reads, incorrect_wt, 0, trunc_reads,
+        prevc_counts <- c(aligned_reads, wt_reads+incorrect_wt, dim(separated_indels)[1]+trunc_reads, wt_reads, incorrect_wt, dim(separated_indels)[1], trunc_reads,
                                             ep, nep, nenp, enp)
-        write(prevc_counts, stdout())
         prevc_summary <- data.frame(classes = unlist(prevc_classes), counts = unlist(prevc_counts))
         exportJson <- toJSON(cut_site)
         write(exportJson, paste(sample_id,"_cutSite.json",sep = ""))
+        # Write prevc_summary data to a csv for multiQC plots
+        prevc_classe_mqc <- c("Wt passing filter", "Wt NOT passing filter", "Indels NOT passing filter",
+            "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
+        prevc_counts_mqc <- c(wt_reads, incorrect_wt, trunc_reads, ep, nep, nenp, enp)
+        indel_filters <- data.frame(sample = unlist(prevc_counts_mqc), row.names = unlist(prevc_classe_mqc))
+        colnames(indel_filters)[1] = results_path # Rename the column to add the sample ID
+        indel_filters <- t(indel_filters) # t() will add classes as columns and counts as values, 1 row per sample
+        write.csv(indel_filters,file=paste0(results_path, "_QC-indels.csv"))
     }
 
     ###########

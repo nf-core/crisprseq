@@ -14,6 +14,7 @@ process CIGAR_PARSER {
     tuple val(meta), path("*indels.csv"), path("*_subs-perc.csv"), emit: indels
     tuple val(meta), path("*.html"), path("*edits.csv")          , emit: edition
     tuple val(meta), path("*cutSite.json")                       , emit: cutsite
+    tuple val(meta), path("*_QC-indels.csv")                     , emit: qcindels
     path "versions.yml"                                          , emit: versions
 
     when:

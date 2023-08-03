@@ -23,7 +23,7 @@ custom_data:
       Number of reads classified according to edition types.
       Reads are classified between WT (without an edit), template based modifications and indels.
       Indels are divided between deletions, insertions and delins (deletion + insertion).
-      Deletions and insertions can be out of frame or in frame.
+      Deletions and insertions can be out of frame or in frame
     categories:
       Wt:
         name: "WT reads"
@@ -50,9 +50,51 @@ custom_data:
       id: "edition_bargraph"
       title: "Reads by edition type"
       ylab: "Read count"
+  # Indels QC plot
+  indel_qc_plot:
+    plot_type: "bargraph"
+    file_format: "csv"
+    section_name: "RESULTS: QC of indels"
+    description: |
+      Number of reads classified between WT and containing indels.
+      Both types are classified between passing the filtering steps or not.
+      Indel reads passing the filtering steps are divided input:
+        - reads with a modification above the error rate and located in the common edit window
+        - above the error rate but not in the edit region
+        - below the error rate and within the edit region
+        - below the error rate and not in the the edit region
+    categories:
+      Wt NOT passing filter:
+        name: "WT reads not passing filtering steps"
+        color: "#302F2F"
+      Wt passing filter:
+        name: "WT reads passing filtering steps"
+        color: "#C0C0C0"
+      Indels NOT passing filter:
+        name: "Reads with indels not passing filtering steps"
+        color: "#696868"
+      Above error & in pick:
+        name: "Reads with indels above the error rate and within the edition region"
+        color: "#80D09F"
+      NOT above error & in pick:
+        name: "Reads with indels below the error rate and within the edition region"
+        color: "#FFB570"
+      Above error & NOT in pick:
+        name: "Reads with indels above the error rate and outside the edition region"
+        color: "#F89D47"
+      NOT above error & NOT in pick:
+        name: "Reads with indels below the error rate and outside the edition region"
+        color: "#EB5555"
+    pconfig:
+      id: "indelqc_bargraph"
+      title: "Read indels quality control"
+      ylab: "Read count"
+
 sp:
   edition_plot:
     fn: "*_edits.csv"
+  indel_qc_plot:
+    fn: "*_QC-indels.csv"
 
 # Define the order of sections
 # Show FastQC before Custom results
