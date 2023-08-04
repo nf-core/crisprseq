@@ -7,7 +7,7 @@ from Bio import SeqIO
 with gzip.open("${raw_reads[0]}", "rt") as handle:
     raw_reads_count = len(list(SeqIO.parse(handle, "fastq")))
 
-if "$assembled_reads" == "null_a":
+if "$assembled_reads" == "":
     assembled_reads_count = 0
 else:
     with gzip.open("$assembled_reads", "rt") as handle:
@@ -16,7 +16,7 @@ else:
 with gzip.open("$trimmed_reads", "rt") as handle:
     trimmed_reads_count = len(list(SeqIO.parse(handle, "fastq")))  # Filtered reads
 
-if "$trimmed_adapters" == "null_t":
+if "$trimmed_adapters" == "":
     adapters_count = 0
     adapters_percentage = "(0.0%)"
 else:
@@ -41,7 +41,7 @@ with open(f"{prefix}_summary.csv", "w") as output_file:
         f"merged-reads, {assembled_reads_count} ({round(assembled_reads_count * 100 / raw_reads_count,1)}%)\\n"
     )
     output_file.write(f"reads-with-adapters, {adapters_count} {adapters_percentage}\\n")
-    if "$assembled_reads" == "null_a":
+    if "$assembled_reads" == "":
         output_file.write(
             f"quality-filtered-reads, {trimmed_reads_count} ({round(trimmed_reads_count * 100 / raw_reads_count,1)}%)\\n"
         )
