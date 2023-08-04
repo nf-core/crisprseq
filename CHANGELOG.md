@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Summary processes don't modify the input file anymore, allowing resuming these processes ([#66](https://github.com/nf-core/crisprseq/pull/66))
+- Do not stash unexistent files, use empty lists instead. Fixes AWS tests ([#67](https://github.com/nf-core/crisprseq/pull/67))
 
 ### Deprecated
 
