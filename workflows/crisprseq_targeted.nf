@@ -341,21 +341,23 @@ workflow CRISPRSEQ_TARGETED {
             .join(PEAR.out.assembled, remainder: true)
             .join(SEQTK_SEQ_MASK.out.fastx)
             .join(CUTADAPT.out.log)
+            .map { meta, reads, assembled, masked, trimmed ->
+                if (assembled == null) {
+                    assembled = []
+                }
+                return [ meta, reads, assembled, masked, trimmed ]
+            }
             .set { ch_merging_summary_data }
     } else {
         ch_cat_fastq.paired
             .mix(ch_cat_fastq.single)
             .join(PEAR.out.assembled, remainder: true)
             .join(SEQTK_SEQ_MASK.out.fastx)
-            .combine(Channel.value("null"))
-            .map { meta, reads, assembled, masked, trimmed ->
+            .map { meta, reads, assembled, masked ->
                 if (assembled == null) {
-                    assembled = file('null_a')
+                    assembled = []
                 }
-                if (trimmed == "null") {
-                    trimmed = file('null_t')
-                }
-                return [ meta, reads, assembled, masked, trimmed ]
+                return [ meta, reads, assembled, masked, [] ]
             }
             .set { ch_merging_summary_data }
     }
@@ -705,13 +707,13 @@ workflow CRISPRSEQ_TARGETED {
         .join(ALIGNMENT_SUMMARY.out.summary)
         .map { meta, reads, index, reference, protospacer, template, template_bam, reference_template, summary ->
             if (template == null) {
-                template = file('null_t')
+                template = []
             }
             if (template_bam == null) {
-                template_bam = file('null_b')
+                template_bam = []
             }
             if (reference_template == null) {
-                reference_template = file('null_r')
+                reference_template = []
             }
             return [meta, reads, index, reference, protospacer, template, template_bam, reference_template, summary]
         }

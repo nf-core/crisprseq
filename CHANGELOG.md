@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Do not stash unexistent files, use empty lists instead. Fixes AWS tests ([#67](https://github.com/nf-core/crisprseq/pull/67))
+
 ### Deprecated
 
 ## [v2.0.0 - Paprika Lovelace](https://github.com/nf-core/crisprseq/releases/tag/2.0.0) - [05.07.2023]
