@@ -34,7 +34,7 @@ if "$task.ext.prefix" != "null":
 else:
     prefix = "$meta.id"
 
-with open(f"{prefix}_summary.csv", "w") as output_file:
+with open(f"{prefix}_merging_summary.csv", "w") as output_file:
     output_file.write("class, count\\n")
     output_file.write(f"raw-reads, {raw_reads_count} (100.0%)\\n")
     output_file.write(

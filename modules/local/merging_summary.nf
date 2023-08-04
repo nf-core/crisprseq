@@ -12,7 +12,7 @@ process MERGING_SUMMARY {
 
 
     output:
-    tuple val(meta), path("*_summary.csv"), emit: summary
+    tuple val(meta), path("*_merging_summary.csv"), emit: summary
 
     when:
     task.ext.when == null || task.ext.when
