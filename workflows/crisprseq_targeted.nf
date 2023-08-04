@@ -38,14 +38,14 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // MODULE
 //
-include { FIND_ADAPTERS      } from '../modules/local/find_adapters'
-include { EXTRACT_UMIS       } from '../modules/local/extract_umis'
-include { ORIENT_REFERENCE   } from '../modules/local/orient_reference'
-include { CIGAR_PARSER       } from '../modules/local/cigar_parser'
-include { MERGING_SUMMARY    } from '../modules/local/merging_summary'
-include { CLUSTERING_SUMMARY } from '../modules/local/clustering_summary'
-include { ALIGNMENT_SUMMARY  } from '../modules/local/alignment_summary'
-include { TEMPLATE_REFERENCE } from '../modules/local/template_reference'
+include { FIND_ADAPTERS         } from '../modules/local/find_adapters'
+include { EXTRACT_UMIS          } from '../modules/local/extract_umis'
+include { ORIENT_REFERENCE      } from '../modules/local/orient_reference'
+include { CIGAR_PARSER          } from '../modules/local/cigar_parser'
+include { PREPROCESSING_SUMMARY } from '../modules/local/preprocessing_summary'
+include { CLUSTERING_SUMMARY    } from '../modules/local/clustering_summary'
+include { ALIGNMENT_SUMMARY     } from '../modules/local/alignment_summary'
+include { TEMPLATE_REFERENCE    } from '../modules/local/template_reference'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -347,7 +347,7 @@ workflow CRISPRSEQ_TARGETED {
                 }
                 return [ meta, reads, assembled, masked, trimmed ]
             }
-            .set { ch_merging_summary_data }
+            .set { ch_preprocessing_summary_data }
     } else {
         ch_cat_fastq.paired
             .mix(ch_cat_fastq.single)
@@ -359,14 +359,14 @@ workflow CRISPRSEQ_TARGETED {
                 }
                 return [ meta, reads, assembled, masked, [] ]
             }
-            .set { ch_merging_summary_data }
+            .set { ch_preprocessing_summary_data }
     }
 
     //
     // MODULE: Summary of merged reads
     //
-    MERGING_SUMMARY {
-        ch_merging_summary_data
+    PREPROCESSING_SUMMARY {
+        ch_preprocessing_summary_data
     }
 
 
@@ -587,7 +587,7 @@ workflow CRISPRSEQ_TARGETED {
     //
     CLUSTERING_SUMMARY (
         ch_preprocess_reads
-            .join(MERGING_SUMMARY.out.summary)
+            .join(PREPROCESSING_SUMMARY.out.summary)
     )
 
 
