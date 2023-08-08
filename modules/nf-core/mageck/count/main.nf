@@ -1,6 +1,6 @@
 process MAGECK_COUNT {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_high'
 
     conda "bioconda::mageck=0.5.9"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -26,9 +26,15 @@ process MAGECK_COUNT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def input_file = ("$inputfile".endsWith(".fastq.gz") || "$inputfile".endsWith(".fq.gz")) ? "--fastq ${inputfile}" : "-k ${inputfile}" 
+   // def input_file = ("$inputfile".endsWith(".fastq.gz") || "$inputfile".endsWith(".fq.gz")) ? "--fastq ${inputfile}" : "-k ${inputfile}" 
     def sample_label = ("$inputfile".endsWith(".fastq.gz") || "$inputfile".endsWith(".fq.gz")) ? "--sample-label ${meta.id}" : ''
-
+    
+    if (meta.single_end && ("$inputfile".endsWith(".fastq.gz") || "$inputfile".endsWith(".fq.gz"))) {
+        input = "--fastq ${inputfile}" 
+    } else {
+        input = "--fastq ${inputfile[0]} --fastq-2 ${inputfile[1]}" 
+    }
+    
     """
     mageck \\
         count \\
@@ -36,7 +42,7 @@ process MAGECK_COUNT {
         -l $library \\
         -n $prefix \\
         $sample_label \\
-        $input_file \\
+        $input
 
 
     cat <<-END_VERSIONS > versions.yml

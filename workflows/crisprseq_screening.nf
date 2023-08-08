@@ -88,45 +88,43 @@ workflow CRISPRSEQ_SCREENING {
         //
         // Create input channel from input file provided through params.input
         //
-        single_end = true
         Channel.fromSamplesheet("input")
         .map{ meta, fastq_1, fastq_2, x, y, z ->
             // x (reference), y (protospacer), and z (template) are part of the targeted workflows and we don't need them
-            if (!fastq_2) {
-                single_end = true
-                return [ meta, [ fastq_1 ] ]
-            } else {
-                single_end = false
-                return [ meta, [ fastq_1, fastq_2 ] ]
-            }
+        return   [ meta + [ single_end:fastq_2?false:true ], fastq_2?[ fastq_1, fastq_2 ]:[ fastq_1 ] ]
         }
         .set { ch_input }
 
-        ch_value = Channel.value(single_end)
-        ch_value.dump(tag: "ch_value")
+
+        ch_input.dump(tag: "ch_input")
         //
         // MODULE: Run FastQC
         //
         FASTQC (
             ch_input
         )
+
+
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
-        if(single_end==true) {
+
         ch_input
-        .map { meta, fastq ->
-            [meta.condition, fastq]
+        .map { meta, fastq  ->
+            [meta.condition, fastq, meta.single_end]
         }
         .reduce { a, b ->
-            ["${a[0]},${b[0]}", a[1] + b[1]]
+            if(a[2] != b[2] ) {
+                error "Your samplesheet contains a mix of single-end and paired-end data. This is not supported."
+            }
+            return ["${a[0]},${b[0]}", a[1] + b[1], b[2]]
         }
-        .map { condition, fastqs ->
-            [[id: condition], fastqs]
+        .map { condition, fastqs, single_end ->
+            [[id: condition, single_end: single_end], fastqs]
         }
         .set { joined }
 
         joined.dump(tag: "input joined")
-        }
+
 
         //
         // MODULE: Run mageck count
@@ -187,7 +185,7 @@ workflow CRISPRSEQ_SCREENING {
     BAGEL2_FC (
             counts
         )
-    }
+
 
     ch_bagel_bf = BAGEL2_FC.out.foldchange.combine(ch_bagel_reference_essentials)
                                         .combine(ch_bagel_reference_nonessentials)
@@ -208,7 +206,7 @@ workflow CRISPRSEQ_SCREENING {
     BAGEL2_GRAPH (
         BAGEL2_PR.out.pr
     )
-
+    }
     if(params.mle_design_matrix) {
         ch_mle = ch_counts.combine(ch_design)
         ch_mle.map {
