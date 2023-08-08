@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Template update v2.9 ([#52](https://github.com/nf-core/crisprseq/pull/52))
 - Use `Channel.fromSamplesheet()` from `nf-validation` to validate input sample sheets and create an input channel ([#58](https://github.com/nf-core/crisprseq/pull/58))
+- BAGEL2 as a module which detects gene essentiality
 
 ### Fixed
 
+- Change to `process_high` for the mageck mle module
 ### Deprecated
 
 ## [v2.0.0 - Paprika Lovelace](https://github.com/nf-core/crisprseq/releases/tag/2.0.0) - [05.07.2023]
