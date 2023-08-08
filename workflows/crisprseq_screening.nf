@@ -101,6 +101,9 @@ workflow CRISPRSEQ_SCREENING {
             }
         }
         .set { ch_input }
+
+        ch_value = Channel.value(single_end)
+        ch_value.dump(tag: "ch_value")
         //
         // MODULE: Run FastQC
         //
@@ -124,7 +127,6 @@ workflow CRISPRSEQ_SCREENING {
 
         joined.dump(tag: "input joined")
         }
-
 
         //
         // MODULE: Run mageck count
@@ -177,20 +179,9 @@ workflow CRISPRSEQ_SCREENING {
             .set { ch_bagel }
     counts = ch_bagel.combine(ch_counts)
 
-    //TO DO MAKE THIS PRETTIER
-    if(!params.bagel_reference_essentials) {
-        ch_bagel_reference_essentials = Channel.fromPath("${projectDir}/assets/CEGv2.txt")
-    } else {
-            ch_bagel_reference_essentials = Channel.fromPath(params.bagel_reference_essentials)
-            }
-
-    //ch_bagel_reference_essentials.dump(tag: "input joined")
-
-    //TO DO make this prettier
-    if(!params.bagel_reference_nonessentials) {
-        ch_bagel_reference_nonessentials = Channel.fromPath("${projectDir}/assets/NEGv1.txt")
-    } else {
-        ch_bagel_reference_nonessentials = Channel.fromPath(params.bagel_reference_nonessentials)    }
+    //Define non essential and essential genes channels for bagel2
+    ch_bagel_reference_essentials= params.bagel_reference_essentials ? Channel.fromPath(params.bagel_reference_essentials) : Channel.fromPath("${projectDir}/assets/CEGv2.txt")
+    ch_bagel_reference_nonessentials= params.bagel_reference_nonessentials ? Channel.fromPath(params.bagel_reference_nonessentials) : Channel.fromPath("${projectDir}/assets/NEGv1.txt")
 
 
     BAGEL2_FC (
