@@ -194,7 +194,6 @@ workflow CRISPRSEQ_SCREENING {
     BAGEL2_PR (
         ch_bagel_pr
     )
-    BAGEL2_PR.out.pr.dump(tag:"TEST PR DUMP")
     BAGEL2_GRAPH (
         BAGEL2_PR.out.pr
     )
