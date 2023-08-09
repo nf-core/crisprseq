@@ -95,8 +95,6 @@ workflow CRISPRSEQ_SCREENING {
         }
         .set { ch_input }
 
-
-        ch_input.dump(tag: "ch_input")
         //
         // MODULE: Run FastQC
         //
