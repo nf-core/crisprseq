@@ -29,7 +29,7 @@ process TEMPLATE_REFERENCE {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        R: \$(R --version)
+        Rscript: \$(Rscript --version)
     END_VERSIONS
     """
 }
