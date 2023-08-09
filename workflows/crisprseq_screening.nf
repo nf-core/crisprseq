@@ -69,7 +69,7 @@ include { CRISPRCLEANR_NORMALIZE      } from '../modules/nf-core/crisprcleanr/no
 include { BAGEL2_FC                   } from '../modules/local/bagel2/fc'
 include { BAGEL2_BF                   } from '../modules/local/bagel2/bf'
 include { BAGEL2_PR                   } from '../modules/local/bagel2/pr'
-include { BAGEL2_GRAPH                   } from '../modules/local/bagel2/graph'
+include { BAGEL2_GRAPH                } from '../modules/local/bagel2/graph'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
