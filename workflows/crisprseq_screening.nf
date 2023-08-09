@@ -69,7 +69,7 @@ include { CRISPRCLEANR_NORMALIZE      } from '../modules/nf-core/crisprcleanr/no
 include { BAGEL2_FC                   } from '../modules/local/bagel2/fc'
 include { BAGEL2_BF                   } from '../modules/local/bagel2/bf'
 include { BAGEL2_PR                   } from '../modules/local/bagel2/pr'
-include { BAGEL2_GRAPH                   } from '../modules/local/bagel2/graph'
+include { BAGEL2_GRAPH                } from '../modules/local/bagel2/graph'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -178,24 +178,20 @@ workflow CRISPRSEQ_SCREENING {
     counts = ch_bagel.combine(ch_counts)
 
     //Define non essential and essential genes channels for bagel2
-    ch_bagel_reference_essentials= params.bagel_reference_essentials ? Channel.fromPath(params.bagel_reference_essentials) : Channel.fromPath("${projectDir}/assets/CEGv2.txt")
-    ch_bagel_reference_nonessentials= params.bagel_reference_nonessentials ? Channel.fromPath(params.bagel_reference_nonessentials) : Channel.fromPath("${projectDir}/assets/NEGv1.txt")
+    ch_bagel_reference_essentials= params.bagel_reference_essentials ? Channel.value(params.bagel_reference_essentials) : Channel.value("${projectDir}/assets/CEGv2.txt")
+    ch_bagel_reference_nonessentials= params.bagel_reference_nonessentials ? Channel.value(params.bagel_reference_nonessentials) : Channel.value("${projectDir}/assets/NEGv1.txt")
 
 
     BAGEL2_FC (
             counts
         )
 
-
-    ch_bagel_bf = BAGEL2_FC.out.foldchange.combine(ch_bagel_reference_essentials)
-                                        .combine(ch_bagel_reference_nonessentials)
-
-
     BAGEL2_BF (
-        ch_bagel_bf
+        BAGEL2_FC.out.foldchange,
+        ch_bagel_reference_essentials,
+        ch_bagel_reference_nonessentials
     )
 
-    BAGEL2_BF.out.bf.dump(tag:"BAGEL2_BF dump")
     ch_bagel_pr = BAGEL2_BF.out.bf.combine(ch_bagel_reference_essentials)
                                         .combine(ch_bagel_reference_nonessentials)
 

@@ -196,12 +196,12 @@
                 "bagel_reference_essentials": {
                     "type": "string",
                     "description": "Core essential gene set for BAGEL2",
-                    "default": "https://github.com/hart-lab/bagel/blob/master/CEGv2.txt"
+                    "default": "https://raw.githubusercontent.com/hart-lab/bagel/master/CEGv2.txt"
                 },
                 "bagel_reference_nonessentials": {
                     "type": "string",
                     "description": "Non essential gene set  for BAGEL2",
-                    "default": "https://github.com/hart-lab/bagel/blob/master/NEGv1.txt"
+                    "default": "https://raw.githubusercontent.com/hart-lab/bagel/master/NEGv1.txt"
                 }
             }
         },
