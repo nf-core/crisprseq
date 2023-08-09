@@ -121,8 +121,6 @@ workflow CRISPRSEQ_SCREENING {
         }
         .set { joined }
 
-        joined.dump(tag: "input joined")
-
 
         //
         // MODULE: Run mageck count
