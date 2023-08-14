@@ -44,9 +44,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 <summary>Output files</summary>
 
 - `preprocessing/sequences/`
-  - `*_reference.fasta`: Sequence used as a reference.
   - `*_template.fasta`: Provided template sequence.
-  - `*_correctOrient.fasta`: Reference sequence in the correct orientation.
   - `_NewReference.fasta`: New reference generated from adding the changes made by the template to the original reference.
   - `*_template-align.bam`: Alignment of the new reference (with template changes) to the original reference.
 
@@ -174,7 +172,7 @@ The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They m
 
 [Minimap2](https://github.com/lh3/minimap2) is a sequence alignment program that aligns DNA sequences against a reference database.
 
-### racon
+### racon_umi
 
 <details markdown="1">
 <summary>Output files</summary>
