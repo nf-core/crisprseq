@@ -15,10 +15,6 @@ log.info logo + paramsSummaryLog(workflow) + citation
 
 WorkflowCrisprseq.initialise(params, log)
 
-// Check input path parameters to see if they exist
-def checkPathParamList = [ params.multiqc_config, params.reference_fasta, params.library]
-for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
-
 // Check mandatory parameters
 //if (!params.count_table) { ch_input = file(params.input) } else { error('Input samplesheet not specified!') }
 if (params.library) { ch_library = file(params.library) }
@@ -91,7 +87,7 @@ workflow CRISPRSEQ_SCREENING {
         Channel.fromSamplesheet("input")
         .map{ meta, fastq_1, fastq_2, x, y, z ->
             // x (reference), y (protospacer), and z (template) are part of the targeted workflows and we don't need them
-                return   [ meta + [ single_end:fastq_2?false:true ], fastq_2?[ fastq_1, fastq_2 ]:[ fastq_1 ] ]
+        return   [ meta + [ single_end:fastq_2?false:true ], fastq_2?[ fastq_1, fastq_2 ]:[ fastq_1 ] ]
         }
         .set { ch_input }
 
@@ -174,9 +170,8 @@ workflow CRISPRSEQ_SCREENING {
     counts = ch_bagel.combine(ch_counts)
 
     //Define non essential and essential genes channels for bagel2
-    ch_bagel_reference_essentials= params.bagel_reference_essentials ? Channel.value(params.bagel_reference_essentials) : Channel.value("${projectDir}/assets/CEGv2.txt")
-    ch_bagel_reference_nonessentials= params.bagel_reference_nonessentials ? Channel.value(params.bagel_reference_nonessentials) : Channel.value("${projectDir}/assets/NEGv1.txt")
-
+    ch_bagel_reference_essentials= Channel.value(params.bagel_reference_essentials)
+    ch_bagel_reference_nonessentials= Channel.value(params.bagel_reference_nonessentials)
 
     BAGEL2_FC (
             counts

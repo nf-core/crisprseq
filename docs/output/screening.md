@@ -97,6 +97,26 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 [MAGeCK](https://sourceforge.net/p/mageck/wiki/Home/) is a computational tool to identify important genes from CRISPR-Cas9 screens.
 
+### BAGEL2
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `bagel2/fold_change`
+  - `*.foldchange`: foldchange between the reference and treatment contrast provided
+- `bagel2/bayes_factor`
+  - `*.bf`: bayes factor per gene
+- `bagel2/precision_recall`
+  - `*.pr`: precision recall per gene
+- `bagel2/graphs`
+  - `barplot*.png`: barplot of the bayes factor distribution
+  - `PR*.png`: precision recall plot (Recall vs FDR)
+
+</details>
+
+[bagel2](https://github.com/hart-lab/bagel) is a computational tool to identify important essential genes for CRISPR-Cas9 screening experiments.
+
+
 ## MultiQC
 
 <details markdown="1">
