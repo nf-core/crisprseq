@@ -1,5 +1,5 @@
 process BAGEL2_GRAPH {
-    tag "$meta.id"
+    tag "${meta.treatment}_${meta.reference}"
     label 'process_single'
 
     conda "python=3.11.4 pandas=2.0.3 numpy=1.25.1 scikit-learn=1.3.0 click=8.1.6 matplotlib=3.7.2"
