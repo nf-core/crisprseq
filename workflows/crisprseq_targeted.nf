@@ -46,6 +46,7 @@ include { PREPROCESSING_SUMMARY } from '../modules/local/preprocessing_summary'
 include { CLUSTERING_SUMMARY    } from '../modules/local/clustering_summary'
 include { ALIGNMENT_SUMMARY     } from '../modules/local/alignment_summary'
 include { TEMPLATE_REFERENCE    } from '../modules/local/template_reference'
+include { CRISPRSEQ_PLOTTER     } from '../modules/local/crisprseq_plotter'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -706,12 +707,7 @@ workflow CRISPRSEQ_TARGETED {
     ch_mapped_bam
         .join(SAMTOOLS_INDEX.out.bai)
         .join(ORIENT_REFERENCE.out.reference)
-        .join(ch_input.protospacer
-            .map {
-                meta, fastq ->
-                    [ meta , fastq ]
-            }
-        )
+        .join(ch_input.protospacer)
         .join(ch_seq_template, remainder: true)
         .join(ch_template_bam, remainder: true)
         .join(TEMPLATE_REFERENCE.out.fasta, remainder: true)
@@ -738,6 +734,17 @@ workflow CRISPRSEQ_TARGETED {
         ch_to_parse_cigar
     )
     ch_versions = ch_versions.mix(CIGAR_PARSER.out.versions.first())
+
+
+    //
+    //
+    //
+    CRISPRSEQ_PLOTTER (
+        CIGAR_PARSER.out.indels
+        .join(ORIENT_REFERENCE.out.reference)
+        .join(ch_input.protospacer)
+    )
+    ch_versions = ch_versions.mix(CRISPRSEQ_PLOTTER.out.versions.first())
 
 
     //
