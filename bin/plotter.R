@@ -400,7 +400,7 @@ subs_plot <- function(subsperc, gRNA_seq, cut_site){
     plot <- ggplot(data=subsperc %>% filter(pos > pre_cut_site - 25) %>% filter(pos < post_cut_site + 25), aes(x=ordered(pos), y=percentage, fill=nucleotide, alpha=ifelse(percentage<95,1,0))) +
         geom_bar(stat="identity") + theme_classic() + scale_fill_manual("Nuclotides", values = c("A" = "#109648", "C" = "#86b7ed", "G" = "#f7b32b", "T" = "#d62839", "-" = "#f2f2f2")) +
         scale_x_discrete(breaks = (pre_cut_site+1):(post_cut_site-1), labels = ref_nt) + xlab(NULL) + scale_alpha(guide = 'none') + ylab('nt (%)') +
-        geom_text(aes(label = ifelse(percentage<50 & percentage>5,percentage,"")),
+        geom_text(aes(label = ifelse(percentage<50 & percentage>5,100-percentage,"")),
                 hjust = 0, vjust = 1.5, angle = 90, nudge_x = -.5,
                 size = 2.5) +
         theme(text = element_text(size = 11), legend.position = "bottom")
@@ -627,7 +627,7 @@ if (dim(data)[2]>3 && length(checkFaulty) == 0 && length(checkEmpty) == 0){ ### 
         }
         p <- selfil_1[1,]$patterns
         each_logo <- get_logo_top_vars(sel_ref, l, p, mod, s, cut_site)
-        
+
         all_each_logo[[list_num]] <- each_logo
         list_num <- list_num + 1
       }
