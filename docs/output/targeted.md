@@ -270,13 +270,13 @@ This section contains the final output of the pipeline. It contains information 
 
 - `plots/`
   - `*_accumulative.html`: Interactive barplot showing the accumulative deletions and insertions. x-axis represents the reference position. y-axis represents the percentage of reads containing a deletion or insertion in that position.
-    ![Test sample hCas9-AAVS1-a accumulative edition plot](../images/hCas9-AAVS1-a_accumulative.html)
+    ![Test sample hCas9-AAVS1-a accumulative edition plot](../images/hCas9-AAVS1-a_accumulative.png)
   - `*_delAlleles_plot.png`: Image showing the most common deletions found. x-axis represents the position. y-axis indicates the percentage in which the plotted deletion is observed (in respect of all deletions), followed by the length of the deletion. Dashes `-` indicate a deleted base.
     ![Test sample hCas9-AAVS1-a deletion alleles plot](../images/hCas9-AAVS1-a_delAlleles_plot.png)
   - `*_Deletions.html`: Interactive barplot showing the percentage of reads showing a deltion for each position and the deletion sizes. The left panel represents the percentage of reads having a deletion for each position (similar to `*_accumulative.html`). The right panel shows the number of deletions found relative to their size. The deleted sequences found are shown coloured in the stacked barplot.
-    ![Test sample hCas9-AAVS1-a deletions plot](../images/hCas9-AAVS1-a_Deletions.html)
+    ![Test sample hCas9-AAVS1-a deletions plot](../images/hCas9-AAVS1-a_Deletions.png)
   - `*_Insertions.html`: Interactive barplot showing the percentage of reads showing an insertion for each position and the intertion sizes. The left panel represents the percentage of reads having an insertion for each position (similar to `*_accumulative.html`). The right panel shows the number of insertions found relative to their size. The inserted sequences found are shown coloured in the stacked barplot.
-    ![Test sample hCas9-AAVS1-a insertions plot](../images/hCas9-AAVS1-a_Insertions.html)
+    ![Test sample hCas9-AAVS1-a insertions plot](../images/hCas9-AAVS1-a_Insertions.png)
   - `*_subs-perc_plot_LOGO.png`: LOGO showing the most represented nucleotide and its percentage (y-axis) for protospacer positions. PAM sequence is highlighted in yellow.
     ![Test sample hCas9-AAVS1-a substitutions LOGO](../images/hCas9-AAVS1-a_subs-perc_plot_LOGO.png)
   - `*_subs-perc_plot.png`: Barplot showing the most represented nucleotide and it's percentage (y-axis and bar tags) for +/-25 positions surrounding the cut site. The protospacer sequence is highlighted by writing the sequence base in the y axis. Bases whose percentage is higher than 90% are not colored.
@@ -284,7 +284,7 @@ This section contains the final output of the pipeline. It contains information 
   - `*_top-alleles_LOGO.png`: LOGO showing the 4 most represented editions. Cut site is highlighted with a vertical red line. The type of edition and start position are shown as a title to each LOGO. Deleted bases are not drawn. Inserted bases are highlighted in yellow.
     ![Test sample hCas9-AAVS1-a top alleles LOGO](../images/hCas9-AAVS1-a_top-alleles_LOGO.png)
   - `*_top.html`: Interactive pie chart showing the percentage of the top 4 editions found. The percentage of WT is also shown. Editions are named after the position, the type of edition and length and the sequence.
-    ![Test sample hCas9-AAVS1-a top alleles plot](../images/hCas9-AAVS1-a_top.html)
+    ![Test sample hCas9-AAVS1-a top alleles plot](../images/hCas9-AAVS1-a_top.png)
 
 </details>
 
