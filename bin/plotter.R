@@ -547,119 +547,119 @@ if (dim(data)[2]>3 && length(checkFaulty) == 0 && length(checkEmpty) == 0){ ### 
         system(paste0("touch ",	sample_name, "_delAlleles_plot.png"))
     }
 
-  ######### Low variability or top variants plot
-  wt <- data$wt_reads[1] ### 7299
-  templata_based <- data$t_reads[1] ### 0
-  total_char <- wt + templata_based + dim(data)[1]
+    ######### Low variability or top variants plot
+    wt <- data$wt_reads[1] ### 7299
+    templata_based <- data$t_reads[1] ### 0
+    total_char <- wt + templata_based + dim(data)[1]
 
-  delCols_indels <- data %>% group_by(Modification, Start, Length, ins_nt, patterns) %>% dplyr::summarize(freq = n())
-  unique_variants <- rbind(as.data.frame(delCols_indels), c("wt", 0, 0, NA, NA, wt), c("template-based", 0, 0, NA, NA, templata_based))
-  uniq_indels_sorted <- unique_variants[order(as.numeric(unique_variants$freq), decreasing = TRUE),]
-  write.csv(uniq_indels_sorted,file=paste0(sample_name, "_unique-variants.csv"))
+    delCols_indels <- data %>% group_by(Modification, Start, Length, ins_nt, patterns) %>% dplyr::summarize(freq = n())
+    unique_variants <- rbind(as.data.frame(delCols_indels), c("wt", 0, 0, NA, NA, wt), c("template-based", 0, 0, NA, NA, templata_based))
+    uniq_indels_sorted <- unique_variants[order(as.numeric(unique_variants$freq), decreasing = TRUE),]
+    write.csv(uniq_indels_sorted,file=paste0(sample_name, "_unique-variants.csv"))
 
-  # Check if there are enogh indels to have 5 top
-  if(dim(uniq_indels_sorted)[1] < 5 ){
-    num_top <- dim(delCols_indels)[1]
-  } else { num_top <- 5 }
+    # Check if there are enogh indels to have 5 top
+    if(dim(uniq_indels_sorted)[1] < 5 ){
+        num_top <- dim(delCols_indels)[1]
+    } else { num_top <- 5 }
 
-  # Get to variants
-  top_5 <- uniq_indels_sorted[1:num_top,]
+    # Get to variants
+    top_5 <- uniq_indels_sorted[1:num_top,]
 
-  top5_names <- lapply(c(1:dim(top_5)[1]),
-                       function(i){
-                         if( top_5[i,]$Modification == "del" ) {
-                           return(paste0(top_5[i,]$Start, "_", top_5[i,]$Modification, top_5[i,]$Length, "_", top_5[i,]$pattern))
-                         } else if ( top_5[i,]$Modification == "ins" ) {
-                           return(paste0(top_5[i,]$Start, "_", top_5[i,]$Modification, top_5[i,]$ins_nt))
-                         } else {
-                           return(top_5[i,]$Modification)
-                         }
-                       }
-  )
+    top5_names <- lapply(c(1:dim(top_5)[1]),
+                        function(i){
+                            if( top_5[i,]$Modification == "del" ) {
+                                return(paste0(top_5[i,]$Start, "_", top_5[i,]$Modification, top_5[i,]$Length, "_", top_5[i,]$pattern))
+                            } else if ( top_5[i,]$Modification == "ins" ) {
+                                return(paste0(top_5[i,]$Start, "_", top_5[i,]$Modification, top_5[i,]$ins_nt))
+                            } else {
+                                return(top_5[i,]$Modification)
+                            }
+                        }
+    )
 
-  wt_pos <- which(unlist(top5_names) == "wt")
-  if (length(wt_pos) == 0){
-    cols_list = c("#bebebe", rep("#9394f7", num_top + 1))
-  } else if (wt_pos == num_top){
-    cols_list = c("#bebebe", "#9394f7", rep("#9394f7", num_top - 1), "#1cf453")
-  } else if (wt_pos == 1) {
-    cols_list = c("#bebebe", "#9394f7", "#1cf453", rep("#9394f7", num_top - 1))
-  } else {
-    cols_list = c("#bebebe", rep("#9394f7", wt_pos), "#1cf453", rep("#9394f7", num_top-wt_pos))
-  }
-
-  reads_classes <- c("Other alleles", "Top alleles", unlist(top5_names))
-  reads_counts <- c(total_char - sum(as.numeric(top_5$freq)), sum(as.numeric(top_5$freq)), as.numeric(top_5$freq))
-  reads_summary <- data.frame(classes = unlist(reads_classes), counts = unlist(reads_counts))
-  reads_summary$parents =  c("", "", rep("Top alleles", num_top))
-  fig <- plot_ly(reads_summary,
-                 labels = ~ classes,
-                 parents = ~ parents,
-                 values = ~ counts,
-                 type = 'sunburst',
-                 branchvalues = 'total',
-                 textinfo = "label+percent entry",
-                 marker = list(colors = cols_list, color = "black"),
-                 textfont = list(color = '#000000', size = 20)
-  )
-
-  htmlwidgets::saveWidget(as_widget(fig), paste0(sample_name,"_top.html"))
-
-  ### Logo plot
-  all_each_logo <- list()
-  list_num <- 1
-  sel_top <- top_5 %>% filter(Modification %in% c("del", "ins"))
-  if (dim(sel_top)[1] > 0){
-    for (i in c(1:dim(sel_top)[1])){
-      if (sel_top[i,]$Modification == "ins"){
-        selfil_1 <- data %>% filter(Modification ==  sel_top[i,]$Modification) %>% filter(Start ==  sel_top[i,]$Start) %>% filter(Length ==  sel_top[i,]$Length) %>%  filter(ins_nt ==  sel_top[i,]$ins_nt)
-      } else {
-        selfil_1 <- data %>% filter(Modification ==  sel_top[i,]$Modification) %>% filter(Start ==  sel_top[i,]$Start) %>% filter(Length ==  sel_top[i,]$Length)
-      }
-      s <- selfil_1[1,]$Start
-      l <- selfil_1[1,]$Length
-      if( s > 12  && (nchar(as.character(sread(ref_seq)[[1]])) > (s+l+9) )){
-        ref_splited <- c(str_split(toupper(as.character(sread(ref_seq)[[1]])), "")[[1]])
-        sel_ref <- ref_splited[(s-10):(s+l+9)]
-        mod <- selfil_1[1,]$Modification
-        if (mod == "ins"){
-          sel_ref <- c(sel_ref[1:10], c(str_split(toupper(selfil_1[1,]$ins_nt), "")[[1]]), sel_ref[11:length(sel_ref)])
-        }
-        p <- selfil_1[1,]$patterns
-        each_logo <- get_logo_top_vars(sel_ref, l, p, mod, s, cut_site)
-
-        all_each_logo[[list_num]] <- each_logo
-        list_num <- list_num + 1
-      }
+    wt_pos <- which(unlist(top5_names) == "wt")
+    if (length(wt_pos) == 0){
+        cols_list = c("#bebebe", rep("#9394f7", num_top + 1))
+    } else if (wt_pos == num_top){
+        cols_list = c("#bebebe", "#9394f7", rep("#9394f7", num_top - 1), "#1cf453")
+    } else if (wt_pos == 1) {
+        cols_list = c("#bebebe", "#9394f7", "#1cf453", rep("#9394f7", num_top - 1))
+    } else {
+        cols_list = c("#bebebe", rep("#9394f7", wt_pos), "#1cf453", rep("#9394f7", num_top-wt_pos))
     }
-  }
 
-  if (length(all_each_logo) > 0){
-    plot_grid(plotlist =  all_each_logo, ncol = 1)
-    ggsave(paste0(sample_name, "_top-alleles_LOGO.png"))
-  } else {
-    system(paste0("touch ",	sample_name, "_top-alleles_LOGO.png"))
-  }
+    reads_classes <- c("Other alleles", "Top alleles", unlist(top5_names))
+    reads_counts <- c(total_char - sum(as.numeric(top_5$freq)), sum(as.numeric(top_5$freq)), as.numeric(top_5$freq))
+    reads_summary <- data.frame(classes = unlist(reads_classes), counts = unlist(reads_counts))
+    reads_summary$parents =  c("", "", rep("Top alleles", num_top))
+    fig <- plot_ly(reads_summary,
+                    labels = ~ classes,
+                    parents = ~ parents,
+                    values = ~ counts,
+                    type = 'sunburst',
+                    branchvalues = 'total',
+                    textinfo = "label+percent entry",
+                    marker = list(colors = cols_list, color = "black"),
+                    textfont = list(color = '#000000', size = 20)
+    )
+
+    htmlwidgets::saveWidget(as_widget(fig), paste0(sample_name,"_top.html"))
+
+    ### Logo plot
+    all_each_logo <- list()
+    list_num <- 1
+    sel_top <- top_5 %>% filter(Modification %in% c("del", "ins"))
+    if (dim(sel_top)[1] > 0){
+        for (i in c(1:dim(sel_top)[1])){
+            if (sel_top[i,]$Modification == "ins"){
+                selfil_1 <- data %>% filter(Modification ==  sel_top[i,]$Modification) %>% filter(Start ==  sel_top[i,]$Start) %>% filter(Length ==  sel_top[i,]$Length) %>%  filter(ins_nt ==  sel_top[i,]$ins_nt)
+            } else {
+                selfil_1 <- data %>% filter(Modification ==  sel_top[i,]$Modification) %>% filter(Start ==  sel_top[i,]$Start) %>% filter(Length ==  sel_top[i,]$Length)
+            }
+            s <- selfil_1[1,]$Start
+            l <- selfil_1[1,]$Length
+            if( s > 12  && (nchar(as.character(sread(ref_seq)[[1]])) > (s+l+9) )){
+                ref_splited <- c(str_split(toupper(as.character(sread(ref_seq)[[1]])), "")[[1]])
+                sel_ref <- ref_splited[(s-10):(s+l+9)]
+                mod <- selfil_1[1,]$Modification
+                if (mod == "ins"){
+                    sel_ref <- c(sel_ref[1:10], c(str_split(toupper(selfil_1[1,]$ins_nt), "")[[1]]), sel_ref[11:length(sel_ref)])
+                }
+                p <- selfil_1[1,]$patterns
+                each_logo <- get_logo_top_vars(sel_ref, l, p, mod, s, cut_site)
+
+                all_each_logo[[list_num]] <- each_logo
+                list_num <- list_num + 1
+            }
+        }
+    }
+
+    if (length(all_each_logo) > 0){
+        plot_grid(plotlist =  all_each_logo, ncol = 1)
+        ggsave(paste0(sample_name, "_top-alleles_LOGO.png"))
+    } else {
+        system(paste0("touch ",	sample_name, "_top-alleles_LOGO.png"))
+    }
 
 } else {
-  fig<-empty_plot("No alignments were produced.
-  Please check your files and references")
-  htmlwidgets::saveWidget(as_widget(fig), paste0(sample_name,"_Deletions.html"))
-  htmlwidgets::saveWidget(as_widget(fig), paste0(sample_name,"_Insertions.html"))
-  htmlwidgets::saveWidget(as_widget(fig), paste0(sample_name,"_accumulative.html"))
-  # system(paste0("touch ",	sample_name, "_delAlleles_plot.png"))
+    fig<-empty_plot("No alignments were produced.
+    Please check your files and references")
+    htmlwidgets::saveWidget(as_widget(fig), paste0(sample_name,"_Deletions.html"))
+    htmlwidgets::saveWidget(as_widget(fig), paste0(sample_name,"_Insertions.html"))
+    htmlwidgets::saveWidget(as_widget(fig), paste0(sample_name,"_accumulative.html"))
+    # system(paste0("touch ",	sample_name, "_delAlleles_plot.png"))
 
-  #Elements for dynamic table IF THERE ARE NO ALIGNMENTS
-  empty_list = list()
-  exportJson <- jsonlite::toJSON(empty_list)
-  write(exportJson, paste(sample_name,"_length.json",sep=""))
-  write(exportJson, paste(sample_name,"_Total_reads.json",sep=""))
-  write(exportJson, paste(sample_name,"_metadels.json",sep=""))
-  write(exportJson, paste(sample_name,"_metains.json",sep=""))
+    #Elements for dynamic table IF THERE ARE NO ALIGNMENTS
+    empty_list = list()
+    exportJson <- jsonlite::toJSON(empty_list)
+    write(exportJson, paste(sample_name,"_length.json",sep=""))
+    write(exportJson, paste(sample_name,"_Total_reads.json",sep=""))
+    write(exportJson, paste(sample_name,"_metadels.json",sep=""))
+    write(exportJson, paste(sample_name,"_metains.json",sep=""))
 
-  system(paste0("touch ",	sample_name, "_top.html"))
-  system(paste0("touch ",	sample_name, "_top-alleles_LOGO.png"))
-  system(paste0("touch ",	sample_name, "_counts_plot.png"))
-  system(paste0("touch ",	sample_name, "_subs-perc_plot_LOGO.png"))
-  system(paste0("touch ",	sample_name, "_subs-perc_plot.png"))
+    system(paste0("touch ",	sample_name, "_top.html"))
+    system(paste0("touch ",	sample_name, "_top-alleles_LOGO.png"))
+    system(paste0("touch ",	sample_name, "_counts_plot.png"))
+    system(paste0("touch ",	sample_name, "_subs-perc_plot_LOGO.png"))
+    system(paste0("touch ",	sample_name, "_subs-perc_plot.png"))
 }
