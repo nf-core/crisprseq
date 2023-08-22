@@ -510,6 +510,7 @@ if (dim(data)[2]>3 && length(checkFaulty) == 0 && length(checkEmpty) == 0){ ### 
     cut_site <- get_cutSite(gR, ref_seq, rel_cut_site)
     if (dim(subs_plup)[1] == 0){
         system(paste0("touch ", sample_name, "_subs-perc_plot.png"))
+        system(paste0("touch ", sample_name, "_subs-perc_plot_LOGO.png"))
     } else {
         sp <- subs_plot(subs_plup, gR, cut_site)
         ggsave(paste0(sample_name, "_subs-perc_plot.png"), width = 12, height = 1.5)
