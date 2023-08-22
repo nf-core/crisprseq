@@ -647,7 +647,7 @@ if (dim(data)[2]>3 && length(checkFaulty) == 0 && length(checkEmpty) == 0){ ### 
     htmlwidgets::saveWidget(as_widget(fig), paste0(sample_name,"_Deletions.html"))
     htmlwidgets::saveWidget(as_widget(fig), paste0(sample_name,"_Insertions.html"))
     htmlwidgets::saveWidget(as_widget(fig), paste0(sample_name,"_accumulative.html"))
-    # system(paste0("touch ",	sample_name, "_delAlleles_plot.png"))
+    system(paste0("touch ",	sample_name, "_delAlleles_plot.png"))
 
     #Elements for dynamic table IF THERE ARE NO ALIGNMENTS
     empty_list = list()
