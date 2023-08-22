@@ -621,7 +621,7 @@ workflow CRISPRSEQ_TARGETED {
     //
     if (params.aligner == "bwa") {
         BWA_INDEX (
-            ORIENT_REFERENCE.out.reference.map { it[1] }
+            ORIENT_REFERENCE.out.reference
         )
         ch_versions = ch_versions.mix(BWA_INDEX.out.versions)
         BWA_MEM (
@@ -638,7 +638,7 @@ workflow CRISPRSEQ_TARGETED {
     //
     if (params.aligner == "bowtie2") {
         BOWTIE2_BUILD (
-            ORIENT_REFERENCE.out.reference.map { it[1] }
+            ORIENT_REFERENCE.out.reference
         )
         ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
         BOWTIE2_ALIGN (
