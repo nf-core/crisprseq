@@ -15,8 +15,7 @@ log.info logo + paramsSummaryLog(workflow) + citation
 
 WorkflowCrisprseq.initialise(params, log)
 
-// Check mandatory parameters
-//if (!params.count_table) { ch_input = file(params.input) } else { error('Input samplesheet not specified!') }
+// Set screening parameters and channels
 if (params.library) { ch_library = file(params.library) }
 if (params.crisprcleanr) { ch_crisprcleanr = Channel.value(params.crisprcleanr) }
 
