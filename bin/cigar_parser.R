@@ -946,7 +946,8 @@ if (dim(alignment_info)[1] != 0){
         dels <- separated_indels %>% filter(Modification == "del")
         dels_count <- dim(dels)[1]
         if ( t_type == "dels-out" || t_type == "dels-in"){
-            dels_count <- dels_count - t_reads
+            t_in_dels <- dels %>% filter(Ids %in% t_ids[[1]])
+            dels_count <- dels_count - dim(t_in_dels)[1]
         }
         ins <- separated_indels %>% filter(Modification == "ins")
         ins_count <- dim(ins)[1]
