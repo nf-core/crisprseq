@@ -392,7 +392,7 @@ get_sequences <- function(indels, ref_seq){
 ######################
 subs_plot <- function(subsperc, gRNA_seq, cut_site){
     ### Get the gRNA region
-    pre_cut_site <- cut_site - (nchar(gRNA_seq)-3)  ## insted of 17 to allow different gRNA lengths instead of only 20
+    pre_cut_site <- cut_site - (nchar(gRNA_seq)-3)  ## instead of 17 to allow different gRNA lengths instead of only 20
     post_cut_site <- cut_site + 3 + 1
     ### gRNA nucleotides to use them in the axis
     ref_nt <- stringr::str_split(gRNA_seq, "")[[1]]
@@ -421,7 +421,7 @@ subs_logo_plot <- function(subsperc, gRNA_seq, cut_site){
     nuc_pos[is.na(nuc_pos)] <- 0
     nuc_pos[nuc_pos == 100] <- 0
     nuc_pos_matrix <- data.matrix(nuc_pos[,-1])
-    nuc_pos_matrix <- nuc_pos_matrix+0.00001 ### This is done to aboid problemes in case of a matrix full of 0s
+    nuc_pos_matrix <- nuc_pos_matrix+0.00001 ### This is done to avoid problems in case of a matrix full of 0s
     rownames(nuc_pos_matrix) <- nuc_pos$nucleotide
     #
     ### gRNA nucleotides to use them in the axis
@@ -438,7 +438,7 @@ subs_logo_plot <- function(subsperc, gRNA_seq, cut_site){
 
 ### Logo plot of top indels
 get_logo_top_vars <- function(selected_reference, change_len, pattern_indel, modification, str_pos, cut_site){
-    # This function is used to generate the logo of the alleles that apperar most times in data.
+    # This function is used to generate the logo of the alleles that appear most times in data.
     all_pre_nt <- list(A = "", C = "", T = "", G = "")
     for (j in c("A", "C", "G", "T")){
         per_nt <- lapply(1:length(selected_reference), {
