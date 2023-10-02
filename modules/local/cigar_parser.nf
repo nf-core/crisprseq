@@ -14,6 +14,8 @@ process CIGAR_PARSER {
     tuple val(meta), path("*indels.csv"), path("*_subs-perc.csv"), emit: indels
     tuple val(meta), path("*.html"), path("*edits.csv")          , emit: edition
     tuple val(meta), path("*cutSite.json")                       , emit: cutsite
+    tuple val(meta), path("*_QC-indels.csv")                     , emit: qcindels
+    tuple val(meta), path("*_reads-summary.csv")                 , emit: processing
     path "versions.yml"                                          , emit: versions
 
     when:
@@ -39,7 +41,7 @@ process CIGAR_PARSER {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        R: \$(R --version)
+        Rscript: \$(Rscript --version)
     END_VERSIONS
     """
 }
