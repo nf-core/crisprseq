@@ -59,6 +59,7 @@ include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
 include { MAGECK_COUNT                } from '../modules/nf-core/mageck/count/main'
 include { MAGECK_MLE                  } from '../modules/nf-core/mageck/mle/main'
 include { MAGECK_TEST                 } from '../modules/nf-core/mageck/test/main'
+include { MAGECK_GRAPHRRA             } from '../modules/local/mageck/graphrra'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { CRISPRCLEANR_NORMALIZE      } from '../modules/nf-core/crisprcleanr/normalize/main'
 include { BAGEL2_FC                   } from '../modules/local/bagel2/fc'
@@ -160,6 +161,11 @@ workflow CRISPRSEQ_SCREENING {
         MAGECK_TEST (
             counts
         )
+
+        //MAGECK_TEST.out.gene_summary.dump(tag:"test")
+        MAGECK_GRAPHRRA (
+            MAGECK_TEST.out.gene_summary
+        )
     }
 
     if(params.rra_contrasts) {
@@ -191,6 +197,8 @@ workflow CRISPRSEQ_SCREENING {
     BAGEL2_GRAPH (
         BAGEL2_PR.out.pr
     )
+
+
     }
     if(params.mle_design_matrix) {
         ch_mle = ch_counts.combine(ch_design)

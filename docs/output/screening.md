@@ -92,6 +92,8 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - `*_count_sgrna_summary.txt`: sgRNA ranking results, tab separated file containing means, p-values
   - `*.report.Rmd`: markdown report recapping essential genes
   - `*_count_table.log`: log of the run
+  - `*_scatterview.png`: scatter view of the targeted genes and their logFC
+  - `*_rank.png`: rank view of the targeted genes
 
 </details>
 
