@@ -43,7 +43,7 @@ An [example samplesheet](https://github.com/nf-core/test-datasets/blob/crisprseq
 
 ### library
 
-If you are running the pipeline with fastq files and wish to obtain a count table, the library parameter is needed. The library table has two mandatory columns : id, target transcript (or gRNA sequence) and gene symbol.
+If you are running the pipeline with fastq files and wish to obtain a count table, the library parameter is needed. The library table has three mandatory columns : id, target transcript (or gRNA sequence) and gene symbol.
 An [example](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/brunello_target_sequence.txt) has been provided with the pipeline. Many libraries can be found on [addgene](https://www.addgene.org/).
 
 After the alignment step, the pipeline currently supports 3 algorithms to detect gene essentiality, MAGeCK rra, MAGeCK mle and BAGEL2. MAGeCK MLE (Maximum Likelihood Estimation) and MAGeCK RRA (Robust Ranking Aggregation) are two different methods provided by the MAGeCK software package to analyze CRISPR-Cas9 screens. BAGEL2 identifies gene essentiality through Bayesian Analysis.

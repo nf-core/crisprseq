@@ -162,7 +162,6 @@ workflow CRISPRSEQ_SCREENING {
             counts
         )
 
-        //MAGECK_TEST.out.gene_summary.dump(tag:"test")
         MAGECK_GRAPHRRA (
             MAGECK_TEST.out.gene_summary
         )
