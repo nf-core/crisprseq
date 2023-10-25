@@ -22,6 +22,11 @@ process MAGECK_GRAPHRRA {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
+    #### author: Laurence Kuhlburger
+    #### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
+    ####
+    #### Orient a reference sequence according to reads orientation.
+
     #!/usr/bin/env Rscript
     library(MAGeCKFlute)
     library(ggplot2)
@@ -29,8 +34,6 @@ process MAGECK_GRAPHRRA {
 
     gdata = ReadRRA("$gene_summary")
     gdata <- transform(gdata, LogFDR = -log10(FDR))
-    print(colnames(gdata))
-
     png(filename = paste0("$meta.treatment","_vs_","$meta.reference","_scatterview.png"), width = 6, height = 4, units = "in", res = 300)
     p1 = ScatterView(gdata, x = "Score", y = "LogFDR", label = "id",
                 model = "volcano", top = 5)
@@ -45,9 +48,6 @@ process MAGECK_GRAPHRRA {
     print(p1)
     dev.off()
 
-    #write.table(gdata, file = "test.tsv", sep = "\t", quote = FALSE, col.names = NA, row.names = TRUE)
-
-    #dev.off()
     """
 
 
