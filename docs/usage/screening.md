@@ -52,11 +52,17 @@ After the alignment step, the pipeline currently supports 3 algorithms to detect
 
 ### MAGeCK rra
 
-MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, `--rra_contrasts` should be used with a dot comma (;) `csv` separated file stating the two conditions to be compared. You can also integrate several samples/conditions by comma separating them. Please find an example here below :
+MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, `--rra_contrasts` contains two columns : treatment and reference. These two columns should be separated with a dot comma (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma separating them. Please find an example here below :
 
+| treatment | reference |
+|-----------------------|-------------------|
+| treatment1            | control1          |
 | treatment1,treatment2 | control1,control2 |
 |-----------------------|-------------------|
 | treatment1            | control1          |
+
+A full example can be found here :
+#TODO: add link to rawcontent of nf-core test
 
 
 ### MAGeCK mle

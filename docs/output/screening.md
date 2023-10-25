@@ -23,6 +23,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - [Gene essentiality](#gene-essentiality-computation)
   - [MAGeCK rra](#mageck-rra) - modified robust ranking aggregation (RRA) algorithm
   - [MAGeCK mle](#mageck-mle) - maximum-likelihood estimation (MLE) for robust identification of CRISPR-screen hits
+  - [BAGEL2](#BAGEL2) - Bayes Factor to identify essential genes
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 

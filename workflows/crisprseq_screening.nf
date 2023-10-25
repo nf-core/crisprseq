@@ -197,9 +197,8 @@ workflow CRISPRSEQ_SCREENING {
     BAGEL2_GRAPH (
         BAGEL2_PR.out.pr
     )
-
-
     }
+
     if(params.mle_design_matrix) {
         ch_mle = ch_counts.combine(ch_design)
         ch_mle.map {
