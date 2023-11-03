@@ -104,7 +104,7 @@ workflow CRISPRSEQ_SCREENING {
 
         ch_input
         .map { meta, fastq  ->
-            [meta.condition, fastq, meta.single_end]
+            [meta.sample, fastq, meta.single_end]
         }
         .reduce { a, b ->
             if(a[2] != b[2] ) {
@@ -112,8 +112,8 @@ workflow CRISPRSEQ_SCREENING {
             }
             return ["${a[0]},${b[0]}", a[1] + b[1], b[2]]
         }
-        .map { condition, fastqs, single_end ->
-            [[id: condition, single_end: single_end], fastqs]
+        .map { sample, fastqs, single_end ->
+            [[id: sample, single_end: single_end], fastqs]
         }
         .set { joined }
 
