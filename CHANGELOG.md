@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Do not stash unexistent files, use empty lists instead. Fixes AWS tests ([#67](https://github.com/nf-core/crisprseq/pull/67))
 - Rename process `merging_summary` to `preprocessing_summary` to improve clarity ([#69](https://github.com/nf-core/crisprseq/pull/69))
 - Fix modules `BWA_INDEX` and `BOWTIE2_BUILD` after module update, new versions accept a meta map ([#76](https://github.com/nf-core/crisprseq/pull/76))
+- Update targeted metromap ([#78](https://github.com/nf-core/crisprseq/pull/78))
 
 ### Deprecated
 
