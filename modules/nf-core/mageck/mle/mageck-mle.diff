@@ -1,6 +1,14 @@
 Changes in module 'nf-core/mageck/mle'
 --- modules/nf-core/mageck/mle/main.nf
 +++ modules/nf-core/mageck/mle/main.nf
+@@ -1,6 +1,6 @@
+ process MAGECK_MLE {
+     tag "$meta.id"
+-    label 'process_medium'
++    label 'process_high'
+ 
+     conda "bioconda::mageck=0.5.9"
+     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
 @@ -8,8 +8,7 @@
          'biocontainers/mageck:0.5.9--py37h6bb024c_0' }"
  
