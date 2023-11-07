@@ -59,8 +59,14 @@ include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
 include { MAGECK_COUNT                } from '../modules/nf-core/mageck/count/main'
 include { MAGECK_MLE                  } from '../modules/nf-core/mageck/mle/main'
 include { MAGECK_TEST                 } from '../modules/nf-core/mageck/test/main'
+include { MAGECK_GRAPHRRA             } from '../modules/local/mageck/graphrra'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { CRISPRCLEANR_NORMALIZE      } from '../modules/nf-core/crisprcleanr/normalize/main'
+include { BAGEL2_FC                   } from '../modules/local/bagel2/fc'
+include { BAGEL2_BF                   } from '../modules/local/bagel2/bf'
+include { BAGEL2_PR                   } from '../modules/local/bagel2/pr'
+include { BAGEL2_GRAPH                } from '../modules/local/bagel2/graph'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -81,11 +87,7 @@ workflow CRISPRSEQ_SCREENING {
         Channel.fromSamplesheet("input")
         .map{ meta, fastq_1, fastq_2, x, y, z ->
             // x (reference), y (protospacer), and z (template) are part of the targeted workflows and we don't need them
-            if (!fastq_2) {
-                return [ meta, [ fastq_1 ] ]
-            } else {
-                return [ meta, [ fastq_1, fastq_2 ] ]
-            }
+        return   [ meta + [ single_end:fastq_2?false:true ], fastq_2?[ fastq_1, fastq_2 ]:[ fastq_1 ] ]
         }
         .set { ch_input }
 
@@ -95,19 +97,26 @@ workflow CRISPRSEQ_SCREENING {
         FASTQC (
             ch_input
         )
+
+
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
+
         ch_input
-        .map { meta, fastq ->
-            [meta.condition, fastq]
+        .map { meta, fastq  ->
+            [meta.condition, fastq, meta.single_end]
         }
         .reduce { a, b ->
-            ["${a[0]},${b[0]}", a[1] + b[1]]
+            if(a[2] != b[2] ) {
+                error "Your samplesheet contains a mix of single-end and paired-end data. This is not supported."
+            }
+            return ["${a[0]},${b[0]}", a[1] + b[1], b[2]]
         }
-        .map { condition, fastqs ->
-            [[id: condition], fastqs]
+        .map { condition, fastqs, single_end ->
+            [[id: condition, single_end: single_end], fastqs]
         }
         .set { joined }
+        joined.dump(tag:"metadata")
 
         //
         // MODULE: Run mageck count
@@ -145,13 +154,48 @@ workflow CRISPRSEQ_SCREENING {
 
     if(params.rra_contrasts) {
         Channel.fromPath(params.rra_contrasts)
-            .splitCsv(header:true, sep:',' )
+            .splitCsv(header:true, sep:';' )
             .set { ch_contrasts }
         counts = ch_contrasts.combine(ch_counts)
 
         MAGECK_TEST (
             counts
         )
+
+        MAGECK_GRAPHRRA (
+            MAGECK_TEST.out.gene_summary
+        )
+    }
+
+    if(params.rra_contrasts) {
+        Channel.fromPath(params.rra_contrasts)
+            .splitCsv(header:true, sep:';' )
+            .set { ch_bagel }
+    counts = ch_bagel.combine(ch_counts)
+
+    //Define non essential and essential genes channels for bagel2
+    ch_bagel_reference_essentials= Channel.value(params.bagel_reference_essentials)
+    ch_bagel_reference_nonessentials= Channel.value(params.bagel_reference_nonessentials)
+
+    BAGEL2_FC (
+            counts
+        )
+
+    BAGEL2_BF (
+        BAGEL2_FC.out.foldchange,
+        ch_bagel_reference_essentials,
+        ch_bagel_reference_nonessentials
+    )
+
+    ch_bagel_pr = BAGEL2_BF.out.bf.combine(ch_bagel_reference_essentials)
+                                        .combine(ch_bagel_reference_nonessentials)
+
+    BAGEL2_PR (
+        ch_bagel_pr
+    )
+    BAGEL2_GRAPH (
+        BAGEL2_PR.out.pr
+    )
     }
 
     if(params.mle_design_matrix) {
@@ -208,6 +252,7 @@ workflow.onComplete {
     if (params.email || params.email_on_fail) {
         NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
     }
+    NfcoreTemplate.dump_parameters(workflow, params)
     NfcoreTemplate.summary(workflow, params, log)
     if (params.hook_url) {
         NfcoreTemplate.adaptivecard(workflow, params, summary_params, projectDir, log)
