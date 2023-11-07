@@ -93,6 +93,8 @@ SAMPLE1,SAMPLE1_R1.fastq.gz,SAMPLE1_R2.fastq.gz,control
 
 For more details on how to build a sample sheet, please refer to the [usage documentation](https://nf-co.re/crisprseq/usage)
 
+-->
+
 Now, you can run the pipeline using:
 
 ```bash
