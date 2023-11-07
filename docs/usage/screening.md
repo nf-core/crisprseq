@@ -48,22 +48,19 @@ An [example](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/br
 
 After the alignment step, the pipeline currently supports 3 algorithms to detect gene essentiality, MAGeCK rra, MAGeCK mle and BAGEL2. MAGeCK MLE (Maximum Likelihood Estimation) and MAGeCK RRA (Robust Ranking Aggregation) are two different methods provided by the MAGeCK software package to analyze CRISPR-Cas9 screens. BAGEL2 identifies gene essentiality through Bayesian Analysis.
 
-
-
 ### MAGeCK rra
 
 MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, `--rra_contrasts` contains two columns : treatment and reference. These two columns should be separated with a dot comma (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma separating them. Please find an example here below :
 
-| treatment | reference |
-|-----------------------|-------------------|
-| treatment1            | control1          |
-| treatment1,treatment2 | control1,control2 |
-|-----------------------|-------------------|
-| treatment1            | control1          |
+| treatment               | reference           |
+| ----------------------- | ------------------- |
+| treatment1              | control1            |
+| treatment1,treatment2   | control1,control2   |
+| ----------------------- | ------------------- |
+| treatment1              | control1            |
 
 A full example can be found here :
 #TODO: add link to rawcontent of nf-core test
-
 
 ### MAGeCK mle
 
