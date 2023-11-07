@@ -70,7 +70,6 @@ to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/i
 with `-profile test` before running the workflow on actual data.
 :::
 
-
 First, prepare a samplesheet with your input data that looks as follows:
 
 `samplesheet.csv`:
@@ -113,13 +112,10 @@ For more details about the output files and reports, please refer to the
 
 ## Credits
 
-nf-core/crisprseq was originally written by Júlia Mir Pedrol, Laurence Kuhlburger.
-
-nf-core/crisprseq targeted is based on [CRISPR-A](https://doi.org/10.1101/2022.09.02.506351) [[Sanvicente-García, et.al. (2023)](https://doi.org/10.1371/journal.pcbi.1011137)], originally written by Marta Sanvicente García at [Translational Synthetic Biology](https://synbio.upf.edu/) from [Universitat Pompeu Fabra](https://www.upf.edu/home).	nf-core/crisprseq was originally written by Júlia Mir Pedrol, Laurence Kuhlburger.
+nf-core/crisprseq targeted is based on [CRISPR-A](https://doi.org/10.1101/2022.09.02.506351) [[Sanvicente-García, et.al. (2023)](https://doi.org/10.1371/journal.pcbi.1011137)], originally written by Marta Sanvicente García at [Translational Synthetic Biology](https://synbio.upf.edu/) from [Universitat Pompeu Fabra](https://www.upf.edu/home). nf-core/crisprseq was originally written by Júlia Mir Pedrol, Laurence Kuhlburger.
 It was re-written in Nextflow DSL2 and is primarily maintained by Júlia Mir Pedrol (@mirpedrol) at [Quantitative Biology Center (QBiC)](https://www.qbic.uni-tuebingen.de/) from [Universität Tübingen](https://uni-tuebingen.de/en/).
 
 nf-core/crisprseq screening was written and is primarly maintained by Laurence Kuhlburger (@LaurenceKuhl) at [Quantitative Biology Center (QBiC)](https://www.qbic.uni-tuebingen.de/) from [Universität Tübingen](https://uni-tuebingen.de/en/).
-
 
 <!--We thank the following people for their extensive assistance in the development of this pipeline:
 
