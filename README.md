@@ -110,13 +110,22 @@ For more details about the output files and reports, please refer to the
 ## Credits
 
 nf-core/crisprseq targeted is based on [CRISPR-A](https://doi.org/10.1101/2022.09.02.506351) [[Sanvicente-García, et.al. (2023)](https://doi.org/10.1371/journal.pcbi.1011137)], originally written by Marta Sanvicente García at [Translational Synthetic Biology](https://synbio.upf.edu/) from [Universitat Pompeu Fabra](https://www.upf.edu/home).
-It was re-written in Nextflow DSL2 and is primarily maintained by Júlia Mir Pedrol (@mirpedrol) at [Quantitative Biology Center (QBiC)](https://www.qbic.uni-tuebingen.de/) from [Universität Tübingen](https://uni-tuebingen.de/en/).
+It was re-written in Nextflow DSL2 and is primarily maintained by Júlia Mir Pedrol ([@mirpedrol](https://github.com/mirpedrol)) at [Quantitative Biology Center (QBiC)](https://www.qbic.uni-tuebingen.de/) from [Universität Tübingen](https://uni-tuebingen.de/en/).
 
-nf-core/crisprseq screening was written and is primarly maintained by Laurence Kuhlburger (@LaurenceKuhl) at [Quantitative Biology Center (QBiC)](https://www.qbic.uni-tuebingen.de/) from [Universität Tübingen](https://uni-tuebingen.de/en/).
+nf-core/crisprseq screening was written and is primarly maintained by Laurence Kuhlburger ([@LaurenceKuhl](https://github.com/LaurenceKuhl)) at [Quantitative Biology Center (QBiC)](https://www.qbic.uni-tuebingen.de/) from [Universität Tübingen](https://uni-tuebingen.de/en/).
 
-<!--We thank the following people for their extensive assistance in the development of this pipeline:
+Main developers:
 
- TODO nf-core: If applicable, make list of people who have also contributed -->
+- [@LaurenceKuhl](https://github.com/LaurenceKuhl)
+- [@mirpedrol](https://github.com/mirpedrol)
+
+We thank the following people for their extensive assistance in the development of this pipeline:
+
+- [@ggabernet](https://github.com/ggabernet)
+- [@jianhong](https://github.com/jianhong)
+- [@mashehu](https://github.com/mashehu)
+- [@msanvicente](https://github.com/msanvicente)
+- [@SusiJo](https://github.com/SusiJo)
 
 ## Contributions and Support
 
