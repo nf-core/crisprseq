@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BAGEL2 as a module which detects gene essentiality ([#60](https://github.com/nf-core/crisprseq/pull/60))
 - Add custom plots to MultiQC report (cutadapt module, read processing, edition, edition QC) ([#64](https://github.com/nf-core/crisprseq/pull/64))
 
-
 ### Fixed
 
 - Change to `process_high` for the mageck mle module ([#60](https://github.com/nf-core/crisprseq/pull/60)

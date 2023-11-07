@@ -119,7 +119,6 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 [bagel2](https://github.com/hart-lab/bagel) is a computational tool to identify important essential genes for CRISPR-Cas9 screening experiments.
 
-
 ## MultiQC
 
 <details markdown="1">
