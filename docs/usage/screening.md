@@ -41,11 +41,26 @@ SRR8983580,SRR8983580.small.fastq.gz,,treatment
 
 An [example samplesheet](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/samplesheet_test.csv) has been provided with the pipeline.
 
-The pipeline currently supports 2 algorithms to detect gene essentiality, MAGeCK rra and MAGeCK mle. MAGeCK MLE (Maximum Likelihood Estimation) and MAGeCK RRA (Robust Ranking Aggregation) are two different methods provided by the MAGeCK software package to analyze CRISPR-Cas9 screens.
+### library
+
+If you are running the pipeline with fastq files and wish to obtain a count table, the library parameter is needed. The library table has three mandatory columns : id, target transcript (or gRNA sequence) and gene symbol.
+An [example](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/brunello_target_sequence.txt) has been provided with the pipeline. Many libraries can be found on [addgene](https://www.addgene.org/).
+
+After the alignment step, the pipeline currently supports 3 algorithms to detect gene essentiality, MAGeCK rra, MAGeCK mle and BAGEL2. MAGeCK MLE (Maximum Likelihood Estimation) and MAGeCK RRA (Robust Ranking Aggregation) are two different methods provided by the MAGeCK software package to analyze CRISPR-Cas9 screens. BAGEL2 identifies gene essentiality through Bayesian Analysis.
 
 ### MAGeCK rra
 
-MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, `--rra_contrasts` should be used with a `csv` separated file stating the two conditions to be compared.
+MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, `--rra_contrasts` contains two columns : treatment and reference. These two columns should be separated with a dot comma (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma separating them. Please find an example here below :
+
+| treatment               | reference           |
+| ----------------------- | ------------------- |
+| treatment1              | control1            |
+| treatment1,treatment2   | control1,control2   |
+| ----------------------- | ------------------- |
+| treatment1              | control1            |
+
+A full example can be found here :
+#TODO: add link to rawcontent of nf-core test
 
 ### MAGeCK mle
 
@@ -57,7 +72,10 @@ If there are several designs to be run, you can input a folder containing all th
 
 CRISPRcleanR is used for gene count normalization and the removal of biases for genomic segments for which copy numbers are amplified. Currently, the pipeline only supports annotation libraries already present in the R package and which can be found [here](https://github.com/francescojm/CRISPRcleanR/blob/master/Reference_Manual.pdf). To use CRISPRcleanR normalization, use `--crisprcleanr library`, `library` being the exact name as the library in the CRISPRcleanR documentation (e.g: "AVANA_Library").
 
-This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
+### BAGEL2
+
+BAGEL2 (Bayesian Analysis of Gene Essentiality with Location) is a computational tool developed by the Hart Lab at Harvard University. It is designed for analyzing large-scale genetic screens, particularly CRISPR-Cas9 screens, to identify genes that are essential for the survival or growth of cells under different conditions. BAGEL2 integrates information about the location of guide RNAs within a gene and leverages this information to improve the accuracy of gene essentiality predictions.
+BAGEL2 uses the same contrasts from `--rra_contrasts`.
 
 Note that the pipeline will create the following files in your working directory:
 

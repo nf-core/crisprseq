@@ -16,7 +16,7 @@
 
 - [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
-  > Andrews, S. (2010). FastQC: A Quality Control Tool for High Throughput Sequence Data [Online]. Available online https://www.bioinformatics.babraham.ac.uk/projects/fastqc/.
+  > Andrews, S. (2010). FastQC: A Quality Control Tool for High Throughput Sequence Data [Online].
 
 - [MultiQC](https://pubmed.ncbi.nlm.nih.gov/27312411/)
 
@@ -62,6 +62,10 @@
 - [CRISPRcleanR](https://pubmed.ncbi.nlm.nih.gov/30103702/)
 
   > Li, W. et al. Quality control, modeling, and visualization of CRISPR screens with MAGeCK-VISPR. Genome Biology 16, 281, doi:10.1186/s13059-015-0843-6 (2015).
+
+- [BAGEL2](https://pubmed.ncbi.nlm.nih.gov/33407829/)
+
+  > Kim E, Hart T. Improved analysis of CRISPR fitness screens and reduced off-target effects with the BAGEL2 gene essentiality classifier. Genome Med. 2021 Jan 6;13(1):2. doi: 10.1186/s13073-020-00809-3. PMID: 33407829; PMCID: PMC7789424.
 
 - [BioContainers](https://pubmed.ncbi.nlm.nih.gov/28379341/)
 
