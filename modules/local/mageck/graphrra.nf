@@ -43,8 +43,8 @@ process MAGECK_GRAPHRRA {
     gdata <- transform(gdata, Rank = rank(Score))
     png(filename = paste0("$meta.treatment","_vs_","$meta.reference","_rank.png"), width = 6, height = 4, units = "in", res = 300)
     p1 = ScatterView(gdata, x = "Rank", y = "Score", label = "id",
-                 top = 5, auto_cut_y = TRUE, ylab = "Log2FC",
-                 groups = c("top", "bottom"))
+                top = 5, auto_cut_y = TRUE, ylab = "Log2FC",
+                groups = c("top", "bottom"))
     print(p1)
     dev.off()
 
