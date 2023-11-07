@@ -22,12 +22,12 @@ process MAGECK_GRAPHRRA {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
+    #!/usr/bin/env Rscript
     #### author: Laurence Kuhlburger
     #### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
     ####
     #### Orient a reference sequence according to reads orientation.
 
-    #!/usr/bin/env Rscript
     library(MAGeCKFlute)
     library(ggplot2)
     options(ggrepel.max.overlaps = Inf)
