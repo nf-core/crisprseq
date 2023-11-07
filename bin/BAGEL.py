@@ -37,22 +37,21 @@ SOFTWARE.
 """
 
 
+import sys
+import time
 
 import click
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
 from sklearn.linear_model import LinearRegression
-import sys
-import time
 
 VERSION = 2.0
 
 BUILD = 115
 
 
-
-'''
+"""
 Update history
 
 Build 115
@@ -77,26 +76,23 @@ Build 110
 2. Now user can input column names
 3. Fix Threshold function
 
-'''
+"""
 
 
 class OptionRequiredIf(click.Option):
-
     def full_process_value(self, ctx, value):
         value = super(OptionRequiredIf, self).full_process_value(ctx, value)
 
-        if value is None and ctx.params['filter_multi_target'] is True:
-            msg = 'Error! Multi-target-filtering selected and not align-info provided.\n' \
-                  'Please indicate align-info file.'
+        if value is None and ctx.params["filter_multi_target"] is True:
+            msg = (
+                "Error! Multi-target-filtering selected and not align-info provided.\n"
+                "Please indicate align-info file."
+            )
             raise click.MissingParameter(ctx=ctx, param=self, message=msg)
         return value
 
 
-
-
-
-
-CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
 def round_to_hundredth(x):
@@ -109,7 +105,6 @@ def func_linear(x, a, b):
 
 class Training:
     def __init__(self, X, n=None, cvnum=10):
-
         if n == None:
             self._n = len(X)
         self._cvnum = cvnum
@@ -117,7 +112,6 @@ class Training:
         self._bucket = np.arange(len(X))
         self._X = X
         self._step = 0
-
 
     def cross_validation(self):
         if self._bid < 1:  # bid check
@@ -157,7 +151,7 @@ class Training:
         elif method == 1:
             train, test = self.cross_validation()
         else:
-            print('Method passed as a value that was neither 0 nor 1.')
+            print("Method passed as a value that was neither 0 nor 1.")
             sys.exit(1)
         return train, test
 
@@ -208,24 +202,24 @@ def bagel():
     """
 
 
-@click.command(name='version')
+@click.command(name="version")
 def report_bagel_version():
     """
     Report the current build and version no.
     """
     print(
-        'Bayesian Analysis of Gene EssentiaLity (BAGEL) suite:\n'
-        'Version: {VERSION}\n'
-        'Build: {BUILD}'.format(VERSION=VERSION, BUILD=BUILD)
+        "Bayesian Analysis of Gene EssentiaLity (BAGEL) suite:\n"
+        "Version: {VERSION}\n"
+        "Build: {BUILD}".format(VERSION=VERSION, BUILD=BUILD)
     )
 
 
-@click.command(name='fc')
-@click.option('-i', '--read-count-file', required=True, type=click.Path(exists=True))
-@click.option('-o', '--output-label', required=True)
-@click.option('-c', '--control-columns', required=True)
-@click.option('-m', '--min-reads', type=int, default=0)
-@click.option('-Np', '--pseudo-count', type=int, default=5)
+@click.command(name="fc")
+@click.option("-i", "--read-count-file", required=True, type=click.Path(exists=True))
+@click.option("-o", "--output-label", required=True)
+@click.option("-c", "--control-columns", required=True)
+@click.option("-m", "--min-reads", type=int, default=0)
+@click.option("-Np", "--pseudo-count", type=int, default=5)
 def calculate_fold_change(read_count_file, output_label, control_columns, min_reads, pseudo_count):
     """
     \b
@@ -259,9 +253,9 @@ def calculate_fold_change(read_count_file, output_label, control_columns, min_re
     #  Import raw read data, normalize, filter for T0 min read counts  #
     #  Output:   [output label].foldchange                             #
     # ---------------------------------------------------------------- #
-    reads = pd.read_csv(read_count_file, sep='\t', index_col=0)
+    reads = pd.read_csv(read_count_file, sep="\t", index_col=0)
 
-    reads[reads.columns.values[0]].fillna('NO_GENE_NAME', inplace=True)
+    reads[reads.columns.values[0]].fillna("NO_GENE_NAME", inplace=True)
     reads.fillna(0, inplace=True)
     control_columns = control_columns.split(",")
     #
@@ -277,7 +271,7 @@ def calculate_fold_change(read_count_file, output_label, control_columns, min_re
 
         ctrl_sum = reads[ctrl_labels].sum(axis=1)
         reads.drop(ctrl_labels, axis=1, inplace=True)
-        ctrl_label_new = ';'.join(ctrl_labels)
+        ctrl_label_new = ";".join(ctrl_labels)
         reads[ctrl_label_new] = ctrl_sum
     except:
         print(reads[ctrl_labels].sum(axis=1))
@@ -298,9 +292,10 @@ def calculate_fold_change(read_count_file, output_label, control_columns, min_re
     #
     sumReads = reads.iloc[:, list(range(1, numColumns))].sum(0)
     normed = pd.DataFrame(index=reads.index.values)
-    normed['GENE'] = reads.iloc[:, 0]  # first column is gene name
-    normed = reads.iloc[:, list(range(1, numColumns))] / np.tile(sumReads,
-                                                                 [numClones, 1]) * 10000000  # normalize to 10M reads
+    normed["GENE"] = reads.iloc[:, 0]  # first column is gene name
+    normed = (
+        reads.iloc[:, list(range(1, numColumns))] / np.tile(sumReads, [numClones, 1]) * 10000000
+    )  # normalize to 10M reads
 
     #
     # filter for minimum readcount
@@ -312,8 +307,8 @@ def calculate_fold_change(read_count_file, output_label, control_columns, min_re
     # calculate fold change
     #
     foldchange = pd.DataFrame(index=normed.index.values)
-    foldchange.index.name = 'REAGENT_ID'
-    foldchange['GENE'] = reads.iloc[f, 0]  # dataframe 'normed' has no GENE column
+    foldchange.index.name = "REAGENT_ID"
+    foldchange["GENE"] = reads.iloc[f, 0]  # dataframe 'normed' has no GENE column
     for i in range(numColumns - 1):
         foldchange[normed.columns.values[i]] = np.log2(
             (normed.loc[:, normed.columns.values[i]]) / normed[ctrl_label_new]
@@ -328,39 +323,57 @@ def calculate_fold_change(read_count_file, output_label, control_columns, min_re
     # write foldchange file
     #
 
-    foldchange_filename = output_label + '.foldchange'
-    foldchange.to_csv(foldchange_filename, sep='\t', float_format='%4.3f')
+    foldchange_filename = output_label + ".foldchange"
+    foldchange.to_csv(foldchange_filename, sep="\t", float_format="%4.3f")
 
-    normedreads_filename = output_label + '.normed_readcount'
-    normed.to_csv(normedreads_filename, sep='\t', float_format='%3.2f')
+    normedreads_filename = output_label + ".normed_readcount"
+    normed.to_csv(normedreads_filename, sep="\t", float_format="%3.2f")
 
 
-@click.command(name='bf')
-@click.option('-i', '--fold-change', required=True, type=click.Path(exists=True))
-@click.option('-o', '--output-file', required=True)
-@click.option('-e', '--essential-genes', required=True, type=click.Path(exists=True))
-@click.option('-n', '--non-essential-genes', required=True, type=click.Path(exists=True))
-@click.option('-c', '--columns-to-test', required=True)
-@click.option('-w', '--network-file', metavar='[network File]', default=None, type=click.Path(exists=True))
-@click.option('-m', '--filter-multi-target', is_flag=True)
-@click.option('-m0', '--loci-without-mismatch', type=int, default=10)
-@click.option('-m1', '--loci-with-mismatch', type=int, default=10)
-@click.option('--align-info', metavar='--align-info [File]', default=None,
-              type=click.Path(exists=True), cls=OptionRequiredIf)
-@click.option('-b', '--use-bootstrapping', is_flag=True)
-@click.option('-NS', '--no-resampling', is_flag=True)
-@click.option('-s', '--use-small-sample', is_flag=True)
-@click.option('-N', '--no-of-cross-validations', type=int, default=10)
-@click.option('-NB', '--bootstrap-iterations', type=int, default=1000)
-@click.option('-r', '--sgrna-bayes-factors', is_flag=True)
-@click.option('-f', '--equalise-sgrna-no', type=int)
-@click.option('-s', '--seed', default=int(time.time() * 100000 % 100000), type=int)
-@click.option('-t', '--run-test-mode', is_flag=True)
-@click.option('-p', '--equalise-rep-no', type=int)
+@click.command(name="bf")
+@click.option("-i", "--fold-change", required=True, type=click.Path(exists=True))
+@click.option("-o", "--output-file", required=True)
+@click.option("-e", "--essential-genes", required=True, type=click.Path(exists=True))
+@click.option("-n", "--non-essential-genes", required=True, type=click.Path(exists=True))
+@click.option("-c", "--columns-to-test", required=True)
+@click.option("-w", "--network-file", metavar="[network File]", default=None, type=click.Path(exists=True))
+@click.option("-m", "--filter-multi-target", is_flag=True)
+@click.option("-m0", "--loci-without-mismatch", type=int, default=10)
+@click.option("-m1", "--loci-with-mismatch", type=int, default=10)
+@click.option(
+    "--align-info", metavar="--align-info [File]", default=None, type=click.Path(exists=True), cls=OptionRequiredIf
+)
+@click.option("-b", "--use-bootstrapping", is_flag=True)
+@click.option("-NS", "--no-resampling", is_flag=True)
+@click.option("-s", "--use-small-sample", is_flag=True)
+@click.option("-N", "--no-of-cross-validations", type=int, default=10)
+@click.option("-NB", "--bootstrap-iterations", type=int, default=1000)
+@click.option("-r", "--sgrna-bayes-factors", is_flag=True)
+@click.option("-f", "--equalise-sgrna-no", type=int)
+@click.option("-s", "--seed", default=int(time.time() * 100000 % 100000), type=int)
+@click.option("-t", "--run-test-mode", is_flag=True)
+@click.option("-p", "--equalise-rep-no", type=int)
 def calculate_bayes_factors(
-        fold_change, output_file, essential_genes, non_essential_genes, columns_to_test, network_file, align_info,
-        use_bootstrapping, no_resampling, use_small_sample, filter_multi_target, loci_without_mismatch, loci_with_mismatch,
-        bootstrap_iterations, no_of_cross_validations, sgrna_bayes_factors, equalise_sgrna_no, seed, run_test_mode, equalise_rep_no
+    fold_change,
+    output_file,
+    essential_genes,
+    non_essential_genes,
+    columns_to_test,
+    network_file,
+    align_info,
+    use_bootstrapping,
+    no_resampling,
+    use_small_sample,
+    filter_multi_target,
+    loci_without_mismatch,
+    loci_with_mismatch,
+    bootstrap_iterations,
+    no_of_cross_validations,
+    sgrna_bayes_factors,
+    equalise_sgrna_no,
+    seed,
+    run_test_mode,
+    equalise_rep_no,
 ):
     """
     \b
@@ -460,7 +473,6 @@ def calculate_bayes_factors(
     multi_targeting_sgrnas_info = dict()
 
     if filter_multi_target:
-
         try:
             aligninfo = pd.read_csv(align_info, header=None, index_col=0, sep="\t").fillna("")
             for seqid in aligninfo.index:
@@ -480,7 +492,10 @@ def calculate_bayes_factors(
                     multi_targeting_sgrnas[seqid] = True
                 elif perfectmatch > 1 or mismatch_1bp > 0:
                     multi_targeting_sgrnas_info[seqid] = (
-                        perfectmatch, mismatch_1bp, perfectmatch_gene, mismatch_1bp_gene
+                        perfectmatch,
+                        mismatch_1bp,
+                        perfectmatch_gene,
+                        mismatch_1bp_gene,
                     )
 
         except:
@@ -494,19 +509,20 @@ def calculate_bayes_factors(
     #
     rnatagset = set()
     with open(fold_change) as fin:
-        fieldname = fin.readline().rstrip().split('\t')
+        fieldname = fin.readline().rstrip().split("\t")
         #
         # DEFINE CONTROLS
         #
-        columns = columns_to_test.split(',')
+        columns = columns_to_test.split(",")
         try:
             try:
                 column_list = list(map(int, columns))
                 column_labels = [fieldname[x + 1] for x in column_list]
             except ValueError:
                 column_labels = columns
-                column_list = [x for x in range(len(fieldname) - 1) if
-                               fieldname[x + 1] in column_labels]  # +1 because of First column start 2
+                column_list = [
+                    x for x in range(len(fieldname) - 1) if fieldname[x + 1] in column_labels
+                ]  # +1 because of First column start 2
             print("Using column:  " + ", ".join(column_labels))
         # print "Using column:  " + ", ".join(map(str,column_list))
 
@@ -515,7 +531,7 @@ def calculate_bayes_factors(
             sys.exit(1)
 
         for line in fin:
-            fields = line.rstrip().split('\t')
+            fields = line.rstrip().split("\t")
             rnatag = fields[0]
             if filter_multi_target is True:  # multitargeting sgrna filtering
                 if rnatag in multi_targeting_sgrnas:
@@ -547,7 +563,7 @@ def calculate_bayes_factors(
     with open(essential_genes) as fin:
         skip_header = fin.readline()
         for line in fin:
-            coreEss.append(line.rstrip().split('\t')[0])
+            coreEss.append(line.rstrip().split("\t")[0])
     coreEss = np.array(coreEss)
     print("Number of reference essentials: " + str(len(coreEss)))
 
@@ -555,7 +571,7 @@ def calculate_bayes_factors(
     with open(non_essential_genes) as fin:
         skip_header = fin.readline()
         for line in fin:
-            nonEss.append(line.rstrip().split('\t')[0])
+            nonEss.append(line.rstrip().split("\t")[0])
 
     nonEss = np.array(nonEss)
     print("Number of reference nonessentials: " + str(len(nonEss)))
@@ -569,7 +585,7 @@ def calculate_bayes_factors(
         edgecount = 0
         with open(network_file) as fin:
             for line in fin:
-                linearray = line.rstrip().split('\t')  # GeneA \t GeneB format
+                linearray = line.rstrip().split("\t")  # GeneA \t GeneB format
                 if linearray[0] in genes_array and linearray[1] in genes_array:
                     for i in [0, 1]:
                         if linearray[i] not in network:
@@ -586,8 +602,7 @@ def calculate_bayes_factors(
     # Define foldchange dynamic threshold. logarithm decay.
     # Parameters are defined by regression (achilles data)  2**-7 was used in previous version.
 
-    FC_THRESH = 2 ** (-1.1535 * np.log(len(np.intersect1d(genes_array,
-                                                          nonEss)) + 13.324) + 0.7728)
+    FC_THRESH = 2 ** (-1.1535 * np.log(len(np.intersect1d(genes_array, nonEss)) + 13.324) + 0.7728)
     bf = {}
     boostedbf = {}
     for g in genes_array:
@@ -603,8 +618,9 @@ def calculate_bayes_factors(
         # declare training class
         # training_data = Training(setdiff1d(gene_idx,np.where(in1d(genes_array,coreEss))),cvnum=NUMCV)
         # declare training class (only for Gold-standard gene set)
-        training_data = Training(np.where(np.in1d(genes_array, np.union1d(coreEss, nonEss)))[0],
-                                 cvnum=no_of_cross_validations)
+        training_data = Training(
+            np.where(np.in1d(genes_array, np.union1d(coreEss, nonEss)))[0], cvnum=no_of_cross_validations
+        )
         # all non-goldstandards
         all_non_gs = np.where(np.logical_not(np.in1d(genes_array, np.union1d(coreEss, nonEss))))[0]
     else:
@@ -649,7 +665,8 @@ def calculate_bayes_factors(
 
         if run_test_mode:
             fp.write(
-                "%d\n%s\n%s\n" % (loop, ",".join(genes_array[gene_train_idx]), ",".join(genes_array[gene_test_idx])))
+                "%d\n%s\n%s\n" % (loop, ",".join(genes_array[gene_train_idx]), ",".join(genes_array[gene_test_idx]))
+            )
 
         train_ess = np.where(np.in1d(genes_array[gene_train_idx], coreEss))[0]
         train_non = np.where(np.in1d(genes_array[gene_train_idx], nonEss))[0]
@@ -661,14 +678,16 @@ def calculate_bayes_factors(
         #
         # define ess_train: vector of observed fold changes of essential genes in training set
         #
-        ess_train_fc_list_of_lists = [fc[rnatag] for g in genes_array[gene_train_idx[train_ess]] for rnatag in
-                                      gene2rna[g]]
+        ess_train_fc_list_of_lists = [
+            fc[rnatag] for g in genes_array[gene_train_idx[train_ess]] for rnatag in gene2rna[g]
+        ]
         ess_train_fc_flat_list = [obs for sublist in ess_train_fc_list_of_lists for obs in list(sublist.values())]
         #
         # define non_train vector of observed fold changes of nonessential genes in training set
         #
-        non_train_fc_list_of_lists = [fc[rnatag] for g in genes_array[gene_train_idx[train_non]] for rnatag in
-                                      gene2rna[g]]
+        non_train_fc_list_of_lists = [
+            fc[rnatag] for g in genes_array[gene_train_idx[train_non]] for rnatag in gene2rna[g]
+        ]
         non_train_fc_flat_list = [obs for sublist in non_train_fc_list_of_lists for obs in list(sublist.values())]
         #
         # calculate empirical fold change distributions for both
@@ -781,21 +800,24 @@ def calculate_bayes_factors(
 
             if len(onlytarget) > 0:  # comparsion between sgRNAs targeting one locus and multiple loci
                 if len(multitarget) > 0:
-
                     bf_only = np.mean([sum(list(bf_mean_rna_rep[seqid].values())) for seqid in onlytarget])
                     for seqid in onlytarget:
                         trainset[seqid] = [1, 0, 0]
 
                     for seqid in multitarget:
-                        if multi_targeting_sgrnas_info[seqid][2] > 1 or multi_targeting_sgrnas_info[seqid][
-                            3] > 0:  # train model using multi-targeting only targeting one protein coding gene
+                        if (
+                            multi_targeting_sgrnas_info[seqid][2] > 1 or multi_targeting_sgrnas_info[seqid][3] > 0
+                        ):  # train model using multi-targeting only targeting one protein coding gene
                             continue
 
                         count += 1
                         increment = sum(list(bf_mean_rna_rep[seqid].values())) - bf_only
 
-                        trainset[seqid] = [multi_targeting_sgrnas_info[seqid][0], multi_targeting_sgrnas_info[seqid][1],
-                                           increment]
+                        trainset[seqid] = [
+                            multi_targeting_sgrnas_info[seqid][0],
+                            multi_targeting_sgrnas_info[seqid][1],
+                            increment,
+                        ]
 
         if count < 10:
             print("Not enough train set for calculating multi-targeting effect.\n")
@@ -804,35 +826,40 @@ def calculate_bayes_factors(
             filter_multi_target = False
 
         else:
-
             trainset = pd.DataFrame().from_dict(trainset).T
             X = trainset[[0, 1]]
             y = trainset[2]
 
             regressor = LinearRegression()
             regressor.fit(X, y)
-            coeff_df = pd.DataFrame(regressor.coef_, X.columns, columns=['Coefficient'])
+            coeff_df = pd.DataFrame(regressor.coef_, X.columns, columns=["Coefficient"])
             for i in [0, 1]:
-                if coeff_df['Coefficient'][i] < 0:
+                if coeff_df["Coefficient"][i] < 0:
                     print("Regression coefficient is below than zero. Substituted to zero\n")
-                    coeff_df['Coefficient'][i] = 0.0
-            print("Multiple effects from perfect matched loci = %.3f and 1bp mis-matched loci = %.3f" % (
-                coeff_df['Coefficient'][0], coeff_df['Coefficient'][1]))
+                    coeff_df["Coefficient"][i] = 0.0
+            print(
+                "Multiple effects from perfect matched loci = %.3f and 1bp mis-matched loci = %.3f"
+                % (coeff_df["Coefficient"][0], coeff_df["Coefficient"][1])
+            )
 
             if rna_level == False:
                 for g in gene2rna:
                     penalty = 0.0
                     for seqid in gene2rna[g]:
                         if seqid in multi_targeting_sgrnas_info:
-                            penalty += float(multi_targeting_sgrnas_info[seqid][0] - 1) * coeff_df['Coefficient'][
-                                0] + float(multi_targeting_sgrnas_info[seqid][1]) * coeff_df['Coefficient'][1]
+                            penalty += (
+                                float(multi_targeting_sgrnas_info[seqid][0] - 1) * coeff_df["Coefficient"][0]
+                                + float(multi_targeting_sgrnas_info[seqid][1]) * coeff_df["Coefficient"][1]
+                            )
                     bf_multi_corrected_gene[g] = bf_mean[g] - penalty
             else:
                 for g in gene2rna:
                     for seqid in gene2rna[g]:
                         if seqid in multi_targeting_sgrnas_info:
-                            penalty = float(multi_targeting_sgrnas_info[seqid][0] - 1) * coeff_df['Coefficient'][
-                                0] + float(multi_targeting_sgrnas_info[seqid][1]) * coeff_df['Coefficient'][1]
+                            penalty = (
+                                float(multi_targeting_sgrnas_info[seqid][0] - 1) * coeff_df["Coefficient"][0]
+                                + float(multi_targeting_sgrnas_info[seqid][1]) * coeff_df["Coefficient"][1]
+                            )
                         else:
                             penalty = 0.0
                         bf_multi_corrected_rna[seqid] = sum(list(bf_mean_rna_rep[seqid].values())) - penalty
@@ -850,12 +877,12 @@ def calculate_bayes_factors(
             multiple_factor = equalise_sgrna_no / float(len(gene2rna[g]))
             bf_norm[g] = targetbf[g] * multiple_factor
 
-    '''
+    """
     if bf_std[rnatag] == 0.0:
         bf_norm[rnatag] = float('inf')
     else:
         bf_norm[g] = ( bf[rnatag] - bf_mean[rnatag] ) / bf_std[rnatag]
-    '''
+    """
     training_data = Training(gene_idx)  # set training class reset
 
     #
@@ -961,102 +988,100 @@ def calculate_bayes_factors(
         if run_test_mode == True:
             fp.close()
 
-
-
-
     #
     # print out results
     #
 
     # Equalizing factor (Replicates)
-    if flat_rep==True:
-        eqf = equalise_rep_no/float(len(column_labels))
+    if flat_rep == True:
+        eqf = equalise_rep_no / float(len(column_labels))
     else:
         eqf = 1
 
     # print out
-    with open(output_file, 'w') as fout:
-
+    with open(output_file, "w") as fout:
         if rna_level == True:
-            fout.write('RNA\tGENE')
+            fout.write("RNA\tGENE")
             for i in range(len(column_list)):
-                fout.write('\t{0:s}'.format(column_labels[i]))
+                fout.write("\t{0:s}".format(column_labels[i]))
                 if train_method == 0:
-                    fout.write('\t{0:s}'.format(column_labels[i] + "_STD"))
-            fout.write('\tBF')
+                    fout.write("\t{0:s}".format(column_labels[i] + "_STD"))
+            fout.write("\tBF")
             if train_method == 0:
-                fout.write('\tNumObs')
-            fout.write('\n')
+                fout.write("\tNumObs")
+            fout.write("\n")
 
             for rnatag in sorted(bf.keys()):
                 # RNA tag
-                fout.write('{0:s}\t'.format(rnatag))
+                fout.write("{0:s}\t".format(rnatag))
                 # Gene
                 gene = rna2gene[rnatag]
-                fout.write('{0:s}\t'.format(gene))
+                fout.write("{0:s}\t".format(gene))
 
                 # BF of replicates
                 for rep in column_list:
-                    fout.write('{0:4.3f}\t'.format(bf_mean_rna_rep[rnatag][rep]))
+                    fout.write("{0:4.3f}\t".format(bf_mean_rna_rep[rnatag][rep]))
                     if train_method == 0:
-                        fout.write('{0:4.3f}\t'.format(bf_std_rna_rep[rnatag][rep]))
+                        fout.write("{0:4.3f}\t".format(bf_std_rna_rep[rnatag][rep]))
 
                 # Sum BF of replicates
                 if filter_multi_target == True:
-                    fout.write('{0:4.3f}'.format(float(bf_multi_corrected_rna[rnatag]) * eqf))  # eqf = equalizing factor for the number of replicates
+                    fout.write(
+                        "{0:4.3f}".format(float(bf_multi_corrected_rna[rnatag]) * eqf)
+                    )  # eqf = equalizing factor for the number of replicates
                 else:
-                    fout.write('{0:4.3f}'.format(float(sum(list(bf_mean_rna_rep[rnatag].values()))) * eqf))
+                    fout.write("{0:4.3f}".format(float(sum(list(bf_mean_rna_rep[rnatag].values()))) * eqf))
 
                 # Num obs
                 if train_method == 0:
-                    fout.write('\t{0:d}'.format(num_obs[gene]))
-                fout.write('\n')
+                    fout.write("\t{0:d}".format(num_obs[gene]))
+                fout.write("\n")
         else:
-            fout.write('GENE')
+            fout.write("GENE")
             if network_boost == True:
-                fout.write('\tBoostedBF')
+                fout.write("\tBoostedBF")
                 if train_method == 0:
-                    fout.write('\tSTD_BoostedBF')
-            fout.write('\tBF')
+                    fout.write("\tSTD_BoostedBF")
+            fout.write("\tBF")
             if train_method == 0:
-                fout.write('\tSTD\tNumObs')
+                fout.write("\tSTD\tNumObs")
             if flat_sgrna == True:
-                fout.write('\tNormBF')
-            fout.write('\n')
+                fout.write("\tNormBF")
+            fout.write("\n")
 
             for g in sorted(genes.keys()):
                 # Gene
-                fout.write('{0:s}'.format(g))
+                fout.write("{0:s}".format(g))
                 if network_boost == True:
                     boostedbf_mean = np.mean(boostedbf[g])
                     boostedbf_std = np.std(boostedbf[g])
-                    fout.write('\t{0:4.3f}'.format(float(boostedbf_mean) * eqf))
+                    fout.write("\t{0:4.3f}".format(float(boostedbf_mean) * eqf))
                     if train_method == 0:
-                        fout.write('\t{0:4.3f}'.format(float(boostedbf_std) * eqf))
+                        fout.write("\t{0:4.3f}".format(float(boostedbf_std) * eqf))
 
                 # BF
                 if filter_multi_target == True:
-                    fout.write('\t{0:4.3f}'.format(float(bf_multi_corrected_gene[g]) * eqf))  # eqf = equalizing factor for the number of replicates
+                    fout.write(
+                        "\t{0:4.3f}".format(float(bf_multi_corrected_gene[g]) * eqf)
+                    )  # eqf = equalizing factor for the number of replicates
                 else:
-                    fout.write('\t{0:4.3f}'.format(float(bf_mean[g]) * eqf ))
+                    fout.write("\t{0:4.3f}".format(float(bf_mean[g]) * eqf))
                 # STD, Count
                 if train_method == 0:
-                    fout.write('\t{0:4.3f}\t{1:d}'.format(float(bf_std[g]), num_obs[g]))
+                    fout.write("\t{0:4.3f}\t{1:d}".format(float(bf_std[g]), num_obs[g]))
                 # Normalized BF
                 if flat_sgrna == True:
-                    fout.write('\t{0:4.3f}'.format(float(bf_norm[g])))
+                    fout.write("\t{0:4.3f}".format(float(bf_norm[g])))
 
-                fout.write('\n')
+                fout.write("\n")
 
 
-@click.command(name='pr')
-@click.option('-i', '--bayes-factors', required=True,
-              type=click.Path(exists=True))
-@click.option('-o', '--output-file', required=True)
-@click.option('-e', '--essential-genes', required=True,
-              type=click.Path(exists=True))
-@click.option('-n', '--non-essential-genes', required=True, type=click.Path(exists=True))
-@click.option('-k', '--use-column', default=None)
+@click.command(name="pr")
+@click.option("-i", "--bayes-factors", required=True, type=click.Path(exists=True))
+@click.option("-o", "--output-file", required=True)
+@click.option("-e", "--essential-genes", required=True, type=click.Path(exists=True))
+@click.option("-n", "--non-essential-genes", required=True, type=click.Path(exists=True))
+@click.option("-k", "--use-column", default=None)
 def calculate_precision_recall(bayes_factors, output_file, essential_genes, non_essential_genes, use_column):
     """
     Calculate precision-recall from an input Bayes Factors file:
@@ -1093,38 +1118,41 @@ def calculate_precision_recall(bayes_factors, output_file, essential_genes, non_
             print("Error! the column name is not in the file")
             sys.exit(1)
     else:
-        bf_column = 'BF'
+        bf_column = "BF"
 
     bf.sort_values(by=bf_column, ascending=False, inplace=True)
 
-    cumulative_tp = 0.
-    cumulative_fp = 0.
-    precision = 1.
-    recall = 0.
+    cumulative_tp = 0.0
+    cumulative_fp = 0.0
+    precision = 1.0
+    recall = 0.0
     # note float formats
 
     ess = essentials.index.values
     non = nonessentials.index.values
     totNumEssentials = len([x for x in bf.index.values if x in ess])
 
-    with open(output_file, 'w') as fout:
-
-        fout.write('Gene\t')
+    with open(output_file, "w") as fout:
+        fout.write("Gene\t")
         fout.write(bf_column)
-        fout.write('\tRecall\tPrecision\tFDR\n')
+        fout.write("\tRecall\tPrecision\tFDR\n")
 
         for g in bf.index.values:
-            if (g in ess):
+            if g in ess:
                 cumulative_tp += 1
-            elif (g in non):
+            elif g in non:
                 cumulative_fp += 1
             recall = cumulative_tp / totNumEssentials
-            if ((cumulative_tp > 0) | (cumulative_fp > 0)):
+            if (cumulative_tp > 0) | (cumulative_fp > 0):
                 precision = cumulative_tp / (cumulative_tp + cumulative_fp)
-            fout.write('{0:s}\t{1:4.3f}\t{2:4.3f}\t{3:4.3f}\t{4:4.3f}\n'.format(g, bf.loc[g, bf_column], recall, precision, 1.0-precision))
+            fout.write(
+                "{0:s}\t{1:4.3f}\t{2:4.3f}\t{3:4.3f}\t{4:4.3f}\n".format(
+                    g, bf.loc[g, bf_column], recall, precision, 1.0 - precision
+                )
+            )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     bagel.add_command(calculate_fold_change)
     bagel.add_command(calculate_bayes_factors)
     bagel.add_command(calculate_precision_recall)
