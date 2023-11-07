@@ -9,10 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Template update v2.9 ([#52](https://github.com/nf-core/crisprseq/pull/52))
 - Use `Channel.fromSamplesheet()` from `nf-validation` to validate input sample sheets and create an input channel ([#58](https://github.com/nf-core/crisprseq/pull/58))
+- BAGEL2 as a module which detects gene essentiality ([#60](https://github.com/nf-core/crisprseq/pull/60))
 - Add custom plots to MultiQC report (cutadapt module, read processing, edition, edition QC) ([#64](https://github.com/nf-core/crisprseq/pull/64))
 
 ### Fixed
 
+- Change to `process_high` for the mageck mle module ([#60](https://github.com/nf-core/crisprseq/pull/60)
 - Summary processes don't modify the input file anymore, allowing resuming these processes ([#66](https://github.com/nf-core/crisprseq/pull/66))
 - Do not stash unexistent files, use empty lists instead. Fixes AWS tests ([#67](https://github.com/nf-core/crisprseq/pull/67))
 - Rename process `merging_summary` to `preprocessing_summary` to improve clarity ([#69](https://github.com/nf-core/crisprseq/pull/69))

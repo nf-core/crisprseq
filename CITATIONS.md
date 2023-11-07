@@ -63,6 +63,10 @@
 
   > Li, W. et al. Quality control, modeling, and visualization of CRISPR screens with MAGeCK-VISPR. Genome Biology 16, 281, doi:10.1186/s13059-015-0843-6 (2015).
 
+- [BAGEL2](https://pubmed.ncbi.nlm.nih.gov/33407829/)
+
+  > Kim E, Hart T. Improved analysis of CRISPR fitness screens and reduced off-target effects with the BAGEL2 gene essentiality classifier. Genome Med. 2021 Jan 6;13(1):2. doi: 10.1186/s13073-020-00809-3. PMID: 33407829; PMCID: PMC7789424.
+
 - [BioContainers](https://pubmed.ncbi.nlm.nih.gov/28379341/)
 
   > da Veiga Leprevost F, Grüning B, Aflitos SA, Röst HL, Uszkoreit J, Barsnes H, Vaudel M, Moreno P, Gatto L, Weber J, Bai M, Jimenez RC, Sachsenberg T, Pfeuffer J, Alvarez RV, Griss J, Nesvizhskii AI, Perez-Riverol Y. BioContainers: an open-source and community-driven framework for software standardization. Bioinformatics. 2017 Aug 15;33(16):2580-2582. doi: 10.1093/bioinformatics/btx192. PubMed PMID: 28379341; PubMed Central PMCID: PMC5870671.

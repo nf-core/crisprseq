@@ -186,12 +186,22 @@
                 "min_reads": {
                     "type": "number",
                     "description": "a filter threshold value for sgRNAs, based on their average counts in the control sample",
-                    "default": 30
+                    "default": 30.0
                 },
                 "min_targeted_genes": {
                     "type": "number",
                     "description": "Minimal number of different genes targeted by sgRNAs in a biased segment in order for the corresponding counts to be corrected for CRISPRcleanR",
-                    "default": 3
+                    "default": 3.0
+                },
+                "bagel_reference_essentials": {
+                    "type": "string",
+                    "description": "Core essential gene set for BAGEL2",
+                    "default": "https://raw.githubusercontent.com/hart-lab/bagel/master/CEGv2.txt"
+                },
+                "bagel_reference_nonessentials": {
+                    "type": "string",
+                    "description": "Non essential gene set  for BAGEL2",
+                    "default": "https://raw.githubusercontent.com/hart-lab/bagel/master/NEGv1.txt"
                 }
             }
         },
@@ -451,16 +461,7 @@
             "$ref": "#/definitions/umi_parameters"
         },
         {
-            "$ref": "#/definitions/targeted_pipeline_steps"
-        },
-        {
-            "$ref": "#/definitions/umi_parameters"
-        },
-        {
             "$ref": "#/definitions/targeted_parameters"
-        },
-        {
-            "$ref": "#/definitions/vsearch_parameters"
         },
         {
             "$ref": "#/definitions/vsearch_parameters"
