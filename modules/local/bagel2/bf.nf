@@ -16,7 +16,7 @@ process BAGEL2_BF {
 
     output:
     tuple val(meta), path("*.bf"), emit: bf
-    //path "versions.yml"           , emit: versions
+    path "versions.yml"          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,6 +28,11 @@ process BAGEL2_BF {
     """
     BAGEL.py bf -i $foldchange -o '${meta.treatment}_vs_${meta.reference}.bf' $args -e $reference_essentials -n $reference_nonessentials -c ${meta.treatment}
 
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+        BAGEL2: \$( BAGEL.py version | grep -o 'Version: [0-9.]*' | awk '{print  \$2}' | grep -v '^\$')
+    END_VERSIONS
     """
 
 }
