@@ -11,9 +11,9 @@ process BAGEL2_FC {
     tuple val(meta), path(count_table)
 
     output:
-    tuple val(meta), path("*.foldchange"), emit: foldchange
-    tuple val(meta), path("*.normed_readcount"), emit: normed_counts
-    //path "versions.yml"           , emit: versions
+    tuple val(meta), path("*.foldchange")        , emit: foldchange
+    tuple val(meta), path("*.normed_readcount")  , emit: normed_counts
+    path "versions.yml"                          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,7 +24,11 @@ process BAGEL2_FC {
 
     """
     BAGEL.py fc -i $count_table -o ${meta.treatment}_vs_${meta.reference} -c $meta.reference $args
-
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+        BAGEL2: \$( BAGEL.py version | grep -o 'Version: [0-9.]*' | awk '{print  \$2}' | grep -v '^\$')
+    END_VERSIONS
     """
 
 }
