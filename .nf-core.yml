@@ -1,4 +1,4 @@
 repository_type: pipeline
 lint:
-  # We skip these linting as we have splitted tests between targeted and screening
-  files_exist: conf/test.config
+  files_unchanged:
+    - lib/NfcoreTemplate.groovy # Introduced a change ahead of the nf-core/tools release
