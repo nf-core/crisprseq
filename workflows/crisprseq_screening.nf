@@ -116,7 +116,7 @@ workflow CRISPRSEQ_SCREENING {
             [[id: condition, single_end: single_end], fastqs]
         }
         .set { joined }
-        joined.dump(tag:"metadata")
+
 
         //
         // MODULE: Run mageck count
@@ -147,6 +147,9 @@ workflow CRISPRSEQ_SCREENING {
             params.min_targeted_genes
         )
 
+        ch_versions = ch_versions.mix(CRISPRCLEANR_NORMALIZE.out.versions)
+
+
         CRISPRCLEANR_NORMALIZE.out.norm_count_file.map {
             it -> it[1]
         }.set { ch_counts }
@@ -162,9 +165,12 @@ workflow CRISPRSEQ_SCREENING {
             counts
         )
 
+        ch_versions = ch_versions.mix(MAGECK_TEST.out.versions)
+
         MAGECK_GRAPHRRA (
             MAGECK_TEST.out.gene_summary
         )
+        ch_versions = ch_versions.mix(MAGECK_GRAPHRRA.out.versions)
     }
 
     if(params.rra_contrasts) {
@@ -180,6 +186,7 @@ workflow CRISPRSEQ_SCREENING {
     BAGEL2_FC (
             counts
         )
+    ch_versions = ch_versions.mix(BAGEL2_FC.out.versions)
 
     BAGEL2_BF (
         BAGEL2_FC.out.foldchange,
@@ -187,12 +194,18 @@ workflow CRISPRSEQ_SCREENING {
         ch_bagel_reference_nonessentials
     )
 
+    ch_versions = ch_versions.mix(BAGEL2_BF.out.versions)
+
+
     ch_bagel_pr = BAGEL2_BF.out.bf.combine(ch_bagel_reference_essentials)
                                         .combine(ch_bagel_reference_nonessentials)
 
     BAGEL2_PR (
         ch_bagel_pr
     )
+
+    ch_versions = ch_versions.mix(BAGEL2_PR.out.versions)
+
     BAGEL2_GRAPH (
         BAGEL2_PR.out.pr
     )
@@ -207,6 +220,10 @@ workflow CRISPRSEQ_SCREENING {
         MAGECK_MLE (
             ch_designed_mle
         )
+
+        ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
+
+
     }
 
     CUSTOM_DUMPSOFTWAREVERSIONS (

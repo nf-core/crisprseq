@@ -13,7 +13,7 @@ process BAGEL2_GRAPH {
 
     output:
     path("*.png")                   , emit: pictures
-
+    path "versions.yml"             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -59,6 +59,16 @@ process BAGEL2_GRAPH {
 
     plt.savefig(file_name)
     plt.show()
+
+    # Output version information
+    version = pd. __version__
+    matplotlib_version = plt.matplotlib.__version__
+    # alas, no `pyyaml` pre-installed in the cellranger container
+    with open("versions.yml", "w") as f:
+        f.write('"${task.process}":\\n')
+        f.write(f'  pandas: "{version}"\\n')
+        f.write(f'  matplotlib.pyplot: "{matplotlib_version}"\\n')
+
 
     """
 

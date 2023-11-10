@@ -13,8 +13,7 @@ process BAGEL2_PR {
 
     output:
     tuple val(meta), path("*.pr")   , emit: pr
-
-    //path "versions.yml"           , emit: versions
+    path "versions.yml"             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -25,6 +24,12 @@ process BAGEL2_PR {
 
     """
     BAGEL.py pr -i $bf  -o '${meta.treatment}_vs_${meta.reference}.pr' -e $reference_essentials -n $reference_nonessentials
+
+    cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            python: \$(python --version | sed 's/Python //g')
+            BAGEL2: \$( BAGEL.py version | grep -o 'Version: [0-9.]*' | awk '{print  \$2}' | grep -v '^\$')
+    END_VERSIONS
     """
 
 }
