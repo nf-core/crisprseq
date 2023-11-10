@@ -12,7 +12,7 @@ process MAGECK_GRAPHRRA {
 
     output:
     tuple val(meta), path("*.png"), emit: graphs
-
+    path "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

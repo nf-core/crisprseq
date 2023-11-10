@@ -170,7 +170,7 @@ workflow CRISPRSEQ_SCREENING {
         MAGECK_GRAPHRRA (
             MAGECK_TEST.out.gene_summary
         )
-        //TODO: Missing versions
+        ch_versions = ch_versions.mix(MAGECK_GRAPHRRA.out.versions)
     }
 
     if(params.rra_contrasts) {
