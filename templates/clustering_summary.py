@@ -4,9 +4,10 @@ import gzip
 import sys
 
 import Bio
+from Bio import SeqIO
 
 with gzip.open("$reads", "rt") as handle:
-    clusters_count = len(list(Bio.SeqIO.parse(handle, "fastq")))
+    clusters_count = len(list(SeqIO.parse(handle, "fastq")))
 
 with open("$summary", "r") as summary:
     summary_lines = summary.readlines()

@@ -3,18 +3,19 @@
 import gzip
 
 import Bio
+from Bio import SeqIO
 
 with gzip.open("${raw_reads[0]}", "rt") as handle:
-    raw_reads_count = len(list(Bio.SeqIO.parse(handle, "fastq")))
+    raw_reads_count = len(list(SeqIO.parse(handle, "fastq")))
 
 if "$assembled_reads" == "":
     assembled_reads_count = 0
 else:
     with gzip.open("$assembled_reads", "rt") as handle:
-        assembled_reads_count = len(list(Bio.SeqIO.parse(handle, "fastq")))  # Merged reads R1+R2
+        assembled_reads_count = len(list(SeqIO.parse(handle, "fastq")))  # Merged reads R1+R2
 
 with gzip.open("$trimmed_reads", "rt") as handle:
-    trimmed_reads_count = len(list(Bio.SeqIO.parse(handle, "fastq")))  # Filtered reads
+    trimmed_reads_count = len(list(SeqIO.parse(handle, "fastq")))  # Filtered reads
 
 if "$trimmed_adapters" == "":
     adapters_count = 0
