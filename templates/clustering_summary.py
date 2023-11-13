@@ -3,10 +3,10 @@
 import gzip
 import sys
 
-from Bio import SeqIO
+import Bio
 
 with gzip.open("$reads", "rt") as handle:
-    clusters_count = len(list(SeqIO.parse(handle, "fastq")))
+    clusters_count = len(list(Bio.SeqIO.parse(handle, "fastq")))
 
 with open("$summary", "r") as summary:
     summary_lines = summary.readlines()
@@ -25,3 +25,4 @@ with open(outname, "w") as output_file:
 
 with open("versions.yml", "w") as f:
     f.write('"${task.process}":\\n')
+    f.write(f'  biopython: "{Bio.__version__}"\\n')
