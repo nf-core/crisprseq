@@ -61,7 +61,6 @@ MAGeCK RRA performs robust ranking aggregation to identify genes that are consis
 
 A full example can be found [here](https://raw.githubusercontent.com/nf-core/test-datasets/crisprseq/testdata/full_test/samplesheet_full.csv).
 
-
 ### MAGeCK mle
 
 MAGeCK MLE uses a maximum likelihood estimation approach to estimate the effects of gene knockout on cell fitness. It models the read count data of guide RNAs targeting each gene and estimates the dropout probability for each gene. MAGeCK mle requires a design matrix. The design matrix is a `txt` file indicating the effects of different conditions on different samples.
