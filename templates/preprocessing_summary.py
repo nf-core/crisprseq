@@ -2,6 +2,7 @@
 
 import gzip
 
+import Bio
 from Bio import SeqIO
 
 with gzip.open("${raw_reads[0]}", "rt") as handle:
@@ -49,3 +50,8 @@ with open(f"{prefix}_preprocessing_summary.csv", "w") as output_file:
         output_file.write(
             f"quality-filtered-reads, {trimmed_reads_count} ({round(trimmed_reads_count * 100 / assembled_reads_count,1)}%)\\n"
         )
+
+
+with open("versions.yml", "w") as f:
+    f.write('"${task.process}":\\n')
+    f.write(f'  biopython: "{Bio.__version__}"\\n')

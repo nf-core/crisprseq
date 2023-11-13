@@ -50,7 +50,7 @@ process MAGECK_GRAPHRRA {
 
     version_file_path <- "versions.yml"
     version_flute <- paste(unlist(packageVersion("MAGeCKFlute")), collapse = ".")
-    version_ggplot <- paste(unlist(packageVersion("MAGeCKFlute")), collapse = ".")
+    version_ggplot <- paste(unlist(packageVersion("ggplot2")), collapse = ".")
 
     f <- file(version_file_path, "w")
     writeLines('"${task.process}":', f)

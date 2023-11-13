@@ -12,13 +12,12 @@ process MAGECK_COUNT {
     path(library)
 
     output:
-    tuple val(meta), path("*count.txt"), emit: count
+    tuple val(meta), path("*count.txt"),             emit: count
     tuple val(meta), path("*.count_normalized.txt"), emit: norm
-    tuple val(meta), path("*.countsummary.txt"), emit: summary
+    tuple val(meta), path("*.countsummary.txt"),     emit: summary
     tuple val(meta), path("*.count_normalized.txt"), emit: normalized
-    tuple val(meta), path("*.log"), emit: logs
-
-    path "versions.yml"           , emit: versions
+    tuple val(meta), path("*.log"),                  emit: logs
+    path "versions.yml",                             emit: versions
 
     when:
     task.ext.when == null || task.ext.when

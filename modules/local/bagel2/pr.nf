@@ -23,7 +23,7 @@ process BAGEL2_PR {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    BAGEL.py pr -i $bf  -o '${meta.treatment}_vs_${meta.reference}.pr' -e $reference_essentials -n $reference_nonessentials
+    BAGEL.py pr -i $bf  -o '${meta.treatment}_vs_${meta.reference}.pr' -e $reference_essentials -n $reference_nonessentials $args
 
     cat <<-END_VERSIONS > versions.yml
         "${task.process}":

@@ -13,6 +13,8 @@ process PREPROCESSING_SUMMARY {
 
     output:
     tuple val(meta), path("*_preprocessing_summary.csv"), emit: summary
+    path "versions.yml",                                  emit: versions
+
 
     when:
     task.ext.when == null || task.ext.when

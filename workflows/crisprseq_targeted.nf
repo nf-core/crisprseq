@@ -370,6 +370,7 @@ workflow CRISPRSEQ_TARGETED {
     PREPROCESSING_SUMMARY {
         ch_preprocessing_summary_data
     }
+    ch_versions = ch_versions.mix(PREPROCESSING_SUMMARY.out.versions)
 
 
     if (params.umi_clustering) {
@@ -601,6 +602,9 @@ workflow CRISPRSEQ_TARGETED {
             .join(PREPROCESSING_SUMMARY.out.summary)
     )
 
+    ch_versions = ch_versions.mix(CLUSTERING_SUMMARY.out.versions)
+
+
 
     //
     // MODULE: Mapping with Minimap2
@@ -660,6 +664,7 @@ workflow CRISPRSEQ_TARGETED {
         ch_mapped_bam
             .join(CLUSTERING_SUMMARY.out.summary)
     )
+    ch_versions = ch_versions.mix(ALIGNMENT_SUMMARY.out.versions)
 
 
     //
