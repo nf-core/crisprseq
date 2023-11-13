@@ -601,6 +601,9 @@ workflow CRISPRSEQ_TARGETED {
             .join(PREPROCESSING_SUMMARY.out.summary)
     )
 
+    ch_versions = ch_versions.mix(CLUSTERING_SUMMARY.out.versions)
+
+
 
     //
     // MODULE: Mapping with Minimap2
@@ -702,7 +705,6 @@ workflow CRISPRSEQ_TARGETED {
             }
     }
     .set { ch_template_bam }
-    ch_versions = ch_versions.mix(MINIMAP2_ALIGN_TEMPLATE.out.versions)
 
     ch_mapped_bam
         .join(SAMTOOLS_INDEX.out.bai)

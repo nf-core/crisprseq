@@ -22,3 +22,6 @@ with open(outname, "w") as output_file:
             add_line = False
     if add_line:
         output_file.write(f"clustered-reads, {clusters_count}\\n")
+
+with open("versions.yml", "w") as f:
+    f.write('"${task.process}":\\n')
