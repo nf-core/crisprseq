@@ -3,6 +3,7 @@
 import gzip
 import sys
 
+import Bio
 from Bio import SeqIO
 
 with gzip.open("$reads", "rt") as handle:
@@ -25,3 +26,4 @@ with open(outname, "w") as output_file:
 
 with open("versions.yml", "w") as f:
     f.write('"${task.process}":\\n')
+    f.write(f'  biopython: "{Bio.__version__}"\\n')

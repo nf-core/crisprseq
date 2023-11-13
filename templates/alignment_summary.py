@@ -22,3 +22,7 @@ with open(outname, "w") as output_file:
             add_line = False
     if add_line:
         output_file.write(f"aligned-reads, {mapped_reads_count} ({round(mapped_reads_percentage, 1)}%)\\n")
+
+with open("versions.yml", "w") as f:
+    f.write('"${task.process}":\\n')
+    f.write(f'  pysam: "{pysam.__version__}"\\n')
