@@ -59,8 +59,8 @@ MAGeCK RRA performs robust ranking aggregation to identify genes that are consis
 | ----------------------- | ------------------- |
 | treatment1              | control1            |
 
-A full example can be found here :
-#TODO: add link to rawcontent of nf-core test
+A full example can be found [here](https://raw.githubusercontent.com/nf-core/test-datasets/crisprseq/testdata/full_test/samplesheet_full.csv).
+
 
 ### MAGeCK mle
 
