@@ -41,7 +41,13 @@ process CIGAR_PARSER {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        Rscript: \$(Rscript --version)
+        seqinr: \$(Rscript -e "cat(paste(packageVersion('seqinr'), collapse='.'))")
+        Rsamtools: \$(Rscript -e "cat(paste(packageVersion('Rsamtools'), collapse='.'))")
+        dplyr: \$(Rscript -e "cat(paste(packageVersion('dplyr'), collapse='.'))")
+        ShortRead: \$(Rscript -e "cat(paste(packageVersion('ShortRead'), collapse='.'))")
+        jsonlite: \$(Rscript -e "cat(paste(packageVersion('jsonlite'), collapse='.'))")
+        stringr: \$(Rscript -e "cat(paste(packageVersion('stringr'), collapse='.'))")
+        plotly: \$(Rscript -e "cat(paste(packageVersion('plotly'), collapse='.'))")
     END_VERSIONS
     """
 }

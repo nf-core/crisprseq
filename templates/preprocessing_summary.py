@@ -2,6 +2,7 @@
 
 import gzip
 
+import Bio
 from Bio import SeqIO
 
 with gzip.open("${raw_reads[0]}", "rt") as handle:
@@ -50,10 +51,7 @@ with open(f"{prefix}_preprocessing_summary.csv", "w") as output_file:
             f"quality-filtered-reads, {trimmed_reads_count} ({round(trimmed_reads_count * 100 / assembled_reads_count,1)}%)\\n"
         )
 
-    # Output version information
-    #version = pd.__version__
-    #matplotlib_version = plt.matplotlib.__version__
-    # alas, no `pyyaml` pre-installed in the cellranger container
-    with open("versions.yml", "w") as f:
-        f.write('"${task.process}":\\n')
 
+with open("versions.yml", "w") as f:
+    f.write('"${task.process}":\\n')
+    f.write(f'  biopython: "{Bio.__version__}"\\n')

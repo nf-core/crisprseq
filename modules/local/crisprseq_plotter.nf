@@ -35,7 +35,19 @@ process CRISPRSEQ_PLOTTER {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        Rscript: \$(Rscript --version)
+        ggplot2: \$(Rscript -e "cat(paste(packageVersion('ggplot2'), collapse='.'))")
+        ShortRead: \$(Rscript -e "cat(paste(packageVersion('ShortRead'), collapse='.'))")
+        plyr: \$(Rscript -e "cat(paste(packageVersion('plyr'), collapse='.'))")
+        dplyr: \$(Rscript -e "cat(paste(packageVersion('dplyr'), collapse='.'))")
+        seqinr: \$(Rscript -e "cat(paste(packageVersion('seqinr'), collapse='.'))")
+        ggpubr: \$(Rscript -e "cat(paste(packageVersion('ggpubr'), collapse='.'))")
+        ggmsa: \$(Rscript -e "cat(paste(packageVersion('ggmsa'), collapse='.'))")
+        seqmagick: \$(Rscript -e "cat(paste(packageVersion('seqmagick'), collapse='.'))")
+        stringr: \$(Rscript -e "cat(paste(packageVersion('stringr'), collapse='.'))")
+        tidyr: \$(Rscript -e "cat(paste(packageVersion('tidyr'), collapse='.'))")
+        ggseqlogo: \$(Rscript -e "cat(paste(packageVersion('ggseqlogo'), collapse='.'))")
+        plotly: \$(Rscript -e "cat(paste(packageVersion('plotly'), collapse='.'))")
+        cowplot: \$(Rscript -e "cat(paste(packageVersion('cowplot'), collapse='.'))")
     END_VERSIONS
     """
 }
