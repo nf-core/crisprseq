@@ -7,7 +7,6 @@ process BAGEL2_GRAPH {
         'https://depot.galaxyproject.org/singularity/mulled-v2-54e0353146eca1531516863e8235bf7385d76663:c9ff1a9eec871c54cbea815eae778da702623978-0':
         'biocontainers/mulled-v2-54e0353146eca1531516863e8235bf7385d76663:c9ff1a9eec871c54cbea815eae778da702623978-0' }"
 
-
     input:
     tuple val(meta), path(pr)
 
@@ -29,7 +28,6 @@ process BAGEL2_GRAPH {
     #### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
     ####
     #### Orient a reference sequence according to reads orientation.
-
 
     import pandas as pd
     import matplotlib.pyplot as plt
@@ -68,7 +66,6 @@ process BAGEL2_GRAPH {
         f.write('"${task.process}":\\n')
         f.write(f'  pandas: "{version}"\\n')
         f.write(f'  matplotlib.pyplot: "{matplotlib_version}"\\n')
-
 
     """
 
