@@ -59,10 +59,6 @@ process MAGECK_GRAPHRRA {
     writeLines("    ggplot2: ", f, sep = "")
     writeLines(version_ggplot, f)
     close(f)
-
-
-
-
     """
 
 
