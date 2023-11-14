@@ -7,7 +7,6 @@ process BAGEL2_GRAPH {
         'https://depot.galaxyproject.org/singularity/mulled-v2-54e0353146eca1531516863e8235bf7385d76663:c9ff1a9eec871c54cbea815eae778da702623978-0':
         'biocontainers/mulled-v2-54e0353146eca1531516863e8235bf7385d76663:c9ff1a9eec871c54cbea815eae778da702623978-0' }"
 
-
     input:
     tuple val(meta), path(pr)
 
