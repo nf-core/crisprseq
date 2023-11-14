@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+############################
+#### Summary of reads preprocessing
+#### author: Júlia Mir @mirpedrol
+#### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
+############################
+
 import gzip
 
 import Bio
