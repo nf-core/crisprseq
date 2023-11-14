@@ -29,7 +29,6 @@ process BAGEL2_GRAPH {
     ####
     #### Orient a reference sequence according to reads orientation.
 
-
     import pandas as pd
     import matplotlib.pyplot as plt
 
@@ -67,7 +66,6 @@ process BAGEL2_GRAPH {
         f.write('"${task.process}":\\n')
         f.write(f'  pandas: "{version}"\\n')
         f.write(f'  matplotlib.pyplot: "{matplotlib_version}"\\n')
-
 
     """
 
