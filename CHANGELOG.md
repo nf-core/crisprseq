@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v2.1.0 - Jamon Salas](https://github.com/nf-core/crisprseq/releases/tag/2.1.0) - [08.11.2023]
+## [v2.1.0 - Jamon Salas](https://github.com/nf-core/crisprseq/releases/tag/2.1.0) - [14.11.2023]
 
 ### Added
 
@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use `Channel.fromSamplesheet()` from `nf-validation` to validate input sample sheets and create an input channel ([#58](https://github.com/nf-core/crisprseq/pull/58))
 - BAGEL2 as a module which detects gene essentiality ([#60](https://github.com/nf-core/crisprseq/pull/60))
 - Add custom plots to MultiQC report (cutadapt module, read processing, edition, edition QC) ([#64](https://github.com/nf-core/crisprseq/pull/64))
+- Template update v2.10 ([#79](https://github.com/nf-core/crisprseq/pull/79))
 
 ### Fixed
 
