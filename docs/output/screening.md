@@ -23,6 +23,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - [Gene essentiality](#gene-essentiality-computation)
   - [MAGeCK rra](#mageck-rra) - modified robust ranking aggregation (RRA) algorithm
   - [MAGeCK mle](#mageck-mle) - maximum-likelihood estimation (MLE) for robust identification of CRISPR-screen hits
+  - [BAGEL2](#BAGEL2) - Bayes Factor to identify essential genes
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
@@ -92,10 +93,31 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - `*_count_sgrna_summary.txt`: sgRNA ranking results, tab separated file containing means, p-values
   - `*.report.Rmd`: markdown report recapping essential genes
   - `*_count_table.log`: log of the run
+  - `*_scatterview.png`: scatter view of the targeted genes and their logFC
+  - `*_rank.png`: rank view of the targeted genes
 
 </details>
 
 [MAGeCK](https://sourceforge.net/p/mageck/wiki/Home/) is a computational tool to identify important genes from CRISPR-Cas9 screens.
+
+### BAGEL2
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `bagel2/fold_change`
+  - `*.foldchange`: foldchange between the reference and treatment contrast provided
+- `bagel2/bayes_factor`
+  - `*.bf`: bayes factor per gene
+- `bagel2/precision_recall`
+  - `*.pr`: precision recall per gene
+- `bagel2/graphs`
+  - `barplot*.png`: barplot of the bayes factor distribution
+  - `PR*.png`: precision recall plot (Recall vs FDR)
+
+</details>
+
+[bagel2](https://github.com/hart-lab/bagel) is a computational tool to identify important essential genes for CRISPR-Cas9 screening experiments.
 
 ## MultiQC
 

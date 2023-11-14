@@ -11,9 +11,11 @@ process CIGAR_PARSER {
     tuple val(meta), path(reads), path(index), path(reference), val(protospacer), path(template), path(template_bam), path(reference_template), path(summary)
 
     output:
-    tuple val(meta), path("*indels.csv"), path("*_subs-perc.csv"), emit: indels
+    tuple val(meta), path("*[!QC-]indels.csv"), path("*_subs-perc.csv"), emit: indels
     tuple val(meta), path("*.html"), path("*edits.csv")          , emit: edition
     tuple val(meta), path("*cutSite.json")                       , emit: cutsite
+    tuple val(meta), path("*_QC-indels.csv")                     , emit: qcindels
+    tuple val(meta), path("*_reads-summary.csv")                 , emit: processing
     path "versions.yml"                                          , emit: versions
 
     when:
@@ -39,7 +41,13 @@ process CIGAR_PARSER {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        R: \$(R --version)
+        seqinr: \$(Rscript -e "cat(paste(packageVersion('seqinr'), collapse='.'))")
+        Rsamtools: \$(Rscript -e "cat(paste(packageVersion('Rsamtools'), collapse='.'))")
+        dplyr: \$(Rscript -e "cat(paste(packageVersion('dplyr'), collapse='.'))")
+        ShortRead: \$(Rscript -e "cat(paste(packageVersion('ShortRead'), collapse='.'))")
+        jsonlite: \$(Rscript -e "cat(paste(packageVersion('jsonlite'), collapse='.'))")
+        stringr: \$(Rscript -e "cat(paste(packageVersion('stringr'), collapse='.'))")
+        plotly: \$(Rscript -e "cat(paste(packageVersion('plotly'), collapse='.'))")
     END_VERSIONS
     """
 }

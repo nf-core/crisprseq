@@ -33,6 +33,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - [bowtie2](#bowtie2) - Mapping reads to reference
 - [Edits calling](#edits-calling)
   - [CIGAR](#cigar) - Parse CIGAR to call edits
+  - [Output plots](#output-plots) - Results visualisation
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
@@ -44,9 +45,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 <summary>Output files</summary>
 
 - `preprocessing/sequences/`
-  - `*_reference.fasta`: Sequence used as a reference.
   - `*_template.fasta`: Provided template sequence.
-  - `*_correctOrient.fasta`: Reference sequence in the correct orientation.
   - `_NewReference.fasta`: New reference generated from adding the changes made by the template to the original reference.
   - `*_template-align.bam`: Alignment of the new reference (with template changes) to the original reference.
 
@@ -174,7 +173,7 @@ The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They m
 
 [Minimap2](https://github.com/lh3/minimap2) is a sequence alignment program that aligns DNA sequences against a reference database.
 
-### racon
+### racon_umi
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -250,15 +249,40 @@ This section contains the final output of the pipeline. It contains information 
 
 - `cigar/`
   - `*_cutSite.json`: Contains the protospacer cut site position in the reference.
-  - `*_edition.html`: Interactive pie chart with the percentage of edition types. Reads are classified between WT (without an edit) and indels. Indels are divided between deletions, insertions and delins (deletion + insertion). Deletions and insertions can be out of frame or in frame.
+  - `*_edition.html`: Interactive pie chart with the percentage of edition types. Reads are classified between WT (without an edit) and indels. Indels are divided between deletions, insertions and delins (deletion + insertion). Deletions and insertions can be out of frame or in frame. A similar plot can be visualised in the MultiQC report.
     ![Test sample hCas9-AAVS1-a edition plot](../images/hCas9-AAVS1-a_edition.png)
-  - `*_edits.csv`: Table containing the data visualized in the pie chart.
+  - `*_edits.csv`: Table containing the number of reads classified to each edition type. Contains the data visualized in the pie chart.
   - `*_indels.csv`: Table containing information of all reads. Edit type, edit start and length, if the edition happens above the error rate, if it's located into the common edit window, the frequency, the percentage, the pattern, surrounding nucleotides in case of insertions, the protospacer cut site, the sample id, number of aligned reads and number of reads with and without a template modification.
-  - `*_QC-indels.html`: Interactive pie chart with information about aligned reads. Reads are classified between WT and containing indels. Both types are classified between passing the filtering steps or not. Indel reads passing the filtering steps are divided in reads with a modification above the error rate and located in the common edit window, above the error rate but not in the edit region, vice versa, or any of those conditions.
+  - `*_QC-indels.html`: Interactive pie chart with information about aligned reads. Reads are classified between WT and containing indels. Both types are classified between passing the filtering steps or not. Indel reads passing the filtering steps are divided in reads with a modification above the error rate and located in the common edit window, above the error rate but not in the edit region, vice versa, or any of those conditions. A similar plot can be visualised in the MultiQC report.
     ![Test sample hCas9-AAVS1-a QC indels plot](../images/hCas9-AAVS1-a_QC-indels.png)
-  - `*_reads.html`: Interactive pie chart with percentage of the number of raw reads, reads merged with Pear, reads passing quality filters and UMI clustered reads.
+  - `*_reads.html`: Interactive pie chart with percentage of the number of raw reads, reads merged with Pear, reads passing quality filters and UMI clustered reads. A table with this information can be visualised in the MultiQC report.
     ![Test sample hCas9-AAVS1-a reads plot](../images/hCas9-AAVS1-a_reads.png)
   - `*_subs-perc.csv`: Table containing the percentage of each nucleotide found for each reference position.
+
+</details>
+
+### Output plots
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `plots/`
+  - `*_accumulative.html`: Interactive barplot showing the accumulative deletions and insertions. x-axis represents the reference position. y-axis represents the percentage of reads containing a deletion or insertion in that position.
+    ![Test sample hCas9-AAVS1-a accumulative edition plot](../images/hCas9-AAVS1-a_accumulative.png)
+  - `*_delAlleles_plot.png`: Image showing the most common deletions found. x-axis represents the position. y-axis indicates the percentage in which the plotted deletion is observed (in respect of all deletions), followed by the length of the deletion. Dashes `-` indicate a deleted base.
+    ![Test sample hCas9-AAVS1-a deletion alleles plot](../images/hCas9-AAVS1-a_delAlleles_plot.png)
+  - `*_Deletions.html`: Interactive barplot showing the percentage of reads showing a deletion for each position and the deletion sizes. The left panel represents the percentage of reads having a deletion for each position (similar to `*_accumulative.html`). The right panel shows the number of deletions found relative to their size. The deleted sequences found are shown coloured in the stacked barplot.
+    ![Test sample hCas9-AAVS1-a deletions plot](../images/hCas9-AAVS1-a_Deletions.png)
+  - `*_Insertions.html`: Interactive barplot showing the percentage of reads showing an insertion for each position as well as the insertion sizes. The left panel represents the percentage of reads having an insertion for each position (similar to `*_accumulative.html`). The right panel shows the number of insertions found relative to their size. The inserted sequences found are shown coloured in the stacked barplot.
+    ![Test sample hCas9-AAVS1-a insertions plot](../images/hCas9-AAVS1-a_Insertions.png)
+  - `*_subs-perc_plot_LOGO.png`: LOGO showing the most represented nucleotide and its percentage (y-axis) for protospacer positions. PAM sequence is highlighted in yellow.
+    ![Test sample hCas9-AAVS1-a substitutions LOGO](../images/hCas9-AAVS1-a_subs-perc_plot_LOGO.png)
+  - `*_subs-perc_plot.png`: Barplot showing the most represented nucleotide and its percentage (y-axis and bar tags) for +/-25 positions surrounding the cut site. The protospacer sequence is highlighted by writing the sequence base in the y axis. Bases whose percentage is higher than 90% are not colored.
+    ![Test sample hCas9-AAVS1-a substitutions percentage plot](../images/hCas9-AAVS1-a_subs-perc_plot.png)
+  - `*_top-alleles_LOGO.png`: LOGO showing the 4 most represented editions. Cut site is highlighted with a vertical red line. The type of edition and start position are shown as a title to each LOGO. Deleted bases are not drawn. Inserted bases are highlighted in yellow.
+    ![Test sample hCas9-AAVS1-a top alleles LOGO](../images/hCas9-AAVS1-a_top-alleles_LOGO.png)
+  - `*_top.html`: Interactive pie chart showing the percentage of the top 4 editions found. The percentage of WT is also shown. Editions are named after the position, the type of edition and length and the sequence.
+    ![Test sample hCas9-AAVS1-a top alleles plot](../images/hCas9-AAVS1-a_top.png)
 
 </details>
 
@@ -277,6 +301,17 @@ This section contains the final output of the pipeline. It contains information 
 [MultiQC](http://multiqc.info) is a visualisation tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.
 
 Results generated by MultiQC collate pipeline QC from supported tools e.g. FastQC. The pipeline has special steps which also allow the software versions to be reported in the MultiQC output for future traceability. For more information about how to use MultiQC reports, see <http://multiqc.info>.
+
+`multiqc_report.html` contains statistics for FastQC and Cutadapt modules. It also contains a table with statistics about read processing (equivalent to `<outdir>/cigar/*_reads.html` plots), and plots summarising the found editions (equivalent to `<outdir>/cigar/*_edition.html` plots) and indel quality filters (equivalent to `<outdir>/cigar/*_QC-indels.html` plots).
+
+<details markdown="1">
+<summary>Custom sections example</summary>
+
+![Read processing table](../images/mqc_read_processing_summary.png)
+![Type of edition plot](../images/mqc_type_of_edition.png)
+![QC of indels plot](../images/mqc_qc_of_indels.png)
+
+</details>
 
 ## Pipeline information
 

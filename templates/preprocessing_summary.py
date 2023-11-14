@@ -1,13 +1,20 @@
 #!/usr/bin/env python
 
+############################
+#### Summary of reads preprocessing
+#### author: Júlia Mir @mirpedrol
+#### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
+############################
+
 import gzip
 
+import Bio
 from Bio import SeqIO
 
 with gzip.open("${raw_reads[0]}", "rt") as handle:
     raw_reads_count = len(list(SeqIO.parse(handle, "fastq")))
 
-if "$assembled_reads" == "null_a":
+if "$assembled_reads" == "":
     assembled_reads_count = 0
 else:
     with gzip.open("$assembled_reads", "rt") as handle:
@@ -16,7 +23,7 @@ else:
 with gzip.open("$trimmed_reads", "rt") as handle:
     trimmed_reads_count = len(list(SeqIO.parse(handle, "fastq")))  # Filtered reads
 
-if "$trimmed_adapters" == "null_t":
+if "$trimmed_adapters" == "":
     adapters_count = 0
     adapters_percentage = "(0.0%)"
 else:
@@ -34,14 +41,14 @@ if "$task.ext.prefix" != "null":
 else:
     prefix = "$meta.id"
 
-with open(f"{prefix}_summary.csv", "w") as output_file:
+with open(f"{prefix}_preprocessing_summary.csv", "w") as output_file:
     output_file.write("class, count\\n")
     output_file.write(f"raw-reads, {raw_reads_count} (100.0%)\\n")
     output_file.write(
         f"merged-reads, {assembled_reads_count} ({round(assembled_reads_count * 100 / raw_reads_count,1)}%)\\n"
     )
     output_file.write(f"reads-with-adapters, {adapters_count} {adapters_percentage}\\n")
-    if "$assembled_reads" == "null_a":
+    if "$assembled_reads" == "":
         output_file.write(
             f"quality-filtered-reads, {trimmed_reads_count} ({round(trimmed_reads_count * 100 / raw_reads_count,1)}%)\\n"
         )
@@ -49,3 +56,8 @@ with open(f"{prefix}_summary.csv", "w") as output_file:
         output_file.write(
             f"quality-filtered-reads, {trimmed_reads_count} ({round(trimmed_reads_count * 100 / assembled_reads_count,1)}%)\\n"
         )
+
+
+with open("versions.yml", "w") as f:
+    f.write('"${task.process}":\\n')
+    f.write(f'  biopython: "{Bio.__version__}"\\n')

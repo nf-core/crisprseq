@@ -1,4 +1,4 @@
-process MERGING_SUMMARY {
+process PREPROCESSING_SUMMARY {
     tag "$meta.id"
     label 'process_single'
 
@@ -12,11 +12,13 @@ process MERGING_SUMMARY {
 
 
     output:
-    tuple val(meta), path("*_summary.csv"), emit: summary
+    tuple val(meta), path("*_preprocessing_summary.csv"), emit: summary
+    path "versions.yml",                                  emit: versions
+
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    template 'merging_summary.py'
+    template 'preprocessing_summary.py'
 }

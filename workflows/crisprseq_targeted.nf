@@ -1,21 +1,19 @@
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    VALIDATE INPUTS
+    PRINT PARAMS SUMMARY
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
+include { paramsSummaryLog; paramsSummaryMap; fromSamplesheet } from 'plugin/nf-validation'
 
-// Validate input parameters
+def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
+def citation = '\n' + WorkflowMain.citation(workflow) + '\n'
+def summary_params = paramsSummaryMap(workflow)
+
+// Print parameter summary log to screen
+log.info logo + paramsSummaryLog(workflow) + citation
+
 WorkflowCrisprseq.initialise(params, log)
-
-// Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.reference_fasta ]
-for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
-
-// Check mandatory parameters
-if (params.input) { ch_input = file(params.input) } else { error('Input samplesheet not specified!') }
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
@@ -23,9 +21,9 @@ if (params.input) { ch_input = file(params.input) } else { error('Input samplesh
 */
 
 ch_multiqc_config          = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-ch_multiqc_custom_config   = params.multiqc_config ? Channel.fromPath( params.multiqc_config, checkIfExists: true ) : Channel.empty()
-ch_multiqc_logo            = params.multiqc_logo   ? Channel.fromPath( params.multiqc_logo, checkIfExists: true ) : Channel.empty()
-ch_multiqc_custom_methods_description = params.multiqc_methods_description ? file(params.multiqc_methods_description, checkIfExists: true) : file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
+ch_multiqc_custom_config   = params.multiqc_config ? Channel.fromPath( params.multiqc_config ) : Channel.empty()
+ch_multiqc_logo            = params.multiqc_logo   ? Channel.fromPath( params.multiqc_logo )   : Channel.empty()
+ch_multiqc_custom_methods_description = params.multiqc_methods_description ? file(params.multiqc_methods_description) : file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -36,21 +34,19 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK                      } from '../subworkflows/local/input_check'
 
 //
 // MODULE
 //
-include { FIND_ADAPTERS                                   } from '../modules/local/find_adapters'
-include { EXTRACT_UMIS                                    } from '../modules/local/extract_umis'
-include { SEQ_TO_FILE as SEQ_TO_FILE_REF                  } from '../modules/local/seq_to_file'
-include { SEQ_TO_FILE as SEQ_TO_FILE_TEMPL                } from '../modules/local/seq_to_file'
-include { ORIENT_REFERENCE                                } from '../modules/local/orient_reference'
-include { CIGAR_PARSER                                    } from '../modules/local/cigar_parser'
-include { MERGING_SUMMARY                                 } from '../modules/local/merging_summary'
-include { CLUSTERING_SUMMARY                              } from '../modules/local/clustering_summary'
-include { ALIGNMENT_SUMMARY                               } from '../modules/local/alignment_summary'
-include { TEMPLATE_REFERENCE                              } from '../modules/local/template_reference'
+include { FIND_ADAPTERS         } from '../modules/local/find_adapters'
+include { EXTRACT_UMIS          } from '../modules/local/extract_umis'
+include { ORIENT_REFERENCE      } from '../modules/local/orient_reference'
+include { CIGAR_PARSER          } from '../modules/local/cigar_parser'
+include { PREPROCESSING_SUMMARY } from '../modules/local/preprocessing_summary'
+include { CLUSTERING_SUMMARY    } from '../modules/local/clustering_summary'
+include { ALIGNMENT_SUMMARY     } from '../modules/local/alignment_summary'
+include { TEMPLATE_REFERENCE    } from '../modules/local/template_reference'
+include { CRISPRSEQ_PLOTTER     } from '../modules/local/crisprseq_plotter'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -61,30 +57,29 @@ include { TEMPLATE_REFERENCE                              } from '../modules/loc
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC                                        } from '../modules/nf-core/fastqc/main'
-include { MULTIQC                                       } from '../modules/nf-core/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
-include { PEAR                                          } from '../modules/nf-core/pear/main'
-include { CAT_FASTQ                                     } from '../modules/nf-core/cat/fastq/main'
-include { SEQTK_SEQ as SEQTK_SEQ_MASK                   } from '../modules/nf-core/seqtk/seq/main'
-include { SEQTK_SEQ as SEQTK_SEQ_FATOFQ                 } from '../modules/nf-core/seqtk/seq/main'
-include { VSEARCH_CLUSTER                               } from '../modules/nf-core/vsearch/cluster/main'
-include { VSEARCH_SORT                                  } from '../modules/nf-core/vsearch/sort/main'
-include { RACON as RACON_1                              } from '../modules/nf-core/racon/main'
-include { RACON as RACON_2                              } from '../modules/nf-core/racon/main'
-include { BOWTIE2_ALIGN                                 } from '../modules/nf-core/bowtie2/align/main'
-include { BOWTIE2_BUILD                                 } from '../modules/nf-core/bowtie2/build/main'
-include { BWA_MEM                                       } from '../modules/nf-core/bwa/mem/main'
-include { BWA_INDEX                                     } from '../modules/nf-core/bwa/index/main'
-include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_ORIGINAL     } from '../modules/nf-core/minimap2/align/main'
-include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_1        } from '../modules/nf-core/minimap2/align/main'
-include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_2        } from '../modules/nf-core/minimap2/align/main'
-include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_TEMPLATE     } from '../modules/nf-core/minimap2/align/main'
-include { SAMTOOLS_FAIDX                                } from '../modules/nf-core/samtools/faidx/main'
-include { MINIMAP2_INDEX                                } from '../modules/nf-core/minimap2/index/main'
-include { MEDAKA                                        } from '../modules/nf-core/medaka/main'
-include { CUTADAPT                                      } from '../modules/nf-core/cutadapt/main'
-include { SAMTOOLS_INDEX                                } from '../modules/nf-core/samtools/index/main'
+include { FASTQC                                    } from '../modules/nf-core/fastqc/main'
+include { MULTIQC                                   } from '../modules/nf-core/multiqc/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS               } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { PEAR                                      } from '../modules/nf-core/pear/main'
+include { CAT_FASTQ                                 } from '../modules/nf-core/cat/fastq/main'
+include { SEQTK_SEQ as SEQTK_SEQ_MASK               } from '../modules/nf-core/seqtk/seq/main'
+include { SEQTK_SEQ as SEQTK_SEQ_FATOFQ             } from '../modules/nf-core/seqtk/seq/main'
+include { VSEARCH_CLUSTER                           } from '../modules/nf-core/vsearch/cluster/main'
+include { VSEARCH_SORT                              } from '../modules/nf-core/vsearch/sort/main'
+include { RACON as RACON_1                          } from '../modules/nf-core/racon/main'
+include { RACON as RACON_2                          } from '../modules/nf-core/racon/main'
+include { BOWTIE2_ALIGN                             } from '../modules/nf-core/bowtie2/align/main'
+include { BOWTIE2_BUILD                             } from '../modules/nf-core/bowtie2/build/main'
+include { BWA_MEM                                   } from '../modules/nf-core/bwa/mem/main'
+include { BWA_INDEX                                 } from '../modules/nf-core/bwa/index/main'
+include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_ORIGINAL } from '../modules/nf-core/minimap2/align/main'
+include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_1    } from '../modules/nf-core/minimap2/align/main'
+include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_2    } from '../modules/nf-core/minimap2/align/main'
+include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_TEMPLATE } from '../modules/nf-core/minimap2/align/main'
+include { MINIMAP2_INDEX                            } from '../modules/nf-core/minimap2/index/main'
+include { MEDAKA                                    } from '../modules/nf-core/medaka/main'
+include { CUTADAPT                                  } from '../modules/nf-core/cutadapt/main'
+include { SAMTOOLS_INDEX                            } from '../modules/nf-core/samtools/index/main'
 
 
 /*
@@ -140,89 +135,105 @@ workflow CRISPRSEQ_TARGETED {
     ch_versions = Channel.empty()
 
     //
-    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
+    // Create input channel from input file provided through params.input
     //
-    INPUT_CHECK (
-        ch_input
-    )
-    .reads
-    .map {
-        meta, fastq ->
-            [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
+    Channel.fromSamplesheet("input")
+    .multiMap { meta, fastq_1, fastq_2, reference, protospacer, template ->
+        // meta.condition is part of the screening workflow and we need to remove it
+        reads:   [ meta.id, meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], fastq_2?[ fastq_1, fastq_2 ]:[ fastq_1 ] ]
+        reference:   [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], reference]
+        protospacer: [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], protospacer]
+        template:    [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], template]
     }
-    .groupTuple(by: [0])
+    .set { ch_input }
+
+    ch_input
+    .reads
+    .groupTuple()
+    .map {
+        WorkflowCrisprseq.validateInput(it)
+    }
     // Separate samples by the ones containing all reads in one file or the ones with many files to be concatenated
     .branch {
-        meta, fastq ->
-            single  : fastq.size() == 1
-                return [ meta, fastq.flatten() ]
-            multiple: fastq.size() > 1
-                return [ meta, fastq.flatten() ]
+        meta, fastqs ->
+            single  : fastqs.size() == 1
+                return [ meta, fastqs.flatten() ]
+            multiple: fastqs.size() > 1
+                return [ meta, fastqs.flatten() ]
     }
     .set { ch_fastq }
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+
 
     //
-    // MODULE: Add reference sequences to file
+    // Add reference sequences to file
     //
-    SEQ_TO_FILE_REF (
-        INPUT_CHECK.out.reference
-        .map {
-            meta, fastq ->
-                [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
-        },
-        "reference"
+    ch_input.reference
+    .tap{ meta_reference }
+    .filter{ meta, sequence -> sequence instanceof String }
+    .collectFile() { meta, reference ->
+        [ "${meta.id}_reference.fasta", ">${meta.id}\n${reference}\n" ] // Write each reference sequence to a file
+    }
+    .map{ new_file ->
+        [new_file.baseName.split("_reference")[0], new_file] // create a channel with the meta.id and the new file
+    }
+    .join(meta_reference
+        .map{ meta, reference ->
+            [meta.id, meta] // Join the channel by meta.id with the meta map
+        }
     )
-    ch_versions = ch_versions.mix(SEQ_TO_FILE_REF.out.versions)
+    .map{ metaid, new_file, meta ->
+        [meta, new_file] // Obtain the final channel with meta map and the new file
+    }
+    .set{ ch_seq_reference }
+
 
     //
-    // MODULE: Add template sequences to file
+    // Add template sequences to file
     //
-    SEQ_TO_FILE_TEMPL (
-        INPUT_CHECK.out.template
-        .map {
-            meta, fastq ->
-                [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
-        },
-        "template"
+    ch_input.template
+    .tap{ meta_template }
+    .filter{ meta, sequence -> sequence instanceof String }
+    .collectFile() { meta, template ->
+        [ "${meta.id}_template.fasta", ">${meta.id}\n${template}\n" ] // Write each template sequence to a file
+    }
+    .map{ new_file ->
+        [new_file.baseName.split("_template")[0], new_file] // create a channel with the meta.id and the new file
+    }
+    .join(meta_template
+        .map{ meta, template ->
+            [meta.id, meta] // Join the channel by meta.id with the meta map
+        }
     )
-    ch_versions = ch_versions.mix(SEQ_TO_FILE_TEMPL.out.versions)
+    .map{ metaid, new_file, meta ->
+        [meta, new_file] // Obtain the final channel with meta map and the new file
+    }
+    .set{ ch_seq_template }
+
 
     // Join channels with reference and protospacer
     // to channel: [ meta, reference, protospacer]
     if (!params.reference_fasta && !params.protospacer) {
-        SEQ_TO_FILE_REF.out.file
-            .join(INPUT_CHECK.out.protospacer
-                .map {
-                    meta, fastq ->
-                        [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
-                },
-                by: 0)
+        ch_seq_reference
+            .join(ch_input.protospacer)
             .set{ reference_protospacer }
     } else if (!params.reference_fasta) {
         // If a protospacer was provided through the --protospacer param instead of the samplesheet
         ch_protospacer = Channel.of(params.protospacer)
-        SEQ_TO_FILE_REF.out.file
+        ch_seq_reference
             .combine(ch_protospacer)
             .set{ reference_protospacer }
     } else if (!params.protospacer) {
         // If a reference was provided through a fasta file or igenomes instead of the samplesheet
         ch_reference = Channel.fromPath(params.reference_fasta)
-        INPUT_CHECK.out.protospacer
+        ch_input.protospacer
             .combine(ch_reference)
-            .map{ meta, protospacer, reference ->
-                [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], reference, protospacer ]
-            }
             .set{ reference_protospacer }
     } else {
         ch_reference = Channel.fromPath(params.reference_fasta)
         ch_protospacer = Channel.of(params.protospacer)
-        INPUT_CHECK.out.reads
+        ch_input.reads
             .combine(ch_reference)
             .combine(ch_protospacer)
-            .map{ meta, reads, reference, protospacer ->
-                [meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], reference, protospacer]
-            }
             .set{ reference_protospacer }
     }
 
@@ -294,6 +305,7 @@ workflow CRISPRSEQ_TARGETED {
                     return [ meta, reads[0], adapter_seqs[0] ]
         }
         .set { ch_adapter_seqs }
+        ch_versions = ch_versions.mix(FIND_ADAPTERS.out.versions.first())
 
 
         //
@@ -331,31 +343,34 @@ workflow CRISPRSEQ_TARGETED {
             .join(PEAR.out.assembled, remainder: true)
             .join(SEQTK_SEQ_MASK.out.fastx)
             .join(CUTADAPT.out.log)
-            .set { ch_merging_summary_data }
+            .map { meta, reads, assembled, masked, trimmed ->
+                if (assembled == null) {
+                    assembled = []
+                }
+                return [ meta, reads, assembled, masked, trimmed ]
+            }
+            .set { ch_preprocessing_summary_data }
     } else {
         ch_cat_fastq.paired
             .mix(ch_cat_fastq.single)
             .join(PEAR.out.assembled, remainder: true)
             .join(SEQTK_SEQ_MASK.out.fastx)
-            .combine(Channel.value("null"))
-            .map { meta, reads, assembled, masked, trimmed ->
+            .map { meta, reads, assembled, masked ->
                 if (assembled == null) {
-                    assembled = file('null_a')
+                    assembled = []
                 }
-                if (trimmed == "null") {
-                    trimmed = file('null_t')
-                }
-                return [ meta, reads, assembled, masked, trimmed ]
+                return [ meta, reads, assembled, masked, [] ]
             }
-            .set { ch_merging_summary_data }
+            .set { ch_preprocessing_summary_data }
     }
 
     //
     // MODULE: Summary of merged reads
     //
-    MERGING_SUMMARY {
-        ch_merging_summary_data
+    PREPROCESSING_SUMMARY {
+        ch_preprocessing_summary_data
     }
+    ch_versions = ch_versions.mix(PREPROCESSING_SUMMARY.out.versions)
 
 
     if (params.umi_clustering) {
@@ -365,6 +380,7 @@ workflow CRISPRSEQ_TARGETED {
         EXTRACT_UMIS (
             SEQTK_SEQ_MASK.out.fastx
         )
+        ch_versions = ch_versions.mix(EXTRACT_UMIS.out.versions.first())
 
 
         //
@@ -373,6 +389,7 @@ workflow CRISPRSEQ_TARGETED {
         VSEARCH_CLUSTER (
             EXTRACT_UMIS.out.fasta
         )
+        ch_versions = ch_versions.mix(VSEARCH_CLUSTER.out.versions.first())
 
         //  Obtain a file with UBS (UBI bin size) and UMI ID
         VSEARCH_CLUSTER.out.clusters
@@ -423,6 +440,7 @@ workflow CRISPRSEQ_TARGETED {
             ch_umi_bysize.cluster,
             Channel.value("--sortbysize")
         )
+        ch_versions = ch_versions.mix(VSEARCH_SORT.out.versions.first())
 
         // Get the correspondent fasta sequencences from top cluster sequences
         // Replaces the sequence name adding the "centroid_" prefix to avoid having two sequences with the same name in following steps
@@ -436,11 +454,11 @@ workflow CRISPRSEQ_TARGETED {
             [ "${name}.fasta", fasta ] // >centroid_... -> sample_top.fasta
         }
         .map{ new_file ->
-            [new_file.baseName, new_file] // Substring is removing "_top" added by VSEARCH_SORT // [sample, sample_top.fasta]
+            [new_file.baseName, new_file] // [sample, sample_top.fasta]
         }
         .join(meta_channel_2
             .map { meta, original_file ->
-                ["${original_file.baseName}", meta] // Substring is removing "_top" added by VSEARCH_SORT // [sample, [id:sample_id, ...]]
+                ["${original_file.baseName}", meta] // [sample, [id:sample_id, ...]]
             }) // [sample, sample_top.fasta, [id:sample_id, ...]]
         .map{ file_name, new_file, meta ->
             [meta + [cluster_id: file_name[0..-5]], new_file] // Add cluster ID to meta map // [[id:sample_id, ..., cluster_id:sample], sample_top.fasta]
@@ -459,7 +477,7 @@ workflow CRISPRSEQ_TARGETED {
             [ "${name}_sequences.fasta", fasta ] // >... -> sample_sequences.fasta
         }
         .map{ new_file ->
-            [new_file.baseName[0..-11], new_file] // Substring is removing "_sequences" added by collectFile // [sample, sample_sequences.fasta]
+            [new_file.baseName[0..-11], new_file] // [sample, sample_sequences.fasta]
         }
         .join(meta_channel_3
             .map { meta, original_file ->
@@ -485,6 +503,7 @@ workflow CRISPRSEQ_TARGETED {
             false,
             false
         )
+        ch_versions = ch_versions.mix(MINIMAP2_ALIGN_UMI_1.out.versions.first())
 
 
         // Only continue with clusters that have aligned sequences
@@ -500,6 +519,7 @@ workflow CRISPRSEQ_TARGETED {
                 .join(ch_top_clusters_sequence)
                 .join(ch_minimap_1)
         )
+        ch_versions = ch_versions.mix(RACON_1.out.versions.first())
 
         //
         // MODULE: Mapping with minimap2 - cycle 2
@@ -512,6 +532,7 @@ workflow CRISPRSEQ_TARGETED {
             false,
             false
         )
+        ch_versions = ch_versions.mix(MINIMAP2_ALIGN_UMI_2.out.versions.first())
 
         // Only continue with clusters that have aligned sequences
         MINIMAP2_ALIGN_UMI_2.out.paf
@@ -526,6 +547,7 @@ workflow CRISPRSEQ_TARGETED {
                 .join(RACON_1.out.improved_assembly)
                 .join(ch_minimap_2)
         )
+        ch_versions = ch_versions.mix(RACON_2.out.versions.first())
 
 
         //
@@ -535,6 +557,7 @@ workflow CRISPRSEQ_TARGETED {
             ch_clusters_sequence
                 .join(RACON_2.out.improved_assembly)
         )
+        ch_versions = ch_versions.mix(MEDAKA.out.versions.first())
 
         // Collect all consensus UMI sequences into one single file per sample
         MEDAKA.out.assembly
@@ -566,6 +589,7 @@ workflow CRISPRSEQ_TARGETED {
         SEQTK_SEQ_FATOFQ (
             ch_umi_consensus
         )
+        ch_versions = ch_versions.mix(SEQTK_SEQ_FATOFQ.out.versions.first())
     }
 
     ch_preprocess_reads = params.umi_clustering ? SEQTK_SEQ_FATOFQ.out.fastx : SEQTK_SEQ_MASK.out.fastx
@@ -575,8 +599,11 @@ workflow CRISPRSEQ_TARGETED {
     //
     CLUSTERING_SUMMARY (
         ch_preprocess_reads
-            .join(MERGING_SUMMARY.out.summary)
+            .join(PREPROCESSING_SUMMARY.out.summary)
     )
+
+    ch_versions = ch_versions.mix(CLUSTERING_SUMMARY.out.versions)
+
 
 
     //
@@ -599,7 +626,7 @@ workflow CRISPRSEQ_TARGETED {
     //
     if (params.aligner == "bwa") {
         BWA_INDEX (
-            ORIENT_REFERENCE.out.reference.map { it[1] }
+            ORIENT_REFERENCE.out.reference
         )
         ch_versions = ch_versions.mix(BWA_INDEX.out.versions)
         BWA_MEM (
@@ -616,7 +643,7 @@ workflow CRISPRSEQ_TARGETED {
     //
     if (params.aligner == "bowtie2") {
         BOWTIE2_BUILD (
-            ORIENT_REFERENCE.out.reference.map { it[1] }
+            ORIENT_REFERENCE.out.reference
         )
         ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
         BOWTIE2_ALIGN (
@@ -637,6 +664,7 @@ workflow CRISPRSEQ_TARGETED {
         ch_mapped_bam
             .join(CLUSTERING_SUMMARY.out.summary)
     )
+    ch_versions = ch_versions.mix(ALIGNMENT_SUMMARY.out.versions)
 
 
     //
@@ -652,8 +680,9 @@ workflow CRISPRSEQ_TARGETED {
     //
     TEMPLATE_REFERENCE (
         ORIENT_REFERENCE.out.reference
-            .join(SEQ_TO_FILE_TEMPL.out.file)
+            .join(ch_seq_template)
     )
+    ch_versions = ch_versions.mix(TEMPLATE_REFERENCE.out.versions.first())
 
 
     //
@@ -683,25 +712,20 @@ workflow CRISPRSEQ_TARGETED {
     ch_mapped_bam
         .join(SAMTOOLS_INDEX.out.bai)
         .join(ORIENT_REFERENCE.out.reference)
-        .join(INPUT_CHECK.out.protospacer
-            .map {
-                meta, fastq ->
-                    [ meta - meta.subMap('id') + [id: meta.id.split('_')[0..-2].join('_')], fastq ]
-            }
-        )
-        .join(SEQ_TO_FILE_TEMPL.out.file, remainder: true)
+        .join(ch_input.protospacer)
+        .join(ch_seq_template, remainder: true)
         .join(ch_template_bam, remainder: true)
         .join(TEMPLATE_REFERENCE.out.fasta, remainder: true)
         .join(ALIGNMENT_SUMMARY.out.summary)
         .map { meta, reads, index, reference, protospacer, template, template_bam, reference_template, summary ->
             if (template == null) {
-                template = file('null_t')
+                template = []
             }
             if (template_bam == null) {
-                template_bam = file('null_b')
+                template_bam = []
             }
             if (reference_template == null) {
-                reference_template = file('null_r')
+                reference_template = []
             }
             return [meta, reads, index, reference, protospacer, template, template_bam, reference_template, summary]
         }
@@ -714,6 +738,18 @@ workflow CRISPRSEQ_TARGETED {
     CIGAR_PARSER (
         ch_to_parse_cigar
     )
+    ch_versions = ch_versions.mix(CIGAR_PARSER.out.versions.first())
+
+
+    //
+    //
+    //
+    CRISPRSEQ_PLOTTER (
+        CIGAR_PARSER.out.indels
+        .join(ORIENT_REFERENCE.out.reference)
+        .join(ch_input.protospacer)
+    )
+    ch_versions = ch_versions.mix(CRISPRSEQ_PLOTTER.out.versions.first())
 
 
     //
@@ -729,14 +765,20 @@ workflow CRISPRSEQ_TARGETED {
     workflow_summary    = WorkflowCrisprseq.paramsSummaryMultiqc(workflow, summary_params)
     ch_workflow_summary = Channel.value(workflow_summary)
 
-    methods_description    = WorkflowCrisprseq.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description)
+    methods_description    = WorkflowCrisprseq.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description, params)
     ch_methods_description = Channel.value(methods_description)
 
     ch_multiqc_files = Channel.empty()
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
+    ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.processing.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.edition.collect{it[2]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.qcindels.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+    if  (params.overrepresented) {
+        ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT.out.log.collect{it[1]}.ifEmpty([]))
+    }
 
     MULTIQC (
         ch_multiqc_files.collect(),
@@ -757,6 +799,7 @@ workflow.onComplete {
     if (params.email || params.email_on_fail) {
         NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
     }
+    NfcoreTemplate.dump_parameters(workflow, params)
     NfcoreTemplate.summary(workflow, params, log)
     if (params.hook_url) {
         NfcoreTemplate.IM_notification(workflow, params, summary_params, projectDir, log)

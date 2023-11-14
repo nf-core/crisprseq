@@ -11,7 +11,8 @@ process ALIGNMENT_SUMMARY {
     tuple val(meta), path(reads), path(summary)
 
     output:
-    tuple val(meta), path(summary), emit: summary
+    tuple val(meta), path("*_alignment_summary.csv"), emit: summary
+    path "versions.yml",                              emit: versions
 
     when:
     task.ext.when == null || task.ext.when
