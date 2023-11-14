@@ -25,7 +25,7 @@ jobs:
           parameters: |
             {
               "hook_url": "${{ secrets.MEGATESTS_ALERTS_SLACK_HOOK_URL }}",
-              "outdir": "s3://${{ secrets.AWS_S3_BUCKET }}/crisprseq/results-${{ github.sha }}"
+              "outdir": "s3://${{ secrets.AWS_S3_BUCKET }}/crisprseq/results-${{ github.sha }}/targeted_test"
             }
           profiles: test_full
 
