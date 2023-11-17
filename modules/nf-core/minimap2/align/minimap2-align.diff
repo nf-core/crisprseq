@@ -1,4 +1,19 @@
 Changes in module 'nf-core/minimap2/align'
+--- modules/nf-core/minimap2/align/meta.yml
++++ modules/nf-core/minimap2/align/meta.yml
+@@ -25,11 +25,6 @@
+       description: |
+         List of input FASTA or FASTQ files of size 1 and 2 for single-end
+         and paired-end data, respectively.
+-  - meta2:
+-      type: map
+-      description: |
+-        Groovy Map containing reference information
+-        e.g. [ id:'test_ref']
+   - reference:
+       type: file
+       description: |
+
 --- modules/nf-core/minimap2/align/main.nf
 +++ modules/nf-core/minimap2/align/main.nf
 @@ -9,8 +9,7 @@
@@ -6,7 +21,7 @@ Changes in module 'nf-core/minimap2/align'
  
      input:
 -    tuple val(meta), path(reads)
--    path reference
+-    tuple val(meta2), path(reference)
 +    tuple val(meta), path(reads), path(reference)
      val bam_format
      val cigar_paf_format
