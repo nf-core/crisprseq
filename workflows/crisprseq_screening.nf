@@ -93,9 +93,9 @@ workflow CRISPRSEQ_SCREENING {
         ch_input
         .map { meta, fastqs  ->
             if(fastqs.size() == 1){
-                [meta.condition, fastqs, meta.single_end, []]
+                [meta.condition, [fastqs], meta.single_end, []]
             } else {
-                [meta.condition, fastqs[0], meta.single_end, fastqs[1]]
+                [meta.condition, [fastqs[0]], meta.single_end, [fastqs[1]]]
             }
         }
         .reduce { a, b ->
@@ -105,13 +105,10 @@ workflow CRISPRSEQ_SCREENING {
             return ["${a[0]},${b[0]}", a[1] + b[1], b[2] ,a[3] + b[3]]
         }
         .map { condition, fastqs_1, single_end, fastqs_2 ->
-            [[id: condition, single_end: single_end], [fastqs_1], [fastqs_2]]
+            [[id: condition, single_end: single_end], fastqs_1, fastqs_2]
         }
         .last()
         .set { joined }
-
-        joined.dump(tag: "joined")
-
 
         //
         // MODULE: Run FastQC
