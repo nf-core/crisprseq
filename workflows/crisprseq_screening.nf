@@ -93,7 +93,7 @@ workflow CRISPRSEQ_SCREENING {
         ch_input
         .map { meta, fastqs  ->
             if(fastqs.size() == 1){
-                [meta.condition, [fastqs], meta.single_end, []]
+                [meta.condition, [fastqs[0]], meta.single_end, []]
             } else {
                 [meta.condition, [fastqs[0]], meta.single_end, [fastqs[1]]]
             }
