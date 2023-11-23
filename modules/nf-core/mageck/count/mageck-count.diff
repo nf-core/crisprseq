@@ -7,14 +7,16 @@ Changes in module 'nf-core/mageck/count'
 -    label 'process_medium'
 +    label 'process_high'
  
-     conda "bioconda::mageck=0.5.9"
+     conda "${moduleDir}/environment.yml"
      container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+
 @@ -8,13 +8,16 @@
          'biocontainers/mageck:0.5.9--py37h6bb024c_0' }"
  
      input:
 -    tuple val(meta), path(inputfile)
 +    tuple val(meta), path(fastq1), path(fastq2)
+
      path(library)
  
      output:
@@ -30,6 +32,7 @@ Changes in module 'nf-core/mageck/count'
      when:
      task.ext.when == null || task.ext.when
 @@ -22,9 +25,15 @@
+
      script:
      def args = task.ext.args ?: ''
      def prefix = task.ext.prefix ?: "${meta.id}"
@@ -41,10 +44,11 @@ Changes in module 'nf-core/mageck/count'
 +    
 +    if (meta.single_end && ("$fastq1".endsWith(".fastq.gz") || "$fastq1".endsWith(".fq.gz"))) {
 +        input = "--fastq $fastq1" 
+
 +    } else {
 +        input = "--fastq $fastq1 --fastq-2 $fastq2" 
 +    }
-+    
+ 
      """
      mageck \\
          count \\
@@ -53,7 +57,7 @@ Changes in module 'nf-core/mageck/count'
          -n $prefix \\
          $sample_label \\
 -        $input_file \\
-+        $input
++        $input \\
  
  
      cat <<-END_VERSIONS > versions.yml
