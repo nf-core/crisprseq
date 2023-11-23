@@ -55,6 +55,7 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 // MODULE: Installed directly from nf-core/modules
 //
 include { FASTQC                      } from '../modules/nf-core/fastqc/main'
+include { CUTADAPT                    } from '../modules/nf-core/cutadapt/main'
 include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
 include { MAGECK_COUNT                } from '../modules/nf-core/mageck/count/main'
 include { MAGECK_MLE                  } from '../modules/nf-core/mageck/mle/main'
@@ -98,14 +99,21 @@ workflow CRISPRSEQ_SCREENING {
             ch_input
         )
 
+        ch_input.dump(tag: "ch_input")
+        CUTADAPT(
+            ch_input
+        )
+
 
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
-
+        // this is to concatenate everything for mageck count
         ch_input
         .map { meta, fastq  ->
             [meta.condition, fastq, meta.single_end]
         }
+        // if one element is paired-end and the other single-end throw an error
+        // otherwise just concatenate the conditions and the fastqs
         .reduce { a, b ->
             if(a[2] != b[2] ) {
                 error "Your samplesheet contains a mix of single-end and paired-end data. This is not supported."
