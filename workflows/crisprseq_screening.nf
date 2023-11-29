@@ -98,14 +98,22 @@ workflow CRISPRSEQ_SCREENING {
         FASTQC (
             ch_input
         )
-
-        ch_input.dump(tag: "ch_input")
-        CUTADAPT(
-            ch_input
-        )
-
-
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+
+
+        empty_channel = Channel.value([[]])
+        ch_input_cutadapt = ch_input.combine(Channel.value([[]]))
+
+        CUTADAPT(
+            ch_input_cutadapt
+        )
+        ch_versions = ch_versions.mix(CUTADAPT.out.versions)
+
+        CUTADAPT.out.reads
+        .map{ meta, fastq  ->
+            [meta, [fastq]]
+        }
+        .set { ch_input }
 
         // this is to concatenate everything for mageck count
         ch_input
@@ -124,6 +132,7 @@ workflow CRISPRSEQ_SCREENING {
             [[id: condition, single_end: single_end], fastqs]
         }
         .set { joined }
+
 
 
         //
