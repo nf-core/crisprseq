@@ -104,6 +104,7 @@ workflow CRISPRSEQ_SCREENING {
         empty_channel = Channel.value([[]])
         ch_input_cutadapt = ch_input.combine(Channel.value([[]]))
 
+    if(params.cutadapt) {
         CUTADAPT(
             ch_input_cutadapt
         )
@@ -114,6 +115,7 @@ workflow CRISPRSEQ_SCREENING {
             [meta, [fastq]]
         }
         .set { ch_input }
+        }
 
         // this is to concatenate everything for mageck count
         ch_input
