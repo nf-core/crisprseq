@@ -28,6 +28,7 @@ jobs:
           - "latest-everything"
         ANALYSIS:
           - "test_screening"
+          - "test_screening_paired"
           - "test_targeted"
           - "test_umis"
     steps:
