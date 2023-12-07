@@ -185,7 +185,7 @@
                 },
                 "cutadapt": {
                     "type": "string",
-                    "description": "cutadapt adapter"
+                    "description": "cutadapt adapter for screening analysis"
                 },
                 "min_reads": {
                     "type": "number",

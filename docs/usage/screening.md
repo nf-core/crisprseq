@@ -61,7 +61,7 @@ A full example can be found [here](https://raw.githubusercontent.com/nf-core/tes
 
 ### cutadapt
 
-MAGeCK is normally able to automatically determine the trimming length and sgRNA length, in most cases. Therefore, you don't need to go to this step unless MAGeCK fails to do so by itself. If the nucleotide length in front of sgRNA varies between different reads, you can use cutadapt to remove the adaptor sequences by using the flag `--crisprcleanr ADAPTER`.
+MAGeCK is normally able to automatically determine the trimming length and sgRNA length, in most cases. Therefore, you don't need to go to this step unless MAGeCK fails to do so by itself. If the nucleotide length in front of sgRNA varies between different reads, you can use cutadapt to remove the adaptor sequences by using the flag `--cutadapt ADAPTER`.
 
 ### MAGeCK mle
 
