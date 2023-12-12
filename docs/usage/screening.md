@@ -52,14 +52,16 @@ After the alignment step, the pipeline currently supports 3 algorithms to detect
 
 MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, `--rra_contrasts` contains two columns : treatment and reference. These two columns should be separated with a dot comma (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma separating them. Please find an example here below :
 
-| treatment               | reference           |
-| ----------------------- | ------------------- |
-| treatment1              | control1            |
-| treatment1,treatment2   | control1,control2   |
-| ----------------------- | ------------------- |
-| treatment1              | control1            |
+| reference         | treatment             |
+| ----------------- | --------------------- |
+| control1          | treatment1            |
+| control1,control2 | treatment1,treatment2 |
 
 A full example can be found [here](https://raw.githubusercontent.com/nf-core/test-datasets/crisprseq/testdata/full_test/samplesheet_full.csv).
+
+### cutadapt
+
+MAGeCK is normally able to automatically determine the trimming length and sgRNA length, in most cases. Therefore, you don't need to go to this step unless MAGeCK fails to do so by itself. If the nucleotide length in front of sgRNA varies between different reads, you can use cutadapt to remove the adaptor sequences by using the flag `--cutadapt ADAPTER`.
 
 ### MAGeCK mle
 
