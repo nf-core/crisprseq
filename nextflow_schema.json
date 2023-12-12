@@ -187,6 +187,10 @@
                     "type": "string",
                     "description": "sgRNA library annotation for crisprcleanR"
                 },
+                "cutadapt": {
+                    "type": "string",
+                    "description": "cutadapt adapter for screening analysis"
+                },
                 "min_reads": {
                     "type": "number",
                     "description": "a filter threshold value for sgRNAs, based on their average counts in the control sample",
