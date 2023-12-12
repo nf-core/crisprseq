@@ -246,7 +246,7 @@ workflow CRISPRSEQ_SCREENING {
 
     }
 
-    if((params.mle_design_matrix) || (params.contrasts && !rra)) {
+    if((params.mle_design_matrix) || (params.contrasts && !params.rra)) {
         if(params.mle_design_matrix) {
             ch_mle = ch_counts.combine(ch_design)
             }
