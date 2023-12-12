@@ -150,17 +150,6 @@ workflow CRISPRSEQ_SCREENING {
         .last()
         .set { joined }
 
-        //
-        // MODULE: Run FastQC
-        //
-        FASTQC (
-            ch_input
-        )
-
-
-        ch_versions = ch_versions.mix(FASTQC.out.versions.first())
-
-
 
         //
         // MODULE: Run mageck count
