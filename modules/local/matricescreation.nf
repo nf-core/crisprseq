@@ -11,7 +11,6 @@ process MATRICESCREATION {
 
     output:
     path("*.txt"), emit: design_matrix
-   // path "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

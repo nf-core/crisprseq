@@ -184,7 +184,7 @@ workflow CRISPRSEQ_SCREENING {
         ch_versions = ch_versions.mix(MAGECK_GRAPHRRA.out.versions)
     }
 
-    if(params.contrasts && params.rra) {
+    if(params.contrasts) {
         Channel.fromPath(params.contrasts)
             .splitCsv(header:true, sep:';' )
             .set { ch_bagel }
