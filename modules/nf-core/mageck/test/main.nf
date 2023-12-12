@@ -2,7 +2,7 @@ process MAGECK_TEST {
     tag "${meta.treatment}_${meta.reference}"
     label 'process_medium'
 
-    conda "bioconda::mageck=0.5.9"
+    conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/mageck:0.5.9--py37h6bb024c_0':
         'biocontainers/mageck:0.5.9--py37h6bb024c_0' }"
@@ -25,7 +25,6 @@ process MAGECK_TEST {
     def args = task.ext.args ?: ''
     def args2 = task.ext.args2 ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-
 
     """
     mageck  \\

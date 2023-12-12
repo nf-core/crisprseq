@@ -7,7 +7,7 @@ Changes in module 'nf-core/mageck/mle'
 -    label 'process_medium'
 +    label 'process_high'
  
-     conda "bioconda::mageck=0.5.9"
+     conda "${moduleDir}/environment.yml"
      container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
 @@ -8,8 +8,7 @@
          'biocontainers/mageck:0.5.9--py37h6bb024c_0' }"
@@ -19,13 +19,5 @@ Changes in module 'nf-core/mageck/mle'
  
      output:
      tuple val(meta), path("*.gene_summary.txt") , emit: gene_summary
-@@ -27,7 +26,6 @@
-     mageck \\
-         mle \\
-         $args \\
--        --threads $task.cpus \\
-         -k $count_table \\
-         -d $design_matrix \\
-         -n $prefix
 
 ************************************************************

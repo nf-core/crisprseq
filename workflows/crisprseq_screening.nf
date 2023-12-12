@@ -88,9 +88,9 @@ workflow CRISPRSEQ_SCREENING {
         Channel.fromSamplesheet("input")
         .map{ meta, fastq_1, fastq_2, x, y, z ->
             // x (reference), y (protospacer), and z (template) are part of the targeted workflows and we don't need them
-        return   [ meta + [ single_end:fastq_2?false:true ], fastq_2?[ fastq_1, fastq_2 ]:[ fastq_1 ] ]
-        }
+        return   [ meta + [ single_end:fastq_2?false:true ], fastq_2?[ fastq_1, fastq_2 ]:[ fastq_1 ] ]        }
         .set { ch_input }
+
 
         //
         // MODULE: Run FastQC
@@ -118,9 +118,14 @@ workflow CRISPRSEQ_SCREENING {
         }
 
         // this is to concatenate everything for mageck count
+
         ch_input
-        .map { meta, fastq  ->
-            [meta.condition, fastq, meta.single_end]
+        .map { meta, fastqs  ->
+            if(fastqs.size() == 1){
+                [meta.condition, [fastqs[0]], meta.single_end, []]
+            } else {
+                [meta.condition, [fastqs[0]], meta.single_end, [fastqs[1]]]
+            }
         }
         // if one element is paired-end and the other single-end throw an error
         // otherwise just concatenate the conditions and the fastqs
@@ -128,12 +133,23 @@ workflow CRISPRSEQ_SCREENING {
             if(a[2] != b[2] ) {
                 error "Your samplesheet contains a mix of single-end and paired-end data. This is not supported."
             }
-            return ["${a[0]},${b[0]}", a[1] + b[1], b[2]]
+            return ["${a[0]},${b[0]}", a[1] + b[1], b[2] ,a[3] + b[3]]
         }
-        .map { condition, fastqs, single_end ->
-            [[id: condition, single_end: single_end], fastqs]
+        .map { condition, fastqs_1, single_end, fastqs_2 ->
+            [[id: condition, single_end: single_end], fastqs_1, fastqs_2]
         }
+        .last()
         .set { joined }
+
+        //
+        // MODULE: Run FastQC
+        //
+        FASTQC (
+            ch_input
+        )
+
+
+        ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
 
 
