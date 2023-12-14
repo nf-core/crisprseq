@@ -21,7 +21,6 @@ process CUTADAPT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    if (adapter_seq != [])
     """
     cutadapt \\
         --cores $task.cpus \\
@@ -34,14 +33,7 @@ process CUTADAPT {
         cutadapt: \$(cutadapt --version)
     END_VERSIONS
     """
-    else
-    """
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        cutadapt: \$(cutadapt --version)
-    END_VERSIONS
-    """
-
+    
     stub:
     def prefix  = task.ext.prefix ?: "${meta.id}"
     def trimmed = meta.single_end ? "${prefix}.trim.fastq.gz" : "${prefix}_1.trim.fastq.gz ${prefix}_2.trim.fastq.gz"
