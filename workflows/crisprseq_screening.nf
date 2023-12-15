@@ -101,7 +101,6 @@ workflow CRISPRSEQ_SCREENING {
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
 
-        empty_channel = Channel.value([[]])
         ch_input_cutadapt = ch_input.combine(Channel.value([[]]))
 
     if(params.cutadapt) {
@@ -138,7 +137,6 @@ workflow CRISPRSEQ_SCREENING {
         .map { condition, fastqs_1, single_end, fastqs_2 ->
             [[id: condition, single_end: single_end], fastqs_1, fastqs_2]
         }
-        .last()
         .set { joined }
 
         //
