@@ -137,6 +137,7 @@ workflow CRISPRSEQ_SCREENING {
         .map { condition, fastqs_1, single_end, fastqs_2 ->
             [[id: condition, single_end: single_end], fastqs_1, fastqs_2]
         }
+        .last()
         .set { joined }
 
         //
