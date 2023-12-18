@@ -16,6 +16,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 - [Preprocessing](#preprocessing)
   - [FastQC](#fastqc) - Read Quality Control
+  - [cutadapt](#cutadapt) - Trimming reads from fastq files
 - [Counting](#counting)
   - [MAGeCK count](#mageck-count) - Mapping reads to reference
 - [CNV correction](#cnv-correction))
@@ -41,6 +42,20 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 </details>
 
 [FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your sequenced reads. It provides information about the quality score distribution across your reads, per base sequence content (%A/T/G/C), adapter contamination and overrepresented sequences. For further reading and documentation see the [FastQC help pages](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
+
+### cutadapt
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `cutadapt/`
+  - `*.log`: log file of the command ran and the output
+  - `*.trim.fastq.gz`: trimmed fastq files
+
+</details>
+
+[cutadapt](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/). Cutadapt finds and removes adapter sequences, primers, poly-A tails and other types of unwanted sequence from your high-throughput sequencing reads. MAGeCK count normally automatically detects adapter sequences and trims, however if trimming lengths are different, cutadapt can be used, as mentioned [here](https://sourceforge.net/p/mageck/wiki/advanced_tutorial/).
+For further reading and documentation see the [cutadapt helper page](https://cutadapt.readthedocs.io/en/stable/guide.html).
 
 ## Counting
 

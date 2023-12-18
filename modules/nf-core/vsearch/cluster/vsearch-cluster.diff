@@ -1,59 +1,14 @@
 Changes in module 'nf-core/vsearch/cluster'
 --- modules/nf-core/vsearch/cluster/main.nf
 +++ modules/nf-core/vsearch/cluster/main.nf
-@@ -20,7 +20,7 @@
-     tuple val(meta), path('*.blast.tsv.gz')          , optional: true, emit: blast
-     tuple val(meta), path('*.uc.tsv.gz')             , optional: true, emit: uc
-     tuple val(meta), path('*.centroids.fasta.gz')    , optional: true, emit: centroids
--    tuple val(meta), path('*.clusters.fasta.gz')     , optional: true, emit: clusters
-+    tuple val(meta), path('*_clusters*')             , optional: true, emit: clusters
-     tuple val(meta), path('*.profile.txt.gz')        , optional: true, emit: profile
-     tuple val(meta), path('*.msa.fasta.gz')          , optional: true, emit: msa
-     path "versions.yml"                              , emit: versions
-@@ -37,16 +37,16 @@
-     if (!args2.contains("--cluster_fast") && !args2.contains("--cluster_size") && !args2.contains("--cluster_smallmem") && !args2.contains("--cluster_unoise") ) {
-             error "Unknown clustering option provided (${args2})"
-         }
--    def out_ext = args3.contains("--alnout") ? "aln" :
--                    args3.contains("--biomout") ? "biom" :
--                    args3.contains("--blast6out") ? "blast.tsv" :
--                    args3.contains("--centroids") ? "centroids.fasta" :
--                    args3.contains("--clusters") ? "clusters.fasta" :
--                    args3.contains("--mothur_shared_out") ? "mothur.tsv" :
--                    args3.contains("--msaout") ? "msa.fasta" :
--                    args3.contains("--otutabout") ? "otu.tsv" :
--                    args3.contains("--profile") ? "profile.txt" :
--                    args3.contains("--samout") ? "sam" :
-+    def out_ext = args3.contains("--alnout") ? ".aln" :
-+                    args3.contains("--biomout") ? ".biom" :
-+                    args3.contains("--blast6out") ? ".blast.tsv" :
-+                    args3.contains("--centroids") ? ".centroids.fasta" :
-+                    args3.contains("--clusters") ? "_clusters" :
-+                    args3.contains("--mothur_shared_out") ? ".mothur.tsv" :
-+                    args3.contains("--msaout") ? ".msa.fasta" :
-+                    args3.contains("--otutabout") ? ".otu.tsv" :
-+                    args3.contains("--profile") ? ".profile.txt" :
-+                    args3.contains("--samout") ? ".sam" :
-                     args3.contains("--uc") ? "uc.tsv" :
-                     args3.contains("--userout") ? "out.tsv" :
-                     ""
-@@ -54,16 +54,9 @@
-     """
-     vsearch \\
-         $args2 $fasta \\
--        $args3 ${prefix}.${out_ext} \\
-+        $args3 ${prefix}${out_ext} \\
-         --threads $task.cpus \\
-         $args
--
--    if [[ $args3 != "--samout" ]]
--    then
--        gzip -n ${prefix}.${out_ext}
--    else
--        samtools view -T $fasta -S -b ${prefix}.${out_ext} > ${prefix}.bam
--    fi
+@@ -60,7 +60,7 @@
  
-     cat <<-END_VERSIONS > versions.yml
-     "${task.process}":
+     if [[ $args3 == "--clusters" ]]
+     then
+-        gzip -n ${prefix}.${out_ext}*
++        :
+     elif [[ $args3 != "--samout" ]]
+     then
+         gzip -n ${prefix}.${out_ext}
 
 ************************************************************

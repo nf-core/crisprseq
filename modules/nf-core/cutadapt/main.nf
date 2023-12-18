@@ -2,7 +2,7 @@ process CUTADAPT {
     tag "$meta.id"
     label 'process_medium'
 
-    conda "bioconda::cutadapt=3.4"
+    conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/cutadapt:3.4--py39h38f01e4_1' :
         'biocontainers/cutadapt:3.4--py39h38f01e4_1' }"
@@ -21,7 +21,6 @@ process CUTADAPT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    if (adapter_seq != [])
     """
     cutadapt \\
         --cores $task.cpus \\
@@ -34,14 +33,7 @@ process CUTADAPT {
         cutadapt: \$(cutadapt --version)
     END_VERSIONS
     """
-    else
-    """
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        cutadapt: \$(cutadapt --version)
-    END_VERSIONS
-    """
-
+    
     stub:
     def prefix  = task.ext.prefix ?: "${meta.id}"
     def trimmed = meta.single_end ? "${prefix}.trim.fastq.gz" : "${prefix}_1.trim.fastq.gz ${prefix}_2.trim.fastq.gz"

@@ -10,7 +10,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir", "analysis"],
+            "required": ["outdir", "analysis"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -182,6 +182,10 @@
                 "crisprcleanr": {
                     "type": "string",
                     "description": "sgRNA library annotation for crisprcleanR"
+                },
+                "cutadapt": {
+                    "type": "string",
+                    "description": "cut adapter for screening analysis"
                 },
                 "min_reads": {
                     "type": "number",
