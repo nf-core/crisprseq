@@ -24,9 +24,8 @@ def text_to_fasta(lines) {
             while ( line1=it.readLine() ) {
                 if (line1.size() >= 2) {
                     def fields = line1.split()
-                    sequence1 = "> ${fields[0]}"
-                    //println(sequence1)
-                    id1 = fields[1]
+                    sequence1 = "> ${fields[1]}"
+                    id1 = fields[0]
                     sequences = sequences + sequence1 + "\n" + id1 + "\n"
                     }
                 }
@@ -34,18 +33,7 @@ def text_to_fasta(lines) {
             return sequences
         }
 
-// Set screening parameters and channels
-if (params.library) {
-    ch_library = Channel.fromPath(params.library)
-    ch_library.map { test ->
-        fasta_line = text_to_fasta(test)
-        [fasta_line]
-    }.collectFile(name: "test.fa")
-    .view()
-    .set{ ch_fasta }
 
-    ch_fasta.dump(tag: "test")
-}
 
 if (params.crisprcleanr) { ch_crisprcleanr = Channel.value(params.crisprcleanr) }
 
@@ -121,9 +109,18 @@ workflow CRISPRSEQ_SCREENING {
         return   [ meta + [ single_end:fastq_2?false:true ], fastq_2?[ fastq_1, fastq_2 ]:[ fastq_1 ] ]        }
         .set { ch_input }
 
+        if (params.library) {
+            library_file = file(params.library)
+            ch_library = Channel.fromPath(library_file)
+            ch_library.map { test ->
+            fasta_line = text_to_fasta(test)
+            fasta_line
+        }.collectFile(name: 'library.fa', newLine: true).set{ ch_fasta }
+
+        }
 
         ch_text_to_fasta = Channel.of([id: "text to fasta"])
-        ch_text_to_fasta.concat(ch_fasta).collect().dump(tag: "DUMPING CHANNEL")
+        test = ch_text_to_fasta.concat(ch_fasta).collect()
         BOWTIE2_BUILD(ch_text_to_fasta.concat(ch_fasta).collect())
 
         //
