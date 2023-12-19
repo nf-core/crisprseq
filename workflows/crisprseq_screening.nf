@@ -15,8 +15,38 @@ log.info logo + paramsSummaryLog(workflow) + citation
 
 WorkflowCrisprseq.initialise(params, log)
 
+def text_to_fasta(lines) {
+        String line1
+        String sequence1
+        String sequences = ""
+        String id1
+        lines.withReader {
+            while ( line1=it.readLine() ) {
+                if (line1.size() >= 2) {
+                    def fields = line1.split()
+                    sequence1 = "> ${fields[0]}"
+                    //println(sequence1)
+                    id1 = fields[1]
+                    sequences = sequences + sequence1 + "\n" + id1 + "\n"
+                    }
+                }
+            }
+            return sequences
+        }
+
 // Set screening parameters and channels
-if (params.library) { ch_library = file(params.library) }
+if (params.library) {
+    ch_library = Channel.fromPath(params.library)
+    ch_library.map { test ->
+        fasta_line = text_to_fasta(test)
+        [fasta_line]
+    }.collectFile(name: "test.fa")
+    .view()
+    .set{ ch_fasta }
+
+    ch_fasta.dump(tag: "test")
+}
+
 if (params.crisprcleanr) { ch_crisprcleanr = Channel.value(params.crisprcleanr) }
 
 if(params.mle_design_matrix) {
@@ -67,7 +97,7 @@ include { BAGEL2_FC                   } from '../modules/local/bagel2/fc'
 include { BAGEL2_BF                   } from '../modules/local/bagel2/bf'
 include { BAGEL2_PR                   } from '../modules/local/bagel2/pr'
 include { BAGEL2_GRAPH                } from '../modules/local/bagel2/graph'
-
+include { BOWTIE2_BUILD               } from '../modules/nf-core/bowtie2/build/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -91,6 +121,10 @@ workflow CRISPRSEQ_SCREENING {
         return   [ meta + [ single_end:fastq_2?false:true ], fastq_2?[ fastq_1, fastq_2 ]:[ fastq_1 ] ]        }
         .set { ch_input }
 
+
+        ch_text_to_fasta = Channel.of([id: "text to fasta"])
+        ch_text_to_fasta.concat(ch_fasta).collect().dump(tag: "DUMPING CHANNEL")
+        BOWTIE2_BUILD(ch_text_to_fasta.concat(ch_fasta).collect())
 
         //
         // MODULE: Run FastQC
