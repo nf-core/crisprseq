@@ -13,11 +13,33 @@ class WorkflowCrisprseq {
     public static void initialise(params, log) {
 
         genomeExistsError(params, log)
+    }
 
+    //
+    // Function to validate channels from input samplesheet
+    //
+    public static ArrayList validateInput(input) {
+        def (metas, fastqs) = input[1..2]
 
-        if (!params.fasta) {
-            Nextflow.error "Genome fasta file not specified with e.g. '--fasta genome.fa' or via a detectable config file."
+        // Check that multiple runs of the same sample are of the same datatype i.e. single-end / paired-end
+        def endedness_ok = metas.collect{ it.single_end }.unique().size == 1
+        if (!endedness_ok) {
+            Nextflow.error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${metas[0].id}")
         }
+
+        // Check that multiple runs of the same sample contain a reference or not
+        def reference_ok = metas.collect{ it.self_reference }.unique().size == 1
+        if (!reference_ok) {
+            Nextflow.error("Please check input samplesheet -> Multiple runs of a sample must all contain a reference or not: ${metas[0].id}")
+        }
+
+        // Check that multiple runs of the same sample contain a template or not
+        def template_ok = metas.collect{ it.template }.unique().size == 1
+        if (!template_ok) {
+            Nextflow.error("Please check input samplesheet -> Multiple runs of a sample must all contain a template or not: ${metas[0].id}")
+        }
+
+        return [ metas[0], fastqs ]
     }
 
     //

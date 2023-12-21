@@ -1,0 +1,44 @@
+Changes in module 'nf-core/cutadapt'
+--- modules/nf-core/cutadapt/main.nf
++++ modules/nf-core/cutadapt/main.nf
+@@ -8,11 +8,11 @@
+         'biocontainers/cutadapt:3.4--py39h38f01e4_1' }"
+ 
+     input:
+-    tuple val(meta), path(reads)
++    tuple val(meta), path(reads), path(adapter_seq)
+ 
+     output:
+-    tuple val(meta), path('*.trim.fastq.gz'), emit: reads
+-    tuple val(meta), path('*.log')          , emit: log
++    tuple val(meta), path('*.trim.fastq.gz'), optional: true, emit: reads
++    tuple val(meta), path('*.log')          , optional: true, emit: log
+     path "versions.yml"                     , emit: versions
+ 
+     when:
+@@ -21,14 +21,21 @@
+     script:
+     def args = task.ext.args ?: ''
+     def prefix = task.ext.prefix ?: "${meta.id}"
+-    def trimmed  = meta.single_end ? "-o ${prefix}.trim.fastq.gz" : "-o ${prefix}_1.trim.fastq.gz -p ${prefix}_2.trim.fastq.gz"
++    if (adapter_seq != [])
+     """
+     cutadapt \\
+         --cores $task.cpus \\
+         $args \\
+-        $trimmed \\
++        -o ${prefix}.trim.fastq.gz \\
+         $reads \\
+         > ${prefix}.cutadapt.log
++    cat <<-END_VERSIONS > versions.yml
++    "${task.process}":
++        cutadapt: \$(cutadapt --version)
++    END_VERSIONS
++    """
++    else
++    """
+     cat <<-END_VERSIONS > versions.yml
+     "${task.process}":
+         cutadapt: \$(cutadapt --version)
+
+************************************************************

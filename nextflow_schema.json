@@ -10,12 +10,13 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir"],
+            "required": ["outdir", "analysis"],
             "properties": {
                 "input": {
                     "type": "string",
                     "format": "file-path",
                     "exists": true,
+                    "schema": "assets/schema_input.json",
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.csv$",
                     "description": "Path to comma-separated file containing information about the samples in the experiment.",
@@ -27,6 +28,12 @@
                     "format": "directory-path",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
+                },
+                "analysis": {
+                    "type": "string",
+                    "fa_icon": "fas fa-cog",
+                    "description": "Type of analysis to perform. Targeted for targeted CRISPR experiments and screening for CRISPR screening experiments.",
+                    "enum": ["screening", "targeted"]
                 },
                 "email": {
                     "type": "string",
@@ -42,6 +49,166 @@
                 }
             }
         },
+        "targeted_pipeline_steps": {
+            "title": "targeted pipeline steps",
+            "type": "object",
+            "description": "Alternative pipeline steps to include in the targeted analysis.",
+            "default": "",
+            "properties": {
+                "overrepresented": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-sort-numeric-up-alt",
+                    "description": "Trim overrepresented sequences from reads (cutadapt)"
+                },
+                "umi_clustering": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-layer-group",
+                    "description": "If the sample contains umi-molecular identifyers (UMIs), run the UMI extraction, clustering and consensus steps."
+                }
+            },
+            "fa_icon": "fas fa-shoe-prints"
+        },
+        "umi_parameters": {
+            "title": "UMI parameters",
+            "type": "object",
+            "description": "Parameters regarding umi molecular identifiers (UMIs)",
+            "default": "",
+            "properties": {
+                "umi_bin_size": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Minimum size of a UMI cluster.",
+                    "fa_icon": "fas fa-sort-amount-down"
+                },
+                "medaka_model": {
+                    "type": "string",
+                    "default": "r941_min_high_g360",
+                    "fa_icon": "fas fa-font",
+                    "description": "Medaka model (-m) to use according to the basecaller used."
+                }
+            },
+            "fa_icon": "fas fa-layer-group"
+        },
+        "targeted_parameters": {
+            "title": "Targeted parameters",
+            "type": "object",
+            "description": "Parameters used for alignment processes",
+            "default": "",
+            "properties": {
+                "aligner": {
+                    "type": "string",
+                    "description": "Aligner program to use.",
+                    "default": "minimap2",
+                    "fa_icon": "fas fa-align-justify",
+                    "enum": ["minimap2", "bwa", "bowtie2"]
+                },
+                "protospacer": {
+                    "type": "string",
+                    "fa_icon": "fas fa-grip-lines",
+                    "description": "Provide the same protospacer sequence for all samples. Will override protospacer sequences provided by an input samplesheet."
+                }
+            },
+            "fa_icon": "fas fa-align-justify"
+        },
+        "vsearch_parameters": {
+            "title": "Vsearch parameters",
+            "type": "object",
+            "description": "Parameters to use in Vsearch processes",
+            "default": "",
+            "properties": {
+                "vsearch_minseqlength": {
+                    "type": "integer",
+                    "default": 55,
+                    "fa_icon": "fas fa-minus",
+                    "description": "Vsearch minimum sequence length.",
+                    "help_text": "Discard sequences shorter than vsearch_minseqlength.",
+                    "minimum": 1
+                },
+                "vsearch_maxseqlength": {
+                    "type": "integer",
+                    "default": 57,
+                    "fa_icon": "fas fa-plus",
+                    "description": "Vsearch maximum sequence length.",
+                    "help_text": "Discard sequences longer than vsearch_minseqlength.",
+                    "minimum": 1
+                },
+                "vsearch_id": {
+                    "type": "number",
+                    "default": 0.99,
+                    "fa_icon": "fas fa-equals",
+                    "description": "Vsearch pairwise identity threshold.",
+                    "help_text": "Do not add the target to the cluster if the pairwise identity with the centroid is lower than id. The pairwise identity is defined as the number of (matching columns) / (alignment length - terminal gaps).",
+                    "minimum": 0,
+                    "maximum": 1
+                }
+            },
+            "fa_icon": "fas fa-layer-group"
+        },
+        "screening_parameters": {
+            "title": "Screening parameters",
+            "type": "object",
+            "description": "Parameters used for functional genomic screenings",
+            "default": "",
+            "properties": {
+                "mle_design_matrix": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "description": "Design matrix used for MAGeCK MLE to call essential genes under multiple conditions while considering sgRNA knockout efficiency"
+                },
+                "rra_contrasts": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "description": "Comma-separated file with the conditions to be compared. The first one will be the reference (control)"
+                },
+                "count_table": {
+                    "type": "string",
+                    "format": "file-path",
+                    "pattern": "^\\S+\\.(tsv|txt)$",
+                    "mimetype": "text/tsv",
+                    "exists": true,
+                    "description": "Please provide your count table if the mageck test should be skipped."
+                },
+                "library": {
+                    "type": "string",
+                    "format": "file-path",
+                    "pattern": "^\\S+\\.(tsv|txt)$",
+                    "mimetype": "text/tsv",
+                    "exists": true,
+                    "fa_icon": "far fa-address-book",
+                    "description": "sgRNA and targetting genes, tab separated"
+                },
+                "crisprcleanr": {
+                    "type": "string",
+                    "description": "sgRNA library annotation for crisprcleanR"
+                },
+                "cutadapt": {
+                    "type": "string",
+                    "description": "cut adapter for screening analysis"
+                },
+                "min_reads": {
+                    "type": "number",
+                    "description": "a filter threshold value for sgRNAs, based on their average counts in the control sample",
+                    "default": 30.0
+                },
+                "min_targeted_genes": {
+                    "type": "number",
+                    "description": "Minimal number of different genes targeted by sgRNAs in a biased segment in order for the corresponding counts to be corrected for CRISPRcleanR",
+                    "default": 3.0
+                },
+                "bagel_reference_essentials": {
+                    "type": "string",
+                    "description": "Core essential gene set for BAGEL2",
+                    "default": "https://raw.githubusercontent.com/hart-lab/bagel/master/CEGv2.txt"
+                },
+                "bagel_reference_nonessentials": {
+                    "type": "string",
+                    "description": "Non essential gene set  for BAGEL2",
+                    "default": "https://raw.githubusercontent.com/hart-lab/bagel/master/NEGv1.txt"
+                }
+            }
+        },
         "reference_genome_options": {
             "title": "Reference genome options",
             "type": "object",
@@ -54,15 +221,14 @@
                     "fa_icon": "fas fa-book",
                     "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`. \n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
                 },
-                "fasta": {
+                "reference_fasta": {
                     "type": "string",
                     "format": "file-path",
                     "exists": true,
                     "mimetype": "text/plain",
                     "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
-                    "description": "Path to FASTA genome file.",
-                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
-                    "fa_icon": "far fa-file-code"
+                    "description": "Path to the reference FASTA file. Will override reference sequences provided by an input sample sheet.",
+                    "fa_icon": "far fa-file-alt"
                 },
                 "igenomes_ignore": {
                     "type": "boolean",
@@ -222,18 +388,23 @@
                 "multiqc_config": {
                     "type": "string",
                     "format": "file-path",
+                    "exists": true,
                     "description": "Custom config file to supply to MultiQC.",
                     "fa_icon": "fas fa-cog",
                     "hidden": true
                 },
                 "multiqc_logo": {
                     "type": "string",
+                    "format": "file-path",
+                    "exists": true,
                     "description": "Custom logo file to supply to MultiQC. File name must also be set in the MultiQC config file",
                     "fa_icon": "fas fa-image",
                     "hidden": true
                 },
                 "multiqc_methods_description": {
                     "type": "string",
+                    "format": "file-path",
+                    "exists": true,
                     "description": "Custom MultiQC yaml file containing HTML including a methods description.",
                     "fa_icon": "fas fa-cog"
                 },
@@ -250,6 +421,13 @@
                     "description": "Show all params when using `--help`",
                     "hidden": true,
                     "help_text": "By default, parameters set as _hidden_ in the schema are not shown on the command line when a user runs with `--help`. Specifying this option will tell the pipeline to show all parameters."
+                },
+                "validationSchemaIgnoreParams": {
+                    "type": "string",
+                    "default": "genomes",
+                    "description": "Ignore JSON schema validation of the following params",
+                    "fa_icon": "fas fa-ban",
+                    "hidden": true
                 },
                 "validationFailUnrecognisedParams": {
                     "type": "boolean",
@@ -271,6 +449,21 @@
     "allOf": [
         {
             "$ref": "#/definitions/input_output_options"
+        },
+        {
+            "$ref": "#/definitions/targeted_pipeline_steps"
+        },
+        {
+            "$ref": "#/definitions/umi_parameters"
+        },
+        {
+            "$ref": "#/definitions/targeted_parameters"
+        },
+        {
+            "$ref": "#/definitions/vsearch_parameters"
+        },
+        {
+            "$ref": "#/definitions/screening_parameters"
         },
         {
             "$ref": "#/definitions/reference_genome_options"

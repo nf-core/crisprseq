@@ -17,10 +17,7 @@ nextflow.enable.dsl = 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-// TODO nf-core: Remove this line if you don't need a FASTA file
-//   This is an example of how to use getGenomeAttribute() to fetch parameters
-//   from igenomes.config using `--genome`
-params.fasta = WorkflowMain.getGenomeAttribute(params, 'fasta')
+params.reference_fasta = params.reference_fasta ?: WorkflowMain.getGenomeAttribute(params, 'fasta')
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,13 +49,18 @@ WorkflowMain.initialise(workflow, params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { CRISPRSEQ } from './workflows/crisprseq'
+include { CRISPRSEQ_TARGETED  } from './workflows/crisprseq_targeted'
+include { CRISPRSEQ_SCREENING } from './workflows/crisprseq_screening'
 
 //
 // WORKFLOW: Run main nf-core/crisprseq analysis pipeline
 //
 workflow NFCORE_CRISPRSEQ {
-    CRISPRSEQ ()
+    if ( params.analysis == "targeted" ) {
+        CRISPRSEQ_TARGETED ()
+    } else if ( params.analysis == "screening" ) {
+        CRISPRSEQ_SCREENING ()
+    }
 }
 
 /*

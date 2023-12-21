@@ -1,0 +1,14 @@
+Changes in module 'nf-core/vsearch/cluster'
+--- modules/nf-core/vsearch/cluster/main.nf
++++ modules/nf-core/vsearch/cluster/main.nf
+@@ -60,7 +60,7 @@
+ 
+     if [[ $args3 == "--clusters" ]]
+     then
+-        gzip -n ${prefix}.${out_ext}*
++        :
+     elif [[ $args3 != "--samout" ]]
+     then
+         gzip -n ${prefix}.${out_ext}
+
+************************************************************
