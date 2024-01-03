@@ -114,7 +114,7 @@ workflow CRISPRSEQ_SCREENING {
             ch_library = Channel.fromPath(library_file)
             ch_library.map { test ->
                         text_to_fasta(test)
-        }.collectFile(name: 'library.fa', newLine: true).set{ ch_fasta }
+                }.collectFile(name: 'library.fa', newLine: true).set{ ch_fasta }
 
         }
 
