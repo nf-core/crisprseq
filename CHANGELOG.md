@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Update all modules to the last version in nf-core/modules ([#92](https://github.com/nf-core/crisprseq/pull/92))
+- More documentation for screening analysis.  ([#99](https://github.com/nf-core/crisprseq/pull/99))
+- Contrasts are now given under a different flag and MAGeCK MLE and BAGEL2 are automatically run instead of MAGeCK RRA. ([#99](https://github.com/nf-core/crisprseq/pull/99))
 
 ## [v2.1.0 - Jamon Salas](https://github.com/nf-core/crisprseq/releases/tag/2.1.0) - [14.11.2023]
 
