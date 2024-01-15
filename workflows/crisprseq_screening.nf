@@ -17,7 +17,13 @@ WorkflowCrisprseq.initialise(params, log)
 
 // Set screening parameters and channels
 if (params.library) { ch_library = file(params.library) }
-if (params.crisprcleanr) { ch_crisprcleanr = Channel.value(params.crisprcleanr) }
+if (params.crisprcleanr) {
+    if(params.crisprcleanr.endsWith(".csv")) {
+        ch_crisprcleanr_file = file(params.crisprcleanr)
+    } else {
+    ch_crisprcleanr_value = Channel.value(params.crisprcleanr)
+        }
+    }
 
 if(params.mle_design_matrix) {
     Channel.fromPath(params.mle_design_matrix)
@@ -170,14 +176,25 @@ workflow CRISPRSEQ_SCREENING {
         .set { ch_counts }
     }
 
-
     if(params.crisprcleanr) {
-        ch_crispr_normalize = Channel.of([id: "count_table_normalize"])
-        CRISPRCLEANR_NORMALIZE(
-            ch_crispr_normalize.concat(ch_counts,ch_crisprcleanr).collect(),
-            params.min_reads,
-            params.min_targeted_genes
-        )
+        ch_crispr_normalize = Channel.of([id: "count_table_normalize"]).concat(ch_counts)
+
+        if(params.crisprcleanr.endsWith(".csv")) {
+            CRISPRCLEANR_NORMALIZE(
+                ch_crispr_normalize.collect(),
+                ch_crisprcleanr_file,
+                params.min_reads,
+                params.min_targeted_genes
+        ) } else
+        {
+            ch_crispr_normalize = Channel.of([id: "count_table_normalize"]).concat(ch_counts)
+            CRISPRCLEANR_NORMALIZE(
+                ch_crispr_normalize.collect(),
+                ch_crisprcleanr_value,
+                Channel.empty(),
+                params.min_reads,
+                params.min_targeted_genes)
+        }
 
         ch_versions = ch_versions.mix(CRISPRCLEANR_NORMALIZE.out.versions)
 
@@ -263,7 +280,6 @@ workflow CRISPRSEQ_SCREENING {
         )
 
         ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
-
 
     }
 

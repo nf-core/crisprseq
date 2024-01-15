@@ -22,7 +22,7 @@ process MATRICESCREATION {
     #### author: Laurence Kuhlburger
     #### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
     ####
-    #### Orient a reference sequence according to reads orientation.
+    #### Create design matrices
 
     data <- read.table("$contrasts", header = TRUE, sep = ";", stringsAsFactors = FALSE)
     # Loop through each row in the data
