@@ -25,7 +25,6 @@ process MATRICESCREATION {
     #### Orient a reference sequence according to reads orientation.
 
     data <- read.table("$contrasts", header = TRUE, sep = ";", stringsAsFactors = FALSE)
-    print(data)
     # Loop through each row in the data
     for (i in 1:nrow(data)) {
         # Extract control and treatment samples for the current row
