@@ -86,6 +86,8 @@ include { BAGEL2_BF                   } from '../modules/local/bagel2/bf'
 include { BAGEL2_PR                   } from '../modules/local/bagel2/pr'
 include { BAGEL2_GRAPH                } from '../modules/local/bagel2/graph'
 include { BOWTIE2_BUILD               } from '../modules/nf-core/bowtie2/build/main'
+include { BOWTIE2_ALIGN               } from '../modules/nf-core/bowtie2/align/main'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -101,6 +103,23 @@ workflow CRISPRSEQ_SCREENING {
 
     if(!params.count_table){
         //
+        // If bowtie aligner is used, convert the library in text format to a fasta file
+        //
+        if (params.library) {
+            ch_library = Channel.fromPath(params.library)
+            ch_library.map { line ->
+            fasta_line = text_to_fasta(line)
+            fasta_line
+            }.collectFile(name: 'library.fa', newLine: true).set{ ch_fasta }
+        }
+        ch_text_to_fasta = Channel.of([id: "text to fasta"])
+        if(params.fasta){ ch_fasta = Channel.fromPath(params.fasta) }
+
+        // create bowtie index
+        BOWTIE2_BUILD(ch_text_to_fasta.concat(ch_fasta).collect())
+        //ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
+
+        //
         // Create input channel from input file provided through params.input
         //
         Channel.fromSamplesheet("input")
@@ -108,35 +127,21 @@ workflow CRISPRSEQ_SCREENING {
             // x (reference), y (protospacer), and z (template) are part of the targeted workflows and we don't need them
         return   [ meta + [ single_end:fastq_2?false:true ], fastq_2?[ fastq_1, fastq_2 ]:[ fastq_1 ] ]        }
         .set { ch_input }
+        ch_input.dump(tag: "ch_input")
 
-        if (params.library) {
-            library_file = file(params.library)
-            ch_library = Channel.fromPath(library_file)
-            ch_library.map { test ->
-                        text_to_fasta(test)
-                }.collectFile(name: 'library.fa', newLine: true).set{ ch_fasta }
-
-        }
-
-        ch_text_to_fasta = Channel.of([id: "text to fasta"])
-        test = ch_text_to_fasta.concat(ch_fasta).collect()
-        BOWTIE2_BUILD(ch_text_to_fasta.concat(ch_fasta).collect())
-
-        //
-        // MODULE: Run FastQC
-        //
-        FASTQC (
-            ch_input
+        BOWTIE2_ALIGN (
+            ch_input,
+            BOWTIE2_BUILD.out.index,
+            false,
+            false
         )
-        ch_versions = ch_versions.mix(FASTQC.out.versions.first())
-
 
         ch_input_cutadapt = ch_input.combine(Channel.value([[]]))
 
-    if(params.cutadapt) {
-        CUTADAPT(
-            ch_input_cutadapt
-        )
+        if(params.cutadapt) {
+            CUTADAPT(
+                ch_input_cutadapt
+            )
         ch_versions = ch_versions.mix(CUTADAPT.out.versions)
 
         CUTADAPT.out.reads
@@ -145,6 +150,14 @@ workflow CRISPRSEQ_SCREENING {
         }
         .set { ch_input }
         }
+
+        //
+        // MODULE: Run FastQC
+        //
+        FASTQC (
+            ch_input
+        )
+        ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
         // this is to concatenate everything for mageck count
 
@@ -280,9 +293,9 @@ workflow CRISPRSEQ_SCREENING {
 
     }
 
-    CUSTOM_DUMPSOFTWAREVERSIONS (
-        ch_versions.unique{ it.text }.collectFile(name: 'collated_versions.yml')
-    )
+    //CUSTOM_DUMPSOFTWAREVERSIONS (
+      //  ch_versions.unique{ it.text }.collectFile(name: 'collated_versions.yml')
+    //)
 
     //
     // MODULE: MultiQC
@@ -296,21 +309,21 @@ workflow CRISPRSEQ_SCREENING {
     ch_multiqc_files = Channel.empty()
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
-    ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
+    //ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
     if(!params.count_table) {
         ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
     } else {
         ch_multiqc_files = channel.empty()
     }
 
-    MULTIQC (
-        ch_multiqc_files.collect(),
-        ch_multiqc_config.collect().ifEmpty([]),
-        ch_multiqc_custom_config.collect().ifEmpty([]),
-        ch_multiqc_logo.collect().ifEmpty([])
-    )
-    multiqc_report = MULTIQC.out.report.toList()
-    ch_versions    = ch_versions.mix(MULTIQC.out.versions)
+    //MULTIQC (
+      //  ch_multiqc_files.collect(),
+       // ch_multiqc_config.collect().ifEmpty([]),
+        //ch_multiqc_custom_config.collect().ifEmpty([]),
+        //ch_multiqc_logo.collect().ifEmpty([])
+    //)
+    //multiqc_report = MULTIQC.out.report.toList()
+    //h_versions    = ch_versions.mix(MULTIQC.out.versions)
 }
 
 /*
