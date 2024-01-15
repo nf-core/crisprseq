@@ -24,6 +24,14 @@ if(params.mle_design_matrix) {
         .set { ch_design }
 }
 
+if(params.rra && params.mle_design_matrix) {
+    warning "mle_design_matrix will only be used for the MAGeCK MLE computations"
+    }
+
+if(params.rra && !params.contrasts) {
+    error "Please also provide the contrasts table to compare the samples for MAGeCK RRA"
+    }
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
@@ -67,6 +75,7 @@ include { BAGEL2_FC                   } from '../modules/local/bagel2/fc'
 include { BAGEL2_BF                   } from '../modules/local/bagel2/bf'
 include { BAGEL2_PR                   } from '../modules/local/bagel2/pr'
 include { BAGEL2_GRAPH                } from '../modules/local/bagel2/graph'
+include { MATRICESCREATION            } from '../modules/local/matricescreation'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -176,8 +185,8 @@ workflow CRISPRSEQ_SCREENING {
         }.set { ch_counts }
     }
 
-    if(params.rra_contrasts) {
-        Channel.fromPath(params.rra_contrasts)
+    if(params.rra) {
+        Channel.fromPath(params.contrasts)
             .splitCsv(header:true, sep:';' )
             .set { ch_contrasts }
         counts = ch_contrasts.combine(ch_counts)
@@ -194,8 +203,8 @@ workflow CRISPRSEQ_SCREENING {
         ch_versions = ch_versions.mix(MAGECK_GRAPHRRA.out.versions)
     }
 
-    if(params.rra_contrasts) {
-        Channel.fromPath(params.rra_contrasts)
+    if(params.contrasts) {
+        Channel.fromPath(params.contrasts)
             .splitCsv(header:true, sep:';' )
             .set { ch_bagel }
     counts = ch_bagel.combine(ch_counts)
@@ -235,8 +244,14 @@ workflow CRISPRSEQ_SCREENING {
 
     }
 
-    if(params.mle_design_matrix) {
-        ch_mle = ch_counts.combine(ch_design)
+    if((params.mle_design_matrix) || (params.contrasts && !params.rra)) {
+        if(params.mle_design_matrix) {
+            ch_mle = ch_counts.combine(ch_design)
+            }
+        if(params.contrasts) {
+            MATRICESCREATION(params.contrasts)
+            ch_mle = ch_counts.combine(MATRICESCREATION.out.design_matrix)
+        }
         ch_mle.map {
             it -> [[id: it[1].getBaseName()], it[0], it[1]]
         }.set { ch_designed_mle }

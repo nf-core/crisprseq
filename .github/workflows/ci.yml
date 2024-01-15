@@ -29,8 +29,10 @@ jobs:
         ANALYSIS:
           - "test_screening"
           - "test_screening_paired"
+          - "test_screening_rra"
           - "test_targeted"
           - "test_umis"
+
     steps:
       - name: Check out pipeline code
         uses: actions/checkout@v4
