@@ -76,6 +76,7 @@ include { BAGEL2_BF                   } from '../modules/local/bagel2/bf'
 include { BAGEL2_PR                   } from '../modules/local/bagel2/pr'
 include { BAGEL2_GRAPH                } from '../modules/local/bagel2/graph'
 include { MATRICESCREATION            } from '../modules/local/matricescreation'
+include { VENNDIAGRAM                 } from '../modules/local/venndiagram'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -249,18 +250,29 @@ workflow CRISPRSEQ_SCREENING {
             ch_mle = ch_counts.combine(ch_design)
             }
         if(params.contrasts) {
-            MATRICESCREATION(params.contrasts)
+            MATRICESCREATION(Channel.fromPath(params.contrasts))
             ch_mle = ch_counts.combine(MATRICESCREATION.out.design_matrix)
         }
         ch_mle.map {
             it -> [[id: it[1].getBaseName()], it[0], it[1]]
         }.set { ch_designed_mle }
+        ch_designed_mle.dump(tag: "ch_designed_mle")
+        //TODO TIDY UP THIS CODE
+        BAGEL2_PR.out.pr.map {
+            it -> [[id: it[1].getBaseName()], it[1]]
+        }.set { ch_testing }
+        //ch_testing.dump(tag: "BAGEL2 out PR")
 
         MAGECK_MLE (
             ch_designed_mle
         )
-
         ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
+
+        ch_venndiagram = ch_testing.join(MAGECK_MLE.out.gene_summary)
+        MAGECK_MLE.out.gene_summary.dump(tag: "MLE")
+        ch_venndiagram.dump(tag: "Venn")
+        VENNDIAGRAM(ch_venndiagram)
+
 
 
     }
