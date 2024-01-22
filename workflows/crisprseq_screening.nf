@@ -245,17 +245,19 @@ workflow CRISPRSEQ_SCREENING {
     }
 
     if((params.mle_design_matrix) || (params.contrasts && !params.rra)) {
+        //TODO FINISH THIS PART!!  If you see this in a PR please point it out to me
         if(params.mle_design_matrix) {
-            ch_mle = ch_counts.combine(ch_design)
-            }
+            ch_mle = ch_design.combine.ch_counts
+            ch_design.map {
+                it -> [[id: it.getBaseName()], it]
+                }.set { ch_designed_test }
+        }
         if(params.contrasts) {
             MATRICESCREATION(ch_contrasts)
             ch_mle = MATRICESCREATION.out.design_matrix.combine(ch_counts)
             MAGECK_MLE (ch_mle)
             ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
         }
-
-
       //  ch_test.map {
         //    it -> [[id: it[0].getBaseName()], it]
         //}.set { ch_designed_test }
