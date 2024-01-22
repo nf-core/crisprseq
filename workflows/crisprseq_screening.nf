@@ -116,7 +116,6 @@ workflow CRISPRSEQ_SCREENING {
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
 
-        empty_channel = Channel.value([[]])
         ch_input_cutadapt = ch_input.combine(Channel.value([[]]))
 
     if(params.cutadapt) {
@@ -155,7 +154,6 @@ workflow CRISPRSEQ_SCREENING {
         }
         .last()
         .set { joined }
-
 
         //
         // MODULE: Run mageck count
