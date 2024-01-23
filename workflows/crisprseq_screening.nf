@@ -21,7 +21,7 @@ if (params.crisprcleanr) {
     if(params.crisprcleanr.endsWith(".csv")) {
         ch_crisprcleanr_file = file(params.crisprcleanr)
     } else {
-    ch_crisprcleanr_value = Channel.value(params.crisprcleanr)
+        ch_crisprcleanr_value = Channel.value(params.crisprcleanr)
         }
     }
 
@@ -180,6 +180,7 @@ workflow CRISPRSEQ_SCREENING {
         if(params.crisprcleanr.endsWith(".csv")) {
             CRISPRCLEANR_NORMALIZE(
                 ch_crispr_normalize.collect(),
+                Channel.empty(),
                 ch_crisprcleanr_file,
                 params.min_reads,
                 params.min_targeted_genes
