@@ -26,9 +26,9 @@ process BAGEL2_PR {
     BAGEL.py pr -i $bf  -o '${meta.treatment}_vs_${meta.reference}.pr' -e $reference_essentials -n $reference_nonessentials $args
 
     cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-            python: \$(python --version | sed 's/Python //g')
-            BAGEL2: \$( BAGEL.py version | grep -o 'Version: [0-9.]*' | awk '{print  \$2}' | grep -v '^\$')
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+        BAGEL2: \$( BAGEL.py version | grep -o 'Version: [0-9.]*' | awk '{print  \$2}' | grep -v '^\$')
     END_VERSIONS
     """
 
