@@ -224,8 +224,8 @@ workflow CRISPRSEQ_SCREENING {
     if(params.contrasts) {
         Channel.fromPath(params.contrasts)
             .splitCsv(header:true, sep:';' )
-            .set { ch_bagel }
-    counts = ch_bagel.combine(ch_counts)
+            .set { ch_contrasts }
+    counts = ch_contrasts.combine(ch_counts)
 
     //Define non essential and essential genes channels for bagel2
     ch_bagel_reference_essentials= Channel.value(params.bagel_reference_essentials)
@@ -263,22 +263,32 @@ workflow CRISPRSEQ_SCREENING {
     }
 
     if((params.mle_design_matrix) || (params.contrasts && !params.rra)) {
+        //TODO FINISH THIS PART!!  If you see this in a PR please point it out to me
         if(params.mle_design_matrix) {
-            ch_mle = ch_counts.combine(ch_design)
-            }
-        if(params.contrasts) {
-            MATRICESCREATION(params.contrasts)
-            ch_mle = ch_counts.combine(MATRICESCREATION.out.design_matrix)
+            ch_mle = ch_design.combine.ch_counts
+            ch_design.map {
+                it -> [[id: it.getBaseName()], it]
+                }.set { ch_designed_test }
         }
-        ch_mle.map {
-            it -> [[id: it[1].getBaseName()], it[0], it[1]]
-        }.set { ch_designed_mle }
+        if(params.contrasts) {
+            MATRICESCREATION(ch_contrasts)
+            ch_mle = MATRICESCREATION.out.design_matrix.combine(ch_counts)
+            MAGECK_MLE (ch_mle)
+            ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
+        }
+      //  ch_test.map {
+        //    it -> [[id: it[0].getBaseName()], it]
+        //}.set { ch_designed_test }
+        //ch_designed_test.dump(tag: "ch_test design")
+       // ch_mle.map {
+         //   it -> [[id: it[1].getBaseName()], it[0], it[1]]
+        //}.set { ch_designed_mle }
 
-        MAGECK_MLE (
-            ch_designed_mle
-        )
+       // MAGECK_MLE (
+         //   ch_designed_mle
+        //)
 
-        ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
+        //
 
     }
 
