@@ -1,5 +1,5 @@
 process MAGECK_MLE {
-    tag "$meta.id"
+    tag "${meta.treatment}_vs_${meta.reference}"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
@@ -29,7 +29,7 @@ process MAGECK_MLE {
         --threads $task.cpus \\
         -k $count_table \\
         -d $design_matrix \\
-        -n $prefix
+        -n "${meta.treatment}_vs_${meta.reference}"
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

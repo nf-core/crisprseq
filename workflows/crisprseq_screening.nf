@@ -180,7 +180,7 @@ workflow CRISPRSEQ_SCREENING {
         if(params.crisprcleanr.endsWith(".csv")) {
             CRISPRCLEANR_NORMALIZE(
                 ch_crispr_normalize.collect(),
-                Channel.empty(),
+                '',
                 ch_crisprcleanr_file,
                 params.min_reads,
                 params.min_targeted_genes
@@ -190,7 +190,7 @@ workflow CRISPRSEQ_SCREENING {
             CRISPRCLEANR_NORMALIZE(
                 ch_crispr_normalize.collect(),
                 ch_crisprcleanr_value,
-                Channel.empty(),
+                [],
                 params.min_reads,
                 params.min_targeted_genes)
         }
@@ -228,8 +228,8 @@ workflow CRISPRSEQ_SCREENING {
     counts = ch_contrasts.combine(ch_counts)
 
     //Define non essential and essential genes channels for bagel2
-    ch_bagel_reference_essentials= Channel.value(params.bagel_reference_essentials)
-    ch_bagel_reference_nonessentials= Channel.value(params.bagel_reference_nonessentials)
+    ch_bagel_reference_essentials= Channel.fromPath(params.bagel_reference_essentials)
+    ch_bagel_reference_nonessentials= Channel.fromPath(params.bagel_reference_nonessentials)
 
     BAGEL2_FC (
             counts
