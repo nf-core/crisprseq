@@ -11,8 +11,8 @@ process BAGEL2_BF {
 
     input:
     tuple val(meta), path(foldchange)
-    path(reference_essentials)
-    path(reference_nonessentials)
+    val(reference_essentials)
+    val(reference_nonessentials)
 
     output:
     tuple val(meta), path("*.bf"), emit: bf
