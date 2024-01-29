@@ -142,6 +142,29 @@ custom_data:
         max: 100
         min: 0
         scale: "RdYlGn"
+  # MAGeCK count table
+  mageck_count:
+    id: "mageck_count"
+    section_name: "MAGeCK count table"
+    plot_type: "table"
+    description: |
+      Table showing ...
+    pconfig:
+      id: "mageck_count"
+      namespace: "MAGeCK count table"
+      table_title: "MAGeCK count table"
+    headers:
+      File:
+        title: "File"
+        description: "File name"
+      Label:
+        title: "Label"
+        description: "Label name"
+        format: "{:,.0f}"
+      Reads:
+        title: "Reads"
+        description: "Number of reads"
+        format: "{:,.0f}"
 
 sp:
   edition_plot:
@@ -152,6 +175,8 @@ sp:
     fn: "*_reads-summary.csv"
   cutadapt:
     fn: "*.cutadapt.log"
+  mageck_count:
+    fn: "*.countsummary.txt"
 
 # Define the order of sections
 module_order:
@@ -165,6 +190,7 @@ custom_content:
     - read_processing
     - edition_plot
     - indel_qc_plot
+    - mageck_count
 
 # Order of table columns
 table_columns_placement:
