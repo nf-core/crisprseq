@@ -21,7 +21,7 @@ nextflow run nf-core/crisprseq --analysis screening --input samplesheet.csv --li
 ```
 
 The following required parameters are here described.
- If you wish to input a raw count or normalized table, you can skip the samplesheet parameter as well as the library one and directly input your table using count_table `--count_table your_count_table`. If your count table is normalized, be sure to set the normalization method to none in MAGeCK MLE or MAGeCK RRA using a config file.
+If you wish to input a raw count or normalized table, you can skip the samplesheet parameter as well as the library one and directly input your table using count_table `--count_table your_count_table`. If your count table is normalized, be sure to set the normalization method to none in MAGeCK MLE or MAGeCK RRA using a config file.
 
 ### Full samplesheet
 
@@ -42,7 +42,6 @@ SRR8983580,SRR8983580.small.fastq.gz,,treatment
 
 An [example samplesheet](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/samplesheet_test.csv) has been provided with the pipeline.
 
-
 ### cutadapt
 
 MAGeCK count which is the main alignment software used is normally able to automatically determine the trimming length and sgRNA length, in most cases. Therefore, you don't need to go to this step unless MAGeCK fails to do so by itself. If the nucleotide length in front of sgRNA varies between different reads, you can use cutadapt to remove the adaptor sequences by using the flag `--cutadapt ADAPTER`.
@@ -61,7 +60,6 @@ We recommend to run MAGeCK MLE and BAGEL2 as these are the most used and most re
 
 CRISPRcleanR is used for gene count normalization and the removal of biases for genomic segments for which copy numbers are amplified. Currently, the pipeline only supports annotation libraries already present in the R package and which can be found [here](https://github.com/francescojm/CRISPRcleanR/blob/master/Reference_Manual.pdf). To use CRISPRcleanR normalization, use `--crisprcleanr library`, `library` being the exact name as the library in the CRISPRcleanR documentation (e.g: "AVANA_Library").
 
-
 ### Running MAGeCK MLE and BAGEL2 with a contrast file
 
 To run both MAGeCK MLE and BAGEL2, you can provide a contrast file with the flag `--contrasts` with the mandatory headers "treatment" and "reference". These two columns should be separated with a dot comma (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma separating them in each column. Please find an example here below :
@@ -75,7 +73,7 @@ A full example can be found [here](https://raw.githubusercontent.com/nf-core/tes
 
 ### Running MAGeCK RRA only
 
-MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, you can define the contrasts as previously stated in the last section and also specify  `--rra` .
+MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, you can define the contrasts as previously stated in the last section and also specify `--rra` .
 
 ### Running MAGeCK MLE only
 
