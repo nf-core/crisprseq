@@ -3,8 +3,9 @@ Changes in module 'nf-core/mageck/mle'
 +++ modules/nf-core/mageck/mle/main.nf
 @@ -1,6 +1,6 @@
  process MAGECK_MLE {
-     tag "$meta.id"
+-    tag "$meta.id"
 -    label 'process_medium'
++    tag "${meta.treatment}_vs_${meta.reference}"
 +    label 'process_high'
  
      conda "${moduleDir}/environment.yml"
@@ -15,9 +16,18 @@ Changes in module 'nf-core/mageck/mle'
      input:
 -    tuple val(meta), path(count_table)
 -    path(design_matrix)
-+    tuple val(meta), path(count_table), path(design_matrix)
++    tuple val(meta), path(design_matrix), path(count_table)
  
      output:
      tuple val(meta), path("*.gene_summary.txt") , emit: gene_summary
+@@ -30,7 +29,7 @@
+         --threads $task.cpus \\
+         -k $count_table \\
+         -d $design_matrix \\
+-        -n $prefix
++        -n "${meta.treatment}_vs_${meta.reference}"
+ 
+     cat <<-END_VERSIONS > versions.yml
+     "${task.process}":
 
 ************************************************************
