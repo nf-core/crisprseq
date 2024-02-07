@@ -53,7 +53,15 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT LOCAL MODULES/SUBWORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 */
+
+include { BAGEL2_FC                   } from '../modules/local/bagel2/fc'
+include { BAGEL2_BF                   } from '../modules/local/bagel2/bf'
+include { BAGEL2_PR                   } from '../modules/local/bagel2/pr'
+include { BAGEL2_GRAPH                } from '../modules/local/bagel2/graph'
+include { MATRICESCREATION            } from '../modules/local/matricescreation'
 
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
@@ -68,20 +76,16 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC                      } from '../modules/nf-core/fastqc/main'
-include { CUTADAPT                    } from '../modules/nf-core/cutadapt/main'
-include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
-include { MAGECK_COUNT                } from '../modules/nf-core/mageck/count/main'
-include { MAGECK_MLE                  } from '../modules/nf-core/mageck/mle/main'
-include { MAGECK_TEST                 } from '../modules/nf-core/mageck/test/main'
-include { MAGECK_GRAPHRRA             } from '../modules/local/mageck/graphrra'
-include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
-include { CRISPRCLEANR_NORMALIZE      } from '../modules/nf-core/crisprcleanr/normalize/main'
-include { BAGEL2_FC                   } from '../modules/local/bagel2/fc'
-include { BAGEL2_BF                   } from '../modules/local/bagel2/bf'
-include { BAGEL2_PR                   } from '../modules/local/bagel2/pr'
-include { BAGEL2_GRAPH                } from '../modules/local/bagel2/graph'
-include { MATRICESCREATION            } from '../modules/local/matricescreation'
+include { FASTQC                            } from '../modules/nf-core/fastqc/main'
+include { CUTADAPT                          } from '../modules/nf-core/cutadapt/main'
+include { MULTIQC                           } from '../modules/nf-core/multiqc/main'
+include { MAGECK_COUNT                      } from '../modules/nf-core/mageck/count/main'
+include { MAGECK_MLE                        } from '../modules/nf-core/mageck/mle/main'
+include { MAGECK_TEST                       } from '../modules/nf-core/mageck/test/main'
+include { MAGECK_GRAPHRRA                   } from '../modules/local/mageck/graphrra'
+include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { CRISPRCLEANR_NORMALIZE            } from '../modules/nf-core/crisprcleanr/normalize/main'
+include { MAGECK_MLE as MAGECK_MLE_MATRIX   } from '../modules/nf-core/mageck/mle/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -115,7 +119,6 @@ workflow CRISPRSEQ_SCREENING {
         )
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
-
         ch_input_cutadapt = ch_input.combine(Channel.value([[]]))
 
     if(params.cutadapt) {
@@ -132,7 +135,6 @@ workflow CRISPRSEQ_SCREENING {
         }
 
         // this is to concatenate everything for mageck count
-
         ch_input
         .map { meta, fastqs  ->
             if(fastqs.size() == 1){
@@ -228,8 +230,8 @@ workflow CRISPRSEQ_SCREENING {
     counts = ch_contrasts.combine(ch_counts)
 
     //Define non essential and essential genes channels for bagel2
-    ch_bagel_reference_essentials= Channel.value(params.bagel_reference_essentials)
-    ch_bagel_reference_nonessentials= Channel.value(params.bagel_reference_nonessentials)
+    ch_bagel_reference_essentials= Channel.fromPath(params.bagel_reference_essentials).first()
+    ch_bagel_reference_nonessentials= Channel.fromPath(params.bagel_reference_nonessentials).first()
 
     BAGEL2_FC (
             counts
@@ -265,10 +267,12 @@ workflow CRISPRSEQ_SCREENING {
     if((params.mle_design_matrix) || (params.contrasts && !params.rra)) {
         //TODO FINISH THIS PART!!  If you see this in a PR please point it out to me
         if(params.mle_design_matrix) {
-            ch_mle = ch_design.combine.ch_counts
             ch_design.map {
                 it -> [[id: it.getBaseName()], it]
                 }.set { ch_designed_test }
+            ch_mle = ch_designed_test.combine(ch_counts)
+            ch_mle.dump(tag: "ch_mle")
+            MAGECK_MLE_MATRIX (ch_mle)
         }
         if(params.contrasts) {
             MATRICESCREATION(ch_contrasts)
@@ -276,20 +280,6 @@ workflow CRISPRSEQ_SCREENING {
             MAGECK_MLE (ch_mle)
             ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
         }
-      //  ch_test.map {
-        //    it -> [[id: it[0].getBaseName()], it]
-        //}.set { ch_designed_test }
-        //ch_designed_test.dump(tag: "ch_test design")
-       // ch_mle.map {
-         //   it -> [[id: it[1].getBaseName()], it[0], it[1]]
-        //}.set { ch_designed_mle }
-
-       // MAGECK_MLE (
-         //   ch_designed_mle
-        //)
-
-        //
-
     }
 
     CUSTOM_DUMPSOFTWAREVERSIONS (

@@ -1,5 +1,5 @@
 process BAGEL2_PR {
-    tag "$meta.treatment"
+    tag "${meta.treatment}_vs_${meta.reference}"
     label 'process_single'
 
     conda "python=3.11.4 pandas=2.0.3 numpy=1.25.1 scikit-learn=1.3.0 click=8.1.6"

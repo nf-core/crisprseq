@@ -1,5 +1,5 @@
 process MAGECK_MLE {
-    tag "${meta.treatment}_vs_${meta.reference}"
+    tag "$prefix"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
@@ -20,7 +20,8 @@ process MAGECK_MLE {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    prefix = meta.id ?: "${meta.treatment}_vs_${meta.treatment}"
+
 
     """
     mageck \\
@@ -29,7 +30,7 @@ process MAGECK_MLE {
         --threads $task.cpus \\
         -k $count_table \\
         -d $design_matrix \\
-        -n "${meta.treatment}_vs_${meta.reference}"
+        -n $prefix
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

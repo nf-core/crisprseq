@@ -83,7 +83,7 @@ A full example can be found [here](https://raw.githubusercontent.com/nf-core/tes
 
 ### Running MAGeCK RRA only
 
-MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, you can define the contrasts as previously stated in the last section and also specify `--rra` .
+MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, you can define the contrasts as previously stated in the last section (with a  `.txt` extension) and also specify `--rra` .
 
 ### Running MAGeCK MLE only
 
