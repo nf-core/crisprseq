@@ -22,8 +22,8 @@ if (params.crisprcleanr) {
         ch_crisprcleanr_file = file(params.crisprcleanr)
     } else {
         ch_crisprcleanr_value = Channel.value(params.crisprcleanr)
-        }
     }
+}
 
 if(params.mle_design_matrix) {
     Channel.fromPath(params.mle_design_matrix)
