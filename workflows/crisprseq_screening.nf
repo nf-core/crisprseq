@@ -268,9 +268,8 @@ workflow CRISPRSEQ_SCREENING {
         if(params.mle_design_matrix) {
             ch_design.map {
                 it -> [[id: it.getBaseName()], it]
-                }.set { ch_designed_test }
-            ch_mle = ch_designed_test.combine(ch_counts)
-            ch_mle.dump(tag: "ch_mle")
+                }.set { ch_designed_mle }
+            ch_mle = ch_designed_mle.combine(ch_counts)
             MAGECK_MLE_MATRIX (ch_mle)
         }
         if(params.contrasts) {
