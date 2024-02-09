@@ -8,7 +8,9 @@ process CRISPRCLEANR_NORMALIZE {
         'biocontainers/r-crisprcleanr:3.0.0--r42hdfd78af_1' }"
 
     input:
-    tuple val(meta), path(count_file), val(library_file)
+    tuple val(meta), path(count_file) 
+    val(library_value) 
+    path(library_file)
     val(min_reads)
     val(min_targeted_genes)
 
@@ -28,30 +30,46 @@ process CRISPRCLEANR_NORMALIZE {
     #!/usr/bin/env Rscript
     library(CRISPRcleanR)
     library(dplyr)
-    data('${library_file}')
+
+    print('${library_value}')
     count_file <- read.delim('${count_file}',header=T,sep = "\t")
-    count_file_to_normalize <- count_file  %>% dplyr::left_join(get('${library_file}'), by=c("sgRNA"="Target.Context.Sequence"),multiple = "all")
+    count_file <-  count_file[!duplicated(count_file\$sgRNA), ]
+    if('${library_file}' == "") {
+        data('${library_value}')
+        library <- as.data.frame(get('${library_value}'))
+        #colnames(library)
+        #print(head(count_file))
+        #print(head(library))
+        count_file_to_normalize <- count_file  %>% dplyr::left_join(library, by=c("sgRNA"="seq"),multiple = "all")
+        count_file_to_normalize <- count_file_to_normalize %>% 
+            dplyr::select(colnames(count_file),CODE,-sgRNA)
 
-    count_file_to_normalize <- count_file_to_normalize %>% 
-        dplyr::select(colnames(count_file),CODE,-sgRNA)
+        names(count_file_to_normalize)[names(count_file_to_normalize) == 'Gene'] <- 'gene'
+        names(count_file_to_normalize)[names(count_file_to_normalize) == 'CODE'] <- 'sgRNA'
+        count_file_to_normalize <- count_file_to_normalize %>% dplyr::select(sgRNA, gene, everything())        
+    } else {
+        try(library <- read.delim('${library_file}',header=T,sep = ","))
+        duplicates <- duplicated(library[, 1])
+        unique_rows <- !duplicates
+        library <- library[unique_rows, , drop = FALSE]
+        rownames(library) = library[,1]
+        library = library[order(rownames(library)),]
+        library = library[,-1]
+        count_file_to_normalize <- count_file
+        }
 
-    names(count_file_to_normalize)[names(count_file_to_normalize) == 'Gene'] <- 'gene'
-    names(count_file_to_normalize)[names(count_file_to_normalize) == 'CODE'] <- 'sgRNA'
-    count_file_to_normalize <- count_file_to_normalize %>% dplyr::select(sgRNA, gene, everything())
-
-    #crisprcleanr function
-    normANDfcs <- ccr.NormfoldChanges(Dframe=count_file_to_normalize,saveToFig = FALSE,min_reads=${min_reads},EXPname="${prefix}", libraryAnnotation=get('${library_file}'),display=FALSE)
-    gwSortedFCs <- ccr.logFCs2chromPos(normANDfcs[["logFCs"]],get('${library_file}'))
-    correctedFCs <- ccr.GWclean(gwSortedFCs,display=FALSE,label='${meta}')
-    correctedCounts <- ccr.correctCounts('${meta}',
+    normANDfcs <- ccr.NormfoldChanges(Dframe=count_file_to_normalize,saveToFig = FALSE,min_reads=${min_reads},EXPname="${prefix}", libraryAnnotation=library,display=FALSE)
+    gwSortedFCs <- ccr.logFCs2chromPos(normANDfcs[["logFCs"]],library)
+    correctedFCs <- ccr.GWclean(gwSortedFCs,display=FALSE,label='crisprcleanr')
+    correctedCounts <- ccr.correctCounts('crisprcleanr',
                             normANDfcs[["norm_counts"]],
                             correctedFCs,
-                            get('${library_file}'),
+                            library,
                             minTargetedGenes=${min_targeted_genes},
                             OutDir='./')
 
-    write.table(correctedCounts, file=paste0("${prefix}","_norm_table.tsv"),row.names=FALSE,quote=FALSE,sep="\t")
-
+    write.table(correctedCounts, file=paste0("crisprcleanr","_norm_table.tsv"),row.names=FALSE,quote=FALSE,sep="\t")
+    
     #version
     version_file_path <- "versions.yml"
     version_crisprcleanr <- paste(unlist(packageVersion("CRISPRcleanR")), collapse = ".")
