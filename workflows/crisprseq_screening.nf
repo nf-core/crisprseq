@@ -265,7 +265,6 @@ workflow CRISPRSEQ_SCREENING {
     }
 
     if((params.mle_design_matrix) || (params.contrasts && !params.rra)) {
-        //TODO FINISH THIS PART!!  If you see this in a PR please point it out to me
         if(params.mle_design_matrix) {
             ch_design.map {
                 it -> [[id: it.getBaseName()], it]
