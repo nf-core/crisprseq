@@ -19,7 +19,7 @@ WorkflowCrisprseq.initialise(params, log)
 if (params.library) { ch_library = file(params.library) }
 if (params.crisprcleanr) {
     if(params.crisprcleanr.endsWith(".csv")) {
-        ch_crisprcleanr_file = file(params.crisprcleanr)
+        ch_crisprcleanr_file = Channel.fromPath(params.crisprcleanr)
     } else {
         ch_crisprcleanr_value = Channel.value(params.crisprcleanr)
     }
