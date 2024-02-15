@@ -62,13 +62,13 @@ CRISPRcleanR is used for gene count normalization and the removal of biases for 
 Most used library already have an annotation dataset which you can find [here](https://github.com/francescojm/CRISPRcleanR/blob/master/Reference_Manual.pdf). To use CRISPRcleanR normalization, use `--crisprcleanr library`, `library` being the exact name as the library in the CRISPRcleanR documentation (e.g: "AVANA_Library").
 Otherwise, if you wish to provide your own file, please provide it in csv form, and make sure it follows the following format :
 
-| ,CODE                | GENES             | EXONE | CHRM | STRAND | STARTpos  | ENDpos    |
-|----------------------|-------------------|-------|------|--------|-----------|-----------|
-| AAAAAAAAAAAATGCATTCT | NM_183035.1       | Defb34| ex2  | 8      | -         | 19126349  | 19126369  |
-| AAAAAAAAATAAGCTCACCC | NM_001170853.1    | Mndal | ex5  | 1      | +         | 173872968 | 173872988 |
-| AAAAAAAATCCTGTCGCCCA | NM_001039049.1    | Cox8c | ex1  | 12     | +         | 102899487 | 102899507 |
-| AAAAAAATCGGCATACCATG | NM_178627.3       | Poldip3| ex4 | 15     | -         | 83135295  | 83135315  |
-| AAAAAAATGACATTACTGCA | NM_026602.3       | Bcas2 | ex4 | 3      | +         | 103174386 | 103174406 |
+| ,CODE                | GENES          | EXONE   | CHRM | STRAND | STARTpos | ENDpos    |
+| -------------------- | -------------- | ------- | ---- | ------ | -------- | --------- | --------- |
+| AAAAAAAAAAAATGCATTCT | NM_183035.1    | Defb34  | ex2  | 8      | -        | 19126349  | 19126369  |
+| AAAAAAAAATAAGCTCACCC | NM_001170853.1 | Mndal   | ex5  | 1      | +        | 173872968 | 173872988 |
+| AAAAAAAATCCTGTCGCCCA | NM_001039049.1 | Cox8c   | ex1  | 12     | +        | 102899487 | 102899507 |
+| AAAAAAATCGGCATACCATG | NM_178627.3    | Poldip3 | ex4  | 15     | -        | 83135295  | 83135315  |
+| AAAAAAATGACATTACTGCA | NM_026602.3    | Bcas2   | ex4  | 3      | +        | 103174386 | 103174406 |
 
 ### Running MAGeCK MLE and BAGEL2 with a contrast file
 
@@ -83,7 +83,7 @@ A full example can be found [here](https://raw.githubusercontent.com/nf-core/tes
 
 ### Running MAGeCK RRA only
 
-MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, you can define the contrasts as previously stated in the last section (with a  `.txt` extension) and also specify `--rra` .
+MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, you can define the contrasts as previously stated in the last section (with a `.txt` extension) and also specify `--rra` .
 
 ### Running MAGeCK MLE only
 
