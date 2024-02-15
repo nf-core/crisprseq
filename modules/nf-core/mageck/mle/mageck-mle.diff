@@ -25,7 +25,7 @@ Changes in module 'nf-core/mageck/mle'
      script:
      def args = task.ext.args ?: ''
 -    def prefix = task.ext.prefix ?: "${meta.id}"
-+    prefix = meta.id ?: "${meta.treatment}_vs_${meta.treatment}"
++    prefix = meta.id ?: "${meta.treatment}_vs_${meta.reference}"
 +
  
      """

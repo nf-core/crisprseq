@@ -62,6 +62,7 @@ include { BAGEL2_BF                   } from '../modules/local/bagel2/bf'
 include { BAGEL2_PR                   } from '../modules/local/bagel2/pr'
 include { BAGEL2_GRAPH                } from '../modules/local/bagel2/graph'
 include { MATRICESCREATION            } from '../modules/local/matricescreation'
+include { MAGECK_FLUTEMLE             } from '../modules/local/mageck/flutemle'
 
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
@@ -271,12 +272,15 @@ workflow CRISPRSEQ_SCREENING {
                 }.set { ch_designed_mle }
             ch_mle = ch_designed_mle.combine(ch_counts)
             MAGECK_MLE_MATRIX (ch_mle)
+            MAGECK_FLUTEMLE(MAGECK_MLE.out.gene_summary)
+
         }
         if(params.contrasts) {
             MATRICESCREATION(ch_contrasts)
             ch_mle = MATRICESCREATION.out.design_matrix.combine(ch_counts)
             MAGECK_MLE (ch_mle)
             ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
+            MAGECK_FLUTEMLE(MAGECK_MLE.out.gene_summary)
         }
     }
 

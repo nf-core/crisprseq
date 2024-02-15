@@ -20,7 +20,7 @@ process MAGECK_MLE {
 
     script:
     def args = task.ext.args ?: ''
-    prefix = meta.id ?: "${meta.treatment}_vs_${meta.treatment}"
+    prefix = meta.id ?: "${meta.treatment}_vs_${meta.reference}"
 
 
     """
