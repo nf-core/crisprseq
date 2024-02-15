@@ -107,7 +107,13 @@ workflow CRISPRSEQ_SCREENING {
         Channel.fromSamplesheet("input")
         .map{ meta, fastq_1, fastq_2, x, y, z ->
             // x (reference), y (protospacer), and z (template) are part of the targeted workflows and we don't need them
-        return   [ meta + [ single_end:fastq_2?false:true ], fastq_2?[ fastq_1, fastq_2 ]:[ fastq_1 ] ]        }
+            if (fastq_2) {
+                files = [ fastq_1, fastq_2 ]
+            } else {
+                files = [ fastq_1 ]
+            }
+            return   [ meta + [ single_end:fastq_2?false:true ], files ]
+        }
         .set { ch_input }
 
 
