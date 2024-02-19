@@ -3,11 +3,21 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.2.0dev]
+
+### Added
+
+- Template update to 2.11.1 ([#105](https://github.com/nf-core/crisprseq/pull/105))
+- Added a csv input option for crisprcleanr ([#105](https://github.com/nf-core/crisprseq/pull/105))
+- Added a contrasts parameter so the pipeline automatically creates design matrices and MAGeCK MLE ([#109](https://github.com/nf-core/crisprseq/pull/109))
+
 ## [v2.1.1 - Jamon Salas - patch](https://github.com/nf-core/crisprseq/releases/tag/2.1.1) - [14.12.2023]
 
 ### Added
 
 - Update all modules to the last version in nf-core/modules ([#92](https://github.com/nf-core/crisprseq/pull/92))
+- More documentation for screening analysis. ([#99](https://github.com/nf-core/crisprseq/pull/99))
+- Contrasts are now given under a different flag and MAGeCK MLE and BAGEL2 are automatically run instead of MAGeCK RRA. ([#99](https://github.com/nf-core/crisprseq/pull/99))
 - Added cutadapt for screening analysis ([#95](https://github.com/nf-core/crisprseq/pull/95))
 
 ### Fixed

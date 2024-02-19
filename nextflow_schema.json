@@ -82,7 +82,7 @@
                 },
                 "medaka_model": {
                     "type": "string",
-                    "default": "r941_min_high_g360",
+                    "default": "r941_min_high_g303",
                     "fa_icon": "fas fa-font",
                     "description": "Medaka model (-m) to use according to the basecaller used."
                 }
@@ -156,11 +156,16 @@
                     "exists": true,
                     "description": "Design matrix used for MAGeCK MLE to call essential genes under multiple conditions while considering sgRNA knockout efficiency"
                 },
-                "rra_contrasts": {
+                "contrasts": {
                     "type": "string",
                     "format": "file-path",
                     "exists": true,
                     "description": "Comma-separated file with the conditions to be compared. The first one will be the reference (control)"
+                },
+                "rra": {
+                    "type": "boolean",
+                    "description": "Parameter indicating if MAGeCK RRA should be ran instead of MAGeCK MLE.",
+                    "default": false
                 },
                 "count_table": {
                     "type": "string",
@@ -424,7 +429,7 @@
                 },
                 "validationSchemaIgnoreParams": {
                     "type": "string",
-                    "default": "genomes",
+                    "default": "genomes,igenomes_base",
                     "description": "Ignore JSON schema validation of the following params",
                     "fa_icon": "fas fa-ban",
                     "hidden": true

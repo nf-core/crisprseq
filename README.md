@@ -1,5 +1,9 @@
-# ![nf-core/crisprseq](docs/images/nf-core-crisprseq_logo_light.png#gh-light-mode-only) ![nf-core/crisprseq](docs/images/nf-core-crisprseq_logo_dark.png#gh-dark-mode-only)
-
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/nf-core-crisprseq_logo_dark.png">
+    <img alt="nf-core/crisprseq" src="docs/images/nf-core-crisprseq_logo_light.png">
+  </picture>
+</h1>
 [![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/crisprseq/results)
 [![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.7598496-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.7598496)
 [![GitHub Actions CI Status](https://github.com/nf-core/crisprseq/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/crisprseq/actions?query=workflow%3A%22nf-core+CI%22)
@@ -66,11 +70,8 @@ For crispr screening:
 
 ## Usage
 
-:::note
-If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how
-to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline)
-with `-profile test` before running the workflow on actual data.
-:::
+> [!NOTE]
+> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
 
 First, prepare a samplesheet with your input data that looks as follows:
 
@@ -98,11 +99,9 @@ Now, you can run the pipeline using:
 nextflow run nf-core/crisprseq --input samplesheet.csv --analysis <targeted/screening> --outdir <OUTDIR> -profile <docker/singularity/podman/shifter/charliecloud/conda/institute>
 ```
 
-:::warning
-Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those
-provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
-see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
-:::
+> [!WARNING]
+> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
+> see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
 
 For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/crisprseq/usage) and the [parameter documentation](https://nf-co.re/crisprseq/parameters).
 
