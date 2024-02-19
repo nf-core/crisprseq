@@ -34,8 +34,12 @@ if(params.rra && params.mle_design_matrix) {
     warning "mle_design_matrix will only be used for the MAGeCK MLE computations"
     }
 
-if(params.rra && !params.contrasts) {
-    error "Please also provide the contrasts table to compare the samples for MAGeCK RRA"
+if(params.fasta && params.count_table) {
+    error "Please provide either a fasta file or a count_table"
+    }
+
+if(params.fasta && !params.library) {
+    error "Please provide a fasta file and the library file"
     }
 
 if(params.rra && params.mle_design_matrix) {
@@ -85,7 +89,8 @@ include { MATRICESCREATION            } from '../modules/local/matricescreation'
 // MODULE: Installed directly from nf-core/modules
 //
 include { FASTQC                            } from '../modules/nf-core/fastqc/main'
-include { CUTADAPT                          } from '../modules/nf-core/cutadapt/main'
+include { CUTADAPT as CUTADAPT_THREE_PRIME  } from '../modules/nf-core/cutadapt/main'
+include { CUTADAPT as CUTADAPT_FIVE_PRIME   } from '../modules/nf-core/cutadapt/main'
 include { MULTIQC                           } from '../modules/nf-core/multiqc/main'
 include { MAGECK_COUNT                      } from '../modules/nf-core/mageck/count/main'
 include { MAGECK_MLE                        } from '../modules/nf-core/mageck/mle/main'
@@ -94,8 +99,8 @@ include { MAGECK_GRAPHRRA                   } from '../modules/local/mageck/grap
 include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { CRISPRCLEANR_NORMALIZE            } from '../modules/nf-core/crisprcleanr/normalize/main'
 include { MAGECK_MLE as MAGECK_MLE_MATRIX   } from '../modules/nf-core/mageck/mle/main'
-include { BOWTIE2_BUILD               } from '../modules/nf-core/bowtie2/build/main'
-include { BOWTIE2_ALIGN               } from '../modules/nf-core/bowtie2/align/main'
+include { BOWTIE2_BUILD                     } from '../modules/nf-core/bowtie2/build/main'
+include { BOWTIE2_ALIGN                     } from '../modules/nf-core/bowtie2/align/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,23 +117,6 @@ workflow CRISPRSEQ_SCREENING {
 
     if(!params.count_table){
         //
-        // If bowtie aligner is used, convert the library in text format to a fasta file
-        //
-        if (params.library) {
-            ch_library = Channel.fromPath(params.library)
-            ch_library.map { line ->
-            fasta_line = text_to_fasta(line)
-            fasta_line
-            }.collectFile(name: 'library.fa', newLine: true).set{ ch_fasta }
-        }
-        ch_text_to_fasta = Channel.of([id: "text to fasta"])
-        if(params.fasta){ ch_fasta = Channel.fromPath(params.fasta) }
-
-        // create bowtie index
-        BOWTIE2_BUILD(ch_text_to_fasta.concat(ch_fasta).collect())
-        //ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
-
-        //
         // Create input channel from input file provided through params.input
         //
         Channel.fromSamplesheet("input")
@@ -142,28 +130,44 @@ workflow CRISPRSEQ_SCREENING {
             return   [ meta + [ single_end:fastq_2?false:true ], files ]
         }
         .set { ch_input }
-        ch_input.dump(tag: "ch_input")
 
-        BOWTIE2_ALIGN (
+        //set adapter seq to null to make it compatible with crispr targeted
+        ch_cutadapt = ch_input.combine(Channel.value([[]]))
+
+        if(params.three_prime_adapter) {
+            CUTADAPT_THREE_PRIME(
+                ch_input_cutadapt
+            )
+            ch_cutadapt = CUTADAPT_THREE_PRIME.out.reads
+            ch_versions = ch_versions.mix(CUTADAPT_THREE_PRIME.out.versions)
+        }
+        if(params.five_prime_adapter) {
+            CUTADAPT_FIVE_PRIME(
+                ch_cutadapt
+            )
+            ch_cutadapt = CUTADAPT_FIVE_PRIME.out.reads
+            ch_versions = ch_versions.mix(CUTADAPT.out.versions)
+        }
+
+        if(params.five_prime_adapter || params.three_prime_adapter) {
+            ch_cutadapt
+            .map{ meta, fastq  ->
+                [meta, [fastq]]
+            }
+            .set { ch_input }
+        }
+
+        if(params.fasta){
+            ch_fasta = Channel.fromPath(params.fasta)
+            BOWTIE2_BUILD(ch_fasta)
+            ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
+
+            BOWTIE2_ALIGN (
             ch_input,
             BOWTIE2_BUILD.out.index,
             false,
             false
-        )
-
-        ch_input_cutadapt = ch_input.combine(Channel.value([[]]))
-
-        if(params.cutadapt) {
-            CUTADAPT(
-                ch_input_cutadapt
             )
-        ch_versions = ch_versions.mix(CUTADAPT.out.versions)
-
-        CUTADAPT.out.reads
-        .map{ meta, fastq  ->
-            [meta, [fastq]]
-        }
-        .set { ch_input }
         }
 
         //
