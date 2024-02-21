@@ -340,9 +340,9 @@ workflow CRISPRSEQ_SCREENING {
         }
     }
 
-    //CUSTOM_DUMPSOFTWAREVERSIONS (
-      //  ch_versions.unique{ it.text }.collectFile(name: 'collated_versions.yml')
-    //)
+    CUSTOM_DUMPSOFTWAREVERSIONS (
+        ch_versions.unique{ it.text }.collectFile(name: 'collated_versions.yml')
+    )
 
     //
     // MODULE: MultiQC
@@ -363,14 +363,14 @@ workflow CRISPRSEQ_SCREENING {
         ch_multiqc_files = channel.empty()
     }
 
-    //MULTIQC (
-      //  ch_multiqc_files.collect(),
-       // ch_multiqc_config.collect().ifEmpty([]),
-        //ch_multiqc_custom_config.collect().ifEmpty([]),
-        //ch_multiqc_logo.collect().ifEmpty([])
-    //)
-    //multiqc_report = MULTIQC.out.report.toList()
-    //h_versions    = ch_versions.mix(MULTIQC.out.versions)
+    MULTIQC (
+        ch_multiqc_files.collect(),
+        ch_multiqc_config.collect().ifEmpty([]),
+        ch_multiqc_custom_config.collect().ifEmpty([]),
+        ch_multiqc_logo.collect().ifEmpty([])
+    )
+    multiqc_report = MULTIQC.out.report.toList()
+    ch_versions    = ch_versions.mix(MULTIQC.out.versions)
 }
 
 /*
