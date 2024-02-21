@@ -131,34 +131,52 @@ workflow CRISPRSEQ_SCREENING {
         }
         .set { ch_input }
 
+        //
+        // MODULE: Run FastQC
+        //
+        FASTQC (
+            ch_input
+        )
+        ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+
         //set adapter seq to null to make it compatible with crispr targeted
         ch_cutadapt = ch_input.combine(Channel.value([[]]))
 
-        if(params.three_prime_adapter) {
-            CUTADAPT_THREE_PRIME(
-                ch_input_cutadapt
-            )
-            ch_cutadapt = CUTADAPT_THREE_PRIME.out.reads
-            ch_versions = ch_versions.mix(CUTADAPT_THREE_PRIME.out.versions)
-        }
         if(params.five_prime_adapter) {
             CUTADAPT_FIVE_PRIME(
                 ch_cutadapt
             )
-            ch_cutadapt = CUTADAPT_FIVE_PRIME.out.reads
-            ch_versions = ch_versions.mix(CUTADAPT.out.versions)
+            CUTADAPT_FIVE_PRIME.out.reads.combine(Channel.value([[]])).set { ch_cutadapt }
+            ch_cutadapt.map{ meta, fastq, proto  ->
+                meta.id = "${meta.id}_trim"
+                [meta, [fastq], proto]
+            }.set { ch_cutadapt }
+
+            ch_versions = ch_versions.mix(CUTADAPT_FIVE_PRIME.out.versions)
         }
+
+        if(params.three_prime_adapter) {
+            CUTADAPT_THREE_PRIME(
+                ch_cutadapt
+            )
+            ch_cutadapt = CUTADAPT_THREE_PRIME.out.reads.combine(Channel.value([[]]))
+            ch_versions = ch_versions.mix(CUTADAPT_THREE_PRIME.out.versions)
+        }
+
 
         if(params.five_prime_adapter || params.three_prime_adapter) {
             ch_cutadapt
-            .map{ meta, fastq  ->
+            .map{ meta, fastq, empty  ->
                 [meta, [fastq]]
             }
             .set { ch_input }
         }
 
         if(params.fasta){
-            ch_fasta = Channel.fromPath(params.fasta)
+            Channel.of("fasta")
+                .combine(Channel.fromPath(params.fasta))
+                .set{ ch_fasta }
+
             BOWTIE2_BUILD(ch_fasta)
             ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
 
@@ -168,15 +186,11 @@ workflow CRISPRSEQ_SCREENING {
             false,
             false
             )
-        }
 
-        //
-        // MODULE: Run FastQC
-        //
-        FASTQC (
-            ch_input
-        )
-        ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+            BOWTIE2_ALIGN.out.aligned.map{ meta, bam ->
+                [meta, [bam]]
+            }.set{ch_input}
+        }
 
         // this is to concatenate everything for mageck count
         ch_input
@@ -200,6 +214,8 @@ workflow CRISPRSEQ_SCREENING {
         }
         .last()
         .set { joined }
+
+        joined.dump(tag: "DUMP")
 
         //
         // MODULE: Run mageck count
