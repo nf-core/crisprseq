@@ -44,7 +44,12 @@ An [example samplesheet](https://github.com/nf-core/test-datasets/blob/crisprseq
 
 ### cutadapt
 
-MAGeCK count which is the main alignment software used is normally able to automatically determine the trimming length and sgRNA length, in most cases. Therefore, you don't need to go to this step unless MAGeCK fails to do so by itself. If the nucleotide length in front of sgRNA varies between different reads, you can use cutadapt to remove the adaptor sequences by using the flag `--cutadapt ADAPTER`.
+MAGeCK count which is the main alignment software used is normally able to automatically determine the trimming length and sgRNA length, in most cases. Therefore, you don't need to go to this step unless MAGeCK fails to do so by itself. If the nucleotide length in front of sgRNA varies between different reads, you can use cutadapt to remove the adaptor sequences by using the flag `--five_prime_adapter` or `--three_prime_adapter` .
+
+
+### bowtie2
+
+The MAGeCK count module supports bam files, which allows you to align with bowtie2 first. If you wish to do so (for instance to allow library with mismatches or to set the aligner with specific flags) you can provide a fasta file with `--fasta`. Currently, you also still need to provide the library file.
 
 ### library
 
