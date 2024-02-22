@@ -215,7 +215,7 @@ workflow CRISPRSEQ_SCREENING {
         .last()
         .set { joined }
 
-        joined.dump(tag: "DUMP")
+    
 
         //
         // MODULE: Run mageck count
