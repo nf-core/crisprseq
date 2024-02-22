@@ -17,7 +17,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - [Preprocessing](#preprocessing)
   - [FastQC](#fastqc) - Read Quality Control
   - [cutadapt](#cutadapt) - Trimming reads from fastq files
-- [Mapping](#mapping) - bowtie2 aligned reads
+- [Mapping](#alignment) - bowtie2 aligned reads
 - [Counting](#counting)
   - [MAGeCK count](#mageck-count) - Mapping reads to reference library
 - [CNV correction](#cnv-correction))
