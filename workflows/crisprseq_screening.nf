@@ -19,9 +19,9 @@ WorkflowCrisprseq.initialise(params, log)
 if (params.library) { ch_library = file(params.library) }
 if (params.crisprcleanr) {
     if(params.crisprcleanr.endsWith(".csv")) {
-        ch_crisprcleanr_file = file(params.crisprcleanr)
+        ch_crisprcleanr = Channel.fromPath(params.crisprcleanr)
     } else {
-        ch_crisprcleanr_value = Channel.value(params.crisprcleanr)
+        ch_crisprcleanr = Channel.value(params.crisprcleanr)
     }
 }
 
@@ -108,7 +108,13 @@ workflow CRISPRSEQ_SCREENING {
         Channel.fromSamplesheet("input")
         .map{ meta, fastq_1, fastq_2, x, y, z ->
             // x (reference), y (protospacer), and z (template) are part of the targeted workflows and we don't need them
-        return   [ meta + [ single_end:fastq_2?false:true ], fastq_2?[ fastq_1, fastq_2 ]:[ fastq_1 ] ]        }
+            if (fastq_2) {
+                files = [ fastq_1, fastq_2 ]
+            } else {
+                files = [ fastq_1 ]
+            }
+            return   [ meta + [ single_end:fastq_2?false:true ], files ]
+        }
         .set { ch_input }
 
 
@@ -184,7 +190,7 @@ workflow CRISPRSEQ_SCREENING {
             CRISPRCLEANR_NORMALIZE(
                 ch_crispr_normalize.collect(),
                 '',
-                ch_crisprcleanr_file,
+                ch_crisprcleanr,
                 params.min_reads,
                 params.min_targeted_genes
         ) } else
@@ -192,7 +198,7 @@ workflow CRISPRSEQ_SCREENING {
             ch_crispr_normalize = Channel.of([id: "count_table_normalize"]).concat(ch_counts)
             CRISPRCLEANR_NORMALIZE(
                 ch_crispr_normalize.collect(),
-                ch_crisprcleanr_value,
+                ch_crisprcleanr,
                 [],
                 params.min_reads,
                 params.min_targeted_genes)
