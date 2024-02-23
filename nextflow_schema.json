@@ -160,14 +160,16 @@
                     "description": "sgRNA and targetting genes, tab separated"
                 },
                 "five_prime_adapter": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Sequencing adapter sequence to use for trimming on the 5' end"
                 },
                 "three_prime_adapter": {
                     "type": "string",
-                    "description": "Sequencing adapter sequence to use for trimming."
+                    "description": "Sequencing adapter sequence to use for trimming on the 3' end"
                 },
                 "fasta": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Fasta file in case you want to map with bowtie2 and then MAGeCK count"
                 },
                 "mle_design_matrix": {
                     "type": "string",
@@ -200,12 +202,12 @@
                 "min_reads": {
                     "type": "number",
                     "description": "a filter threshold value for sgRNAs, based on their average counts in the control sample",
-                    "default": 30.0
+                    "default": 30
                 },
                 "min_targeted_genes": {
                     "type": "number",
                     "description": "Minimal number of different genes targeted by sgRNAs in a biased segment in order for the corresponding counts to be corrected for CRISPRcleanR",
-                    "default": 3.0
+                    "default": 3
                 },
                 "bagel_reference_essentials": {
                     "type": "string",

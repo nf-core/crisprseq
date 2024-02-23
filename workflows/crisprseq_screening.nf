@@ -187,6 +187,9 @@ workflow CRISPRSEQ_SCREENING {
             false
             )
 
+            ch_versions = ch_versions.mix(BOWTIE2_ALIGN.out.versions)
+
+
             BOWTIE2_ALIGN.out.aligned.map{ meta, bam ->
                 [meta, [bam]]
             }.set{ch_input}
@@ -215,7 +218,7 @@ workflow CRISPRSEQ_SCREENING {
         .last()
         .set { joined }
 
-    
+
 
         //
         // MODULE: Run mageck count
