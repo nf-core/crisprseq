@@ -34,6 +34,18 @@ if(params.rra && params.mle_design_matrix) {
     warning "mle_design_matrix will only be used for the MAGeCK MLE computations"
     }
 
+if(params.fasta && params.count_table) {
+    error "Please provide either a fasta file or a count_table"
+    }
+
+if(params.fasta && !params.library) {
+    error "Please provide a fasta file and the library file"
+    }
+
+if(params.rra && params.mle_design_matrix) {
+    warning "mle_design_matrix will only be used for the MAGeCK MLE computations"
+    }
+
 if(params.rra && !params.contrasts) {
     error "Please also provide the contrasts table to compare the samples for MAGeCK RRA"
     }
@@ -77,7 +89,8 @@ include { MATRICESCREATION            } from '../modules/local/matricescreation'
 // MODULE: Installed directly from nf-core/modules
 //
 include { FASTQC                            } from '../modules/nf-core/fastqc/main'
-include { CUTADAPT                          } from '../modules/nf-core/cutadapt/main'
+include { CUTADAPT as CUTADAPT_THREE_PRIME  } from '../modules/nf-core/cutadapt/main'
+include { CUTADAPT as CUTADAPT_FIVE_PRIME   } from '../modules/nf-core/cutadapt/main'
 include { MULTIQC                           } from '../modules/nf-core/multiqc/main'
 include { MAGECK_COUNT                      } from '../modules/nf-core/mageck/count/main'
 include { MAGECK_MLE                        } from '../modules/nf-core/mageck/mle/main'
@@ -86,6 +99,8 @@ include { MAGECK_GRAPHRRA                   } from '../modules/local/mageck/grap
 include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { CRISPRCLEANR_NORMALIZE            } from '../modules/nf-core/crisprcleanr/normalize/main'
 include { MAGECK_MLE as MAGECK_MLE_MATRIX   } from '../modules/nf-core/mageck/mle/main'
+include { BOWTIE2_BUILD                     } from '../modules/nf-core/bowtie2/build/main'
+include { BOWTIE2_ALIGN                     } from '../modules/nf-core/bowtie2/align/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -116,7 +131,6 @@ workflow CRISPRSEQ_SCREENING {
         }
         .set { ch_input }
 
-
         //
         // MODULE: Run FastQC
         //
@@ -125,19 +139,60 @@ workflow CRISPRSEQ_SCREENING {
         )
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
-        ch_input_cutadapt = ch_input.combine(Channel.value([[]]))
+        //set adapter seq to null to make it compatible with crispr targeted
+        ch_cutadapt = ch_input.combine(Channel.value([[]]))
 
-    if(params.cutadapt) {
-        CUTADAPT(
-            ch_input_cutadapt
-        )
-        ch_versions = ch_versions.mix(CUTADAPT.out.versions)
+        if(params.five_prime_adapter) {
+            CUTADAPT_FIVE_PRIME(
+                ch_cutadapt
+            )
+            CUTADAPT_FIVE_PRIME.out.reads.combine(Channel.value([[]])).set { ch_cutadapt }
+            ch_cutadapt.map{ meta, fastq, proto  ->
+                meta.id = "${meta.id}_trim"
+                [meta, [fastq], proto]
+            }.set { ch_cutadapt }
 
-        CUTADAPT.out.reads
-        .map{ meta, fastq  ->
-            [meta, [fastq]]
+            ch_versions = ch_versions.mix(CUTADAPT_FIVE_PRIME.out.versions)
         }
-        .set { ch_input }
+
+        if(params.three_prime_adapter) {
+            CUTADAPT_THREE_PRIME(
+                ch_cutadapt
+            )
+            ch_cutadapt = CUTADAPT_THREE_PRIME.out.reads.combine(Channel.value([[]]))
+            ch_versions = ch_versions.mix(CUTADAPT_THREE_PRIME.out.versions)
+        }
+
+
+        if(params.five_prime_adapter || params.three_prime_adapter) {
+            ch_cutadapt
+            .map{ meta, fastq, empty  ->
+                [meta, [fastq]]
+            }
+            .set { ch_input }
+        }
+
+        if(params.fasta){
+            Channel.of("fasta")
+                .combine(Channel.fromPath(params.fasta))
+                .set{ ch_fasta }
+
+            BOWTIE2_BUILD(ch_fasta)
+            ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
+
+            BOWTIE2_ALIGN (
+            ch_input,
+            BOWTIE2_BUILD.out.index,
+            false,
+            false
+            )
+
+            ch_versions = ch_versions.mix(BOWTIE2_ALIGN.out.versions)
+
+
+            BOWTIE2_ALIGN.out.aligned.map{ meta, bam ->
+                [meta, [bam]]
+            }.set{ch_input}
         }
 
         // this is to concatenate everything for mageck count
@@ -162,6 +217,8 @@ workflow CRISPRSEQ_SCREENING {
         }
         .last()
         .set { joined }
+
+
 
         //
         // MODULE: Run mageck count
