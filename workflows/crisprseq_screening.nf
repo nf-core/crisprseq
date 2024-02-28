@@ -67,6 +67,7 @@ include { BAGEL2_FC                   } from '../modules/local/bagel2/fc'
 include { BAGEL2_BF                   } from '../modules/local/bagel2/bf'
 include { BAGEL2_PR                   } from '../modules/local/bagel2/pr'
 include { BAGEL2_GRAPH                } from '../modules/local/bagel2/graph'
+include { DRUGZ                       } from '../modules/local/drugz'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -232,6 +233,11 @@ workflow CRISPRSEQ_SCREENING {
     )
 
     ch_versions = ch_versions.mix(BAGEL2_GRAPH.out.versions)
+
+    DRUGZ (
+            counts
+        )
+    ch_versions = ch_versions.mix(DRUGZ.out.versions)
 
     }
 
