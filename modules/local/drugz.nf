@@ -12,7 +12,8 @@ process DRUGZ {
     tuple val(meta), path(count_table)
 
     output:
-    tuple val(meta), path("*"), emit: per_gene_results
+    tuple val(meta), path("*.txt"), emit: per_gene_results
+    tuple val(meta), path("*.foldchange"), emit: fold_change
     path "versions.yml"           , emit: versions
 
 
@@ -24,7 +25,7 @@ process DRUGZ {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    drugz.py -i $count_table -o ${meta.treatment}_vs_${meta.reference} -c $meta.reference -x $meta.treatment $args
+    drugz.py -i $count_table -o ${meta.treatment}_vs_${meta.reference}_drugz_output.txt -f ${meta.treatment}_vs_${meta.reference}.foldchange -c $meta.reference -x $meta.treatment $args
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         python: \$(python --version | sed 's/Python //g')
