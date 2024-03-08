@@ -141,17 +141,15 @@ workflow CRISPRSEQ_SCREENING {
 
         //set adapter seq to null to make it compatible with crispr targeted
         ch_cutadapt = ch_input.combine(Channel.value([[]]))
-
         if(params.five_prime_adapter) {
             CUTADAPT_FIVE_PRIME(
                 ch_cutadapt
             )
             CUTADAPT_FIVE_PRIME.out.reads.combine(Channel.value([[]])).set { ch_cutadapt }
-            ch_cutadapt.map{ meta, fastq, proto  ->
+             ch_cutadapt.map{ meta, fastq, proto  ->
                 meta.id = "${meta.id}_trim"
-                [meta, [fastq], proto]
+                [meta, fastq, proto]
             }.set { ch_cutadapt }
-
             ch_versions = ch_versions.mix(CUTADAPT_FIVE_PRIME.out.versions)
         }
 
@@ -167,7 +165,7 @@ workflow CRISPRSEQ_SCREENING {
         if(params.five_prime_adapter || params.three_prime_adapter) {
             ch_cutadapt
             .map{ meta, fastq, empty  ->
-                [meta, [fastq]]
+                [meta, fastq]
             }
             .set { ch_input }
         }
@@ -217,8 +215,6 @@ workflow CRISPRSEQ_SCREENING {
         }
         .last()
         .set { joined }
-
-
 
         //
         // MODULE: Run mageck count
