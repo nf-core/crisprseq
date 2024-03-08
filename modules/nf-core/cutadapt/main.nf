@@ -11,8 +11,8 @@ process CUTADAPT {
     tuple val(meta), path(reads), path(adapter_seq)
 
     output:
-    tuple val(meta), path('*.trim.fastq.gz'), emit: reads
-    tuple val(meta), path('*.log')          , emit: log
+    tuple val(meta), path('*.trim.fastq.gz'), optional: true, emit: reads
+    tuple val(meta), path('*.log')          , optional: true, emit: log
     path "versions.yml"                     , emit: versions
 
     when:
@@ -21,15 +21,13 @@ process CUTADAPT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def trimmed  = meta.single_end ? "-o ${prefix}.trim.fastq.gz" : "-o ${prefix}_1.trim.fastq.gz -p ${prefix}_2.trim.fastq.gz"
     """
     cutadapt \\
         --cores $task.cpus \\
         $args \\
-        $trimmed \\
+        -o ${prefix}.trim.fastq.gz \\
         $reads \\
         > ${prefix}.cutadapt.log
-    
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         cutadapt: \$(cutadapt --version)

@@ -278,11 +278,6 @@ workflow CRISPRSEQ_TARGETED {
         ch_cat_fastq.paired
     )
     .assembled
-    .map {
-        // Set single_end to true for the assembled reads
-        meta, assembled ->
-            return [ meta - meta.subMap('single_end') + [ single_end:true ], assembled ]
-    }
     .mix( ch_cat_fastq.single )
     .set { ch_pear_fastq }
     ch_versions = ch_versions.mix(PEAR.out.versions)
