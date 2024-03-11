@@ -4,11 +4,13 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+// Local modules
 include { BAGEL2_FC                         } from '../modules/local/bagel2/fc'
 include { BAGEL2_BF                         } from '../modules/local/bagel2/bf'
 include { BAGEL2_PR                         } from '../modules/local/bagel2/pr'
 include { BAGEL2_GRAPH                      } from '../modules/local/bagel2/graph'
 include { MATRICESCREATION                  } from '../modules/local/matricescreation'
+// nf-core modules
 include { FASTQC                            } from '../modules/nf-core/fastqc/main'
 include { CUTADAPT as CUTADAPT_THREE_PRIME  } from '../modules/nf-core/cutadapt/main'
 include { CUTADAPT as CUTADAPT_FIVE_PRIME   } from '../modules/nf-core/cutadapt/main'
@@ -21,6 +23,11 @@ include { CRISPRCLEANR_NORMALIZE            } from '../modules/nf-core/crisprcle
 include { MAGECK_MLE as MAGECK_MLE_MATRIX   } from '../modules/nf-core/mageck/mle/main'
 include { BOWTIE2_BUILD                     } from '../modules/nf-core/bowtie2/build/main'
 include { BOWTIE2_ALIGN                     } from '../modules/nf-core/bowtie2/align/main'
+// Functions
+include { paramsSummaryMap                  } from 'plugin/nf-validation'
+include { paramsSummaryMultiqc              } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML            } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText            } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,15 +82,6 @@ workflow CRISPRSEQ_SCREENING {
 
     if(!params.count_table){
         ch_samplesheet
-        .map{ meta, fastq_1, fastq_2, x, y, z ->
-            // x (reference), y (protospacer), and z (template) are part of the targeted workflows and we don't need them
-            if (fastq_2) {
-                files = [ fastq_1, fastq_2 ]
-            } else {
-                files = [ fastq_1 ]
-            }
-            return   [ meta + [ single_end:fastq_2?false:true ], files ]
-        }
         .set { ch_input }
 
         //

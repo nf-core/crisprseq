@@ -44,20 +44,31 @@ include { CRISPRSEQ_SCREENING } from './workflows/crisprseq_screening'
 workflow NFCORE_CRISPRSEQ {
 
     take:
-    samplesheet  // channel: samplesheet read in from --input
+    reads_targeted // channel: fastqc files read in from --input
+    reads_screening // channel: fastqc files read in from --input
+    reference // channel: reference sequence read from --input
+    protospacer // channel: protospacer sequence read from --input
+    template // channel: template sequence read from --input
 
     main:
     //
     // WORKFLOW: Run pipeline
     //
     if ( params.analysis == "targeted" ) {
-        CRISPRSEQ_TARGETED (samplesheet)
+        CRISPRSEQ_TARGETED (
+            reads_targeted,
+            reference,
+            template,
+            protospacer
+        )
+        multiqc_report_ch = CRISPRSEQ_TARGETED.out.multiqc_report
     } else if ( params.analysis == "screening" ) {
-        CRISPRSEQ_SCREENING (samplesheet)
+        CRISPRSEQ_SCREENING (reads_screening)
+        multiqc_report_ch = CRISPRSEQ_SCREENING.out.multiqc_report
     }
 
     emit:
-    multiqc_report = CRISPRSEQ.out.multiqc_report // channel: /path/to/multiqc_report.html
+    multiqc_report = multiqc_report_ch // channel: /path/to/multiqc_report.html
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -86,7 +97,11 @@ workflow {
     // WORKFLOW: Run main workflow
     //
     NFCORE_CRISPRSEQ (
-        PIPELINE_INITIALISATION.out.samplesheet
+        PIPELINE_INITIALISATION.out.reads_targeted,
+        PIPELINE_INITIALISATION.out.fastqc_screening,
+        PIPELINE_INITIALISATION.out.reference,
+        PIPELINE_INITIALISATION.out.protospacer,
+        PIPELINE_INITIALISATION.out.template
     )
 
     //

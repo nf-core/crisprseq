@@ -4,6 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+// Local modules
 include { FIND_ADAPTERS                             } from '../modules/local/find_adapters'
 include { EXTRACT_UMIS                              } from '../modules/local/extract_umis'
 include { ORIENT_REFERENCE                          } from '../modules/local/orient_reference'
@@ -13,6 +14,7 @@ include { CLUSTERING_SUMMARY                        } from '../modules/local/clu
 include { ALIGNMENT_SUMMARY                         } from '../modules/local/alignment_summary'
 include { TEMPLATE_REFERENCE                        } from '../modules/local/template_reference'
 include { CRISPRSEQ_PLOTTER                         } from '../modules/local/crisprseq_plotter'
+// nf-core modules
 include { FASTQC                                    } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                                   } from '../modules/nf-core/multiqc/main'
 include { PEAR                                      } from '../modules/nf-core/pear/main'
@@ -35,6 +37,11 @@ include { MINIMAP2_INDEX                            } from '../modules/nf-core/m
 include { MEDAKA                                    } from '../modules/nf-core/medaka/main'
 include { CUTADAPT                                  } from '../modules/nf-core/cutadapt/main'
 include { SAMTOOLS_INDEX                            } from '../modules/nf-core/samtools/index/main'
+// Functions
+include { paramsSummaryMap                          } from 'plugin/nf-validation'
+include { paramsSummaryMultiqc                      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML                    } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText                    } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -84,35 +91,21 @@ def umi_to_sequence_centroid(cluster) {
 workflow CRISPRSEQ_TARGETED {
 
     take:
-    ch_samplesheet // channel: samplesheet read in from --input
+    ch_input_reads // channel: input reads read in from --input
+    ch_input_reference // channel: reference sequence read in from --input
+    ch_input_template // channel: template sequence read in from --input
+    ch_input_protospacer // channel: protospacer sequence read in from --input
 
     main:
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
-    ch_samplesheet
-    .multiMap { meta, fastq_1, fastq_2, reference, protospacer, template ->
-        // meta.condition is part of the screening workflow and we need to remove it
-        if (fastq_2) {
-            files = [ fastq_1, fastq_2 ]
-        } else {
-            files = [ fastq_1 ]
-        }
-        reads:   [ meta.id, meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], files ]
-        reference:   [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], reference]
-        protospacer: [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], protospacer]
-        template:    [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], template]
-    }
-    .set { ch_input }
-
-    ch_input
-    .reads
-    .groupTuple()
-    .map {
-        WorkflowCrisprseq.validateInput(it)
-    }
+    //
     // Separate samples by the ones containing all reads in one file or the ones with many files to be concatenated
+    //
+    ch_input_reads
+    .groupTuple()
     .branch {
         meta, fastqs ->
             single  : fastqs.size() == 1
@@ -122,11 +115,10 @@ workflow CRISPRSEQ_TARGETED {
     }
     .set { ch_fastq }
 
-
     //
     // Add reference sequences to file
     //
-    ch_input.reference
+    ch_input_reference
     .tap{ meta_reference }
     .filter{ meta, sequence -> sequence instanceof String }
     .collectFile() { meta, reference ->
@@ -149,7 +141,7 @@ workflow CRISPRSEQ_TARGETED {
     //
     // Add template sequences to file
     //
-    ch_input.template
+    ch_input_template
     .tap{ meta_template }
     .filter{ meta, sequence -> sequence instanceof String }
     .collectFile() { meta, template ->
@@ -173,7 +165,7 @@ workflow CRISPRSEQ_TARGETED {
     // to channel: [ meta, reference, protospacer]
     if (!params.reference_fasta && !params.protospacer) {
         ch_seq_reference
-            .join(ch_input.protospacer)
+            .join(ch_input_protospacer)
             .set{ reference_protospacer }
     } else if (!params.reference_fasta) {
         // If a protospacer was provided through the --protospacer param instead of the samplesheet
@@ -184,13 +176,13 @@ workflow CRISPRSEQ_TARGETED {
     } else if (!params.protospacer) {
         // If a reference was provided through a fasta file or igenomes instead of the samplesheet
         ch_reference = Channel.fromPath(params.reference_fasta)
-        ch_input.protospacer
+        ch_input_protospacer
             .combine(ch_reference)
             .set{ reference_protospacer }
     } else {
         ch_reference = Channel.fromPath(params.reference_fasta)
         ch_protospacer = Channel.of(params.protospacer)
-        ch_input.reads
+        ch_input_reads
             .combine(ch_reference)
             .combine(ch_protospacer)
             .set{ reference_protospacer }
@@ -678,7 +670,7 @@ workflow CRISPRSEQ_TARGETED {
     ch_mapped_bam
         .join(SAMTOOLS_INDEX.out.bai)
         .join(ORIENT_REFERENCE.out.reference)
-        .join(ch_input.protospacer)
+        .join(ch_input_protospacer)
         .join(ch_seq_template, remainder: true)
         .join(ch_template_bam, remainder: true)
         .join(TEMPLATE_REFERENCE.out.fasta, remainder: true)
@@ -716,7 +708,7 @@ workflow CRISPRSEQ_TARGETED {
     CRISPRSEQ_PLOTTER (
         CIGAR_PARSER.out.indels
         .join(ORIENT_REFERENCE.out.reference)
-        .join(ch_input.protospacer)
+        .join(ch_input_protospacer)
     )
     ch_versions = ch_versions.mix(CRISPRSEQ_PLOTTER.out.versions.first())
 

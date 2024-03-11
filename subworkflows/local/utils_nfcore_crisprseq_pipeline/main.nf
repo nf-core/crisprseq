@@ -82,26 +82,37 @@ workflow PIPELINE_INITIALISATION {
     //
     Channel
         .fromSamplesheet("input")
-        .map {
-            meta, fastq_1, fastq_2 ->
-                if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
+        .multiMap {
+            meta, fastq_1, fastq_2, reference, protospacer, template ->
+                if (fastq_2) {
+                    files = [ fastq_1, fastq_2 ]
                 } else {
-                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
+                    files = [ fastq_1 ]
                 }
+                reads_targeted: [ meta.id, meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], files ]
+                reads_screening:[ meta + [ single_end:fastq_2?false:true ], files ]
+                reference:      [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], reference]
+                protospacer:    [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], protospacer]
+                template:       [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], template]
         }
-        .groupTuple()
-        .map {
-            validateInputSamplesheet(it)
-        }
-        .map {
-            meta, fastqs ->
-                return [ meta, fastqs.flatten() ]
-        }
-        .set { ch_samplesheet }
+        .set { ch_input }
+
+    //
+    // Validate input samplesheet
+    //
+    ch_input.reads_targeted
+    .groupTuple()
+    .map {
+        validateInputSamplesheet(it)
+    }
+    .set { reads_targeted }
 
     emit:
-    samplesheet = ch_samplesheet
+    reads_targeted = reads_targeted
+    fastqc_screening = ch_input.reads_screening
+    reference = ch_input.reference
+    protospacer = ch_input.protospacer
+    template = ch_input.template
     versions    = ch_versions
 }
 
@@ -164,6 +175,18 @@ def validateInputSamplesheet(input) {
     def endedness_ok = metas.collect{ it.single_end }.unique().size == 1
     if (!endedness_ok) {
         error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${metas[0].id}")
+    }
+
+    // Check that multiple runs of the same sample contain a reference or not
+    def reference_ok = metas.collect{ it.self_reference }.unique().size == 1
+    if (!reference_ok) {
+        error("Please check input samplesheet -> Multiple runs of a sample must all contain a reference or not: ${metas[0].id}")
+    }
+
+    // Check that multiple runs of the same sample contain a template or not
+    def template_ok = metas.collect{ it.template }.unique().size == 1
+    if (!template_ok) {
+        error("Please check input samplesheet -> Multiple runs of a sample must all contain a template or not: ${metas[0].id}")
     }
 
     return [ metas[0], fastqs ]
