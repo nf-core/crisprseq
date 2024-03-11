@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a csv input option for crisprcleanr ([#105](https://github.com/nf-core/crisprseq/pull/105))
 - Added a contrasts parameter so the pipeline automatically creates design matrices and MAGeCK MLE ([#109](https://github.com/nf-core/crisprseq/pull/109))
 - Added bowtie2 and three prime and five prime adapter trimming ([#103](https://github.com/nf-core/crisprseq/pull/103))
+- Template update to 2.13.1 ([#124](https://github.com/nf-core/crisprseq/pull/124))
 
 ### Fixed
 
