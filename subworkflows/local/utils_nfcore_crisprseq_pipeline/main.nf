@@ -118,6 +118,153 @@ workflow PIPELINE_INITIALISATION {
 
 /*
 ========================================================================================
+    SUBWORKFLOW TO INITIALISE PIPELINE CHANNELS - SCREENING
+========================================================================================
+*/
+
+workflow INITIALISATION_CHANNEL_CREATION_SCREENING {
+
+    take:
+
+    main:
+
+    // Library
+    if (params.library) {
+        ch_library = file(params.library)
+    }
+
+    // Crisprcleanr
+    if (params.crisprcleanr) {
+        if(params.crisprcleanr.endsWith(".csv")) {
+            ch_crisprcleanr = Channel.fromPath(params.crisprcleanr)
+        } else {
+            ch_crisprcleanr = Channel.value(params.crisprcleanr)
+        }
+    }
+
+    // MLE design matrix
+    if(params.mle_design_matrix) {
+        ch_design = Channel.fromPath(params.mle_design_matrix)
+    }
+
+    emit:
+    library = ch_library // channel: library file
+    crisprcleanr = ch_crisprcleanr // channel: crisprcleanr file or value
+    design = ch_design // channel: design matrix file
+}
+
+/*
+========================================================================================
+    SUBWORKFLOW TO INITIALISE PIPELINE CHANNELS - TARGETED
+========================================================================================
+*/
+
+workflow INITIALISATION_CHANNEL_CREATION_TARGETED {
+
+    take:
+    input_reads
+    input_reference
+    input_template
+
+    main:
+
+    //
+    // Separate samples by the ones containing all reads in one file or the ones with many files to be concatenated
+    //
+    input_reads
+    .groupTuple()
+    .branch {
+        meta, fastqs ->
+            single  : fastqs.size() == 1
+                return [ meta, fastqs.flatten() ]
+            multiple: fastqs.size() > 1
+                return [ meta, fastqs.flatten() ]
+    }
+    .set { ch_fastq }
+
+    //
+    // Add reference sequences to file
+    //
+    input_reference
+    .tap{ meta_reference }
+    .filter{ meta, sequence -> sequence instanceof String }
+    .collectFile() { meta, reference ->
+        [ "${meta.id}_reference.fasta", ">${meta.id}\n${reference}\n" ] // Write each reference sequence to a file
+    }
+    .map{ new_file ->
+        [new_file.baseName.split("_reference")[0], new_file] // create a channel with the meta.id and the new file
+    }
+    .join(meta_reference
+        .map{ meta, reference ->
+            [meta.id, meta] // Join the channel by meta.id with the meta map
+        }
+    )
+    .map{ metaid, new_file, meta ->
+        [meta, new_file] // Obtain the final channel with meta map and the new file
+    }
+    .set{ ch_seq_reference }
+
+
+    //
+    // Add template sequences to file
+    //
+    input_template
+    .tap{ meta_template }
+    .filter{ meta, sequence -> sequence instanceof String }
+    .collectFile() { meta, template ->
+        [ "${meta.id}_template.fasta", ">${meta.id}\n${template}\n" ] // Write each template sequence to a file
+    }
+    .map{ new_file ->
+        [new_file.baseName.split("_template")[0], new_file] // create a channel with the meta.id and the new file
+    }
+    .join(meta_template
+        .map{ meta, template ->
+            [meta.id, meta] // Join the channel by meta.id with the meta map
+        }
+    )
+    .map{ metaid, new_file, meta ->
+        [meta, new_file] // Obtain the final channel with meta map and the new file
+    }
+    .set{ ch_seq_template }
+
+
+    // Join channels with reference and protospacer
+    // to channel: [ meta, reference, protospacer]
+    if (!params.reference_fasta && !params.protospacer) {
+        ch_seq_reference
+            .join(ch_input_protospacer)
+            .set{ reference_protospacer }
+    } else if (!params.reference_fasta) {
+        // If a protospacer was provided through the --protospacer param instead of the samplesheet
+        ch_protospacer = Channel.of(params.protospacer)
+        ch_seq_reference
+            .combine(ch_protospacer)
+            .set{ reference_protospacer }
+    } else if (!params.protospacer) {
+        // If a reference was provided through a fasta file or igenomes instead of the samplesheet
+        ch_reference = Channel.fromPath(params.reference_fasta)
+        ch_input_protospacer
+            .combine(ch_reference)
+            .set{ reference_protospacer }
+    } else {
+        ch_reference = Channel.fromPath(params.reference_fasta)
+        ch_protospacer = Channel.of(params.protospacer)
+        ch_input_reads
+            .combine(ch_reference)
+            .combine(ch_protospacer)
+            .set{ reference_protospacer }
+    }
+
+    emit:
+    fastq_multiple = ch_fastq.multiple // [ meta, fastqs ] // Channel with the samples with multiple files
+    fastq_single = ch_fastq.single // [ meta, fastqs ] // Channel with the samples with only one file
+    template = ch_seq_template // [ meta, template ] // Channel with the template sequences
+    reference_protospacer = reference_protospacer // [ meta, reference, protospacer] // Channel with the reference and protospacer sequences
+
+}
+
+/*
+========================================================================================
     SUBWORKFLOW FOR PIPELINE COMPLETION
 ========================================================================================
 */
@@ -271,4 +418,26 @@ def methodsDescriptionText(mqc_methods_yaml) {
     def description_html = engine.createTemplate(methods_text).make(meta)
 
     return description_html.toString()
+}
+
+def validateParametersScreening() {
+    if(params.rra && params.mle_design_matrix) {
+        warning "mle_design_matrix will only be used for the MAGeCK MLE computations"
+    }
+
+    if(params.fasta && params.count_table) {
+        error "Please provide either a fasta file or a count_table"
+    }
+
+    if(params.fasta && !params.library) {
+        error "Please provide a fasta file and the library file"
+    }
+
+    if(params.rra && params.mle_design_matrix) {
+        warning "mle_design_matrix will only be used for the MAGeCK MLE computations"
+    }
+
+    if(params.rra && !params.contrasts) {
+        error "Please also provide the contrasts table to compare the samples for MAGeCK RRA"
+    }
 }

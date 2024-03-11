@@ -37,6 +37,8 @@ include { MINIMAP2_INDEX                            } from '../modules/nf-core/m
 include { MEDAKA                                    } from '../modules/nf-core/medaka/main'
 include { CUTADAPT                                  } from '../modules/nf-core/cutadapt/main'
 include { SAMTOOLS_INDEX                            } from '../modules/nf-core/samtools/index/main'
+// Local subworkflows
+include { INITIALISATION_CHANNEL_CREATION_TARGETED  } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 // Functions
 include { paramsSummaryMap                          } from 'plugin/nf-validation'
 include { paramsSummaryMultiqc                      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -102,98 +104,19 @@ workflow CRISPRSEQ_TARGETED {
     ch_multiqc_files = Channel.empty()
 
     //
-    // Separate samples by the ones containing all reads in one file or the ones with many files to be concatenated
+    // Initialise channels
     //
-    ch_input_reads
-    .groupTuple()
-    .branch {
-        meta, fastqs ->
-            single  : fastqs.size() == 1
-                return [ meta, fastqs.flatten() ]
-            multiple: fastqs.size() > 1
-                return [ meta, fastqs.flatten() ]
-    }
-    .set { ch_fastq }
-
-    //
-    // Add reference sequences to file
-    //
-    ch_input_reference
-    .tap{ meta_reference }
-    .filter{ meta, sequence -> sequence instanceof String }
-    .collectFile() { meta, reference ->
-        [ "${meta.id}_reference.fasta", ">${meta.id}\n${reference}\n" ] // Write each reference sequence to a file
-    }
-    .map{ new_file ->
-        [new_file.baseName.split("_reference")[0], new_file] // create a channel with the meta.id and the new file
-    }
-    .join(meta_reference
-        .map{ meta, reference ->
-            [meta.id, meta] // Join the channel by meta.id with the meta map
-        }
+    INITIALISATION_CHANNEL_CREATION_TARGETED(
+        ch_input_reads,
+        ch_input_reference,
+        ch_input_template
     )
-    .map{ metaid, new_file, meta ->
-        [meta, new_file] // Obtain the final channel with meta map and the new file
-    }
-    .set{ ch_seq_reference }
-
-
-    //
-    // Add template sequences to file
-    //
-    ch_input_template
-    .tap{ meta_template }
-    .filter{ meta, sequence -> sequence instanceof String }
-    .collectFile() { meta, template ->
-        [ "${meta.id}_template.fasta", ">${meta.id}\n${template}\n" ] // Write each template sequence to a file
-    }
-    .map{ new_file ->
-        [new_file.baseName.split("_template")[0], new_file] // create a channel with the meta.id and the new file
-    }
-    .join(meta_template
-        .map{ meta, template ->
-            [meta.id, meta] // Join the channel by meta.id with the meta map
-        }
-    )
-    .map{ metaid, new_file, meta ->
-        [meta, new_file] // Obtain the final channel with meta map and the new file
-    }
-    .set{ ch_seq_template }
-
-
-    // Join channels with reference and protospacer
-    // to channel: [ meta, reference, protospacer]
-    if (!params.reference_fasta && !params.protospacer) {
-        ch_seq_reference
-            .join(ch_input_protospacer)
-            .set{ reference_protospacer }
-    } else if (!params.reference_fasta) {
-        // If a protospacer was provided through the --protospacer param instead of the samplesheet
-        ch_protospacer = Channel.of(params.protospacer)
-        ch_seq_reference
-            .combine(ch_protospacer)
-            .set{ reference_protospacer }
-    } else if (!params.protospacer) {
-        // If a reference was provided through a fasta file or igenomes instead of the samplesheet
-        ch_reference = Channel.fromPath(params.reference_fasta)
-        ch_input_protospacer
-            .combine(ch_reference)
-            .set{ reference_protospacer }
-    } else {
-        ch_reference = Channel.fromPath(params.reference_fasta)
-        ch_protospacer = Channel.of(params.protospacer)
-        ch_input_reads
-            .combine(ch_reference)
-            .combine(ch_protospacer)
-            .set{ reference_protospacer }
-    }
-
 
     //
     // MODULE: Prepare reference sequence
     //
     ORIENT_REFERENCE (
-        reference_protospacer
+        INITIALISATION_CHANNEL_CREATION_TARGETED.out.reference_protospacer
     )
     ch_versions = ch_versions.mix(ORIENT_REFERENCE.out.versions)
 
@@ -201,11 +124,11 @@ workflow CRISPRSEQ_TARGETED {
     // MODULE: Concatenate FastQ files from same sample if required
     //
     CAT_FASTQ (
-        ch_fastq.multiple
+        INITIALISATION_CHANNEL_CREATION_TARGETED.out.fastq_multiple
     )
     .reads
     .groupTuple(by: [0])
-    .mix(ch_fastq.single)
+    .mix(INITIALISATION_CHANNEL_CREATION_TARGETED.out.fastq_single)
     // Separate samples by paired-end or single-end
     .branch {
         meta, fastq ->
@@ -638,7 +561,7 @@ workflow CRISPRSEQ_TARGETED {
     //
     TEMPLATE_REFERENCE (
         ORIENT_REFERENCE.out.reference
-            .join(ch_seq_template)
+            .join(INITIALISATION_CHANNEL_CREATION_TARGETED.out.template)
     )
     ch_versions = ch_versions.mix(TEMPLATE_REFERENCE.out.versions.first())
 
@@ -671,7 +594,7 @@ workflow CRISPRSEQ_TARGETED {
         .join(SAMTOOLS_INDEX.out.bai)
         .join(ORIENT_REFERENCE.out.reference)
         .join(ch_input_protospacer)
-        .join(ch_seq_template, remainder: true)
+        .join(INITIALISATION_CHANNEL_CREATION_TARGETED.out.template, remainder: true)
         .join(ch_template_bam, remainder: true)
         .join(TEMPLATE_REFERENCE.out.fasta, remainder: true)
         .join(ALIGNMENT_SUMMARY.out.summary)

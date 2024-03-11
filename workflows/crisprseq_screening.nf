@@ -5,29 +5,32 @@
 */
 
 // Local modules
-include { BAGEL2_FC                         } from '../modules/local/bagel2/fc'
-include { BAGEL2_BF                         } from '../modules/local/bagel2/bf'
-include { BAGEL2_PR                         } from '../modules/local/bagel2/pr'
-include { BAGEL2_GRAPH                      } from '../modules/local/bagel2/graph'
-include { MATRICESCREATION                  } from '../modules/local/matricescreation'
+include { BAGEL2_FC                                    } from '../modules/local/bagel2/fc'
+include { BAGEL2_BF                                    } from '../modules/local/bagel2/bf'
+include { BAGEL2_PR                                    } from '../modules/local/bagel2/pr'
+include { BAGEL2_GRAPH                                 } from '../modules/local/bagel2/graph'
+include { MATRICESCREATION                             } from '../modules/local/matricescreation'
 // nf-core modules
-include { FASTQC                            } from '../modules/nf-core/fastqc/main'
-include { CUTADAPT as CUTADAPT_THREE_PRIME  } from '../modules/nf-core/cutadapt/main'
-include { CUTADAPT as CUTADAPT_FIVE_PRIME   } from '../modules/nf-core/cutadapt/main'
-include { MULTIQC                           } from '../modules/nf-core/multiqc/main'
-include { MAGECK_COUNT                      } from '../modules/nf-core/mageck/count/main'
-include { MAGECK_MLE                        } from '../modules/nf-core/mageck/mle/main'
-include { MAGECK_TEST                       } from '../modules/nf-core/mageck/test/main'
-include { MAGECK_GRAPHRRA                   } from '../modules/local/mageck/graphrra'
-include { CRISPRCLEANR_NORMALIZE            } from '../modules/nf-core/crisprcleanr/normalize/main'
-include { MAGECK_MLE as MAGECK_MLE_MATRIX   } from '../modules/nf-core/mageck/mle/main'
-include { BOWTIE2_BUILD                     } from '../modules/nf-core/bowtie2/build/main'
-include { BOWTIE2_ALIGN                     } from '../modules/nf-core/bowtie2/align/main'
+include { FASTQC                                       } from '../modules/nf-core/fastqc/main'
+include { CUTADAPT as CUTADAPT_THREE_PRIME             } from '../modules/nf-core/cutadapt/main'
+include { CUTADAPT as CUTADAPT_FIVE_PRIME              } from '../modules/nf-core/cutadapt/main'
+include { MULTIQC                                      } from '../modules/nf-core/multiqc/main'
+include { MAGECK_COUNT                                 } from '../modules/nf-core/mageck/count/main'
+include { MAGECK_MLE                                   } from '../modules/nf-core/mageck/mle/main'
+include { MAGECK_TEST                                  } from '../modules/nf-core/mageck/test/main'
+include { MAGECK_GRAPHRRA                              } from '../modules/local/mageck/graphrra'
+include { CRISPRCLEANR_NORMALIZE                       } from '../modules/nf-core/crisprcleanr/normalize/main'
+include { MAGECK_MLE as MAGECK_MLE_MATRIX              } from '../modules/nf-core/mageck/mle/main'
+include { BOWTIE2_BUILD                                } from '../modules/nf-core/bowtie2/build/main'
+include { BOWTIE2_ALIGN                                } from '../modules/nf-core/bowtie2/align/main'
+// Local subworkflows
+include { INITIALISATION_CHANNEL_CREATION_SCREENING    } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 // Functions
-include { paramsSummaryMap                  } from 'plugin/nf-validation'
-include { paramsSummaryMultiqc              } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML            } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText            } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
+include { paramsSummaryMap                             } from 'plugin/nf-validation'
+include { paramsSummaryMultiqc                         } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML                       } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText                       } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
+include { validateParametersScreening                  } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,43 +49,16 @@ workflow CRISPRSEQ_SCREENING {
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
-    if (params.library) { ch_library = file(params.library) }
-    if (params.crisprcleanr) {
-        if(params.crisprcleanr.endsWith(".csv")) {
-            ch_crisprcleanr = Channel.fromPath(params.crisprcleanr)
-        } else {
-            ch_crisprcleanr = Channel.value(params.crisprcleanr)
-        }
-    }
+    // Validate parameters specific to the screening subworkflow
+    validateParametersScreening()
 
-    if(params.mle_design_matrix) {
-        Channel.fromPath(params.mle_design_matrix)
-            .set { ch_design }
-    }
-
-    if(params.rra && params.mle_design_matrix) {
-        warning "mle_design_matrix will only be used for the MAGeCK MLE computations"
-    }
-
-    if(params.fasta && params.count_table) {
-        error "Please provide either a fasta file or a count_table"
-    }
-
-    if(params.fasta && !params.library) {
-        error "Please provide a fasta file and the library file"
-    }
-
-    if(params.rra && params.mle_design_matrix) {
-        warning "mle_design_matrix will only be used for the MAGeCK MLE computations"
-    }
-
-    if(params.rra && !params.contrasts) {
-        error "Please also provide the contrasts table to compare the samples for MAGeCK RRA"
-    }
+    //
+    // Initialise channels
+    //
+    INITIALISATION_CHANNEL_CREATION_SCREENING()
 
     if(!params.count_table){
-        ch_samplesheet
-        .set { ch_input }
+        ch_input = ch_samplesheet
 
         //
         // MODULE: Run FastQC
@@ -181,7 +157,7 @@ workflow CRISPRSEQ_SCREENING {
         //
         MAGECK_COUNT (
             joined,
-            ch_library
+            INITIALISATION_CHANNEL_CREATION_SCREENING.out.library
         )
 
         ch_versions = ch_versions.mix(MAGECK_COUNT.out.versions.first())
@@ -202,7 +178,7 @@ workflow CRISPRSEQ_SCREENING {
             CRISPRCLEANR_NORMALIZE(
                 ch_crispr_normalize.collect(),
                 '',
-                ch_crisprcleanr,
+                INITIALISATION_CHANNEL_CREATION_SCREENING.out.crisprcleanr,
                 params.min_reads,
                 params.min_targeted_genes
         ) } else
@@ -210,7 +186,7 @@ workflow CRISPRSEQ_SCREENING {
             ch_crispr_normalize = Channel.of([id: "count_table_normalize"]).concat(ch_counts)
             CRISPRCLEANR_NORMALIZE(
                 ch_crispr_normalize.collect(),
-                ch_crisprcleanr,
+                INITIALISATION_CHANNEL_CREATION_SCREENING.out.crisprcleanr,
                 [],
                 params.min_reads,
                 params.min_targeted_genes)
@@ -285,7 +261,7 @@ workflow CRISPRSEQ_SCREENING {
 
     if((params.mle_design_matrix) || (params.contrasts && !params.rra)) {
         if(params.mle_design_matrix) {
-            ch_design.map {
+            INITIALISATION_CHANNEL_CREATION_SCREENING.out.design.map {
                 it -> [[id: it.getBaseName()], it]
                 }.set { ch_designed_mle }
             ch_mle = ch_designed_mle.combine(ch_counts)
