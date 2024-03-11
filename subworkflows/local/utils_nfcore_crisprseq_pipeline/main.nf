@@ -128,9 +128,13 @@ workflow INITIALISATION_CHANNEL_CREATION_SCREENING {
 
     main:
 
+    ch_library = Channel.empty()
+    ch_crisprcleanr = Channel.empty()
+    ch_design = Channel.empty()
+
     // Library
     if (params.library) {
-        ch_library = file(params.library)
+        ch_library = Channel.fromPath(params.library)
     }
 
     // Crisprcleanr
@@ -165,6 +169,7 @@ workflow INITIALISATION_CHANNEL_CREATION_TARGETED {
     input_reads
     input_reference
     input_template
+    input_protospacer
 
     main:
 
@@ -232,7 +237,7 @@ workflow INITIALISATION_CHANNEL_CREATION_TARGETED {
     // to channel: [ meta, reference, protospacer]
     if (!params.reference_fasta && !params.protospacer) {
         ch_seq_reference
-            .join(ch_input_protospacer)
+            .join(input_protospacer)
             .set{ reference_protospacer }
     } else if (!params.reference_fasta) {
         // If a protospacer was provided through the --protospacer param instead of the samplesheet
@@ -243,7 +248,7 @@ workflow INITIALISATION_CHANNEL_CREATION_TARGETED {
     } else if (!params.protospacer) {
         // If a reference was provided through a fasta file or igenomes instead of the samplesheet
         ch_reference = Channel.fromPath(params.reference_fasta)
-        ch_input_protospacer
+        input_protospacer
             .combine(ch_reference)
             .set{ reference_protospacer }
     } else {

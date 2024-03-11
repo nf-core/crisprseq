@@ -109,7 +109,8 @@ workflow CRISPRSEQ_TARGETED {
     INITIALISATION_CHANNEL_CREATION_TARGETED(
         ch_input_reads,
         ch_input_reference,
-        ch_input_template
+        ch_input_template,
+        ch_input_protospacer
     )
 
     //
