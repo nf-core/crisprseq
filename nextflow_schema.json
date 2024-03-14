@@ -171,6 +171,10 @@
                     "type": "string",
                     "description": "Fasta file in case you want to map with bowtie2 and then MAGeCK count"
                 },
+                "day0_label": {
+                    "type": "string",
+                    "description": "Specify the label for control sample (usually day 0 or plasmid). For every other sample label, the module will treat it as a treatment condition and compare with control sample for MAGeCK MLE"
+                },
                 "mle_design_matrix": {
                     "type": "string",
                     "format": "file-path",

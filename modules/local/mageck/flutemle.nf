@@ -39,7 +39,6 @@ process MAGECK_FLUTEMLE {
     options(ggrepel.max.overlaps = Inf)
     mle <- read.table("${gene_summary}", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
     print(head(mle))
-    colnames(mle)
     #stop(colnames(mle))
     FluteMLE(mle, treatname= "${prefix}", proj="${prefix}", pathview.top=0, $args)
 
