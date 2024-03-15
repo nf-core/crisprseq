@@ -35,11 +35,20 @@ process MAGECK_FLUTEMLE {
     library(clusterProfiler)
     library(ggplot2)
 
-    #library(pathview)
+    library(pathview)
     options(ggrepel.max.overlaps = Inf)
     mle <- read.table("${gene_summary}", header = TRUE, sep = "\t", stringsAsFactors = FALSE)
-    print(head(mle))
+    #print(head(mle))
     #stop(colnames(mle))
+
+    if("${prefix}" == "day0") {
+        print("true")
+        beta_strings <- grep("$\\.beta", colnames(mle), value = TRUE)
+        before_beta <- sub("$\\.beta.*", "", beta_strings)
+        unique_strings <- unique(before_beta)
+        print(unique_strings)
+        print(column_names)
+    }
     FluteMLE(mle, treatname= "${prefix}", proj="${prefix}", pathview.top=0, $args)
 
     version_file_path <- "versions.yml"
