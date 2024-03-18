@@ -22,8 +22,6 @@ process MAGECK_MLE {
     def args = task.ext.args ?: ''
     prefix = meta.id ?: "${meta.treatment}_vs_${meta.reference}"
     def design_command = design_matrix ? "-d $design_matrix" : ''
-    prefix = meta.id ?: "${meta.treatment}_vs_${meta.treatment}"
-
 
     """
     mageck \\
