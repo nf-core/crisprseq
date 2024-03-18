@@ -21,6 +21,8 @@ process MAGECK_MLE {
     script:
     def args = task.ext.args ?: ''
     prefix = meta.id ?: "${meta.treatment}_vs_${meta.reference}"
+    def design_command = design_matrix ? "-d $design_matrix" : ''
+    prefix = meta.id ?: "${meta.treatment}_vs_${meta.treatment}"
 
 
     """
@@ -29,8 +31,9 @@ process MAGECK_MLE {
         $args \\
         --threads $task.cpus \\
         -k $count_table \\
-        -d $design_matrix \\
-        -n $prefix
+        -n $prefix     \\
+        $design_command 
+        
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
