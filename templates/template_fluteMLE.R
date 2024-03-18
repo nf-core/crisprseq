@@ -15,15 +15,12 @@
     #stop(colnames(mle))
 
     if("${prefix}" == "day0") {
-        print("true")
         beta_strings <- grep("\\\\.beta", colnames(mle), value = TRUE)
         before_beta <- sub("\\\\.beta.*", "", beta_strings)
         unique_strings <- unique(before_beta)
-        print(unique_strings)
         for(i in unique_strings) {
             FluteMLE(mle, treatname= i, proj=i, pathview.top=0)
             }
-        #print(column_names)
     } else {
         FluteMLE(mle, treatname= "${prefix}", proj="${prefix}", ${args}, pathview.top=0)
     }
