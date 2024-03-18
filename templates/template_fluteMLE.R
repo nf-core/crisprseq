@@ -21,7 +21,7 @@
         unique_strings <- unique(before_beta)
         print(unique_strings)
         for(i in unique_strings) {
-            FluteMLE(mle, treatname= i, proj="${prefix}", pathview.top=0)
+            FluteMLE(mle, treatname= i, proj=i, pathview.top=0)
             }
         #print(column_names)
     } else {
