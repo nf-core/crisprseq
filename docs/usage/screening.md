@@ -66,13 +66,11 @@ CRISPRcleanR is used for gene count normalization and the removal of biases for 
 Most used library already have an annotation dataset which you can find [here](https://github.com/francescojm/CRISPRcleanR/blob/master/Reference_Manual.pdf). To use CRISPRcleanR normalization, use `--crisprcleanr library`, `library` being the exact name as the library in the CRISPRcleanR documentation (e.g: "AVANA_Library").
 Otherwise, if you wish to provide your own file, please provide it in csv form, and make sure it follows the following format :
 
-| ,CODE                | GENES          | EXONE   | CHRM | STRAND | STARTpos | ENDpos    |
-| -------------------- | -------------- | ------- | ---- | ------ | -------- | --------- | --------- |
-| AAAAAAAAAAAATGCATTCT | NM_183035.1    | Defb34  | ex2  | 8      | -        | 19126349  | 19126369  |
-| AAAAAAAAATAAGCTCACCC | NM_001170853.1 | Mndal   | ex5  | 1      | +        | 173872968 | 173872988 |
-| AAAAAAAATCCTGTCGCCCA | NM_001039049.1 | Cox8c   | ex1  | 12     | +        | 102899487 | 102899507 |
-| AAAAAAATCGGCATACCATG | NM_178627.3    | Poldip3 | ex4  | 15     | -        | 83135295  | 83135315  |
-| AAAAAAATGACATTACTGCA | NM_026602.3    | Bcas2   | ex4  | 3      | +        | 103174386 | 103174406 |
+| ,CODE         | GENES       | EXONE       | CHRM | STRAND | STARTpos | ENDpos   |
+|---------------|-------------|-------------|------|--------|----------|----------|
+| ATGGTGTCCATTATAGCCAT | NM_021446.2 | 0610007P14Rik | ex2  | 12     | +        | 85822165 | 85822185 |
+| CTCTACGAGAAGCTCTACAC | NM_021446.2 | 0610007P14Rik | ex2  | 12     | +        | 85822108 | 85822128 |
+| GACTCTATCACATCACACTG | NM_021446.2 | 0610007P14Rik | ex4  | 12     | +        | 85816419 | 85816439 |
 
 ### Running MAGeCK MLE and BAGEL2 with a contrast file
 
@@ -101,6 +99,10 @@ If there are several designs to be run, you can input a folder containing all th
 
 BAGEL2 (Bayesian Analysis of Gene Essentiality with Location) is a computational tool developed by the Hart Lab at Harvard University. It is designed for analyzing large-scale genetic screens, particularly CRISPR-Cas9 screens, to identify genes that are essential for the survival or growth of cells under different conditions. BAGEL2 integrates information about the location of guide RNAs within a gene and leverages this information to improve the accuracy of gene essentiality predictions.
 BAGEL2 uses the same contrasts from `--contrasts`.
+
+### MAGECKFlute
+
+The downstream analysis involves distinguishing essential, non-essential, and target-associated genes. Additionally, it encompasses conducting biological functional category analysis and pathway enrichment analysis for these genes. Furthermore, the function provides visualization of genes within pathways, enhancing user exploration of screening data. MAGECKFlute is run automatically after MAGeCK MLE and for each MLE design matrice. If you have used the `--day0_label`, MAGeCKFlute will be ran on all the other conditions. Please note that the DepMap data is used for these plots.
 
 Note that the pipeline will create the following files in your working directory:
 

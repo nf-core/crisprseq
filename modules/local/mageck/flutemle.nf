@@ -15,6 +15,7 @@ process MAGECK_FLUTEMLE {
     tuple val(meta), path("MAGeCKFlute_*/Enrichment/*"), emit: enrich
     tuple val(meta), path("MAGeCKFlute_*/QC/*"),         emit: qc
     tuple val(meta), path("MAGeCKFlute_*/Selection/*"),  emit: select
+    tuple val(meta), path("MAGeCKFlute_*/PathwayView/*"),  emit: pathwayview
     path "versions.yml"           ,                      emit: versions
 
     when:
