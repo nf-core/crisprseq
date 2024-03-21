@@ -26,6 +26,7 @@
     version_file_path <- "versions.yml"
     version_flute <- paste(unlist(packageVersion("MAGeCKFlute")), collapse = ".")
     version_ggplot <- paste(unlist(packageVersion("ggplot2")), collapse = ".")
+    version_clusterprofiler <- paste(unlist(packageVersion("clusterProfiler")), collapse = ".")
 
     f <- file(version_file_path, "w")
     writeLines('"${task.process}":', f)
@@ -33,4 +34,6 @@
     writeLines(version_flute, f)
     writeLines("    ggplot2: ", f, sep = "")
     writeLines(version_ggplot, f)
+    writeLines("    clusterProfiler: ", f, sep = "")
+    writeLines(version_clusterprofiler, f)
     close(f)
