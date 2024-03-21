@@ -89,11 +89,17 @@ MAGeCK RRA performs robust ranking aggregation to identify genes that are consis
 
 ### Running MAGeCK MLE only
 
+#### With design matrices
+
 If you wish to run MAGeCK MLE only, you can specify several design matrices (where you state which comparisons you wish to run) with the flag `--mle_design_matrix`.
 MAGeCK MLE uses a maximum likelihood estimation approach to estimate the effects of gene knockout on cell fitness. It models the read count data of guide RNAs targeting each gene and estimates the dropout probability for each gene.
 MAGeCK MLE requires one or several design matrices. The design matrix is a `txt` file indicating the effects of different conditions on different samples.
 An [example design matrix](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/design_matrix.txt) has been provided with the pipeline. The row names need to match the condition stated in the sample sheet.
 If there are several designs to be run, you can input a folder containing all the design matrices. The output results will automatically take the name of the design matrix, so make sure you give a meaningful name to the file, for instance "Drug_vs_control.txt".
+
+#### With the day0 label
+
+If you wish to run MAGeCK MLE with the day0 label you can do so by specifying `--day0_label` and the sample names that should be used as day0.
 
 ### Running BAGEL2
 
