@@ -224,8 +224,12 @@ workflow CRISPRSEQ_SCREENING {
     counts = ch_contrasts.combine(ch_counts)
 
     //Define non essential and essential genes channels for bagel2
-    ch_bagel_reference_essentials= Channel.fromPath(params.bagel_reference_essentials).first()
-    ch_bagel_reference_nonessentials= Channel.fromPath(params.bagel_reference_nonessentials).first()
+    if(params.bagel_reference_essentials) {
+        bagel_reference_essentials= Channel.fromPath(params.bagel_reference_essentials).first()
+    }
+    if(params.bagel_reference_nonessentials) {
+    bagel_reference_nonessentials= Channel.fromPath(params.bagel_reference_nonessentials).first()
+    }
 
     BAGEL2_FC (
             counts
@@ -234,15 +238,15 @@ workflow CRISPRSEQ_SCREENING {
 
     BAGEL2_BF (
         BAGEL2_FC.out.foldchange,
-        ch_bagel_reference_essentials,
-        ch_bagel_reference_nonessentials
+        bagel_reference_essentials,
+        bagel_reference_nonessentials
     )
 
     ch_versions = ch_versions.mix(BAGEL2_BF.out.versions)
 
 
-    ch_bagel_pr = BAGEL2_BF.out.bf.combine(ch_bagel_reference_essentials)
-                                        .combine(ch_bagel_reference_nonessentials)
+    ch_bagel_pr = BAGEL2_BF.out.bf.combine(bagel_reference_essentials)
+                                        .combine(bagel_reference_nonessentials)
 
     BAGEL2_PR (
         ch_bagel_pr
@@ -263,9 +267,12 @@ workflow CRISPRSEQ_SCREENING {
             INITIALISATION_CHANNEL_CREATION_SCREENING.out.design.map {
                 it -> [[id: it.getBaseName()], it]
                 }.set { ch_designed_mle }
+
             ch_mle = ch_designed_mle.combine(ch_counts)
             MAGECK_MLE_MATRIX (ch_mle)
+            ch_versions = ch_versions.mix(MAGECK_MLE_MATRIX.out.versions)
             MAGECK_FLUTEMLE(MAGECK_MLE.out.gene_summary)
+            ch_versions = ch_versions.mix(MAGECK_FLUTEMLE.out.versions)
         }
         if(params.contrasts) {
             MATRICESCREATION(ch_contrasts)
@@ -273,12 +280,14 @@ workflow CRISPRSEQ_SCREENING {
             MAGECK_MLE (ch_mle)
             ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
             MAGECK_FLUTEMLE(MAGECK_MLE.out.gene_summary)
+            ch_versions = ch_versions.mix(MAGECK_FLUTEMLE.out.versions)
         }
         if(params.day0_label) {
             ch_mle = Channel.of([id: "day0"]).merge(Channel.of([[]])).merge(ch_counts)
             MAGECK_MLE_DAY0 (ch_mle)
             ch_versions = ch_versions.mix(MAGECK_MLE_DAY0.out.versions)
             MAGECK_FLUTEMLE(MAGECK_MLE_DAY0.out.gene_summary)
+            ch_versions = ch_versions.mix(MAGECK_FLUTEMLE.out.versions)
         }
     }
 
