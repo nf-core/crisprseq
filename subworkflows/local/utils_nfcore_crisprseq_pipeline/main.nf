@@ -438,6 +438,10 @@ def validateParametersScreening() {
         error "Please provide a fasta file and the library file"
     }
 
+    if(params.day0_label && params.mle_design_matrix) {
+        warning "MAGeCK MLE module will be run twice, once with the design matrix and once with day0-label"
+    }
+
     if(params.rra && params.mle_design_matrix) {
         warning "mle_design_matrix will only be used for the MAGeCK MLE computations"
     }

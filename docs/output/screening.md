@@ -148,6 +148,23 @@ For further reading and documentation see the [cutadapt helper page](https://cut
 
 [bagel2](https://github.com/hart-lab/bagel) is a computational tool to identify important essential genes for CRISPR-Cas9 screening experiments.
 
+## Gene essentiality computation
+
+### MAGeCKFlute
+
+- `FluteMLE/QC`
+  - `*.txt` : Quality control tables
+  - `*.png` : Quality control plots
+- `FluteMLE/Selection`
+  - `*.txt`: Positive selection and negative selection.
+  - `*.png`: Rank and scatter view for positive and negative selection
+- `FluteMLE/Enrichment`
+  - `*.txt`: Enrichment analysis for positive and negative selection genes.
+  - `*.png`: Enrichment analysis plots for positive and negative selection genes.
+- `FluteMLE/PathwayView`
+  - `*.txt`: Pathway view for top enriched pathways.
+  - `*.png`: Pathway view for top enriched pathways.
+
 ## MultiQC
 
 <details markdown="1">
