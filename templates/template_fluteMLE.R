@@ -27,6 +27,7 @@
     version_flute <- paste(unlist(packageVersion("MAGeCKFlute")), collapse = ".")
     version_ggplot <- paste(unlist(packageVersion("ggplot2")), collapse = ".")
     version_clusterprofiler <- paste(unlist(packageVersion("clusterProfiler")), collapse = ".")
+    version_pathview <- paste(unlist(packageVersion("pathview")), collapse = ".")
 
     f <- file(version_file_path, "w")
     writeLines('"${task.process}":', f)
@@ -36,4 +37,6 @@
     writeLines(version_ggplot, f)
     writeLines("    clusterProfiler: ", f, sep = "")
     writeLines(version_clusterprofiler, f)
+    writeLines("    pathview: ", f, sep = "")
+    writeLines(version_pathview, f)
     close(f)
