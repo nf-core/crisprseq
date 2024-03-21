@@ -43,7 +43,7 @@ if(params.fasta && !params.library) {
     }
 
 if(params.day0_label && params.mle_design_matrix) {
-    warning "MAGeCK MLE module will be ran twice, once with the design matrices and once with day0-label"
+    warning "MAGeCK MLE module will be run twice, once with the design matrix and once with day0-label"
     }
 
 if(params.rra && params.mle_design_matrix) {
