@@ -42,6 +42,10 @@ if(params.fasta && !params.library) {
     error "Please provide a fasta file and the library file"
     }
 
+if(params.day0_label && params.mle_design_matrix) {
+    warning "MAGeCK MLE module will be run twice, once with the design matrix and once with day0-label"
+    }
+
 if(params.rra && params.mle_design_matrix) {
     warning "mle_design_matrix will only be used for the MAGeCK MLE computations"
     }
@@ -74,6 +78,7 @@ include { BAGEL2_BF                   } from '../modules/local/bagel2/bf'
 include { BAGEL2_PR                   } from '../modules/local/bagel2/pr'
 include { BAGEL2_GRAPH                } from '../modules/local/bagel2/graph'
 include { MATRICESCREATION            } from '../modules/local/matricescreation'
+include { MAGECK_FLUTEMLE             } from '../modules/local/mageck/flutemle'
 
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
@@ -99,6 +104,7 @@ include { MAGECK_GRAPHRRA                   } from '../modules/local/mageck/grap
 include { CUSTOM_DUMPSOFTWAREVERSIONS       } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { CRISPRCLEANR_NORMALIZE            } from '../modules/nf-core/crisprcleanr/normalize/main'
 include { MAGECK_MLE as MAGECK_MLE_MATRIX   } from '../modules/nf-core/mageck/mle/main'
+include { MAGECK_MLE as MAGECK_MLE_DAY0     } from '../modules/nf-core/mageck/mle/main'
 include { BOWTIE2_BUILD                     } from '../modules/nf-core/bowtie2/build/main'
 include { BOWTIE2_ALIGN                     } from '../modules/nf-core/bowtie2/align/main'
 
@@ -323,19 +329,27 @@ workflow CRISPRSEQ_SCREENING {
 
     }
 
-    if((params.mle_design_matrix) || (params.contrasts && !params.rra)) {
+    if((params.mle_design_matrix) || (params.contrasts && !params.rra) || (params.day0_label)) {
         if(params.mle_design_matrix) {
             ch_design.map {
                 it -> [[id: it.getBaseName()], it]
                 }.set { ch_designed_mle }
             ch_mle = ch_designed_mle.combine(ch_counts)
             MAGECK_MLE_MATRIX (ch_mle)
+            MAGECK_FLUTEMLE(MAGECK_MLE.out.gene_summary)
         }
         if(params.contrasts) {
             MATRICESCREATION(ch_contrasts)
             ch_mle = MATRICESCREATION.out.design_matrix.combine(ch_counts)
             MAGECK_MLE (ch_mle)
             ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
+            MAGECK_FLUTEMLE(MAGECK_MLE.out.gene_summary)
+        }
+        if(params.day0_label) {
+            ch_mle = Channel.of([id: "day0"]).merge(Channel.of([[]])).merge(ch_counts)
+            MAGECK_MLE_DAY0 (ch_mle)
+            ch_versions = ch_versions.mix(MAGECK_MLE_DAY0.out.versions)
+            MAGECK_FLUTEMLE(MAGECK_MLE_DAY0.out.gene_summary)
         }
     }
 
