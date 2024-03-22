@@ -151,6 +151,7 @@ workflow INITIALISATION_CHANNEL_CREATION_SCREENING {
         ch_design = Channel.fromPath(params.mle_design_matrix)
     }
 
+
     emit:
     library = ch_library // channel: library file
     crisprcleanr = ch_crisprcleanr // channel: crisprcleanr file or value

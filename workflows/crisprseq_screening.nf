@@ -263,9 +263,12 @@ workflow CRISPRSEQ_SCREENING {
             INITIALISATION_CHANNEL_CREATION_SCREENING.out.design.map {
                 it -> [[id: it.getBaseName()], it]
                 }.set { ch_designed_mle }
+
             ch_mle = ch_designed_mle.combine(ch_counts)
             MAGECK_MLE_MATRIX (ch_mle)
+            ch_versions = ch_versions.mix(MAGECK_MLE_MATRIX.out.versions)
             MAGECK_FLUTEMLE(MAGECK_MLE.out.gene_summary)
+            ch_versions = ch_versions.mix(MAGECK_FLUTEMLE.out.versions)
         }
         if(params.contrasts) {
             MATRICESCREATION(ch_contrasts)
@@ -273,12 +276,14 @@ workflow CRISPRSEQ_SCREENING {
             MAGECK_MLE (ch_mle)
             ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
             MAGECK_FLUTEMLE(MAGECK_MLE.out.gene_summary)
+            ch_versions = ch_versions.mix(MAGECK_FLUTEMLE.out.versions)
         }
         if(params.day0_label) {
             ch_mle = Channel.of([id: "day0"]).merge(Channel.of([[]])).merge(ch_counts)
             MAGECK_MLE_DAY0 (ch_mle)
             ch_versions = ch_versions.mix(MAGECK_MLE_DAY0.out.versions)
             MAGECK_FLUTEMLE(MAGECK_MLE_DAY0.out.gene_summary)
+            ch_versions = ch_versions.mix(MAGECK_FLUTEMLE.out.versions)
         }
     }
 
