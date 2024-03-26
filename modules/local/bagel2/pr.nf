@@ -1,5 +1,5 @@
 process BAGEL2_PR {
-    tag "$meta.treatment"
+    tag "${meta.treatment}_vs_${meta.reference}"
     label 'process_single'
 
     conda "python=3.11.4 pandas=2.0.3 numpy=1.25.1 scikit-learn=1.3.0 click=8.1.6"
@@ -26,9 +26,9 @@ process BAGEL2_PR {
     BAGEL.py pr -i $bf  -o '${meta.treatment}_vs_${meta.reference}.tsv' -e $reference_essentials -n $reference_nonessentials $args
 
     cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-            python: \$(python --version | sed 's/Python //g')
-            BAGEL2: \$( BAGEL.py version | grep -o 'Version: [0-9.]*' | awk '{print  \$2}' | grep -v '^\$')
+    "${task.process}":
+        python: \$(python --version | sed 's/Python //g')
+        BAGEL2: \$( BAGEL.py version | grep -o 'Version: [0-9.]*' | awk '{print  \$2}' | grep -v '^\$')
     END_VERSIONS
     """
 

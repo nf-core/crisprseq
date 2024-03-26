@@ -82,7 +82,7 @@
                 },
                 "medaka_model": {
                     "type": "string",
-                    "default": "r941_min_high_g360",
+                    "default": "r941_min_high_g303",
                     "fa_icon": "fas fa-font",
                     "description": "Medaka model (-m) to use according to the basecaller used."
                 }
@@ -150,6 +150,31 @@
             "description": "Parameters used for functional genomic screenings",
             "default": "",
             "properties": {
+                "library": {
+                    "type": "string",
+                    "format": "file-path",
+                    "pattern": "^\\S+\\.(tsv|txt)$",
+                    "mimetype": "text/tsv",
+                    "exists": true,
+                    "fa_icon": "far fa-address-book",
+                    "description": "sgRNA and targetting genes, tab separated"
+                },
+                "five_prime_adapter": {
+                    "type": "string",
+                    "description": "Sequencing adapter sequence to use for trimming on the 5' end"
+                },
+                "three_prime_adapter": {
+                    "type": "string",
+                    "description": "Sequencing adapter sequence to use for trimming on the 3' end"
+                },
+                "fasta": {
+                    "type": "string",
+                    "description": "Fasta file in case you want to map with bowtie2 and then MAGeCK count"
+                },
+                "day0_label": {
+                    "type": "string",
+                    "description": "Specify the label for control sample (usually day 0 or plasmid). For every other sample label, the module will treat it as a treatment condition and compare with control sample for MAGeCK MLE"
+                },
                 "mle_design_matrix": {
                     "type": "string",
                     "format": "file-path",
@@ -164,8 +189,7 @@
                 },
                 "rra": {
                     "type": "boolean",
-                    "description": "Parameter indicating if MAGeCK RRA should be ran instead of MAGeCK MLE.",
-                    "default": false
+                    "description": "Parameter indicating if MAGeCK RRA should be ran instead of MAGeCK MLE."
                 },
                 "count_table": {
                     "type": "string",
@@ -175,32 +199,19 @@
                     "exists": true,
                     "description": "Please provide your count table if the mageck test should be skipped."
                 },
-                "library": {
-                    "type": "string",
-                    "format": "file-path",
-                    "pattern": "^\\S+\\.(tsv|txt)$",
-                    "mimetype": "text/tsv",
-                    "exists": true,
-                    "fa_icon": "far fa-address-book",
-                    "description": "sgRNA and targetting genes, tab separated"
-                },
                 "crisprcleanr": {
                     "type": "string",
                     "description": "sgRNA library annotation for crisprcleanR"
                 },
-                "cutadapt": {
-                    "type": "string",
-                    "description": "cut adapter for screening analysis"
-                },
                 "min_reads": {
                     "type": "number",
                     "description": "a filter threshold value for sgRNAs, based on their average counts in the control sample",
-                    "default": 30.0
+                    "default": 30
                 },
                 "min_targeted_genes": {
                     "type": "number",
                     "description": "Minimal number of different genes targeted by sgRNAs in a biased segment in order for the corresponding counts to be corrected for CRISPRcleanR",
-                    "default": 3.0
+                    "default": 3
                 },
                 "bagel_reference_essentials": {
                     "type": "string",
@@ -429,7 +440,7 @@
                 },
                 "validationSchemaIgnoreParams": {
                     "type": "string",
-                    "default": "genomes",
+                    "default": "genomes,igenomes_base",
                     "description": "Ignore JSON schema validation of the following params",
                     "fa_icon": "fas fa-ban",
                     "hidden": true

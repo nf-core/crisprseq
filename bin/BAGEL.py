@@ -209,8 +209,8 @@ def report_bagel_version():
     """
     print(
         "Bayesian Analysis of Gene EssentiaLity (BAGEL) suite:\n"
-        "Version: {VERSION}\n"
-        "Build: {BUILD}".format(VERSION=VERSION, BUILD=BUILD)
+        f"Version: {VERSION}\n"
+        f"Build: {BUILD}"
     )
 
 
@@ -220,7 +220,9 @@ def report_bagel_version():
 @click.option("-c", "--control-columns", required=True)
 @click.option("-m", "--min-reads", type=int, default=0)
 @click.option("-Np", "--pseudo-count", type=int, default=5)
-def calculate_fold_change(read_count_file, output_label, control_columns, min_reads, pseudo_count):
+def calculate_fold_change(
+    read_count_file, output_label, control_columns, min_reads, pseudo_count
+):
     """
     \b
     Calculate fold changes from read count data outputting a fold change column:
@@ -294,7 +296,9 @@ def calculate_fold_change(read_count_file, output_label, control_columns, min_re
     normed = pd.DataFrame(index=reads.index.values)
     normed["GENE"] = reads.iloc[:, 0]  # first column is gene name
     normed = (
-        reads.iloc[:, list(range(1, numColumns))] / np.tile(sumReads, [numClones, 1]) * 10000000
+        reads.iloc[:, list(range(1, numColumns))]
+        / np.tile(sumReads, [numClones, 1])
+        * 10000000
     )  # normalize to 10M reads
 
     #
@@ -334,14 +338,26 @@ def calculate_fold_change(read_count_file, output_label, control_columns, min_re
 @click.option("-i", "--fold-change", required=True, type=click.Path(exists=True))
 @click.option("-o", "--output-file", required=True)
 @click.option("-e", "--essential-genes", required=True, type=click.Path(exists=True))
-@click.option("-n", "--non-essential-genes", required=True, type=click.Path(exists=True))
+@click.option(
+    "-n", "--non-essential-genes", required=True, type=click.Path(exists=True)
+)
 @click.option("-c", "--columns-to-test", required=True)
-@click.option("-w", "--network-file", metavar="[network File]", default=None, type=click.Path(exists=True))
+@click.option(
+    "-w",
+    "--network-file",
+    metavar="[network File]",
+    default=None,
+    type=click.Path(exists=True),
+)
 @click.option("-m", "--filter-multi-target", is_flag=True)
 @click.option("-m0", "--loci-without-mismatch", type=int, default=10)
 @click.option("-m1", "--loci-with-mismatch", type=int, default=10)
 @click.option(
-    "--align-info", metavar="--align-info [File]", default=None, type=click.Path(exists=True), cls=OptionRequiredIf
+    "--align-info",
+    metavar="--align-info [File]",
+    default=None,
+    type=click.Path(exists=True),
+    cls=OptionRequiredIf,
 )
 @click.option("-b", "--use-bootstrapping", is_flag=True)
 @click.option("-NS", "--no-resampling", is_flag=True)
@@ -474,7 +490,9 @@ def calculate_bayes_factors(
 
     if filter_multi_target:
         try:
-            aligninfo = pd.read_csv(align_info, header=None, index_col=0, sep="\t").fillna("")
+            aligninfo = pd.read_csv(
+                align_info, header=None, index_col=0, sep="\t"
+            ).fillna("")
             for seqid in aligninfo.index:
                 perfectmatch = 0
                 mismatch_1bp = 0
@@ -488,7 +506,10 @@ def calculate_bayes_factors(
                     mismatch_1bp = len(aligninfo[3][seqid].split(","))
                 if aligninfo[4][seqid] != "":
                     mismatch_1bp_gene = len(aligninfo[4][seqid].split(","))
-                if perfectmatch > loci_without_mismatch or mismatch_1bp > loci_with_mismatch:
+                if (
+                    perfectmatch > loci_without_mismatch
+                    or mismatch_1bp > loci_with_mismatch
+                ):
                     multi_targeting_sgrnas[seqid] = True
                 elif perfectmatch > 1 or mismatch_1bp > 0:
                     multi_targeting_sgrnas_info[seqid] = (
@@ -502,7 +523,9 @@ def calculate_bayes_factors(
             print("Please check align-info file")
             sys.exit(1)
 
-        print("Total %d multi-targeting gRNAs are discarded" % len(multi_targeting_sgrnas))
+        print(
+            "Total %d multi-targeting gRNAs are discarded" % len(multi_targeting_sgrnas)
+        )
 
     #
     # LOAD FOLDCHANGES
@@ -521,7 +544,9 @@ def calculate_bayes_factors(
             except ValueError:
                 column_labels = columns
                 column_list = [
-                    x for x in range(len(fieldname) - 1) if fieldname[x + 1] in column_labels
+                    x
+                    for x in range(len(fieldname) - 1)
+                    if fieldname[x + 1] in column_labels
                 ]  # +1 because of First column start 2
             print("Using column:  " + ", ".join(column_labels))
         # print "Using column:  " + ", ".join(map(str,column_list))
@@ -549,7 +574,9 @@ def calculate_bayes_factors(
             rna2gene[rnatag] = gsym
             fc[rnatag] = {}
             for i in column_list:
-                fc[rnatag][i] = float(fields[i + 1])  # per user docs, GENE is column 0, first data column is col 1.
+                fc[rnatag][i] = float(
+                    fields[i + 1]
+                )  # per user docs, GENE is column 0, first data column is col 1.
 
     genes_array = np.array(list(genes.keys()))
     gene_idx = np.arange(len(genes))
@@ -590,7 +617,9 @@ def calculate_bayes_factors(
                     for i in [0, 1]:
                         if linearray[i] not in network:
                             network[linearray[i]] = {}
-                        network[linearray[i]][linearray[-1 * (i - 1)]] = 1  # save edge information
+                        network[linearray[i]][
+                            linearray[-1 * (i - 1)]
+                        ] = 1  # save edge information
                     edgecount += 1
 
         print("Number of network edges: " + str(edgecount))
@@ -602,7 +631,9 @@ def calculate_bayes_factors(
     # Define foldchange dynamic threshold. logarithm decay.
     # Parameters are defined by regression (achilles data)  2**-7 was used in previous version.
 
-    FC_THRESH = 2 ** (-1.1535 * np.log(len(np.intersect1d(genes_array, nonEss)) + 13.324) + 0.7728)
+    FC_THRESH = 2 ** (
+        -1.1535 * np.log(len(np.intersect1d(genes_array, nonEss)) + 13.324) + 0.7728
+    )
     bf = {}
     boostedbf = {}
     for g in genes_array:
@@ -619,12 +650,17 @@ def calculate_bayes_factors(
         # training_data = Training(setdiff1d(gene_idx,np.where(in1d(genes_array,coreEss))),cvnum=NUMCV)
         # declare training class (only for Gold-standard gene set)
         training_data = Training(
-            np.where(np.in1d(genes_array, np.union1d(coreEss, nonEss)))[0], cvnum=no_of_cross_validations
+            np.where(np.in1d(genes_array, np.union1d(coreEss, nonEss)))[0],
+            cvnum=no_of_cross_validations,
         )
         # all non-goldstandards
-        all_non_gs = np.where(np.logical_not(np.in1d(genes_array, np.union1d(coreEss, nonEss))))[0]
+        all_non_gs = np.where(
+            np.logical_not(np.in1d(genes_array, np.union1d(coreEss, nonEss)))
+        )[0]
     else:
-        training_data = Training(gene_idx, cvnum=no_of_cross_validations)  # declare training class
+        training_data = Training(
+            gene_idx, cvnum=no_of_cross_validations
+        )  # declare training class
 
     if train_method == 0:
         LOOPCOUNT = bootstrap_iterations
@@ -665,7 +701,12 @@ def calculate_bayes_factors(
 
         if run_test_mode:
             fp.write(
-                "%d\n%s\n%s\n" % (loop, ",".join(genes_array[gene_train_idx]), ",".join(genes_array[gene_test_idx]))
+                "%d\n%s\n%s\n"
+                % (
+                    loop,
+                    ",".join(genes_array[gene_train_idx]),
+                    ",".join(genes_array[gene_test_idx]),
+                )
             )
 
         train_ess = np.where(np.in1d(genes_array[gene_train_idx], coreEss))[0]
@@ -679,16 +720,28 @@ def calculate_bayes_factors(
         # define ess_train: vector of observed fold changes of essential genes in training set
         #
         ess_train_fc_list_of_lists = [
-            fc[rnatag] for g in genes_array[gene_train_idx[train_ess]] for rnatag in gene2rna[g]
+            fc[rnatag]
+            for g in genes_array[gene_train_idx[train_ess]]
+            for rnatag in gene2rna[g]
         ]
-        ess_train_fc_flat_list = [obs for sublist in ess_train_fc_list_of_lists for obs in list(sublist.values())]
+        ess_train_fc_flat_list = [
+            obs
+            for sublist in ess_train_fc_list_of_lists
+            for obs in list(sublist.values())
+        ]
         #
         # define non_train vector of observed fold changes of nonessential genes in training set
         #
         non_train_fc_list_of_lists = [
-            fc[rnatag] for g in genes_array[gene_train_idx[train_non]] for rnatag in gene2rna[g]
+            fc[rnatag]
+            for g in genes_array[gene_train_idx[train_non]]
+            for rnatag in gene2rna[g]
         ]
-        non_train_fc_flat_list = [obs for sublist in non_train_fc_list_of_lists for obs in list(sublist.values())]
+        non_train_fc_flat_list = [
+            obs
+            for sublist in non_train_fc_list_of_lists
+            for obs in list(sublist.values())
+        ]
         #
         # calculate empirical fold change distributions for both
         #
@@ -713,7 +766,9 @@ def calculate_bayes_factors(
         #
         logratio_lookup = {}
         for i in np.arange(xmin, xmax + 0.01, 0.01):
-            logratio_lookup[np.around(i * 100)] = np.log2(kess.evaluate(i) / knon.evaluate(i))
+            logratio_lookup[np.around(i * 100)] = np.log2(
+                kess.evaluate(i) / knon.evaluate(i)
+            )
         #
         # calculate BFs from lookup table for withheld test set
         #
@@ -729,7 +784,9 @@ def calculate_bayes_factors(
                         testx.append(np.around(foldchange * 100) / 100)
                         testy.append(logratio_lookup[np.around(foldchange * 100)][0])
         try:
-            slope, intercept, r_value, p_value, std_err = stats.linregress(np.array(testx), np.array(testy))
+            slope, intercept, r_value, p_value, std_err = stats.linregress(
+                np.array(testx), np.array(testy)
+            )
         except:
             print("Regression failed. Check quality of the screen")
             sys.exit(1)
@@ -798,15 +855,23 @@ def calculate_bayes_factors(
                 else:
                     onlytarget.append(seqid)
 
-            if len(onlytarget) > 0:  # comparsion between sgRNAs targeting one locus and multiple loci
+            if (
+                len(onlytarget) > 0
+            ):  # comparsion between sgRNAs targeting one locus and multiple loci
                 if len(multitarget) > 0:
-                    bf_only = np.mean([sum(list(bf_mean_rna_rep[seqid].values())) for seqid in onlytarget])
+                    bf_only = np.mean(
+                        [
+                            sum(list(bf_mean_rna_rep[seqid].values()))
+                            for seqid in onlytarget
+                        ]
+                    )
                     for seqid in onlytarget:
                         trainset[seqid] = [1, 0, 0]
 
                     for seqid in multitarget:
                         if (
-                            multi_targeting_sgrnas_info[seqid][2] > 1 or multi_targeting_sgrnas_info[seqid][3] > 0
+                            multi_targeting_sgrnas_info[seqid][2] > 1
+                            or multi_targeting_sgrnas_info[seqid][3] > 0
                         ):  # train model using multi-targeting only targeting one protein coding gene
                             continue
 
@@ -821,7 +886,9 @@ def calculate_bayes_factors(
 
         if count < 10:
             print("Not enough train set for calculating multi-targeting effect.\n")
-            print("It may cause due to unmatched gRNA names between the foldchange file and the align info file.\n")
+            print(
+                "It may cause due to unmatched gRNA names between the foldchange file and the align info file.\n"
+            )
             print("Filtering is not finished\n")
             filter_multi_target = False
 
@@ -835,7 +902,9 @@ def calculate_bayes_factors(
             coeff_df = pd.DataFrame(regressor.coef_, X.columns, columns=["Coefficient"])
             for i in [0, 1]:
                 if coeff_df["Coefficient"][i] < 0:
-                    print("Regression coefficient is below than zero. Substituted to zero\n")
+                    print(
+                        "Regression coefficient is below than zero. Substituted to zero\n"
+                    )
                     coeff_df["Coefficient"][i] = 0.0
             print(
                 "Multiple effects from perfect matched loci = %.3f and 1bp mis-matched loci = %.3f"
@@ -848,8 +917,10 @@ def calculate_bayes_factors(
                     for seqid in gene2rna[g]:
                         if seqid in multi_targeting_sgrnas_info:
                             penalty += (
-                                float(multi_targeting_sgrnas_info[seqid][0] - 1) * coeff_df["Coefficient"][0]
-                                + float(multi_targeting_sgrnas_info[seqid][1]) * coeff_df["Coefficient"][1]
+                                float(multi_targeting_sgrnas_info[seqid][0] - 1)
+                                * coeff_df["Coefficient"][0]
+                                + float(multi_targeting_sgrnas_info[seqid][1])
+                                * coeff_df["Coefficient"][1]
                             )
                     bf_multi_corrected_gene[g] = bf_mean[g] - penalty
             else:
@@ -857,12 +928,16 @@ def calculate_bayes_factors(
                     for seqid in gene2rna[g]:
                         if seqid in multi_targeting_sgrnas_info:
                             penalty = (
-                                float(multi_targeting_sgrnas_info[seqid][0] - 1) * coeff_df["Coefficient"][0]
-                                + float(multi_targeting_sgrnas_info[seqid][1]) * coeff_df["Coefficient"][1]
+                                float(multi_targeting_sgrnas_info[seqid][0] - 1)
+                                * coeff_df["Coefficient"][0]
+                                + float(multi_targeting_sgrnas_info[seqid][1])
+                                * coeff_df["Coefficient"][1]
                             )
                         else:
                             penalty = 0.0
-                        bf_multi_corrected_rna[seqid] = sum(list(bf_mean_rna_rep[seqid].values())) - penalty
+                        bf_multi_corrected_rna[seqid] = (
+                            sum(list(bf_mean_rna_rep[seqid].values())) - penalty
+                        )
 
     #
     #  NORMALIZE sgRNA COUNT
@@ -889,7 +964,9 @@ def calculate_bayes_factors(
     # calculate network scores
     #
 
-    if network_boost == True and rna_level == False:  # Network boost is only working for gene level
+    if (
+        network_boost == True and rna_level == False
+    ):  # Network boost is only working for gene level
         if run_test_mode == True:  # TEST MODE
             fp = open(output_file + ".netscore", "w")
         print("\nNetwork score calculation start\n")
@@ -931,8 +1008,16 @@ def calculate_bayes_factors(
             #
             # calculate Network BF for test set
             #
-            ess_ns_list = [networkscores[x] for x in genes_array[gene_train_idx[train_ess]] if x in networkscores]
-            non_ns_list = [networkscores[x] for x in genes_array[gene_train_idx[train_non]] if x in networkscores]
+            ess_ns_list = [
+                networkscores[x]
+                for x in genes_array[gene_train_idx[train_ess]]
+                if x in networkscores
+            ]
+            non_ns_list = [
+                networkscores[x]
+                for x in genes_array[gene_train_idx[train_non]]
+                if x in networkscores
+            ]
 
             kess = stats.gaussian_kde(ess_ns_list)
             knon = stats.gaussian_kde(non_ns_list)
@@ -950,7 +1035,10 @@ def calculate_bayes_factors(
                 if density_ess == 0.0 or density_non == 0.0:
                     continue
 
-                if np.log2(density_ess / density_non) > -5 and networkscore < np.array(ess_ns_list).mean():  # reverse
+                if (
+                    np.log2(density_ess / density_non) > -5
+                    and networkscore < np.array(ess_ns_list).mean()
+                ):  # reverse
                     xmin = min(xmin, networkscore)
 
             for networkscore in np.arange(min(non_ns_list), max(non_ns_list), 0.01):
@@ -958,7 +1046,10 @@ def calculate_bayes_factors(
                 density_non = knon.evaluate(networkscore)[0]
                 if density_ess == 0.0 or density_non == 0.0:
                     continue
-                if np.log2(density_ess / density_non) < 5 and networkscore > np.array(non_ns_list).mean():  # reverse
+                if (
+                    np.log2(density_ess / density_non) < 5
+                    and networkscore > np.array(non_ns_list).mean()
+                ):  # reverse
                     xmax = max(xmax, networkscore)
             #
             # liner regression
@@ -969,14 +1060,28 @@ def calculate_bayes_factors(
                 if g in networkscores:
                     if networkscores[g] >= xmin and networkscores[g] <= xmax:
                         testx.append(np.around(networkscores[g] * 100) / 100)
-                        testy.append(np.log2(kess.evaluate(networkscores[g])[0] / knon.evaluate(networkscores[g])[0]))
+                        testy.append(
+                            np.log2(
+                                kess.evaluate(networkscores[g])[0]
+                                / knon.evaluate(networkscores[g])[0]
+                            )
+                        )
 
-            slope, intercept, r_value, p_value, std_err = stats.linregress(np.array(testx), np.array(testy))
+            slope, intercept, r_value, p_value, std_err = stats.linregress(
+                np.array(testx), np.array(testy)
+            )
 
             for g in genes_array[gene_test_idx]:
                 if g in networkscores:
                     if run_test_mode == True:
-                        fp.write("%s\t%f\t%f\n" % (g, networkscores[g], slope * networkscores[g] + intercept))
+                        fp.write(
+                            "%s\t%f\t%f\n"
+                            % (
+                                g,
+                                networkscores[g],
+                                slope * networkscores[g] + intercept,
+                            )
+                        )
                     nbf = slope * networkscores[g] + intercept
                 else:
                     nbf = 0.0
@@ -1003,7 +1108,7 @@ def calculate_bayes_factors(
         if rna_level == True:
             fout.write("RNA\tGENE")
             for i in range(len(column_list)):
-                fout.write("\t{0:s}".format(column_labels[i]))
+                fout.write(f"\t{column_labels[i]:s}")
                 if train_method == 0:
                     fout.write("\t{0:s}".format(column_labels[i] + "_STD"))
             fout.write("\tBF")
@@ -1013,28 +1118,30 @@ def calculate_bayes_factors(
 
             for rnatag in sorted(bf.keys()):
                 # RNA tag
-                fout.write("{0:s}\t".format(rnatag))
+                fout.write(f"{rnatag:s}\t")
                 # Gene
                 gene = rna2gene[rnatag]
-                fout.write("{0:s}\t".format(gene))
+                fout.write(f"{gene:s}\t")
 
                 # BF of replicates
                 for rep in column_list:
-                    fout.write("{0:4.3f}\t".format(bf_mean_rna_rep[rnatag][rep]))
+                    fout.write(f"{bf_mean_rna_rep[rnatag][rep]:4.3f}\t")
                     if train_method == 0:
-                        fout.write("{0:4.3f}\t".format(bf_std_rna_rep[rnatag][rep]))
+                        fout.write(f"{bf_std_rna_rep[rnatag][rep]:4.3f}\t")
 
                 # Sum BF of replicates
                 if filter_multi_target == True:
                     fout.write(
-                        "{0:4.3f}".format(float(bf_multi_corrected_rna[rnatag]) * eqf)
+                        f"{float(bf_multi_corrected_rna[rnatag]) * eqf:4.3f}"
                     )  # eqf = equalizing factor for the number of replicates
                 else:
-                    fout.write("{0:4.3f}".format(float(sum(list(bf_mean_rna_rep[rnatag].values()))) * eqf))
+                    fout.write(
+                        f"{float(sum(list(bf_mean_rna_rep[rnatag].values()))) * eqf:4.3f}"
+                    )
 
                 # Num obs
                 if train_method == 0:
-                    fout.write("\t{0:d}".format(num_obs[gene]))
+                    fout.write(f"\t{num_obs[gene]:d}")
                 fout.write("\n")
         else:
             fout.write("GENE")
@@ -1051,27 +1158,27 @@ def calculate_bayes_factors(
 
             for g in sorted(genes.keys()):
                 # Gene
-                fout.write("{0:s}".format(g))
+                fout.write(f"{g:s}")
                 if network_boost == True:
                     boostedbf_mean = np.mean(boostedbf[g])
                     boostedbf_std = np.std(boostedbf[g])
-                    fout.write("\t{0:4.3f}".format(float(boostedbf_mean) * eqf))
+                    fout.write(f"\t{float(boostedbf_mean) * eqf:4.3f}")
                     if train_method == 0:
-                        fout.write("\t{0:4.3f}".format(float(boostedbf_std) * eqf))
+                        fout.write(f"\t{float(boostedbf_std) * eqf:4.3f}")
 
                 # BF
                 if filter_multi_target == True:
                     fout.write(
-                        "\t{0:4.3f}".format(float(bf_multi_corrected_gene[g]) * eqf)
+                        f"\t{float(bf_multi_corrected_gene[g]) * eqf:4.3f}"
                     )  # eqf = equalizing factor for the number of replicates
                 else:
-                    fout.write("\t{0:4.3f}".format(float(bf_mean[g]) * eqf))
+                    fout.write(f"\t{float(bf_mean[g]) * eqf:4.3f}")
                 # STD, Count
                 if train_method == 0:
-                    fout.write("\t{0:4.3f}\t{1:d}".format(float(bf_std[g]), num_obs[g]))
+                    fout.write(f"\t{float(bf_std[g]):4.3f}\t{num_obs[g]:d}")
                 # Normalized BF
                 if flat_sgrna == True:
-                    fout.write("\t{0:4.3f}".format(float(bf_norm[g])))
+                    fout.write(f"\t{float(bf_norm[g]):4.3f}")
 
                 fout.write("\n")
 
@@ -1080,9 +1187,13 @@ def calculate_bayes_factors(
 @click.option("-i", "--bayes-factors", required=True, type=click.Path(exists=True))
 @click.option("-o", "--output-file", required=True)
 @click.option("-e", "--essential-genes", required=True, type=click.Path(exists=True))
-@click.option("-n", "--non-essential-genes", required=True, type=click.Path(exists=True))
+@click.option(
+    "-n", "--non-essential-genes", required=True, type=click.Path(exists=True)
+)
 @click.option("-k", "--use-column", default=None)
-def calculate_precision_recall(bayes_factors, output_file, essential_genes, non_essential_genes, use_column):
+def calculate_precision_recall(
+    bayes_factors, output_file, essential_genes, non_essential_genes, use_column
+):
     """
     Calculate precision-recall from an input Bayes Factors file:
 
@@ -1102,7 +1213,7 @@ def calculate_precision_recall(bayes_factors, output_file, essential_genes, non_
 
     \b
     Example:
-         BAGEL.py pr  -i input.bf -o output.PR -e ref_essentials.txt -n ref_nonessentials.txt
+        BAGEL.py pr  -i input.bf -o output.PR -e ref_essentials.txt -n ref_nonessentials.txt
 
     """
     #
@@ -1146,9 +1257,7 @@ def calculate_precision_recall(bayes_factors, output_file, essential_genes, non_
             if (cumulative_tp > 0) | (cumulative_fp > 0):
                 precision = cumulative_tp / (cumulative_tp + cumulative_fp)
             fout.write(
-                "{0:s}\t{1:4.3f}\t{2:4.3f}\t{3:4.3f}\t{4:4.3f}\n".format(
-                    g, bf.loc[g, bf_column], recall, precision, 1.0 - precision
-                )
+                f"{g:s}\t{bf.loc[g, bf_column]:4.3f}\t{recall:4.3f}\t{precision:4.3f}\t{1.0 - precision:4.3f}\n"
             )
 
 
