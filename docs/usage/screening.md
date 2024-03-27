@@ -85,7 +85,7 @@ A full example can be found [here](https://raw.githubusercontent.com/nf-core/tes
 
 #### Venn diagram
 
-Running MAGeCK MLE and BAGEL2 with a contrast file will also output a Venn diagram showing common genes having an FDR < 0.1
+Running MAGeCK MLE and BAGEL2 with a contrast file will also output a Venn diagram showing common genes having an FDR < 0.1.
 
 ### Running MAGeCK RRA only
 
