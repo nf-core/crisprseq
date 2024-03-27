@@ -12,7 +12,7 @@ process BAGEL2_PR {
     tuple val(meta), path(bf), path(reference_essentials), path(reference_nonessentials)
 
     output:
-    tuple val(meta), path("*.tsv")   , emit: pr
+    tuple val(meta), path("*.pr")   , emit: pr
     path "versions.yml"             , emit: versions
 
     when:
@@ -20,10 +20,10 @@ process BAGEL2_PR {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.treatment}_vs_${meta.reference}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    BAGEL.py pr -i $bf  -o '${meta.treatment}_vs_${meta.reference}.tsv' -e $reference_essentials -n $reference_nonessentials $args
+    BAGEL.py pr -i $bf  -o '${meta.treatment}_vs_${meta.reference}.pr' -e $reference_essentials -n $reference_nonessentials $args
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

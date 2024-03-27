@@ -22,6 +22,7 @@ process MATRICESCREATION {
     #### author: Laurence Kuhlburger
     #### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
     ####
+    #### Create design matrices
 
     # Loop through each row in the data
     control_samples <- unlist(strsplit('${meta.reference}', ","))

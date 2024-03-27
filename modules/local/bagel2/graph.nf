@@ -19,7 +19,7 @@ process BAGEL2_GRAPH {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.treatment}_${meta.reference}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
     #!/usr/bin/env python3

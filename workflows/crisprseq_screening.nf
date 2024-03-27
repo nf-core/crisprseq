@@ -11,7 +11,6 @@ include { BAGEL2_PR                                    } from '../modules/local/
 include { BAGEL2_GRAPH                                 } from '../modules/local/bagel2/graph'
 include { MATRICESCREATION                             } from '../modules/local/matricescreation'
 include { MAGECK_FLUTEMLE                              } from '../modules/local/mageck/flutemle'
-include { VENNDIAGRAM                                  } from '../modules/local/venndiagram'
 // nf-core modules
 include { FASTQC                                       } from '../modules/nf-core/fastqc/main'
 include { CUTADAPT as CUTADAPT_THREE_PRIME             } from '../modules/nf-core/cutadapt/main'
@@ -224,7 +223,6 @@ workflow CRISPRSEQ_SCREENING {
             .set { ch_contrasts }
     counts = ch_contrasts.combine(ch_counts)
 
-
     //Define non essential and essential genes channels for bagel2
     ch_bagel_reference_essentials= Channel.fromPath(params.bagel_reference_essentials).first()
     ch_bagel_reference_nonessentials= Channel.fromPath(params.bagel_reference_nonessentials).first()
@@ -249,6 +247,7 @@ workflow CRISPRSEQ_SCREENING {
     BAGEL2_PR (
         ch_bagel_pr
     )
+
     ch_versions = ch_versions.mix(BAGEL2_PR.out.versions)
 
     BAGEL2_GRAPH (
@@ -278,9 +277,6 @@ workflow CRISPRSEQ_SCREENING {
             ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
             MAGECK_FLUTEMLE(MAGECK_MLE.out.gene_summary)
             ch_versions = ch_versions.mix(MAGECK_FLUTEMLE.out.versions)
-            ch_venndiagram = BAGEL2_PR.out.pr.join(MAGECK_MLE.out.gene_summary)
-            VENNDIAGRAM(ch_venndiagram)
-            ch_versions = ch_versions.mix(VENNDIAGRAM.out.versions)
         }
         if(params.day0_label) {
             ch_mle = Channel.of([id: "day0"]).merge(Channel.of([[]])).merge(ch_counts)
