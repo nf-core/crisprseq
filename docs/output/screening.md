@@ -148,7 +148,18 @@ For further reading and documentation see the [cutadapt helper page](https://cut
 
 [bagel2](https://github.com/hart-lab/bagel) is a computational tool to identify important essential genes for CRISPR-Cas9 screening experiments.
 
-## Gene essentiality computation
+### Venn diagram
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `venndiagram`
+  - `*_common_genes_bagel_mle.txt`: common essential genes between BAGEL2 and MAGeCK MLE
+  - `*_venn_bagel2_mageckmle.png`: Venn diagram common essential genes between BAGEL2 and MAGeCK MLE. An example is shown here below
+
+![Venn diagram](docs/images/venn.png)
+
+## Gene essentiality functional analysis
 
 ### MAGeCKFlute
 
