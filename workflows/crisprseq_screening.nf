@@ -312,6 +312,7 @@ workflow CRISPRSEQ_SCREENING {
     ch_multiqc_files                      = ch_multiqc_files.mix(ch_collated_versions)
     ch_multiqc_files                      = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml', sort: false))
 
+
     MULTIQC (
         ch_multiqc_files.collect(),
         ch_multiqc_config.toList(),
