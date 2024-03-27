@@ -249,8 +249,6 @@ workflow CRISPRSEQ_SCREENING {
     BAGEL2_PR (
         ch_bagel_pr
     )
-    BAGEL2_PR.out.pr.dump(tag: "COUNTS")
-
     ch_versions = ch_versions.mix(BAGEL2_PR.out.versions)
 
     BAGEL2_GRAPH (
@@ -280,17 +278,9 @@ workflow CRISPRSEQ_SCREENING {
             ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
             MAGECK_FLUTEMLE(MAGECK_MLE.out.gene_summary)
             ch_versions = ch_versions.mix(MAGECK_FLUTEMLE.out.versions)
-
-            //test Venn Diagram
-            BAGEL2_PR.out.pr.map {
-                it -> [[id: it[1].getBaseName()], it[1]]
-            }.set { ch_testing }
-            ch_testing.dump(tag: "TEST")
             ch_venndiagram = BAGEL2_PR.out.pr.join(MAGECK_MLE.out.gene_summary)
-            MAGECK_MLE.out.gene_summary.dump(tag: "MAGECK MLE OUT")
-            ch_venndiagram.dump(tag: "Venn")
             VENNDIAGRAM(ch_venndiagram)
-
+            ch_versions = ch_versions.mix(VENNDIAGRAM.out.versions)
         }
         if(params.day0_label) {
             ch_mle = Channel.of([id: "day0"]).merge(Channel.of([[]])).merge(ch_counts)
