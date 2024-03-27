@@ -1,5 +1,5 @@
 process VENNDIAGRAM {
-   // tag "$meta.treatment"
+    // tag "$meta.treatment"
     label 'process_low'
 
 
@@ -50,25 +50,25 @@ process VENNDIAGRAM {
         filename = '14_venn_diagramm.png',
         output=FALSE
         )
-   # venn.plot <- venn.diagram(list(Set1 = filtered_mageck_mle\$Gene, Set2 = filtered_precision_recall\$Gene),
+    # venn.plot <- venn.diagram(list(Set1 = filtered_mageck_mle\$Gene, Set2 = filtered_precision_recall\$Gene),
     #                    filename= paste0('${meta.id}',"_venn.svg"), category.names = c("MAGeCK MLE", "BAGEL2"),
-     #                   # Output features
-      #                  imagetype = "svg",
-       #                 height = 480,
+    #                   # Output features
+    #                  imagetype = "svg",
+    #                 height = 480,
         #                width = 480,
-         #               resolution = 300,
-          #              compression = "lzw",
+        #               resolution = 300,
+        #              compression = "lzw",
 
-           #             # Circles
-            #            lwd = 2,
-             #           lty = 'blank',
-              #          fill = c("#999999", "#E69F00"),
+        #             # Circles
+        #            lwd = 2,
+        #           lty = 'blank',
+            #          fill = c("#999999", "#E69F00"),
 
-               #         # Numbers
+            #         # Numbers
                 #        cex = .6,
-                 #       fontface = "bold",
-                  #      fontfamily = "sans",
-                   #     cat.cex = 0.4,
+                #       fontface = "bold",
+                #      fontfamily = "sans",
+                #     cat.cex = 0.4,
                     #    cat.dist = c(-0.05, -0.02)
     #)
 
