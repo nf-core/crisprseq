@@ -20,7 +20,7 @@ process BAGEL2_PR {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.treatment}_vs_${meta.reference}"
 
     """
     BAGEL.py pr -i $bf  -o '${meta.treatment}_vs_${meta.reference}.tsv' -e $reference_essentials -n $reference_nonessentials $args

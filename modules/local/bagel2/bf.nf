@@ -1,5 +1,5 @@
 process BAGEL2_BF {
-    tag "$meta.treatment"
+    tag "${meta.treatment}_${meta.reference}"
     label 'process_single'
 
 
