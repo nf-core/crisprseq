@@ -83,6 +83,10 @@ To run both MAGeCK MLE and BAGEL2, you can provide a contrast file with the flag
 
 A full example can be found [here](https://raw.githubusercontent.com/nf-core/test-datasets/crisprseq/testdata/full_test/samplesheet_full.csv).
 
+#### Venn diagram
+
+Running MAGeCK MLE and BAGEL2 with a contrast file will also output a Venn diagram showing common genes having an FDR < 0.1
+
 ### Running MAGeCK RRA only
 
 MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, you can define the contrasts as previously stated in the last section (with a `.txt` extension) and also specify `--rra` .
