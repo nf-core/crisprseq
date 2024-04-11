@@ -143,6 +143,39 @@ custom_data:
         min: 0
         scale: "RdYlGn"
 
+  # MAGeCK count table
+  mageck_count:
+    id: "mageck_count"
+    section_name: "MAGeCK count table"
+    plot_type: "table"
+    description: |
+      Table showing ...
+    pconfig:
+      id: "mageck_count"
+      namespace: "MAGeCK count table"
+      table_title: "MAGeCK count table"
+    headers:
+      File:
+        title: "File"
+        description: "File name"
+      Label:
+        title: "Label"
+        description: "Label name"
+        format: "{:,.0f}"
+      Reads:
+        title: "Reads"
+        description: "Number of reads"
+        format: "{:,.0f}"
+      Mapped:
+        title: "Mapped"
+        description: "Number of reads mapped"
+        format: "{:,.0f}"
+      Percentage:
+        title: "Percentage mapped"
+        description: "Percentage mapped"
+        max: 1
+        min: 0
+
 sp:
   edition_plot:
     fn: "*_edits.csv"
@@ -152,12 +185,15 @@ sp:
     fn: "*_reads-summary.csv"
   cutadapt:
     fn: "*.cutadapt.log"
+  mageck_count:
+    fn: "*.countsummary.txt"
 
 # Define the order of sections
 module_order:
   - fastqc
   - cutadapt
   - custom_content
+  - mageck_count
 
 # Set the order of custom code plots and tables
 custom_content:
