@@ -39,6 +39,9 @@ On release, automated continuous integration tests run the pipeline on a full-si
   <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_metromap_all.png">
 </picture>
 
+
+For crispr targeting :
+
 1. Merge paired-end reads ([`Pear`](https://cme.h-its.org/exelixis/web/software/pear/doc.html))
 2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 3. Adapter trimming ([`Cutadapt`](http://dx.doi.org/10.14806/ej.17.1.200))
@@ -65,6 +68,8 @@ For crispr screening:
 4. Rank sgRNAs and genes ;
    a. ([MAGeCK test](https://sourceforge.net/p/mageck/wiki/usage/#test))
    b. ([MAGeCK mle](https://sourceforge.net/p/mageck/wiki/Home/#mle))
+   c. ([BAGEL2](https://github.com/hart-lab/bagel))
+5. Visualise analysis
 
 ## Usage
 
