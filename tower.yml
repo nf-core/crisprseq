@@ -3,3 +3,34 @@ reports:
     display: "MultiQC HTML report"
   samplesheet.csv:
     display: "Auto-created samplesheet with collated metadata and FASTQ paths"
+  "plots/*accumulative.html":
+    display: "Accumulative deletions and insertions"
+  "plots/*delAlleles_plot.png":
+    display: "Image showing the most common deletions found."
+  "plots/*Deletions.html":
+    display: "Interactive barplot showing the percentage of reads showing a deletion for each position and the deletion sizes"
+  "plots/*Insertions.html":
+    display: "Interactive barplot showing the percentage of reads showing an insertion for each position as well as the insertion sizes"
+  "plots/*subs-perc_plot_LOGO.png":
+    display: "LOGO showing the most represented nucleotide and its percentage (y-axis) for protospacer positions"
+  "plots/*subs-perc_plot.png":
+    display: "Barplot showing the most represented nucleotide and its percentage (y-axis and bar tags) for +/-25 positions surrounding the cut site"
+  "plots/*top-alleles_LOGO.png":
+    display: "LOGO showing the 4 most represented editions"
+  "plots/*top.html":
+    display: "Interactive pie chart showing the percentage of the top 4 editions found"
+  "cigar/*_cutSite.json":
+    display: "Contains the protospacer cut site position in the reference."
+  "cigar/*_edition.html":
+    display: "Interactive pie chart with the percentage of edition types"
+  "cigar/*_edits.csv":
+    display: "Table containing the number of reads classified to each edition type"
+  "cigar/*_indels.csv":
+    display: "Table containing information of all reads"
+  "cigar/*_QC-indels.html":
+    display: "Interactive pie chart with information about aligned reads"
+  "cigar/*_reads.html":
+    display: "Interactive pie chart with percentage of the number of raw reads, reads merged with Pear, reads passing quality filters and UMI clustered reads"
+  "cigar/*_subs-perc.csv":
+    display: "Table containing the percentage of each nucleotide found for each reference position"
+    
