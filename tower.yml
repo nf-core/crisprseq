@@ -4,33 +4,48 @@ reports:
   samplesheet.csv:
     display: "Auto-created samplesheet with collated metadata and FASTQ paths"
   "plots/*accumulative.html":
-    display: "Accumulative deletions and insertions"
+    # Accumulative deletions and insertions
+    display: "accumulative"
   "plots/*delAlleles_plot.png":
-    display: "Image showing the most common deletions found."
+    # Image showing the most common deletions found
+    display: "delAlleles_plot"
   "plots/*Deletions.html":
-    display: "Interactive barplot showing the percentage of reads showing a deletion for each position and the deletion sizes"
+    # Interactive barplot showing the percentage of reads showing a deletion for each position and the deletion sizes
+    display: "Deletions"
   "plots/*Insertions.html":
-    display: "Interactive barplot showing the percentage of reads showing an insertion for each position as well as the insertion sizes"
+    # Interactive barplot showing the percentage of reads showing an insertion for each position as well as the insertion sizes
+    display: "Insertions"
   "plots/*subs-perc_plot_LOGO.png":
-    display: "LOGO showing the most represented nucleotide and its percentage (y-axis) for protospacer positions"
+    # LOGO showing the most represented nucleotide and its percentage (y-axis) for protospacer positions
+    display: "subs-perc_plot_LOGO"
   "plots/*subs-perc_plot.png":
-    display: "Barplot showing the most represented nucleotide and its percentage (y-axis and bar tags) for +/-25 positions surrounding the cut site"
+    # Barplot showing the most represented nucleotide and its percentage (y-axis and bar tags) for +/-25 positions surrounding the cut site
+    display: "subs-perc_plot"
   "plots/*top-alleles_LOGO.png":
-    display: "LOGO showing the 4 most represented editions"
+    # LOGO showing the 4 most represented editions
+    display: "top-alleles_LOGO"
   "plots/*top.html":
-    display: "Interactive pie chart showing the percentage of the top 4 editions found"
+    # Interactive pie chart showing the percentage of the top 4 editions found
+    display: "top"
   "cigar/*_cutSite.json":
-    display: "Contains the protospacer cut site position in the reference."
+    # Contains the protospacer cut site position in the reference
+    display: "cutSite"
   "cigar/*_edition.html":
-    display: "Interactive pie chart with the percentage of edition types"
+    # Interactive pie chart with the percentage of edition types
+    display: "edition"
   "cigar/*_edits.csv":
-    display: "Table containing the number of reads classified to each edition type"
+    # Table containing the number of reads classified to each edition type
+    display: "edits"
   "cigar/*_indels.csv":
-    display: "Table containing information of all reads"
+    # Table containing information of all reads
+    display: "indels"
   "cigar/*_QC-indels.html":
-    display: "Interactive pie chart with information about aligned reads"
+    # Interactive pie chart with information about aligned reads
+    display: "QC-indels"
   "cigar/*_reads.html":
-    display: "Interactive pie chart with percentage of the number of raw reads, reads merged with Pear, reads passing quality filters and UMI clustered reads"
+    # Interactive pie chart with percentage of the number of raw reads, reads merged with Pear, reads passing quality filters and UMI clustered reads
+    display: "reads"
   "cigar/*_subs-perc.csv":
-    display: "Table containing the percentage of each nucleotide found for each reference position"
+    # Table containing the percentage of each nucleotide found for each reference position
+    display: "subs-perc"
     
