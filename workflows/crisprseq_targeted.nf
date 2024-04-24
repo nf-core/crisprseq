@@ -578,16 +578,6 @@ workflow CRISPRSEQ_TARGETED {
         true
     )
     .bam
-    .map {
-        meta, bam ->
-            if (bam.baseName.contains("template-align")) {
-                return [ meta, bam ]
-            } else {
-                new_file = bam.parent / bam.baseName + "_template-align." + bam.extension
-                bam.renameTo(new_file)
-                return[ meta, new_file ]
-            }
-    }
     .set { ch_template_bam }
     ch_versions = ch_versions.mix(MINIMAP2_ALIGN_TEMPLATE.out.versions)
 
