@@ -67,11 +67,10 @@ Most used library already have an annotation dataset which you can find [here](h
 Otherwise, if you wish to provide your own file, please provide it in csv form, and make sure it follows the following format, with the comma in front of "CODE" included :
 
 | ,CODE                | GENES       | EXONE         | CHRM | STRAND | STARTpos | ENDpos   |
-| ------------------- | ----------- | ------------- | ---- | ------ | -------- | -------- |
-| ATGGTGTCCATTATAGCCAT| NM_021446.2 | 0610007P14Rik | ex2  | 12     | +        | 85822165 |
-| CTCTACGAGAAGCTCTACAC| NM_021446.2 | 0610007P14Rik | ex2  | 12     | +        | 85822108 |
-| GACTCTATCACATCACACTG| NM_021446.2 | 0610007P14Rik | ex4  | 12     | +        | 85816419 |
-
+| -------------------- | ----------- | ------------- | ---- | ------ | -------- | -------- |
+| ATGGTGTCCATTATAGCCAT | NM_021446.2 | 0610007P14Rik | ex2  | 12     | +        | 85822165 |
+| CTCTACGAGAAGCTCTACAC | NM_021446.2 | 0610007P14Rik | ex2  | 12     | +        | 85822108 |
+| GACTCTATCACATCACACTG | NM_021446.2 | 0610007P14Rik | ex4  | 12     | +        | 85816419 |
 
 ### Running MAGeCK MLE and BAGEL2 with a contrast file
 
