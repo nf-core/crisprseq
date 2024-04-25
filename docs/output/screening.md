@@ -157,7 +157,7 @@ For further reading and documentation see the [cutadapt helper page](https://cut
   - `*_common_genes_bagel_mle.txt`: common essential genes between BAGEL2 and MAGeCK MLE
   - `*_venn_bagel2_mageckmle.png`: Venn diagram common essential genes between BAGEL2 and MAGeCK MLE. An example is shown here below
 
-![Venn diagram](/docs/images/venn.png)
+![Venn diagram](docs/images/venn.png)
 
 ## Gene essentiality functional analysis
 

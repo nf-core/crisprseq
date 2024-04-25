@@ -35,8 +35,8 @@ On release, automated continuous integration tests run the pipeline on a full-si
 ## Pipeline summary
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_metropmap_all.png">
-  <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_metropmap_all.png">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_metromap_all.png">
+  <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_metromap_all.png">
 </picture>
 
 For crispr targeting :
