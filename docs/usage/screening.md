@@ -64,13 +64,13 @@ We recommend to run MAGeCK MLE and BAGEL2 as these are the most used and most re
 
 CRISPRcleanR is used for gene count normalization and the removal of biases for genomic segments for which copy numbers are amplified. Currently, the pipeline supports annotation libraries already present in the R package or a annotation file the user can provide.
 Most used library already have an annotation dataset which you can find [here](https://github.com/francescojm/CRISPRcleanR/blob/master/Reference_Manual.pdf). To use CRISPRcleanR normalization, use `--crisprcleanr library`, `library` being the exact name as the library in the CRISPRcleanR documentation (e.g: "AVANA_Library").
-Otherwise, if you wish to provide your own file, please provide it in csv form, and make sure it follows the following format :
+Otherwise, if you wish to provide your own file, please provide it in csv form, and make sure it follows the following format, with the comma in front of "CODE" included :
 
 | ,CODE                | GENES       | EXONE         | CHRM | STRAND | STARTpos | ENDpos   |
-| -------------------- | ----------- | ------------- | ---- | ------ | -------- | -------- | -------- |
-| ATGGTGTCCATTATAGCCAT | NM_021446.2 | 0610007P14Rik | ex2  | 12     | +        | 85822165 | 85822185 |
-| CTCTACGAGAAGCTCTACAC | NM_021446.2 | 0610007P14Rik | ex2  | 12     | +        | 85822108 | 85822128 |
-| GACTCTATCACATCACACTG | NM_021446.2 | 0610007P14Rik | ex4  | 12     | +        | 85816419 | 85816439 |
+| -------------------- | ----------- | ------------- | ---- | ------ | -------- | -------- |
+| ATGGTGTCCATTATAGCCAT | NM_021446.2 | 0610007P14Rik | ex2  | 12     | +        | 85822165 |
+| CTCTACGAGAAGCTCTACAC | NM_021446.2 | 0610007P14Rik | ex2  | 12     | +        | 85822108 |
+| GACTCTATCACATCACACTG | NM_021446.2 | 0610007P14Rik | ex4  | 12     | +        | 85816419 |
 
 ### Running MAGeCK MLE and BAGEL2 with a contrast file
 
