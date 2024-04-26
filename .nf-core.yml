@@ -6,3 +6,4 @@ lint:
     - conf/test_full.config
   files_unchanged:
     - lib/NfcoreTemplate.groovy # Introduced a change ahead of the nf-core/tools release
+    - .github/PULL_REQUEST_TEMPLATE.md

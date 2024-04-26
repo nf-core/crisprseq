@@ -4,8 +4,8 @@ process MAGECK_MLE {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mageck:0.5.9--py37h6bb024c_0':
-        'biocontainers/mageck:0.5.9--py37h6bb024c_0' }"
+        'https://depot.galaxyproject.org/singularity/mageck:0.5.9.5--py39h1f90b4d_3':
+        'biocontainers/mageck:0.5.9.5--py39h1f90b4d_3' }"
 
     input:
     tuple val(meta), path(design_matrix), path(count_table)
@@ -20,8 +20,8 @@ process MAGECK_MLE {
 
     script:
     def args = task.ext.args ?: ''
-    prefix = meta.id ?: "${meta.treatment}_vs_${meta.treatment}"
-
+    prefix = meta.id ?: "${meta.treatment}_vs_${meta.reference}"
+    def design_command = design_matrix ? "-d $design_matrix" : ''
 
     """
     mageck \\
@@ -29,8 +29,9 @@ process MAGECK_MLE {
         $args \\
         --threads $task.cpus \\
         -k $count_table \\
-        -d $design_matrix \\
-        -n $prefix
+        -n $prefix     \\
+        $design_command 
+        
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

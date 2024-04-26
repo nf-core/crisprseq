@@ -148,6 +148,34 @@ For further reading and documentation see the [cutadapt helper page](https://cut
 
 [bagel2](https://github.com/hart-lab/bagel) is a computational tool to identify important essential genes for CRISPR-Cas9 screening experiments.
 
+### Venn diagram
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `venndiagram`
+  - `*_common_genes_bagel_mle.txt`: common essential genes between BAGEL2 and MAGeCK MLE
+  - `*_venn_bagel2_mageckmle.png`: Venn diagram common essential genes between BAGEL2 and MAGeCK MLE. An example is shown here below
+
+![Venn diagram](/docs/images/venn.png)
+
+## Gene essentiality functional analysis
+
+### MAGeCKFlute
+
+- `FluteMLE/QC`
+  - `*.txt` : Quality control tables
+  - `*.png` : Quality control plots
+- `FluteMLE/Selection`
+  - `*.txt`: Positive selection and negative selection.
+  - `*.png`: Rank and scatter view for positive and negative selection
+- `FluteMLE/Enrichment`
+  - `*.txt`: Enrichment analysis for positive and negative selection genes.
+  - `*.png`: Enrichment analysis plots for positive and negative selection genes.
+- `FluteMLE/PathwayView`
+  - `*.txt`: Pathway view for top enriched pathways.
+  - `*.png`: Pathway view for top enriched pathways.
+
 ## MultiQC
 
 <details markdown="1">

@@ -16,23 +16,24 @@ process MATRICESCREATION {
     task.ext.when == null || task.ext.when
 
     script:
+    meta.id = "${meta.treatment}_vs_${meta.reference}"
 
     """
     #!/usr/bin/env Rscript
     #### author: Laurence Kuhlburger
     #### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
     ####
-    #### Create design matrices
 
     # Loop through each row in the data
-    control_samples <- unlist(strsplit('${meta.reference}', ","))
+    control_samples <- unlist(strsplit('$meta.reference', ","))
     treatment_samples <- unlist(strsplit('$meta.treatment', ","))
     all_samples <- unique(c(control_samples, treatment_samples))
+    name = paste0(gsub(',', '_', '$meta.treatment' ),"_vs_", gsub(',', '_','$meta.reference'))
     design_matrix <- data.frame(matrix(0, nrow = length(all_samples), ncol = 3,
                                 dimnames = list(all_samples,
                                                 c("Samples", "baseline",
-    paste0(gsub(',', '_', '$meta.treatment'),"_vs_",gsub(',','_','$meta.reference'))))))
-    name = paste0(gsub(',', '_', '$meta.treatment' ),"_vs_", gsub(',', '_','$meta.reference'))
+                                                    name))))
+
     # Set baseline and treatment values in the design matrix
     design_matrix[, "Samples"] <- rownames(design_matrix)
     design_matrix\$baseline <- 1

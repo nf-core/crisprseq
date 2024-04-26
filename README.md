@@ -4,16 +4,16 @@
     <img alt="nf-core/crisprseq" src="docs/images/nf-core-crisprseq_logo_light.png">
   </picture>
 </h1>
-[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/crisprseq/results)
-[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.7598496-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.7598496)
-[![GitHub Actions CI Status](https://github.com/nf-core/crisprseq/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/crisprseq/actions?query=workflow%3A%22nf-core+CI%22)
-[![GitHub Actions Linting Status](https://github.com/nf-core/crisprseq/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/crisprseq/actions?query=workflow%3A%22nf-core+linting%22)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/crisprseq/results)
+
+[![GitHub Actions CI Status](https://github.com/nf-core/crisprseq/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/crisprseq/actions/workflows/ci.yml)
+[![GitHub Actions Linting Status](https://github.com/nf-core/crisprseq/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/crisprseq/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/crisprseq/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.7598496-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.7598496)
+[![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
 
 [![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A523.04.0-23aa62.svg)](https://www.nextflow.io/)
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
-[![Launch on Nextflow Tower](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Nextflow%20Tower-%234256e7)](https://tower.nf/launch?pipeline=https://github.com/nf-core/crisprseq)
+[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://tower.nf/launch?pipeline=https://github.com/nf-core/crisprseq)
 
 [![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23crisprseq-4A154B?labelColor=000000&logo=slack)](https://nfcore.slack.com/channels/crisprseq)[![Follow on Twitter](http://img.shields.io/badge/twitter-%40nf__core-1DA1F2?labelColor=000000&logo=twitter)](https://twitter.com/nf_core)[![Follow on Mastodon](https://img.shields.io/badge/mastodon-nf__core-6364ff?labelColor=FFFFFF&logo=mastodon)](https://mstdn.science/@nf_core)[![Watch on YouTube](http://img.shields.io/badge/youtube-nf--core-FF0000?labelColor=000000&logo=youtube)](https://www.youtube.com/c/nf-core)
 
@@ -34,12 +34,12 @@ On release, automated continuous integration tests run the pipeline on a full-si
 
 ## Pipeline summary
 
-For crispr targeted:
-
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_targeted_metro_map_dark.png">
-  <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_targeted_metro_map.png">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_metropmap_all.png">
+  <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_metropmap_all.png">
 </picture>
+
+For crispr targeting :
 
 1. Merge paired-end reads ([`Pear`](https://cme.h-its.org/exelixis/web/software/pear/doc.html))
 2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
@@ -67,6 +67,8 @@ For crispr screening:
 4. Rank sgRNAs and genes ;
    a. ([MAGeCK test](https://sourceforge.net/p/mageck/wiki/usage/#test))
    b. ([MAGeCK mle](https://sourceforge.net/p/mageck/wiki/Home/#mle))
+   c. ([BAGEL2](https://github.com/hart-lab/bagel))
+5. Visualise analysis
 
 ## Usage
 

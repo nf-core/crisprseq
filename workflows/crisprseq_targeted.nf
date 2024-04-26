@@ -1,65 +1,22 @@
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    PRINT PARAMS SUMMARY
+    IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { paramsSummaryLog; paramsSummaryMap; fromSamplesheet } from 'plugin/nf-validation'
-
-def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
-def citation = '\n' + WorkflowMain.citation(workflow) + '\n'
-def summary_params = paramsSummaryMap(workflow)
-
-// Print parameter summary log to screen
-log.info logo + paramsSummaryLog(workflow) + citation
-
-WorkflowCrisprseq.initialise(params, log)
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    CONFIG FILES
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-ch_multiqc_config          = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-ch_multiqc_custom_config   = params.multiqc_config ? Channel.fromPath( params.multiqc_config ) : Channel.empty()
-ch_multiqc_logo            = params.multiqc_logo   ? Channel.fromPath( params.multiqc_logo )   : Channel.empty()
-ch_multiqc_custom_methods_description = params.multiqc_methods_description ? file(params.multiqc_methods_description) : file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    IMPORT LOCAL MODULES/SUBWORKFLOWS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-//
-// SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
-//
-
-//
-// MODULE
-//
-include { FIND_ADAPTERS         } from '../modules/local/find_adapters'
-include { EXTRACT_UMIS          } from '../modules/local/extract_umis'
-include { ORIENT_REFERENCE      } from '../modules/local/orient_reference'
-include { CIGAR_PARSER          } from '../modules/local/cigar_parser'
-include { PREPROCESSING_SUMMARY } from '../modules/local/preprocessing_summary'
-include { CLUSTERING_SUMMARY    } from '../modules/local/clustering_summary'
-include { ALIGNMENT_SUMMARY     } from '../modules/local/alignment_summary'
-include { TEMPLATE_REFERENCE    } from '../modules/local/template_reference'
-include { CRISPRSEQ_PLOTTER     } from '../modules/local/crisprseq_plotter'
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    IMPORT NF-CORE MODULES/SUBWORKFLOWS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-//
-// MODULE: Installed directly from nf-core/modules
-//
+// Local modules
+include { FIND_ADAPTERS                             } from '../modules/local/find_adapters'
+include { EXTRACT_UMIS                              } from '../modules/local/extract_umis'
+include { ORIENT_REFERENCE                          } from '../modules/local/orient_reference'
+include { CIGAR_PARSER                              } from '../modules/local/cigar_parser'
+include { PREPROCESSING_SUMMARY                     } from '../modules/local/preprocessing_summary'
+include { CLUSTERING_SUMMARY                        } from '../modules/local/clustering_summary'
+include { ALIGNMENT_SUMMARY                         } from '../modules/local/alignment_summary'
+include { TEMPLATE_REFERENCE                        } from '../modules/local/template_reference'
+include { CRISPRSEQ_PLOTTER                         } from '../modules/local/crisprseq_plotter'
+// nf-core modules
 include { FASTQC                                    } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                                   } from '../modules/nf-core/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS               } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include { PEAR                                      } from '../modules/nf-core/pear/main'
 include { CAT_FASTQ                                 } from '../modules/nf-core/cat/fastq/main'
 include { SEQTK_SEQ as SEQTK_SEQ_MASK               } from '../modules/nf-core/seqtk/seq/main'
@@ -80,7 +37,13 @@ include { MINIMAP2_INDEX                            } from '../modules/nf-core/m
 include { MEDAKA                                    } from '../modules/nf-core/medaka/main'
 include { CUTADAPT                                  } from '../modules/nf-core/cutadapt/main'
 include { SAMTOOLS_INDEX                            } from '../modules/nf-core/samtools/index/main'
-
+// Local subworkflows
+include { INITIALISATION_CHANNEL_CREATION_TARGETED  } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
+// Functions
+include { paramsSummaryMap                          } from 'plugin/nf-validation'
+include { paramsSummaryMultiqc                      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML                    } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText                    } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -127,127 +90,34 @@ def umi_to_sequence_centroid(cluster) {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-// Info required for completion email and summary
-def multiqc_report = []
-
 workflow CRISPRSEQ_TARGETED {
 
+    take:
+    ch_input_reads // channel: input reads read in from --input
+    ch_input_reference // channel: reference sequence read in from --input
+    ch_input_template // channel: template sequence read in from --input
+    ch_input_protospacer // channel: protospacer sequence read in from --input
+
+    main:
+
     ch_versions = Channel.empty()
+    ch_multiqc_files = Channel.empty()
 
     //
-    // Create input channel from input file provided through params.input
+    // Initialise channels
     //
-    Channel.fromSamplesheet("input")
-    .multiMap { meta, fastq_1, fastq_2, reference, protospacer, template ->
-        // meta.condition is part of the screening workflow and we need to remove it
-        if (fastq_2) {
-            files = [ fastq_1, fastq_2 ]
-        } else {
-            files = [ fastq_1 ]
-        }
-        reads:   [ meta.id, meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], files ]
-        reference:   [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], reference]
-        protospacer: [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], protospacer]
-        template:    [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], template]
-    }
-    .set { ch_input }
-
-    ch_input
-    .reads
-    .groupTuple()
-    .map {
-        WorkflowCrisprseq.validateInput(it)
-    }
-    // Separate samples by the ones containing all reads in one file or the ones with many files to be concatenated
-    .branch {
-        meta, fastqs ->
-            single  : fastqs.size() == 1
-                return [ meta, fastqs.flatten() ]
-            multiple: fastqs.size() > 1
-                return [ meta, fastqs.flatten() ]
-    }
-    .set { ch_fastq }
-
-
-    //
-    // Add reference sequences to file
-    //
-    ch_input.reference
-    .tap{ meta_reference }
-    .filter{ meta, sequence -> sequence instanceof String }
-    .collectFile() { meta, reference ->
-        [ "${meta.id}_reference.fasta", ">${meta.id}\n${reference}\n" ] // Write each reference sequence to a file
-    }
-    .map{ new_file ->
-        [new_file.baseName.split("_reference")[0], new_file] // create a channel with the meta.id and the new file
-    }
-    .join(meta_reference
-        .map{ meta, reference ->
-            [meta.id, meta] // Join the channel by meta.id with the meta map
-        }
+    INITIALISATION_CHANNEL_CREATION_TARGETED(
+        ch_input_reads,
+        ch_input_reference,
+        ch_input_template,
+        ch_input_protospacer
     )
-    .map{ metaid, new_file, meta ->
-        [meta, new_file] // Obtain the final channel with meta map and the new file
-    }
-    .set{ ch_seq_reference }
-
-
-    //
-    // Add template sequences to file
-    //
-    ch_input.template
-    .tap{ meta_template }
-    .filter{ meta, sequence -> sequence instanceof String }
-    .collectFile() { meta, template ->
-        [ "${meta.id}_template.fasta", ">${meta.id}\n${template}\n" ] // Write each template sequence to a file
-    }
-    .map{ new_file ->
-        [new_file.baseName.split("_template")[0], new_file] // create a channel with the meta.id and the new file
-    }
-    .join(meta_template
-        .map{ meta, template ->
-            [meta.id, meta] // Join the channel by meta.id with the meta map
-        }
-    )
-    .map{ metaid, new_file, meta ->
-        [meta, new_file] // Obtain the final channel with meta map and the new file
-    }
-    .set{ ch_seq_template }
-
-
-    // Join channels with reference and protospacer
-    // to channel: [ meta, reference, protospacer]
-    if (!params.reference_fasta && !params.protospacer) {
-        ch_seq_reference
-            .join(ch_input.protospacer)
-            .set{ reference_protospacer }
-    } else if (!params.reference_fasta) {
-        // If a protospacer was provided through the --protospacer param instead of the samplesheet
-        ch_protospacer = Channel.of(params.protospacer)
-        ch_seq_reference
-            .combine(ch_protospacer)
-            .set{ reference_protospacer }
-    } else if (!params.protospacer) {
-        // If a reference was provided through a fasta file or igenomes instead of the samplesheet
-        ch_reference = Channel.fromPath(params.reference_fasta)
-        ch_input.protospacer
-            .combine(ch_reference)
-            .set{ reference_protospacer }
-    } else {
-        ch_reference = Channel.fromPath(params.reference_fasta)
-        ch_protospacer = Channel.of(params.protospacer)
-        ch_input.reads
-            .combine(ch_reference)
-            .combine(ch_protospacer)
-            .set{ reference_protospacer }
-    }
-
 
     //
     // MODULE: Prepare reference sequence
     //
     ORIENT_REFERENCE (
-        reference_protospacer
+        INITIALISATION_CHANNEL_CREATION_TARGETED.out.reference_protospacer
     )
     ch_versions = ch_versions.mix(ORIENT_REFERENCE.out.versions)
 
@@ -255,11 +125,11 @@ workflow CRISPRSEQ_TARGETED {
     // MODULE: Concatenate FastQ files from same sample if required
     //
     CAT_FASTQ (
-        ch_fastq.multiple
+        INITIALISATION_CHANNEL_CREATION_TARGETED.out.fastq_multiple
     )
     .reads
     .groupTuple(by: [0])
-    .mix(ch_fastq.single)
+    .mix(INITIALISATION_CHANNEL_CREATION_TARGETED.out.fastq_single)
     // Separate samples by paired-end or single-end
     .branch {
         meta, fastq ->
@@ -293,6 +163,7 @@ workflow CRISPRSEQ_TARGETED {
     FASTQC (
         ch_pear_fastq
     )
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
     ch_trimmed = Channel.empty()
@@ -324,6 +195,7 @@ workflow CRISPRSEQ_TARGETED {
         CUTADAPT (
             ch_adapter_seqs.adapters
         )
+        ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT.out.log.collect{it[1]})
         ch_versions = ch_versions.mix(CUTADAPT.out.versions)
 
         ch_adapter_seqs.no_adapters
@@ -690,7 +562,7 @@ workflow CRISPRSEQ_TARGETED {
     //
     TEMPLATE_REFERENCE (
         ORIENT_REFERENCE.out.reference
-            .join(ch_seq_template)
+            .join(INITIALISATION_CHANNEL_CREATION_TARGETED.out.template)
     )
     ch_versions = ch_versions.mix(TEMPLATE_REFERENCE.out.versions.first())
 
@@ -706,24 +578,14 @@ workflow CRISPRSEQ_TARGETED {
         true
     )
     .bam
-    .map {
-        meta, bam ->
-            if (bam.baseName.contains("template-align")) {
-                return [ meta, bam ]
-            } else {
-                new_file = bam.parent / bam.baseName + "_template-align." + bam.extension
-                bam.renameTo(new_file)
-                return[ meta, new_file ]
-            }
-    }
     .set { ch_template_bam }
     ch_versions = ch_versions.mix(MINIMAP2_ALIGN_TEMPLATE.out.versions)
 
     ch_mapped_bam
         .join(SAMTOOLS_INDEX.out.bai)
         .join(ORIENT_REFERENCE.out.reference)
-        .join(ch_input.protospacer)
-        .join(ch_seq_template, remainder: true)
+        .join(ch_input_protospacer)
+        .join(INITIALISATION_CHANNEL_CREATION_TARGETED.out.template, remainder: true)
         .join(ch_template_bam, remainder: true)
         .join(TEMPLATE_REFERENCE.out.fasta, remainder: true)
         .join(ALIGNMENT_SUMMARY.out.summary)
@@ -748,6 +610,9 @@ workflow CRISPRSEQ_TARGETED {
     CIGAR_PARSER (
         ch_to_parse_cigar
     )
+    ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.processing.collect{it[1]})
+    ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.edition.collect{it[2]})
+    ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.qcindels.collect{it[1]})
     ch_versions = ch_versions.mix(CIGAR_PARSER.out.versions.first())
 
 
@@ -757,38 +622,31 @@ workflow CRISPRSEQ_TARGETED {
     CRISPRSEQ_PLOTTER (
         CIGAR_PARSER.out.indels
         .join(ORIENT_REFERENCE.out.reference)
-        .join(ch_input.protospacer)
+        .join(ch_input_protospacer)
     )
     ch_versions = ch_versions.mix(CRISPRSEQ_PLOTTER.out.versions.first())
 
 
     //
-    // MODULE: Dump software versions
+    // Collate and save software versions
     //
-    CUSTOM_DUMPSOFTWAREVERSIONS (
-        ch_versions.unique{ it.text }.collectFile(name: 'collated_versions.yml')
-    )
+    softwareVersionsToYAML(ch_versions)
+        .collectFile(storeDir: "${params.outdir}/pipeline_info", name: 'nf_core_pipeline_software_mqc_versions.yml', sort: true, newLine: true)
+        .set { ch_collated_versions }
 
     //
     // MODULE: MultiQC
     //
-    workflow_summary    = WorkflowCrisprseq.paramsSummaryMultiqc(workflow, summary_params)
-    ch_workflow_summary = Channel.value(workflow_summary)
-
-    methods_description    = WorkflowCrisprseq.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description, params)
-    ch_methods_description = Channel.value(methods_description)
-
-    ch_multiqc_files = Channel.empty()
-    ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
-    ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.processing.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.edition.collect{it[2]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.qcindels.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
-    if  (params.overrepresented) {
-        ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT.out.log.collect{it[1]}.ifEmpty([]))
-    }
+    ch_multiqc_config                     = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
+    ch_multiqc_custom_config              = params.multiqc_config ? Channel.fromPath(params.multiqc_config, checkIfExists: true) : Channel.empty()
+    ch_multiqc_logo                       = params.multiqc_logo ? Channel.fromPath(params.multiqc_logo, checkIfExists: true) : Channel.empty()
+    summary_params                        = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
+    ch_workflow_summary                   = Channel.value(paramsSummaryMultiqc(summary_params))
+    ch_multiqc_custom_methods_description = params.multiqc_methods_description ? file(params.multiqc_methods_description, checkIfExists: true) : file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
+    ch_methods_description                = Channel.value(methodsDescriptionText(ch_multiqc_custom_methods_description))
+    ch_multiqc_files                      = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
+    ch_multiqc_files                      = ch_multiqc_files.mix(ch_collated_versions)
+    ch_multiqc_files                      = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml', sort: false))
 
     MULTIQC (
         ch_multiqc_files.collect(),
@@ -796,28 +654,8 @@ workflow CRISPRSEQ_TARGETED {
         ch_multiqc_custom_config.toList(),
         ch_multiqc_logo.toList()
     )
-    multiqc_report = MULTIQC.out.report.toList()
+
+    emit:
+    multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
+    versions       = ch_versions                 // channel: [ path(versions.yml) ]
 }
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    COMPLETION EMAIL AND SUMMARY
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-workflow.onComplete {
-    if (params.email || params.email_on_fail) {
-        NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
-    }
-    NfcoreTemplate.dump_parameters(workflow, params)
-    NfcoreTemplate.summary(workflow, params, log)
-    if (params.hook_url) {
-        NfcoreTemplate.IM_notification(workflow, params, summary_params, projectDir, log)
-    }
-}
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    THE END
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
