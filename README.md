@@ -64,13 +64,13 @@ For crispr screening:
 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 2. Read mapping ([`MAGeCK count`](https://sourceforge.net/p/mageck/wiki/usage/#count))
    - ([`MAGeCK count`](https://github.com/lh3/minimap2), _default_)
-   - ([`bwa`](http://bio-bwa.sourceforge.net/))
+   - ([`bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml))
 3. Optional: CNV correction and normalization with ([`CRISPRcleanR`](https://github.com/francescojm/CRISPRcleanR))
 4. Rank sgRNAs and genes ;
    a. ([MAGeCK test](https://sourceforge.net/p/mageck/wiki/usage/#test))
    b. ([MAGeCK mle](https://sourceforge.net/p/mageck/wiki/Home/#mle))
    c. ([BAGEL2](https://github.com/hart-lab/bagel))
-5. Visualise analysis
+5. Visualize analysis
 
 ## Usage
 
