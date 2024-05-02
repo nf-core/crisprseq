@@ -34,9 +34,9 @@ process VENNDIAGRAM {
     bagel = read.table('$bagel_pr', sep = "\t",
                         header=TRUE)
 
-    filtered_precision_recall <- subset(bagel, FDR > 0.1)
-    name <- paste0('${prefix}',".fdr")
-    filtered_mageck_mle <- subset(mle,name > 0.1)
+    filtered_precision_recall <- subset(bagel, FDR < 0.1)
+    name <- gsub(",","_",paste0('${prefix}',".fdr"))
+    filtered_mageck_mle <- mle[mle[, name] < 0.1, ]
     common_genes <- intersect(filtered_mageck_mle\$Gene,
                         filtered_precision_recall\$Gene)
     data <- list(Bagel2 = filtered_precision_recall\$Gene,
