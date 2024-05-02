@@ -161,6 +161,7 @@ workflow CRISPRSEQ_SCREENING {
         )
 
         ch_versions = ch_versions.mix(MAGECK_COUNT.out.versions.first())
+        ch_multiqc_files = ch_multiqc_files.mix(MAGECK_COUNT.out.summary.collect{it[1]})
 
         MAGECK_COUNT.out.count.map {
         it -> it[1]
