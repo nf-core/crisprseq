@@ -144,6 +144,52 @@ custom_data:
         min: 0
         scale: "RdYlGn"
 
+  # MAGeCK count table
+  mageck_count:
+    id: "mageck_count"
+    section_name: "MAGeCK count table"
+    plot_type: "table"
+    description: |
+      Table showing count quality for MAGeCK count.
+    pconfig:
+      id: "mageck_count"
+      namespace: "MAGeCK count table"
+      table_title: "MAGeCK count table"
+    headers:
+      File:
+        title: "File"
+        description: "File name"
+      Label:
+        title: "Label"
+        description: "Label name"
+        format: "{:,.0f}"
+      Reads:
+        title: "Reads"
+        description: "Number of reads"
+        format: "{:,.0f}"
+      Mapped:
+        title: "Mapped"
+        description: "Number of reads mapped"
+        format: "{:,.0f}"
+      Percentage:
+        title: "Percentage mapped from 0 to 1 (100%)"
+        description: "Percentage mapped"
+        max: 1
+        min: 0
+      TotalsgRNAs:
+        title: "Total number of sgRNAs in the library"
+        description: "Total number of sgRNAs in the library"
+        format: "{:,.0f}"
+      Zerocounts:
+        title: "Total number of missing sgRNAs"
+        description: "sgRNAs that have 0 counts, recommended: no more than 1%)"
+        format: "{:,.0f}"
+      GiniIndex:
+        title: "Gini Index"
+        description: "Measure of statistical dispersion. A smaller value indicates more eveness of the count distribution."
+        max: 1
+        min: 0
+
 sp:
   edition_plot:
     fn: "*_edits.csv"
@@ -153,11 +199,14 @@ sp:
     fn: "*_reads-summary.csv"
   cutadapt:
     fn: "*.cutadapt.log"
+  mageck_count:
+    fn: "*.countsummary.txt"
 
 # Define the order of sections
 module_order:
   - fastqc
   - cutadapt
+  - mageck_count
   - custom_content
 
 # Set the order of custom code plots and tables
