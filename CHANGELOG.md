@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Adapt cutadapt module to work with single-end and paired-end reads again ([#121](https://github.com/nf-core/crisprseq/pull/121))
-- Create empty *-QC-indels.csv file if alignments not found. ([#138](https://github.com/nf-core/crisprseq/pull/138))
+- Create empty \*-QC-indels.csv file if alignments not found. ([#138](https://github.com/nf-core/crisprseq/pull/138))
 
 ## [v2.1.1 - Jamon Salas - patch](https://github.com/nf-core/crisprseq/releases/tag/2.1.1) - [14.12.2023]
 
