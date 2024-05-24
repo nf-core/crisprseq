@@ -83,66 +83,33 @@ workflow PIPELINE_INITIALISATION {
     if(params.input) {
         Channel
             .fromSamplesheet("input")
-            .multiMap { meta, fastq_1, fastq_2, reference, protospacer, template ->
-                def files = fastq_2 ? [ fastq_1, fastq_2 ] : [ fastq_1 ]
-
-                [
-                    reads_targeted: [
-                        meta.id,
-                        meta - meta.subMap('condition') + [
-                            single_end: !fastq_2,
-                            self_reference: !reference,
-                            template: template
-                        ],
-                        files
-                    ],
-                    reads_screening: [
-                        meta + [
-                            single_end: !fastq_2
-                        ],
-                        files
-                    ],
-                    reference: [
-                        meta - meta.subMap('condition') + [
-                            single_end: !fastq_2,
-                            self_reference: !reference,
-                            template: template
-                        ],
-                        reference
-                    ],
-                    protospacer: [
-                        meta - meta.subMap('condition') + [
-                            single_end: !fastq_2,
-                            self_reference: !reference,
-                            template: template
-                        ],
-                        protospacer
-                    ],
-                    template: [
-                        meta - meta.subMap('condition') + [
-                            single_end: !fastq_2,
-                            self_reference: !reference,
-                            template: template
-                        ],
-                        template
-                    ]
-                ]
+            .multiMap {
+                meta, fastq_1, fastq_2, reference, protospacer, template ->
+                    if (fastq_2) {
+                        files = [ fastq_1, fastq_2 ]
+                    } else {
+                        files = [ fastq_1 ]
+                    }
+                    reads_targeted: [ meta.id, meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], files ]
+                    reads_screening:[ meta + [ single_end:fastq_2?false:true ], files ]
+                    reference:      [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], reference]
+                    protospacer:    [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], protospacer]
+                    template:       [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], template]
             }
             .set { ch_input }
     } else {
-            ch_input = Channel.empty()
+        ch_input = Channel.empty()
     }
-
 
     //
     // Validate input samplesheet
     //
-    if (params.input) {
+    if(params.input) {
         ch_input.reads_targeted
-            .groupTuple()
-            .map {
-                validateInputSamplesheet(it)
-            }
+        .groupTuple()
+        .map {
+            validateInputSamplesheet(it)
+        }
         .set { reads_targeted }
     }
 
