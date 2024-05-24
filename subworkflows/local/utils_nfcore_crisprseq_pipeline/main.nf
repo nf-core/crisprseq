@@ -129,9 +129,9 @@ workflow PIPELINE_INITIALISATION {
                 ]
             }
             .set { ch_input }
-        } else {
-        ch_input = Channel.empty()
-        }
+    } else {
+            ch_input = Channel.empty()
+    }
 
 
     //
