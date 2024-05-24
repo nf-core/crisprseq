@@ -77,6 +77,16 @@ workflow PIPELINE_INITIALISATION {
     //
     validateInputParameters()
 
+
+
+    reads_targeted   = Channel.empty()
+    reads_screening  = Channel.empty()
+    fastqc_screening = Channel.empty()
+    reference        = Channel.empty()
+    protospacer      = Channel.empty()
+    template         = Channel.empty()
+    versions         = Channel.empty()
+
     //
     // Create channel from input file provided through params.input
     //
@@ -97,6 +107,11 @@ workflow PIPELINE_INITIALISATION {
                     template:       [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], template]
             }
             .set { ch_input }
+            fastqc_screening = ch_input.reads_screening
+            fastqc_screening = ch_input.reads_screening
+            reference = ch_input.reference
+            protospacer = ch_input.protospacer
+            template = ch_input.template
     } else {
         ch_input = Channel.empty()
     }
@@ -116,11 +131,11 @@ workflow PIPELINE_INITIALISATION {
     }
 
     emit:
-    reads_targeted = reads_targeted
-    fastqc_screening = ch_input.reads_screening
-    reference = ch_input.reference
-    protospacer = ch_input.protospacer
-    template = ch_input.template
+    reads_targeted
+    fastqc_screening
+    reference
+    protospacer
+    template
     versions    = ch_versions
 }
 

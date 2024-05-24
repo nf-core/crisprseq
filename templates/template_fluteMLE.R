@@ -20,7 +20,12 @@
             FluteMLE(mle, treatname= i, proj=i, pathview.top=5)
             }
     } else {
-        FluteMLE(mle, treatname= "${prefix}", proj="${prefix}", ${args}, pathview.top=5)
+        beta_strings <- grep("\\\\.beta", colnames(mle), value = TRUE)
+        before_beta <- sub("\\\\.beta.*", "", beta_strings)
+        unique_strings <- unique(before_beta)
+        for(i in unique_strings) {
+            FluteMLE(mle, treatname= i, proj=i, ${args}, pathview.top=5)
+        }
     }
 
     version_file_path <- "versions.yml"
