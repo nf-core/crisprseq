@@ -111,6 +111,8 @@ workflow PIPELINE_INITIALISATION {
             validateInputSamplesheet(it)
         }
         .set { reads_targeted }
+    } else {
+        reads_targeted = Channel.empty()
     }
 
     emit:
