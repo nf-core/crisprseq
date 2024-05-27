@@ -33,14 +33,12 @@
                     "crisprcleanr/normalize": {
                         "branch": "master",
                         "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
-                        "installed_by": ["modules"],
-                        "patch": "modules/nf-core/crisprcleanr/normalize/crisprcleanr-normalize.diff"
+                        "installed_by": ["modules"]
                     },
                     "cutadapt": {
                         "branch": "master",
                         "git_sha": "07881e42938b4f0070e864b45d424b01745bc3a4",
-                        "installed_by": ["modules"],
-                        "patch": "modules/nf-core/cutadapt/cutadapt.diff"
+                        "installed_by": ["modules"]
                     },
                     "fastqc": {
                         "branch": "master",
@@ -50,32 +48,27 @@
                     "mageck/count": {
                         "branch": "master",
                         "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
-                        "installed_by": ["modules"],
-                        "patch": "modules/nf-core/mageck/count/mageck-count.diff"
+                        "installed_by": ["modules"]
                     },
                     "mageck/mle": {
                         "branch": "master",
                         "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
-                        "installed_by": ["modules"],
-                        "patch": "modules/nf-core/mageck/mle/mageck-mle.diff"
+                        "installed_by": ["modules"]
                     },
                     "mageck/test": {
                         "branch": "master",
                         "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
-                        "installed_by": ["modules"],
-                        "patch": "modules/nf-core/mageck/test/mageck-test.diff"
+                        "installed_by": ["modules"]
                     },
                     "medaka": {
                         "branch": "master",
                         "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
-                        "installed_by": ["modules"],
-                        "patch": "modules/nf-core/medaka/medaka.diff"
+                        "installed_by": ["modules"]
                     },
                     "minimap2/align": {
                         "branch": "master",
                         "git_sha": "1a5a9e7b4009dcf34e6867dd1a5a1d9a718b027b",
-                        "installed_by": ["modules"],
-                        "patch": "modules/nf-core/minimap2/align/minimap2-align.diff"
+                        "installed_by": ["modules"]
                     },
                     "minimap2/index": {
                         "branch": "master",
