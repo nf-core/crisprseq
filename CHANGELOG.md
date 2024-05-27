@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v2.2.0dev]
+## [v2.2.0 - Romarin Curie]
 
 ### Added
 
@@ -14,10 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `--day0_label` and `FluteMLE` for MLE data [#126](https://github.com/nf-core/crisprseq/pull/126)
 - Template update to 2.13.1 ([#124](https://github.com/nf-core/crisprseq/pull/124))
 - Metromap added in the docs ([#128](https://github.com/nf-core/crisprseq/pull/128))
+- Added MAGeCK count table in the multiqc ([#131](https://github.com/nf-core/crisprseq/pull/131))
 
 ### Fixed
 
 - Adapt cutadapt module to work with single-end and paired-end reads again ([#121](https://github.com/nf-core/crisprseq/pull/121))
+- Create empty \*-QC-indels.csv file if alignments not found. ([#138](https://github.com/nf-core/crisprseq/pull/138))
 
 ## [v2.1.1 - Jamon Salas - patch](https://github.com/nf-core/crisprseq/releases/tag/2.1.1) - [14.12.2023]
 
