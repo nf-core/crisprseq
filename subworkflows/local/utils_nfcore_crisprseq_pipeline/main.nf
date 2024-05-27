@@ -107,11 +107,11 @@ workflow PIPELINE_INITIALISATION {
                     template:       [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], template]
             }
             .set { ch_input }
-            fastqc_screening = ch_input.reads_screening
-            fastqc_screening = ch_input.reads_screening
-            reference = ch_input.reference
-            protospacer = ch_input.protospacer
-            template = ch_input.template
+        reads_targeted = ch_input. reads_targeted
+        fastqc_screening = ch_input.reads_screening
+        reference = ch_input.reference
+        protospacer = ch_input.protospacer
+        template = ch_input.template
     } else {
         ch_input = Channel.empty()
     }
