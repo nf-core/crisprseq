@@ -33,4 +33,3 @@ reports:
     display: "reads"
   "cigar/*_subs-perc.csv":
     display: "subs-perc"
-    
