@@ -7,27 +7,27 @@
                 "nf-core": {
                     "bowtie2/align": {
                         "branch": "master",
-                        "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
+                        "git_sha": "0fe30831abbc2ed115e46e92330edf38f56edc3d",
                         "installed_by": ["modules"]
                     },
                     "bowtie2/build": {
                         "branch": "master",
-                        "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
+                        "git_sha": "1fea64f5132a813ec97c1c6d3a74e0aee7142b6d",
                         "installed_by": ["modules"]
                     },
                     "bwa/index": {
                         "branch": "master",
-                        "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
+                        "git_sha": "086fa66260595e123b0ea47a6512539b72a9afa3",
                         "installed_by": ["modules"]
                     },
                     "bwa/mem": {
                         "branch": "master",
-                        "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
+                        "git_sha": "0c34b8159f62cde451c4ff249629c9d0a4f3f9c3",
                         "installed_by": ["modules"]
                     },
                     "cat/fastq": {
                         "branch": "master",
-                        "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
+                        "git_sha": "4fc983ad0b30e6e32696fa7d980c76c7bfe1c03e",
                         "installed_by": ["modules"]
                     },
                     "crisprcleanr/normalize": {
@@ -38,13 +38,13 @@
                     },
                     "cutadapt": {
                         "branch": "master",
-                        "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
+                        "git_sha": "6618151ed69274863dc6fe6d2920afa90abaca1f",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/cutadapt/cutadapt.diff"
                     },
                     "fastqc": {
                         "branch": "master",
-                        "git_sha": "f4ae1d942bd50c5c0b9bd2de1393ce38315ba57c",
+                        "git_sha": "285a50500f9e02578d90b3ce6382ea3c30216acd",
                         "installed_by": ["modules"]
                     },
                     "mageck/count": {
@@ -73,13 +73,13 @@
                     },
                     "minimap2/align": {
                         "branch": "master",
-                        "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
+                        "git_sha": "72e277acfd9e61a9f1368eafb4a9e83f5bcaa9f5",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/minimap2/align/minimap2-align.diff"
                     },
                     "minimap2/index": {
                         "branch": "master",
-                        "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
+                        "git_sha": "72e277acfd9e61a9f1368eafb4a9e83f5bcaa9f5",
                         "installed_by": ["modules"]
                     },
                     "multiqc": {
@@ -94,28 +94,28 @@
                     },
                     "racon": {
                         "branch": "master",
-                        "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
+                        "git_sha": "f5ed3ac0834b68e80a00a06a61d04ce8e896f275",
                         "installed_by": ["modules"]
                     },
                     "samtools/index": {
                         "branch": "master",
-                        "git_sha": "5394565c5fe4c760e5b35977ec7607c62e81d1f8",
+                        "git_sha": "f4596fe0bdc096cf53ec4497e83defdb3a94ff62",
                         "installed_by": ["modules"]
                     },
                     "seqtk/seq": {
                         "branch": "master",
-                        "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
+                        "git_sha": "7f88aae93c69586c0789322b77743ee0ef469502",
                         "installed_by": ["modules"]
                     },
                     "vsearch/cluster": {
                         "branch": "master",
-                        "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
+                        "git_sha": "d97b335eb448073c1b680710303c02a55f40c77c",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/vsearch/cluster/vsearch-cluster.diff"
                     },
                     "vsearch/sort": {
                         "branch": "master",
-                        "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
+                        "git_sha": "97cf4c4a37a8931e19ef728de92f930a366669f2",
                         "installed_by": ["modules"]
                     }
                 }
