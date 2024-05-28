@@ -35,7 +35,7 @@ CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz,G
 
 The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 6 columns to match those defined in the table below.
 
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 3 samples, where `chr6` is single-end and has a template sequence _(this is a reduced samplesheet, please refer to the [pipeline example samplesheet](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/samplesheet_test.csv) to see the full version)_.
+A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 3 samples, where `chr6` is single-end and has a template sequence _(this is a reduced samplesheet, please refer to the [pipeline example samplesheet](https://raw.githubusercontent.com/nf-core/test-datasets/crisprseq/testdata-edition/samplesheet_test_full.csv) to see the full version)_.
 
 ```console
 sample,fastq_1,fastq_2,reference,protospacer,template
