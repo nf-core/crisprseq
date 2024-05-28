@@ -119,16 +119,12 @@ workflow PIPELINE_INITIALISATION {
     //
     // Validate input samplesheet
     //
-    if(params.input) {
-        ch_input.reads_targeted
+    ch_input.reads_targeted
         .groupTuple()
         .map {
             validateInputSamplesheet(it)
         }
         .set { reads_targeted }
-    } else {
-        reads_targeted = Channel.empty()
-    }
 
     emit:
     reads_targeted
