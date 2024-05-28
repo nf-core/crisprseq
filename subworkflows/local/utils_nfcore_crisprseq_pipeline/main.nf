@@ -272,13 +272,15 @@ workflow INITIALISATION_CHANNEL_CREATION_TARGETED {
         ch_reference = Channel.fromPath(params.reference_fasta)
         input_protospacer
             .combine(ch_reference)
+            .map{ meta, protospacer, reference -> [ meta, reference, protospacer ]} // Change the order of the channel
             .set{ reference_protospacer }
     } else {
         ch_reference = Channel.fromPath(params.reference_fasta)
         ch_protospacer = Channel.of(params.protospacer)
-        ch_input_reads
+        input_reads
             .combine(ch_reference)
             .combine(ch_protospacer)
+            .map{ meta, fastqs, reference, protospacer -> [ meta, reference, protospacer ]} // Don't add fastqs to the channel
             .set{ reference_protospacer }
     }
 
