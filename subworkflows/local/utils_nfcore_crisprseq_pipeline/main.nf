@@ -107,7 +107,7 @@ workflow PIPELINE_INITIALISATION {
                     template:       [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], template]
             }
             .set { ch_input }
-        reads_targeted = ch_input. reads_targeted
+        reads_targeted = ch_input.reads_targeted
         fastqc_screening = ch_input.reads_screening
         reference = ch_input.reference
         protospacer = ch_input.protospacer
@@ -119,12 +119,14 @@ workflow PIPELINE_INITIALISATION {
     //
     // Validate input samplesheet
     //
-    ch_input.reads_targeted
-        .groupTuple()
-        .map {
-            validateInputSamplesheet(it)
-        }
-        .set { reads_targeted }
+    if(params.input) {
+        ch_input.reads_targeted
+            .groupTuple()
+            .map {
+                validateInputSamplesheet(it)
+            }
+            .set { reads_targeted }
+    }
 
     emit:
     reads_targeted
