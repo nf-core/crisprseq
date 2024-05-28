@@ -50,8 +50,8 @@ chr6,chr6-61942198-61942498_R1.fastq.gz,,CAA...GGA,TTTTATGATATTTATCTTTT,TTC...CA
 | `fastq_1`     | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `fastq_2`     | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". (Optional)                                                  |
 | `reference`   | Reference sequence of the target region.                                                                                                                                               |
-| `protospacer` | Sequence of the protospacer used for CRISPR editing. Must not includ the PAM.                                                                                                          |
-| `template`    | Sequence of the template used in templet-based editing experiments. (Optional)                                                                                                         |
+| `protospacer` | Sequence of the protospacer used for CRISPR editing. Must not include the PAM.                                                                                                          |
+| `template`    | Sequence of the template used in template-based editing experiments. (Optional)                                                                                                         |
 
 An [example samplesheet](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/samplesheet_test.csv) has been provided with the pipeline.
 
