@@ -157,6 +157,47 @@ workflow CRISPRSEQ_TARGETED {
     .set { ch_pear_fastq }
     ch_versions = ch_versions.mix(PEAR.out.versions)
 
+    // Change reference, protospacer and template channels to have the same meta information as the reads
+    ch_pear_fastq
+        .map {meta, reads ->
+            single_end = meta.single_end
+            return [ meta - meta.subMap('single_end'), reads, single_end ]
+        }
+        .tap { no_single_end }
+        .join(
+            ORIENT_REFERENCE.out.reference
+            .map {meta, reference ->
+                return [ meta - meta.subMap('single_end'), reference ]
+            }
+        )
+        .map {meta, reads, single_end, reference ->
+            return [ meta + ["single_end": single_end], reference ]
+        }
+        .tap{ ch_oriented_reference }
+    no_single_end
+        .join(
+            INITIALISATION_CHANNEL_CREATION_TARGETED.out.template
+            .map {meta, template ->
+                return [ meta - meta.subMap('single_end'), template ]
+            }
+        )
+        .map {meta, reads, single_end, template ->
+            return [ meta + ["single_end": single_end], template ]
+        }
+        .set{ ch_template }
+    no_single_end
+        .join(
+            INITIALISATION_CHANNEL_CREATION_TARGETED.out.reference_protospacer
+            .map {meta, reference, protospacer ->
+                return [ meta - meta.subMap('single_end'), protospacer ]
+            }
+        )
+        .map {meta, reads, single_end, protospacer ->
+            return [ meta + ["single_end": single_end], protospacer ]
+        }
+        .set{ ch_protospacer }
+
+
     //
     // MODULE: Run FastQC
     //
@@ -223,25 +264,48 @@ workflow CRISPRSEQ_TARGETED {
         ch_cat_fastq.paired
             .mix(ch_cat_fastq.single)
             .join(PEAR.out.assembled, remainder: true)
-            .join(SEQTK_SEQ_MASK.out.fastx)
-            .join(CUTADAPT.out.log)
-            .map { meta, reads, assembled, masked, trimmed ->
+            .map { meta, reads, assembled ->
+                return [ meta - meta.subMap('single_end'), reads, assembled]
+            }
+            .join(
+                SEQTK_SEQ_MASK.out.fastx
+                .map { meta, masked ->
+                    single_end = meta.single_end
+                    return [ meta - meta.subMap('single_end'), masked, single_end]
+                }
+            )
+            .join(
+                CUTADAPT.out.log
+                .map { meta, trimmed ->
+                    return [ meta - meta.subMap('single_end'), trimmed]
+                }
+            )
+            .map { meta, reads, assembled, masked, single_end, trimmed ->
                 if (assembled == null) {
                     assembled = []
                 }
-                return [ meta, reads, assembled, masked, trimmed ]
+                return [ meta + ["single_end": single_end], reads, assembled, masked, trimmed ]
             }
             .set { ch_preprocessing_summary_data }
     } else {
         ch_cat_fastq.paired
             .mix(ch_cat_fastq.single)
             .join(PEAR.out.assembled, remainder: true)
-            .join(SEQTK_SEQ_MASK.out.fastx)
-            .map { meta, reads, assembled, masked ->
+            .map { meta, reads, assembled ->
+                return [ meta - meta.subMap('single_end'), reads, assembled]
+            }
+            .join(
+                SEQTK_SEQ_MASK.out.fastx
+                .map { meta, masked ->
+                    single_end = meta.single_end
+                    return [ meta - meta.subMap('single_end'), masked, single_end]
+                }
+            )
+            .map { meta, reads, assembled, masked, single_end ->
                 if (assembled == null) {
                     assembled = []
                 }
-                return [ meta, reads, assembled, masked, [] ]
+                return [ meta + ["single_end": single_end], reads, assembled, masked, [] ]
             }
             .set { ch_preprocessing_summary_data }
     }
@@ -494,7 +558,7 @@ workflow CRISPRSEQ_TARGETED {
     if (params.aligner == "minimap2") {
         MINIMAP2_ALIGN_ORIGINAL (
             ch_preprocess_reads
-                .join(ORIENT_REFERENCE.out.reference),
+                .join(ch_oriented_reference),
             true,
             false,
             true
@@ -508,7 +572,7 @@ workflow CRISPRSEQ_TARGETED {
     //
     if (params.aligner == "bwa") {
         BWA_INDEX (
-            ORIENT_REFERENCE.out.reference
+            ch_oriented_reference
         )
         ch_versions = ch_versions.mix(BWA_INDEX.out.versions)
         BWA_MEM (
@@ -525,7 +589,7 @@ workflow CRISPRSEQ_TARGETED {
     //
     if (params.aligner == "bowtie2") {
         BOWTIE2_BUILD (
-            ORIENT_REFERENCE.out.reference
+            ch_oriented_reference
         )
         ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
         BOWTIE2_ALIGN (
@@ -561,8 +625,8 @@ workflow CRISPRSEQ_TARGETED {
     // MODULE: Obtain a new reference with the template modification
     //
     TEMPLATE_REFERENCE (
-        ORIENT_REFERENCE.out.reference
-            .join(INITIALISATION_CHANNEL_CREATION_TARGETED.out.template)
+        ch_oriented_reference
+            .join(ch_template)
     )
     ch_versions = ch_versions.mix(TEMPLATE_REFERENCE.out.versions.first())
 
@@ -572,7 +636,7 @@ workflow CRISPRSEQ_TARGETED {
     //
     MINIMAP2_ALIGN_TEMPLATE (
         TEMPLATE_REFERENCE.out.fasta
-            .join(ORIENT_REFERENCE.out.reference),
+            .join(ch_oriented_reference),
         true,
         false,
         true
@@ -583,9 +647,9 @@ workflow CRISPRSEQ_TARGETED {
 
     ch_mapped_bam
         .join(SAMTOOLS_INDEX.out.bai)
-        .join(ORIENT_REFERENCE.out.reference)
-        .join(ch_input_protospacer)
-        .join(INITIALISATION_CHANNEL_CREATION_TARGETED.out.template, remainder: true)
+        .join(ch_oriented_reference)
+        .join(ch_protospacer)
+        .join(ch_template, remainder: true)
         .join(ch_template_bam, remainder: true)
         .join(TEMPLATE_REFERENCE.out.fasta, remainder: true)
         .join(ALIGNMENT_SUMMARY.out.summary)
@@ -621,8 +685,8 @@ workflow CRISPRSEQ_TARGETED {
     //
     CRISPRSEQ_PLOTTER (
         CIGAR_PARSER.out.indels
-        .join(ORIENT_REFERENCE.out.reference)
-        .join(ch_input_protospacer)
+        .join(ch_oriented_reference)
+        .join(ch_protospacer)
     )
     ch_versions = ch_versions.mix(CRISPRSEQ_PLOTTER.out.versions.first())
 
