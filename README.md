@@ -134,6 +134,7 @@ We thank the following people for their extensive assistance in the development 
 - [@mashehu](https://github.com/mashehu)
 - [@msanvicente](https://github.com/msanvicente)
 - [@SusiJo](https://github.com/SusiJo)
+- [@mschaffer-incyte](https://github.com/mschaffer-incyte)
 
 ## Contributions and Support
 
