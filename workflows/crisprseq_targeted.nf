@@ -160,6 +160,7 @@ workflow CRISPRSEQ_TARGETED {
     // Change reference, protospacer and template channels to have the same meta information as the reads
     ch_pear_fastq
         .map {meta, reads ->
+            // save single_end value and remove the key from the meta map
             single_end = meta.single_end
             return [ meta - meta.subMap('single_end'), reads, single_end ]
         }
@@ -167,10 +168,12 @@ workflow CRISPRSEQ_TARGETED {
         .join(
             ORIENT_REFERENCE.out.reference
             .map {meta, reference ->
+                // Remove single_end from the meta map to allow joining two channels with different single_end values
                 return [ meta - meta.subMap('single_end'), reference ]
             }
         )
         .map {meta, reads, single_end, reference ->
+            // Add the correct single_end value to the reference meta map.
             return [ meta + ["single_end": single_end], reference ]
         }
         .tap{ ch_oriented_reference }
@@ -265,6 +268,7 @@ workflow CRISPRSEQ_TARGETED {
             .mix(ch_cat_fastq.single)
             .join(PEAR.out.assembled, remainder: true)
             .map { meta, reads, assembled ->
+                // Remove the single_end key from the meta map to allow joining channels with different single_end values
                 return [ meta - meta.subMap('single_end'), reads, assembled]
             }
             .join(
@@ -292,6 +296,7 @@ workflow CRISPRSEQ_TARGETED {
             .mix(ch_cat_fastq.single)
             .join(PEAR.out.assembled, remainder: true)
             .map { meta, reads, assembled ->
+                // Remove the single_end key from the meta map to allow joining channels with different single_end values
                 return [ meta - meta.subMap('single_end'), reads, assembled]
             }
             .join(
