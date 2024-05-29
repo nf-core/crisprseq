@@ -104,6 +104,8 @@
                 },
                 "protospacer": {
                     "type": "string",
+                    "pattern": "^[ACGTacgt]+$",
+                    "errorMessage": "The protospacer must be a valid DNA sequence.",
                     "fa_icon": "fas fa-grip-lines",
                     "description": "Provide the same protospacer sequence for all samples. Will override protospacer sequences provided by an input samplesheet."
                 }
