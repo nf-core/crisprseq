@@ -77,43 +77,62 @@ workflow PIPELINE_INITIALISATION {
     //
     validateInputParameters()
 
+
+
+    reads_targeted   = Channel.empty()
+    reads_screening  = Channel.empty()
+    fastqc_screening = Channel.empty()
+    reference        = Channel.empty()
+    protospacer      = Channel.empty()
+    template         = Channel.empty()
+    versions         = Channel.empty()
+
     //
     // Create channel from input file provided through params.input
     //
-    Channel
-        .fromSamplesheet("input")
-        .multiMap {
-            meta, fastq_1, fastq_2, reference, protospacer, template ->
-                if (fastq_2) {
-                    files = [ fastq_1, fastq_2 ]
-                } else {
-                    files = [ fastq_1 ]
-                }
-                reads_targeted: [ meta.id, meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], files ]
-                reads_screening:[ meta + [ single_end:fastq_2?false:true ], files ]
-                reference:      [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], reference]
-                protospacer:    [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], protospacer]
-                template:       [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], template]
-        }
-        .set { ch_input }
+    if(params.input) {
+        Channel
+            .fromSamplesheet("input")
+            .multiMap {
+                meta, fastq_1, fastq_2, reference, protospacer, template ->
+                    if (fastq_2) {
+                        files = [ fastq_1, fastq_2 ]
+                    } else {
+                        files = [ fastq_1 ]
+                    }
+                    reads_targeted: [ meta.id, meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], files ]
+                    reads_screening:[ meta + [ single_end:fastq_2?false:true ], files ]
+                    reference:      [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], reference]
+                    protospacer:    [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], protospacer]
+                    template:       [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], template]
+            }
+            .set { ch_input }
 
-    //
-    // Validate input samplesheet
-    //
-    ch_input.reads_targeted
-    .groupTuple()
-    .map {
-        validateInputSamplesheet(it)
+        //
+        // Validate input samplesheet
+        //
+        ch_input.reads_targeted
+            .groupTuple()
+            .map {
+                validateInputSamplesheet(it)
+            }
+            .set { reads_targeted }
+
+        fastqc_screening = ch_input.reads_screening
+        reference = ch_input.reference
+        protospacer = ch_input.protospacer
+        template = ch_input.template
+    } else {
+        ch_input = Channel.empty()
     }
-    .set { reads_targeted }
 
     emit:
-    reads_targeted = reads_targeted
-    fastqc_screening = ch_input.reads_screening
-    reference = ch_input.reference
-    protospacer = ch_input.protospacer
-    template = ch_input.template
-    versions    = ch_versions
+    reads_targeted
+    fastqc_screening
+    reference
+    protospacer
+    template
+    versions = ch_versions
 }
 
 /*

@@ -32,6 +32,7 @@ jobs:
           - "test_screening_rra"
           - "test_targeted"
           - "test_umis"
+          - "test_screening_count_table"
 
     steps:
       - name: Check out pipeline code

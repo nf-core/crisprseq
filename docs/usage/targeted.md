@@ -35,7 +35,7 @@ CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz,G
 
 The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 6 columns to match those defined in the table below.
 
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 3 samples, where `chr6` is single-end and has a template sequence _(this is a reduced samplesheet, please refer to the [pipeline example samplesheet](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/samplesheet_test.csv) to see the full version)_.
+A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 3 samples, where `chr6` is single-end and has a template sequence _(this is a reduced samplesheet, please refer to the [pipeline example samplesheet](https://raw.githubusercontent.com/nf-core/test-datasets/crisprseq/testdata-edition/samplesheet_test_full.csv) to see the full version)_.
 
 ```console
 sample,fastq_1,fastq_2,reference,protospacer,template
@@ -50,8 +50,8 @@ chr6,chr6-61942198-61942498_R1.fastq.gz,,CAA...GGA,TTTTATGATATTTATCTTTT,TTC...CA
 | `fastq_1`     | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `fastq_2`     | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". (Optional)                                                  |
 | `reference`   | Reference sequence of the target region.                                                                                                                                               |
-| `protospacer` | Sequence of the protospacer used for CRISPR editing. Must not includ the PAM.                                                                                                          |
-| `template`    | Sequence of the template used in templet-based editing experiments. (Optional)                                                                                                         |
+| `protospacer` | Sequence of the protospacer used for CRISPR editing. Must not include the PAM.                                                                                                         |
+| `template`    | Sequence of the template used in template-based editing experiments. (Optional)                                                                                                        |
 
 An [example samplesheet](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/samplesheet_test.csv) has been provided with the pipeline.
 

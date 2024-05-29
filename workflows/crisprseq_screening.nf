@@ -11,6 +11,8 @@ include { BAGEL2_PR                                    } from '../modules/local/
 include { BAGEL2_GRAPH                                 } from '../modules/local/bagel2/graph'
 include { MATRICESCREATION                             } from '../modules/local/matricescreation'
 include { MAGECK_FLUTEMLE                              } from '../modules/local/mageck/flutemle'
+include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_CONTRASTS } from '../modules/local/mageck/flutemle'
+include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_DAY0      } from '../modules/local/mageck/flutemle'
 include { VENNDIAGRAM                                  } from '../modules/local/venndiagram'
 // nf-core modules
 include { FASTQC                                       } from '../modules/nf-core/fastqc/main'
@@ -277,8 +279,8 @@ workflow CRISPRSEQ_SCREENING {
             ch_mle = MATRICESCREATION.out.design_matrix.combine(ch_counts)
             MAGECK_MLE (ch_mle)
             ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
-            MAGECK_FLUTEMLE(MAGECK_MLE.out.gene_summary)
-            ch_versions = ch_versions.mix(MAGECK_FLUTEMLE.out.versions)
+            MAGECK_FLUTEMLE_CONTRASTS(MAGECK_MLE.out.gene_summary)
+            ch_versions = ch_versions.mix(MAGECK_FLUTEMLE_CONTRASTS.out.versions)
             ch_venndiagram = BAGEL2_PR.out.pr.join(MAGECK_MLE.out.gene_summary)
             VENNDIAGRAM(ch_venndiagram)
             ch_versions = ch_versions.mix(VENNDIAGRAM.out.versions)
@@ -287,8 +289,8 @@ workflow CRISPRSEQ_SCREENING {
             ch_mle = Channel.of([id: "day0"]).merge(Channel.of([[]])).merge(ch_counts)
             MAGECK_MLE_DAY0 (ch_mle)
             ch_versions = ch_versions.mix(MAGECK_MLE_DAY0.out.versions)
-            MAGECK_FLUTEMLE(MAGECK_MLE_DAY0.out.gene_summary)
-            ch_versions = ch_versions.mix(MAGECK_FLUTEMLE.out.versions)
+            MAGECK_FLUTEMLE_DAY0(MAGECK_MLE_DAY0.out.gene_summary)
+            ch_versions = ch_versions.mix(MAGECK_FLUTEMLE_DAY0.out.versions)
         }
     }
 
