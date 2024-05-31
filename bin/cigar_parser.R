@@ -1234,7 +1234,6 @@ if (dim(alignment_info)[1] != 0){
     colnames(edit_summary_perc)[1] = results_path # Rename the column to add the sample ID
     edit_summary_perc <- t(edit_summary_perc) # t() will add classes as columns and counts as values, 1 row per sample
     write.csv(edit_summary_perc,file=paste0(results_path, "_edits.csv"))
-    indel_filters
     prevc_classes_mqc <- c("Wt passing filter", "Wt NOT passing filter", "Indels NOT passing filter",
             "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
     prevc_counts_mqc <- c(0, 0, 0, 0, 0, 0, 0)
