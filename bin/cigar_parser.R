@@ -1219,6 +1219,9 @@ if (dim(alignment_info)[1] != 0){
     htmlwidgets::saveWidget(plotly::as_widget(fig), paste0(results_path,"_edition.html"))
 
 }else{
+    reads_classes <- c("Raw reads", "Merged reads", "Quality filtered reads", "Clustered reads", "Aligned reads")
+    reads_summary <- data.frame(classes = unlist(reads_classes), counts = unlist(reads_counts))
+    write.csv(reads_summary,file=paste0(results_path, "_reads-summary.csv"))
     fig<-empty_plot("No alignments were produced.
     Please check your files and references")
     htmlwidgets::saveWidget(plotly::as_widget(fig), paste0(results_path,"_edition.html"))
