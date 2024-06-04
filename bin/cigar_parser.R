@@ -1220,6 +1220,7 @@ if (dim(alignment_info)[1] != 0){
 
 }else{
     reads_classes <- c("Raw reads", "Merged reads", "Quality filtered reads", "Clustered reads", "Aligned reads")
+    reads_counts <- c(0, 0, 0, 0, 0)
     reads_summary <- data.frame(classes = unlist(reads_classes), counts = unlist(reads_counts))
     write.csv(reads_summary,file=paste0(results_path, "_reads-summary.csv"))
     fig<-empty_plot("No alignments were produced.
