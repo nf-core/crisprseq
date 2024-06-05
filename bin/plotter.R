@@ -553,7 +553,7 @@ if (dim(data)[2]>3 && length(checkFaulty) == 0 && length(checkEmpty) == 0){ ### 
     templata_based <- data$t_reads[1] ### 0
     total_char <- wt + templata_based + dim(data)[1]
 
-    delCols_indels <- data %>% group_by(Modification, Start, Length, ins_nt, patterns) %>% dplyr::summarize(freq = n())
+    delCols_indels <- data %>% group_by(Modification, Start, Length, ins_nt) %>% dplyr::summarize(freq = n())
     unique_variants <- rbind(as.data.frame(delCols_indels), c("wt", 0, 0, NA, NA, wt), c("template-based", 0, 0, NA, NA, templata_based))
     uniq_indels_sorted <- unique_variants[order(as.numeric(unique_variants$freq), decreasing = TRUE),]
     write.csv(uniq_indels_sorted,file=paste0(sample_name, "_unique-variants.csv"))
