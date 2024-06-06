@@ -54,10 +54,17 @@ gR <- opt$gRNA_sequence
 substitutions_info <- opt$substitutions_info
 rel_cut_site <- as.numeric(opt$cut_site)
 
-data <- read.csv(indels_info)
+data <- read.csv(indels_info, colClasses = c("character"))
 ref_seq <- readFasta(reference)
 subs_plup <- read.csv(substitutions_info, row.names = 1)
 
+data$Start <- as.numeric(data$Start)
+data$Length <- as.numeric(data$Length)
+data$freq <- as.numeric(data$freq)
+data$Perc <- as.numeric(data$Perc)
+data$cut_site <- as.numeric(data$cut_site)
+data$wt_reads <- as.numeric(data$wt_reads)
+data$t_reads <- as.numeric(data$t_reads)
 
 ######################
 ##### CRISPR-GA-1 like plot https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4184265/
