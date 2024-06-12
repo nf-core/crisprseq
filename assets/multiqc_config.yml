@@ -184,11 +184,11 @@ custom_data:
         format: "{:,.0f}"
       Zerocounts:
         title: "Total number of missing sgRNAs"
-        description: "sgRNAs that have 0 counts, recommended: no more than 1%)"
+        description: "sgRNAs that have 0 counts, recommended: no more than 1%"
         format: "{:,.0f}"
       GiniIndex:
         title: "Gini Index"
-        description: "Measure of statistical dispersion. A smaller value indicates more eveness of the count distribution."
+        description: "Measure of statistical dispersion. A smaller value indicates more evenness of the count distribution."
         max: 1
         min: 0
 

@@ -12,8 +12,8 @@ process BAGEL2_PR {
     tuple val(meta), path(bf), path(reference_essentials), path(reference_nonessentials)
 
     output:
-    tuple val(meta), path("*.tsv")   , emit: pr
-    path "versions.yml"             , emit: versions
+    tuple val(meta), path("*.tsv"),  emit: pr
+    path "versions.yml"           ,  emit: versions
 
     when:
     task.ext.when == null || task.ext.when
