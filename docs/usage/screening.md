@@ -48,23 +48,23 @@ MAGeCK count which is the main alignment software used is normally able to autom
 
 ### bowtie2
 
-The MAGeCK count module supports bam files, which allows you to align with bowtie2 first. If you wish to do so (for instance to allow library with mismatches or to set the aligner with specific flags) you can provide a fasta file with `--fasta`. Currently, you also still need to provide the library file.
+The MAGeCK count module supports bam files, which allows you to align with bowtie2 first. If you wish to do so (for instance to allow mapping reads to the library with mismatches or to set the aligner with specific flags) you can provide a fasta file with `--fasta` encoding the library. Currently, you also still need to provide the tab-separated library file with `--library`.
 
 ### library
 
 If you are running the pipeline with fastq files and wish to obtain a count table, the library parameter is needed. The library table has three mandatory columns : id, target transcript (or gRNA sequence) and gene symbol.
 An [example](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/brunello_target_sequence.txt) has been provided with the pipeline. Many libraries can be found on [addgene](https://www.addgene.org/).
 
-After the alignment step, if you are performing KO (Knock-Out) screens, you can choose to correction of gene independent cell responses to CRISPR-cas9 targeting using crisprcleanr. If you are performing a CRISPR interference or activation screen, this step is not needed.
+After the alignment step, if you are performing KO (Knock-Out) screens, you can choose to correct gene-independent cell responses to CRISPR-Cas9 targeting using CRISPRcleanR. If you are performing a CRISPR interference or activation screen, this step is not needed.
 
-The pipeline currently supports 3 algorithms to detect gene essentiality, MAGeCK rra, MAGeCK mle and BAGEL2. MAGeCK MLE (Maximum Likelihood Estimation) and MAGeCK RRA (Robust Ranking Aggregation) are two different methods provided by the MAGeCK software package to analyze CRISPR-Cas9 screens. BAGEL2 identifies gene essentiality through Bayesian Analysis.
+The pipeline currently supports 3 algorithms to detect gene essentiality, MAGeCK RRA, MAGeCK MLE and BAGEL2. MAGeCK MLE (Maximum Likelihood Estimation) and MAGeCK RRA (Robust Ranking Aggregation) are two different methods provided by the MAGeCK software package to analyze CRISPR-Cas9 screens. BAGEL2 identifies gene essentiality through Bayesian Analysis.
 We recommend to run MAGeCK MLE and BAGEL2 as these are the most used and most recent algorithms to determine gene essentiality.
 
 ### Running CRISPRcleanR
 
-CRISPRcleanR is used for gene count normalization and the removal of biases for genomic segments for which copy numbers are amplified. Currently, the pipeline supports annotation libraries already present in the R package or a annotation file the user can provide.
+[CRISPRcleanR](https://github.com/francescojm/CRISPRcleanR) is used for gene count normalization and the removal of biases for genomic segments for which copy numbers are amplified. Currently, the pipeline supports annotation libraries already present in the R package or user-provided annotation files.
 Most used library already have an annotation dataset which you can find [here](https://github.com/francescojm/CRISPRcleanR/blob/master/Reference_Manual.pdf). To use CRISPRcleanR normalization, use `--crisprcleanr library`, `library` being the exact name as the library in the CRISPRcleanR documentation (e.g: "AVANA_Library").
-Otherwise, if you wish to provide your own file, please provide it in csv form, and make sure it follows the following format, with the comma in front of "CODE" included :
+Otherwise, if you wish to provide your own file, please provide it in CSV format, and make sure it follows the following format (with the comma in front of "CODE" included):
 
 | ,CODE                | GENES       | EXONE         | CHRM | STRAND | STARTpos | ENDpos   |
 | -------------------- | ----------- | ------------- | ---- | ------ | -------- | -------- |
@@ -89,7 +89,7 @@ Running MAGeCK MLE and BAGEL2 with a contrast file will also output a Venn diagr
 
 ### Running MAGeCK RRA only
 
-MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK rra, you can define the contrasts as previously stated in the last section (with a `.txt` extension) and also specify `--rra` .
+MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK RRA, you can define the contrasts as previously stated in the last section (with a `.txt` extension) and also specify `--rra`.
 
 ### Running MAGeCK MLE only
 
@@ -112,7 +112,7 @@ BAGEL2 uses the same contrasts from `--contrasts`.
 
 ### MAGECKFlute
 
-The downstream analysis involves distinguishing essential, non-essential, and target-associated genes. Additionally, it encompasses conducting biological functional category analysis and pathway enrichment analysis for these genes. Furthermore, the function provides visualization of genes within pathways, enhancing user exploration of screening data. MAGECKFlute is run automatically after MAGeCK MLE and for each MLE design matrice. If you have used the `--day0_label`, MAGeCKFlute will be ran on all the other conditions. Please note that the DepMap data is used for these plots.
+The downstream analysis involves distinguishing essential, non-essential, and target-associated genes. Additionally, it encompasses conducting biological functional category analysis and pathway enrichment analysis for these genes. Furthermore, it provides visualization of genes within pathways, enhancing user exploration of screening data. MAGECKFlute is run automatically after MAGeCK MLE and for each MLE design matrice. If you have used the `--day0_label`, MAGeCKFlute will be ran on all the other conditions. Please note that the DepMap data is used for these plots.
 
 Note that the pipeline will create the following files in your working directory:
 

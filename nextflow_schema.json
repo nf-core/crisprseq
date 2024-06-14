@@ -171,7 +171,7 @@
                 },
                 "fasta": {
                     "type": "string",
-                    "description": "Fasta file in case you want to map with bowtie2 and then MAGeCK count"
+                    "description": "Library in fasta file format in case you want to map with bowtie2 and then MAGeCK count"
                 },
                 "day0_label": {
                     "type": "string",
