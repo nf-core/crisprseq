@@ -73,7 +73,7 @@
                     },
                     "mageck/mle": {
                         "branch": "master",
-                        "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
+                        "git_sha": "a179c03b8933e96cdf232e8de9addf5c83a05d24",
                         "installed_by": [
                             "modules"
                         ],
