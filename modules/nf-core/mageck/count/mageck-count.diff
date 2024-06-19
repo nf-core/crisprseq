@@ -1,16 +1,16 @@
 Changes in module 'nf-core/mageck/count'
 --- modules/nf-core/mageck/count/main.nf
 +++ modules/nf-core/mageck/count/main.nf
-@@ -1,19 +1,22 @@
+@@ -1,6 +1,7 @@
  process MAGECK_COUNT {
      tag "$meta.id"
 -    label 'process_medium'
 +    label 'process_high'
- 
--    conda "${moduleDir}/environment.yml"
 +
+ 
+     conda "${moduleDir}/environment.yml"
      container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-         'https://depot.galaxyproject.org/singularity/mageck:0.5.9.5--py39h1f90b4d_3':
+@@ -8,12 +9,15 @@
          'biocontainers/mageck:0.5.9.5--py39h1f90b4d_3' }"
  
      input:
@@ -28,7 +28,7 @@ Changes in module 'nf-core/mageck/count'
      path "versions.yml"                            , emit: versions
  
      when:
-@@ -22,8 +25,13 @@
+@@ -22,8 +26,13 @@
      script:
      def args = task.ext.args ?: ''
      def prefix = task.ext.prefix ?: "${meta.id}"
@@ -44,7 +44,7 @@ Changes in module 'nf-core/mageck/count'
  
      """
      mageck \\
-@@ -32,7 +40,7 @@
+@@ -32,7 +41,7 @@
          -l $library \\
          -n $prefix \\
          $sample_label \\
@@ -53,7 +53,7 @@ Changes in module 'nf-core/mageck/count'
  
  
      cat <<-END_VERSIONS > versions.yml
-@@ -40,17 +48,4 @@
+@@ -40,17 +49,4 @@
          mageck: \$(mageck -v)
      END_VERSIONS
      """
