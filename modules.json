@@ -49,19 +49,19 @@
                     },
                     "mageck/count": {
                         "branch": "master",
-                        "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
+                        "git_sha": "3fd600f14c03766f840acf29e1a6a1bc45d5c9a0",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/mageck/count/mageck-count.diff"
                     },
                     "mageck/mle": {
                         "branch": "master",
-                        "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
+                        "git_sha": "a179c03b8933e96cdf232e8de9addf5c83a05d24",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/mageck/mle/mageck-mle.diff"
                     },
                     "mageck/test": {
                         "branch": "master",
-                        "git_sha": "3f5420aa22e00bd030a2556dfdffc9e164ec0ec5",
+                        "git_sha": "02ddbebcea3e0aad5ddd090d243e7ceb3ae2f063",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/mageck/test/mageck-test.diff"
                     },
