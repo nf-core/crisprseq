@@ -49,4 +49,24 @@ process MAGECK_COUNT {
         mageck: \$(mageck -v)
     END_VERSIONS
     """
+    stub:
+    def args = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    def sample_label = ("$fastq1".endsWith(".fastq.gz") || "$fastq1".endsWith(".fq.gz")) ? "--sample-label ${meta.id}" : ''
+    
+    if (meta.single_end && ("$fastq1".endsWith(".fastq.gz") || "$fastq1".endsWith(".fq.gz")) || "$fastq1".endsWith(".bam")) {
+        input = "--fastq $fastq1" 
+    } else {
+        input = "--fastq $fastq1 --fastq-2 $fastq2" 
+    }
+    """
+    touch ${prefix}.count.txt
+    touch ${prefix}.count_normalized.txt
+    touch ${prefix}.countsummary.txt
+    touch ${prefix}.log
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        mageck: \$(mageck -v)
+    END_VERSIONS
+    """
 }
