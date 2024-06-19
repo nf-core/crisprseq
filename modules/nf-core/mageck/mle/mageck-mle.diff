@@ -21,7 +21,7 @@ Changes in module 'nf-core/mageck/mle'
  
      """
      mageck \\
-@@ -29,26 +29,13 @@
+@@ -29,8 +29,9 @@
          $args \\
          --threads $task.cpus \\
          -k $count_table \\
@@ -33,23 +33,13 @@ Changes in module 'nf-core/mageck/mle'
  
      cat <<-END_VERSIONS > versions.yml
      "${task.process}":
+@@ -49,6 +50,5 @@
          mageck: \$(mageck -v)
      END_VERSIONS
      """
--    stub:
--    def prefix = task.ext.prefix ?: "${meta.id}"
--
--    """
--    touch ${prefix}.gene_summary.txt
--    touch ${prefix}.sgrna_summary.txt
--
--    cat <<-END_VERSIONS > versions.yml
--    "${task.process}":
--        mageck: \$(mageck -v)
--    END_VERSIONS
--    """
 -
 -
 -}
++    
 +}
 ************************************************************
