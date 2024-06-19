@@ -2,10 +2,10 @@ process MAGECK_COUNT {
     tag "$meta.id"
     label 'process_high'
 
-    conda "${moduleDir}/environment.yml"
+
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mageck:0.5.9--py37h6bb024c_0':
-        'biocontainers/mageck:0.5.9--py37h6bb024c_0' }"
+        'https://depot.galaxyproject.org/singularity/mageck:0.5.9.5--py39h1f90b4d_3':
+        'biocontainers/mageck:0.5.9.5--py39h1f90b4d_3' }"
 
     input:
     tuple val(meta), path(fastq1), path(fastq2)
@@ -25,7 +25,6 @@ process MAGECK_COUNT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-   // def input_file = ("$inputfile".endsWith(".fastq.gz") || "$inputfile".endsWith(".fq.gz")) ? "--fastq ${inputfile}" : "-k ${inputfile}" 
     def sample_label = ("$fastq1".endsWith(".fastq.gz") || "$fastq1".endsWith(".fq.gz")) ? "--sample-label ${meta.id}" : ''
     
     if (meta.single_end && ("$fastq1".endsWith(".fastq.gz") || "$fastq1".endsWith(".fq.gz")) || "$fastq1".endsWith(".bam")) {
