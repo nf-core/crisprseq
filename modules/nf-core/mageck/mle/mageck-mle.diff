@@ -1,19 +1,8 @@
 Changes in module 'nf-core/mageck/mle'
 --- modules/nf-core/mageck/mle/main.nf
 +++ modules/nf-core/mageck/mle/main.nf
-@@ -1,15 +1,14 @@
- process MAGECK_MLE {
--    tag "$meta.id"
--    label 'process_medium'
-+    tag "$prefix"
-+    label 'process_high'
- 
-     conda "${moduleDir}/environment.yml"
-     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
--        'https://depot.galaxyproject.org/singularity/mageck:0.5.9--py37h6bb024c_0':
--        'biocontainers/mageck:0.5.9--py37h6bb024c_0' }"
-+        'https://depot.galaxyproject.org/singularity/mageck:0.5.9.5--py39h1f90b4d_3':
-+        'biocontainers/mageck:0.5.9.5--py39h1f90b4d_3' }"
+@@ -8,8 +8,7 @@
+         'biocontainers/mageck:0.5.9.5--py39h1f90b4d_3' }"
  
      input:
 -    tuple val(meta), path(count_table)
@@ -44,5 +33,13 @@ Changes in module 'nf-core/mageck/mle'
  
      cat <<-END_VERSIONS > versions.yml
      "${task.process}":
-
+@@ -49,6 +50,5 @@
+         mageck: \$(mageck -v)
+     END_VERSIONS
+     """
+-
+-
+-}
++    
++}
 ************************************************************

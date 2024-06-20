@@ -1,6 +1,6 @@
 process MAGECK_MLE {
-    tag "$prefix"
-    label 'process_high'
+    tag "$meta.id"
+    label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -38,4 +38,17 @@ process MAGECK_MLE {
         mageck: \$(mageck -v)
     END_VERSIONS
     """
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+
+    """
+    touch ${prefix}.gene_summary.txt
+    touch ${prefix}.sgrna_summary.txt
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        mageck: \$(mageck -v)
+    END_VERSIONS
+    """
+    
 }
