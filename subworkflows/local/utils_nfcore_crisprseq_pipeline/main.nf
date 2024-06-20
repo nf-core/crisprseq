@@ -98,11 +98,11 @@ workflow PIPELINE_INITIALISATION {
                     } else {
                         files = [ fastq_1 ]
                     }
-                    reads_targeted: [ meta.id, meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], files ]
+                    reads_targeted: [ meta.id, meta - meta.subMap('condition') + [ single_end : fastq_2 ? false : true, self_reference : reference ? false : true, template : template ? true : false ], files ]
                     reads_screening:[ meta + [ single_end:fastq_2?false:true ], files ]
-                    reference:      [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], reference]
-                    protospacer:    [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], protospacer]
-                    template:       [meta - meta.subMap('condition') + [ single_end:fastq_2?false:true, self_reference:reference?false:true, template:template?true:false ], template]
+                    reference:      [meta - meta.subMap('condition') + [ single_end : fastq_2 ? false : true, self_reference : reference ? false : true, template : template ? true : false ], reference]
+                    protospacer:    [meta - meta.subMap('condition') + [ single_end : fastq_2 ? false : true, self_reference : reference ? false : true, template : template ? true : false ], protospacer]
+                    template:       [meta - meta.subMap('condition') + [ single_end : fastq_2 ? false : true, self_reference : reference ? false : true, template : template ? true : false ], template]
             }
             .set { ch_input }
 

@@ -44,11 +44,11 @@ include { CRISPRSEQ_SCREENING } from './workflows/crisprseq_screening'
 workflow NFCORE_CRISPRSEQ {
 
     take:
-    reads_targeted // channel: fastqc files read in from --input
+    reads_targeted  // channel: fastqc files read in from --input
     reads_screening // channel: fastqc files read in from --input
-    reference // channel: reference sequence read from --input
-    protospacer // channel: protospacer sequence read from --input
-    template // channel: template sequence read from --input
+    reference       // channel: reference sequence read from --input
+    protospacer     // channel: protospacer sequence read from --input
+    template        // channel: template sequence read from --input
 
     main:
     //
