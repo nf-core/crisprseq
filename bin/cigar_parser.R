@@ -1219,6 +1219,10 @@ if (dim(alignment_info)[1] != 0){
     htmlwidgets::saveWidget(plotly::as_widget(fig), paste0(results_path,"_edition.html"))
 
 }else{
+    reads_classes <- c("Raw reads", "Merged reads", "Quality filtered reads", "Clustered reads", "Aligned reads")
+    reads_counts <- c(0, 0, 0, 0, 0)
+    reads_summary <- data.frame(classes = unlist(reads_classes), counts = unlist(reads_counts))
+    write.csv(reads_summary,file=paste0(results_path, "_reads-summary.csv"))
     fig<-empty_plot("No alignments were produced.
     Please check your files and references")
     htmlwidgets::saveWidget(plotly::as_widget(fig), paste0(results_path,"_edition.html"))
@@ -1234,4 +1238,9 @@ if (dim(alignment_info)[1] != 0){
     colnames(edit_summary_perc)[1] = results_path # Rename the column to add the sample ID
     edit_summary_perc <- t(edit_summary_perc) # t() will add classes as columns and counts as values, 1 row per sample
     write.csv(edit_summary_perc,file=paste0(results_path, "_edits.csv"))
+    prevc_classes_mqc <- c("Wt passing filter", "Wt NOT passing filter", "Indels NOT passing filter",
+            "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
+    prevc_counts_mqc <- c(0, 0, 0, 0, 0, 0, 0)
+    indel_filters <- data.frame(sample = unlist(prevc_counts_mqc), row.names = unlist(prevc_classes_mqc))
+    write.csv(indel_filters,file=paste0(results_path, "_QC-indels.csv"))
 }

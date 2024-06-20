@@ -18,7 +18,9 @@ if "$assembled_reads" == "":
     assembled_reads_count = 0
 else:
     with gzip.open("$assembled_reads", "rt") as handle:
-        assembled_reads_count = len(list(SeqIO.parse(handle, "fastq")))  # Merged reads R1+R2
+        assembled_reads_count = len(
+            list(SeqIO.parse(handle, "fastq"))
+        )  # Merged reads R1+R2
 
 with gzip.open("$trimmed_reads", "rt") as handle:
     trimmed_reads_count = len(list(SeqIO.parse(handle, "fastq")))  # Filtered reads
@@ -34,7 +36,9 @@ else:
                     if field.isdigit():
                         adapters_count = field  # reads with adapters
                     if "%" in field:
-                        adapters_percentage = field  # percentage of reads with adapters: ex. "(100.0%)"
+                        adapters_percentage = (
+                            field  # percentage of reads with adapters: ex. "(100.0%)"
+                        )
 
 if "$task.ext.prefix" != "null":
     prefix = "$task.ext.prefix"

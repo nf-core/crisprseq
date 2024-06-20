@@ -19,7 +19,7 @@ process BAGEL2_GRAPH {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.treatment}_${meta.reference}"
 
     """
     #!/usr/bin/env python3
@@ -64,8 +64,8 @@ process BAGEL2_GRAPH {
     # alas, no `pyyaml` pre-installed in the cellranger container
     with open("versions.yml", "w") as f:
         f.write('"${task.process}":\\n')
-        f.write(f'  pandas: "{version}"\\n')
-        f.write(f'  matplotlib.pyplot: "{matplotlib_version}"\\n')
+        f.write(f'  pandas: {version}\\n')
+        f.write(f'  matplotlib.pyplot: {matplotlib_version}\\n')
 
     """
 

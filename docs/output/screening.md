@@ -17,14 +17,16 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - [Preprocessing](#preprocessing)
   - [FastQC](#fastqc) - Read Quality Control
   - [cutadapt](#cutadapt) - Trimming reads from fastq files
+- [Mapping](#alignment) - bowtie2 aligned reads
 - [Counting](#counting)
-  - [MAGeCK count](#mageck-count) - Mapping reads to reference
+  - [MAGeCK count](#mageck-count) - Mapping reads to reference library
 - [CNV correction](#cnv-correction))
   - [CRISPRcleanR](#crisprcleanr-normalization) - Copy Number Variation correction and read normalization in case of knock-out screens.
 - [Gene essentiality](#gene-essentiality-computation)
   - [MAGeCK rra](#mageck-rra) - modified robust ranking aggregation (RRA) algorithm
   - [MAGeCK mle](#mageck-mle) - maximum-likelihood estimation (MLE) for robust identification of CRISPR-screen hits
   - [BAGEL2](#BAGEL2) - Bayes Factor to identify essential genes
+  - [MAGeCKFlute](#flutemle) - graphics to visualise MAGECK MLE output
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
@@ -56,6 +58,18 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 [cutadapt](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/). Cutadapt finds and removes adapter sequences, primers, poly-A tails and other types of unwanted sequence from your high-throughput sequencing reads. MAGeCK count normally automatically detects adapter sequences and trims, however if trimming lengths are different, cutadapt can be used, as mentioned [here](https://sourceforge.net/p/mageck/wiki/advanced_tutorial/).
 For further reading and documentation see the [cutadapt helper page](https://cutadapt.readthedocs.io/en/stable/guide.html).
+
+## Alignment
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `bowtie2/`
+  - `*.log`: log file of the command ran and the output
+  - `*.bam`: bam file
+  - `*.bowtie2`: index from bowtie2 from the provided fasta file
+
+</details>
 
 ## Counting
 
@@ -108,8 +122,8 @@ For further reading and documentation see the [cutadapt helper page](https://cut
   - `*_count_sgrna_summary.txt`: sgRNA ranking results, tab separated file containing means, p-values
   - `*.report.Rmd`: markdown report recapping essential genes
   - `*_count_table.log`: log of the run
-  - `*_scatterview.png`: scatter view of the targeted genes and their logFC
-  - `*_rank.png`: rank view of the targeted genes
+  - `*_scatterview.png`: scatter view of the targeted genes in the library and their logFC
+  - `*_rank.png`: rank view of the targeted genes in the library
 
 </details>
 
@@ -133,6 +147,34 @@ For further reading and documentation see the [cutadapt helper page](https://cut
 </details>
 
 [bagel2](https://github.com/hart-lab/bagel) is a computational tool to identify important essential genes for CRISPR-Cas9 screening experiments.
+
+### Venn diagram
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `venndiagram`
+  - `*_common_genes_bagel_mle.txt`: common essential genes between BAGEL2 and MAGeCK MLE
+  - `*_venn_bagel2_mageckmle.png`: Venn diagram common essential genes between BAGEL2 and MAGeCK MLE. An example is shown here below
+
+![Venn diagram](/docs/images/venn.png)
+
+## Gene essentiality functional analysis
+
+### MAGeCKFlute
+
+- `FluteMLE/QC`
+  - `*.txt` : Quality control tables
+  - `*.png` : Quality control plots
+- `FluteMLE/Selection`
+  - `*.txt`: Positive selection and negative selection.
+  - `*.png`: Rank and scatter view for positive and negative selection
+- `FluteMLE/Enrichment`
+  - `*.txt`: Enrichment analysis for positive and negative selection genes.
+  - `*.png`: Enrichment analysis plots for positive and negative selection genes.
+- `FluteMLE/PathwayView`
+  - `*.txt`: Pathway view for top enriched pathways.
+  - `*.png`: Pathway view for top enriched pathways.
 
 ## MultiQC
 
