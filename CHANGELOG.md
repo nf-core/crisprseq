@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix singularity image pull tag for MAGeCKFlute
+
 ### Deprecated
 
 ## [v2.2.0 - Romarin Curie](https://github.com/nf-core/crisprseq/releases/tag/2.2.0) - [20.06.2024]
