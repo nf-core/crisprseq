@@ -23,9 +23,12 @@ process DRUGZ {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def removedgenes = task.ext.removedgenes ? "-r ${task.ext.removedgenes}" : ''
+
+
 
     """
-    drugz.py -i $count_table -o ${meta.treatment}_vs_${meta.reference}_drugz_output.txt -f ${meta.treatment}_vs_${meta.reference}.foldchange -c $meta.reference -x $meta.treatment $args
+    drugz.py -i $count_table -o ${meta.treatment}_vs_${meta.reference}_drugz_output.txt -f ${meta.treatment}_vs_${meta.reference}.foldchange -c $meta.reference -x $meta.treatment $removedgenes $args
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         python: \$(python --version | sed 's/Python //g')
