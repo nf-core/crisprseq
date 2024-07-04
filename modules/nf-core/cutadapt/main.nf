@@ -4,15 +4,15 @@ process CUTADAPT {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/cutadapt:3.4--py39h38f01e4_1' :
-        'biocontainers/cutadapt:3.4--py39h38f01e4_1' }"
+        'https://depot.galaxyproject.org/singularity/cutadapt:4.6--py39hf95cd2a_1' :
+        'biocontainers/cutadapt:4.6--py39hf95cd2a_1' }"
 
     input:
     tuple val(meta), path(reads), path(adapter_seq)
 
     output:
-    tuple val(meta), path('*.trim.fastq.gz'), optional: true, emit: reads
-    tuple val(meta), path('*.log')          , optional: true, emit: log
+    tuple val(meta), path('*.trim.fastq.gz'), emit: reads
+    tuple val(meta), path('*.log')          , emit: log
     path "versions.yml"                     , emit: versions
 
     when:
@@ -21,13 +21,16 @@ process CUTADAPT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def trimmed  = meta.single_end ? "-o ${prefix}.trim.fastq.gz" : "-o ${prefix}_1.trim.fastq.gz -p ${prefix}_2.trim.fastq.gz"
     """
     cutadapt \\
+        -Z \\
         --cores $task.cpus \\
         $args \\
-        -o ${prefix}.trim.fastq.gz \\
+        $trimmed \\
         $reads \\
         > ${prefix}.cutadapt.log
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         cutadapt: \$(cutadapt --version)

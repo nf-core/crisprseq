@@ -54,10 +54,17 @@ gR <- opt$gRNA_sequence
 substitutions_info <- opt$substitutions_info
 rel_cut_site <- as.numeric(opt$cut_site)
 
-data <- read.csv(indels_info)
+data <- read.csv(indels_info, colClasses = c("character"))
 ref_seq <- readFasta(reference)
 subs_plup <- read.csv(substitutions_info, row.names = 1)
 
+data$Start <- as.numeric(data$Start)
+data$Length <- as.numeric(data$Length)
+data$freq <- as.numeric(data$freq)
+data$Perc <- as.numeric(data$Perc)
+data$cut_site <- as.numeric(data$cut_site)
+data$wt_reads <- as.numeric(data$wt_reads)
+data$t_reads <- as.numeric(data$t_reads)
 
 ######################
 ##### CRISPR-GA-1 like plot https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4184265/
@@ -553,7 +560,7 @@ if (dim(data)[2]>3 && length(checkFaulty) == 0 && length(checkEmpty) == 0){ ### 
     templata_based <- data$t_reads[1] ### 0
     total_char <- wt + templata_based + dim(data)[1]
 
-    delCols_indels <- data %>% group_by(Modification, Start, Length, ins_nt, patterns) %>% dplyr::summarize(freq = n())
+    delCols_indels <- data %>% group_by(Modification, Start, Length, ins_nt) %>% dplyr::summarize(freq = n())
     unique_variants <- rbind(as.data.frame(delCols_indels), c("wt", 0, 0, NA, NA, wt), c("template-based", 0, 0, NA, NA, templata_based))
     uniq_indels_sorted <- unique_variants[order(as.numeric(unique_variants$freq), decreasing = TRUE),]
     write.csv(uniq_indels_sorted,file=paste0(sample_name, "_unique-variants.csv"))
