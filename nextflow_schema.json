@@ -224,6 +224,10 @@
                     "type": "string",
                     "description": "Non essential gene set  for BAGEL2",
                     "default": "https://raw.githubusercontent.com/hart-lab/bagel/master/NEGv1.txt"
+                },
+                "drugz_remove_genes": {
+                    "type": "string",
+                    "description": "Essential genes to remove from the drugZ modules"
                 }
             }
         },
