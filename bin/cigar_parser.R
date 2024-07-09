@@ -547,7 +547,7 @@ correct_insertion_vc <- function(cut_site_position, insertion_row, gRNA){
         after_inserted <- substr(as.character(bam[[1]]$seq[bam[[1]]$qname == insertion_row$Ids]), nts_bef_nt+1+insertion_row$Length + diff, nts_bef_nt+insertion_row$Length+3 + diff)
 
         if(before_inserted == before_cut && after_inserted == after_cut){
-            return(list(Modification="ins", Start=cut_site_position+1, Length=insertion_row$Length, Ids=insertion_row$Ids, above_error_rate=insertion_row$above_error_rate, in_pick = insertion_row$in_pick, freq = insertion_row$freq, Perc=insertion_row$Perc, patterns=insertion_row$patterns, pre_ins_nt=before_inserted, ins_nt=inserted, post_ins_nt=after_inserted))
+            return(list(Modification="ins", Start=cut_site_position+1, Length=insertion_row$Length, Ids=insertion_row$Ids, above_error_rate=insertion_row$above_error_rate, in_pick = insertion_row$in_pick, freq = insertion_row$freq, Perc=insertion_row$Perc, pre_ins_nt=before_inserted, ins_nt=inserted, post_ins_nt=after_inserted))
         } else {
             return(insertion_row)
         }
@@ -772,7 +772,7 @@ ref_fasta = opt$reference
 gRNA_sequence = opt$gRNA_sequence
 sample_id = opt$sample_name
 temp = opt$template
-spikes = opt$spikes ### yes or no
+spikes = opt$spikes
 files_summary = opt$summary_file
 cut_pos_prot = as.numeric(opt$cut_site)
 mock = opt$mock
