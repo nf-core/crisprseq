@@ -772,7 +772,7 @@ ref_fasta = opt$reference
 gRNA_sequence = opt$gRNA_sequence
 sample_id = opt$sample_name
 temp = opt$template
-spikes = opt$spikes ### yes or no
+spikes = opt$spikes
 files_summary = opt$summary_file
 cut_pos_prot = as.numeric(opt$cut_site)
 mock = opt$mock
@@ -900,6 +900,7 @@ if (dim(alignment_info)[1] != 0){
             separated_indels["post_ins_nt"]<-NA
         }else if(dim(separated_indels_ins_all)[1]>0){
             separated_indels <- separated_indels_ins_all
+            separated_indels["patterns"]<-NA
         }
 
 
