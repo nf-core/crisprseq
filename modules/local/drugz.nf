@@ -21,11 +21,13 @@ process DRUGZ {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def args       = task.ext.args ?: ''
+    def prefix     = task.ext.prefix ?: "${meta.id}"
+    def output     = "${meta.treatment}_vs_${meta.reference}_drugz_output.txt".replaceAll(',','_')
+    def foldchange = "${meta.treatment}_vs_${meta.reference}.foldchange".replaceAll(',','_')
 
     """
-    drugz.py -i $count_table -o ${meta.treatment}_vs_${meta.reference}_drugz_output.txt -f ${meta.treatment}_vs_${meta.reference}.foldchange -c $meta.reference -x $meta.treatment $args
+    drugz.py -i $count_table -o $output -f $foldchange -c $meta.reference -x $meta.treatment $args
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         python: \$(python --version | sed 's/Python //g')
