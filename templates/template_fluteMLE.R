@@ -22,7 +22,7 @@
                     FluteMLE(mle, treatname= i, proj=i, pathview.top=5)
                 },
             error=function(e) {
-                    print(paste0("Could not run FluteMLE with project ",i))
+                    print(paste("Could not run FluteMLE with project",i))
                 }
             )
         }
