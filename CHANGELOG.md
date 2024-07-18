@@ -5,7 +5,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v2.2.1dev]
 
-
 ### Added
 
 ### Fixed
@@ -13,7 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 ## [v2.2.1 Romarin Curie - patch](https://github.com/nf-core/crisprseq/pull/174)
-
 
 ### Added
 
