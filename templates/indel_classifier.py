@@ -1,3 +1,12 @@
+#!/usr/bin/env python
+
+############################
+#### Summary of clustering
+#### author: Alan Tracey
+#### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
+############################
+
+
 import pandas as pd
 import sys
 import numpy as np
