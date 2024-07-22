@@ -232,9 +232,6 @@ def main():
 
     min_read_threshold = 200
 
-    if len(sys.argv) < 3:
-        print("Usage: python script.py indels.csv edits.csv")
-        sys.exit(1)
 
     indel_csv_path = sys.argv[1]
     edits_csv_path = sys.argv[2]
