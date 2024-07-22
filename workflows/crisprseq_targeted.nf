@@ -686,6 +686,19 @@ workflow CRISPRSEQ_TARGETED {
 
 
     //
+    // MODULE: Apply clonality classification
+    //
+    CLASSIFY_CLONALITY (
+        CIGAR_PARSER.out.indels
+        .join(CIGAR_PARSER.out.edition)
+        .map { [it[0], it[1], it[4]] }
+    )
+    .set { ch_classify_clonality }
+
+
+
+
+    //
     //
     //
     CRISPRSEQ_PLOTTER (
@@ -702,6 +715,10 @@ workflow CRISPRSEQ_TARGETED {
     softwareVersionsToYAML(ch_versions)
         .collectFile(storeDir: "${params.outdir}/pipeline_info", name: 'nf_core_pipeline_software_mqc_versions.yml', sort: true, newLine: true)
         .set { ch_collated_versions }
+
+
+
+
 
     //
     // MODULE: MultiQC
