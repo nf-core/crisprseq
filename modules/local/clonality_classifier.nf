@@ -8,12 +8,11 @@ process CLONALITY_CLASSIFIER {
         'biocontainers/biopython:1.78' }"
 
     input:
-    tuple val(meta), path(raw_reads), path(assembled_reads), path(trimmed_reads), path(trimmed_adapters)
+    tuple val(meta), path(indels_csv), path(edits_csv)
 
 
     output:
-    tuple val(meta), path("*_preprocessing_summary.csv"), emit: summary
-    path "versions.yml",                                  emit: versions
+    tuple val(meta), path("*_edits_classified.csv"), emit: classified
 
 
     when:
