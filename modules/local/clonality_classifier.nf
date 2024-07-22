@@ -8,7 +8,7 @@ process CLONALITY_CLASSIFIER {
         'biocontainers/biopython:1.78' }"
 
     input:
-    tuple val(meta), path(indels_csv), path(edits_csv)
+    tuple val(meta), path(indels), path(edition)
 
 
     output:
