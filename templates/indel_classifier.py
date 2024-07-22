@@ -261,5 +261,4 @@ def main():
     print(edits_df)
 
 
-if __name__ == "__main__":
-    main()
+main()
