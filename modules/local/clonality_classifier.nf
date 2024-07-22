@@ -19,5 +19,5 @@ process CLONALITY_CLASSIFIER {
     task.ext.when == null || task.ext.when
 
     script:
-    template 'clonality_classifier.py'
+    template 'clonality_classifier.py $indels, $edition'
 }
