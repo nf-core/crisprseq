@@ -13,6 +13,7 @@ process CLONALITY_CLASSIFIER {
 
     output:
     tuple val(meta), path("*_edits_classified.csv"), emit: classified
+    path "versions.yml",                             emit: versions
 
 
     when:

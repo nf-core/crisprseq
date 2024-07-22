@@ -693,9 +693,7 @@ workflow CRISPRSEQ_TARGETED {
         .join(CIGAR_PARSER.out.edition)
         .map { [it[0], it[1], it[4]] }
     )
-    .set { ch_classify_clonality }
-
-
+    ch_versions = ch_versions.mix(CLASSIFY_CLONALITY.out.versions.first())
 
 
     //

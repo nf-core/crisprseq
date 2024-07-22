@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 ############################
-#### Summary of clustering
+#### Classify samples into Homologous WT, Homologous NHEJ and Heterologous NHEJ
 #### author: Alan Tracey
 #### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
 ############################
@@ -54,7 +54,6 @@ def calculate_zygosity_confidence(filtered_df):
     return filtered_df
 
 
-
 def parse_edits_csv(df):
     # Calculate total reads per row
     df['Total Reads'] = df[
@@ -75,7 +74,6 @@ def parse_edits_csv(df):
 
     df['Classification'] = df['% Wt'].apply(classify)
 
-
     return df
 
 
@@ -88,7 +86,6 @@ def classify(wt_percentage):
         return 'Hom NHEJ'
     else:
         return 'Ambiguous'
-
 
 
 def analyze_clonality(grouped_dels, grouped_ins, edits_df, min_read_threshold):
@@ -151,7 +148,6 @@ def analyze_clonality(grouped_dels, grouped_ins, edits_df, min_read_threshold):
     filtered_df = calculate_zygosity_confidence(edits_df)  # Assumes this function updates the DataFrame in-place
     zygosity_confidence = filtered_df['Class_Conf'].mean()  # Average confidence across all entries
 
-
     return {
         "Class_Conf": zygosity_confidence,
         "peaks": ','.join([str(peak) for peak in peak_proportions]),
@@ -161,7 +157,6 @@ def analyze_clonality(grouped_dels, grouped_ins, edits_df, min_read_threshold):
         "peak_occupancy": peak_occupancy,
         "clonality": clonality
     }
-
 
 
 def parse_indels(csv_path):
@@ -179,8 +174,8 @@ def parse_indels(csv_path):
     ins_df = df[df['Modification'] == 'ins']
     ins_df = ins_df[
         ~(ins_df['pre_ins_nt'].str.contains('N') |
-          ins_df['ins_nt'].str.contains('N') |
-          ins_df['post_ins_nt'].str.contains('N'))
+            ins_df['ins_nt'].str.contains('N') |
+            ins_df['post_ins_nt'].str.contains('N'))
     ]
 
     if ins_df.empty:
@@ -236,7 +231,7 @@ def main():
     indel_csv_path = $indels
     edits_csv_path = $edition
 
-    grouped_dels, grouped_ins = parse_indels(indel_csv_path)  
+    grouped_dels, grouped_ins = parse_indels(indel_csv_path)
     # Load edits data
     edits_df = pd.read_csv(edits_csv_path)
     # Rename the first column which currently has a blank name
@@ -262,3 +257,9 @@ def main():
 
 
 main()
+
+
+# Obtain versions
+with open("versions.yml", "w") as f:
+    f.write('"${task.process}":\\n')
+    f.write(f'  biopython: "{Bio.__version__}"\\n')
