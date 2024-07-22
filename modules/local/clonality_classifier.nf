@@ -20,5 +20,5 @@ process CLONALITY_CLASSIFIER {
     task.ext.when == null || task.ext.when
 
     script:
-    template 'preprocessing_summary.py'
+    template 'clonality_classifier.py'
 }
