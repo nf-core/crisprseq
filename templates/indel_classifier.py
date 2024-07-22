@@ -233,8 +233,8 @@ def main():
     min_read_threshold = 200
 
 
-    indel_csv_path = sys.argv[1]
-    edits_csv_path = sys.argv[2]
+    indel_csv_path = $indels
+    edits_csv_path = $edition
 
     grouped_dels, grouped_ins = parse_indels(indel_csv_path)  
     # Load edits data
