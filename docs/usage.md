@@ -52,7 +52,7 @@ nextflow run nf-core/crisprseq -profile docker -params-file params.yaml
 
 with `params.yaml` containing:
 
-```yaml
+```yaml title="params.yaml"
 input: './samplesheet.csv'
 outdir: './results/'
 genome: 'GRCh37'

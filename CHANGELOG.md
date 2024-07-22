@@ -3,6 +3,15 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.2.1 Romarin Curie - patch](https://github.com/nf-core/crisprseq/pull/174)
+
+### Fixed
+
+- Fix singularity image pull tag for MAGeCKFlute ([#160](https://github.com/nf-core/crisprseq/pull/160))
+- Skip dolar signs on containerOptions ([#163](https://github.com/nf-core/crisprseq/pull/163))
+- Fix error in R script when adding patterns ([#170](https://github.com/nf-core/crisprseq/pull/170))
+- Skip MAGeCKFlute when the function produces an error within the R package ([#171](https://github.com/nf-core/crisprseq/pull/170))
+
 ## [v2.2.0 - Romarin Curie](https://github.com/nf-core/crisprseq/releases/tag/2.2.0) - [20.06.2024]
 
 ### Added
