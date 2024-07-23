@@ -17,7 +17,7 @@ The **nf-core/crisprseq** pipeline allows the analysis of CRISPR edited CRISPR p
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run nf-core/crisprseq --analysis screening --input samplesheet.csv --library library.csv --outdir <OUTDIR> -profile docker
+nextflow run nf-core/crisprseq --analysis screening --input samplesheet.csv --library library.tsv --outdir <OUTDIR> -profile docker
 ```
 
 The following required parameters are here described.
