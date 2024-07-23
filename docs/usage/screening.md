@@ -17,7 +17,7 @@ The **nf-core/crisprseq** pipeline allows the analysis of CRISPR edited CRISPR p
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run nf-core/crisprseq --analysis screening --input samplesheet.csv --library library.csv --outdir <OUTDIR> -profile docker
+nextflow run nf-core/crisprseq --analysis screening --input samplesheet.csv --library library.tsv --outdir <OUTDIR> -profile docker
 ```
 
 The following required parameters are here described.
@@ -27,7 +27,7 @@ If you wish to input a raw count or normalized table, you can skip the sampleshe
 
 The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 4 columns to match those defined in the table below.
 
-```console
+```csv title="samplesheet.csv"
 sample,fastq_1,fastq_2,condition
 SRR8983579,SRR8983579.small.fastq.gz,,control
 SRR8983580,SRR8983580.small.fastq.gz,,treatment

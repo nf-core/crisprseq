@@ -5,7 +5,7 @@ process MAGECK_FLUTEMLE {
 
     conda "bioconda::bioconductor-mageckflute=2.2.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mageckflute:2.2.0--r42hdfd78af_0':
+        'https://depot.galaxyproject.org/singularity/bioconductor-mageckflute:2.2.0--r42hdfd78af_0':
         'biocontainers/bioconductor-mageckflute:2.2.0--r42hdfd78af_0' }"
 
     input:

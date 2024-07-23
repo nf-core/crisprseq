@@ -79,18 +79,14 @@ For crispr screening:
 
 First, prepare a samplesheet with your input data that looks as follows:
 
-`samplesheet.csv`:
-
-```csv
+```csv title="samplesheet.csv"
 sample,fastq_1,fastq_2,reference,protospacer,template
 SAMPLE1,SAMPLE1_R1.fastq.gz,SAMPLE1_R2.fastq.gz,ACTG,ACTG,ACTG
 ```
 
 or
 
-`samplesheet.csv`:
-
-```csv
+```csv title="samplesheet.csv"
 sample,fastq_1,fastq_2,condition
 SAMPLE1,SAMPLE1_R1.fastq.gz,SAMPLE1_R2.fastq.gz,control
 ```
