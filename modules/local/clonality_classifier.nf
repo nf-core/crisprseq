@@ -2,7 +2,7 @@ process CLONALITY_CLASSIFIER {
     tag "$meta.id"
     label 'process_single'
 
-    conda "pandas=2.2.0,numpy=1.26.3,statsmodels=0.14.1"
+    conda "pandas=2.2.0 numpy=1.26.3 statsmodels=0.14.1"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/mulled-v2-9d836da785124bb367cbe6fbfc00dddd2107a4da:b033d6a4ea3a42a6f5121a82b262800f1219b382-0' :
         'biocontainers/mulled-v2-9d836da785124bb367cbe6fbfc00dddd2107a4da:b033d6a4ea3a42a6f5121a82b262800f1219b382-0' }"
