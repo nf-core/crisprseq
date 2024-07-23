@@ -133,7 +133,6 @@ We thank the following people for their extensive assistance in the development 
 - [@mschaffer-incyte](https://github.com/mschaffer-incyte)
 - [@SusiJo](https://github.com/SusiJo)
 
-
 ## Contributions and Support
 
 If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
