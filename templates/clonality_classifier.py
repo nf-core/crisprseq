@@ -288,4 +288,5 @@ main()
 # Obtain versions
 with open("versions.yml", "w") as f:
     f.write('"${task.process}":\\n')
-    f.write(f'  biopython: "{Bio.__version__}"\\n')
+    f.write(f'  pandas: "{pd.__version__}"\\n')
+    f.write(f'  numpy: "{np.__version__}"\\n')
