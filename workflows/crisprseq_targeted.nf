@@ -688,12 +688,14 @@ workflow CRISPRSEQ_TARGETED {
     //
     // MODULE: Apply clonality classification
     //
-    CLASSIFY_CLONALITY (
-        CIGAR_PARSER.out.indels
-        .join(CIGAR_PARSER.out.edition)
-        .map { [it[0], it[1], it[4]] }
-    )
-    ch_versions = ch_versions.mix(CLASSIFY_CLONALITY.out.versions.first())
+    if (params.skip_clonality) {
+        CLASSIFY_CLONALITY (
+            CIGAR_PARSER.out.indels
+            .join(CIGAR_PARSER.out.edition)
+            .map { [it[0], it[1], it[4]] }
+        )
+        ch_versions = ch_versions.mix(CLASSIFY_CLONALITY.out.versions.first())
+    }
 
 
     //
