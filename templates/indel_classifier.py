@@ -8,7 +8,6 @@
 
 
 import pandas as pd
-import sys
 import numpy as np
 
 
@@ -163,8 +162,7 @@ def parse_indels(csv_path):
     try:
         df = pd.read_csv(csv_path)
     except Exception as e:
-        print(f"Error reading the CSV file: {e}")
-        sys.exit(1)
+        raise UserWarning(f"Error reading the CSV file: {e}")
 
     # Ensure string type for columns that will use string methods
     for column in ['pre_ins_nt', 'ins_nt', 'post_ins_nt']:
@@ -228,8 +226,8 @@ def main():
     min_read_threshold = 200
 
 
-    indel_csv_path = $indels
-    edits_csv_path = $edition
+    indel_csv_path = "$indels"
+    edits_csv_path = "$edition"
 
     grouped_dels, grouped_ins = parse_indels(indel_csv_path)
     # Load edits data
@@ -253,9 +251,9 @@ def main():
 
     outfile = edits_csv_path.replace('.csv','_classified.csv')
     edits_df.to_csv(outfile)
-    print(edits_df)
 
 
+# Run the main script
 main()
 
 
