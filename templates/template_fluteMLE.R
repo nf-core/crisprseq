@@ -17,14 +17,28 @@
         before_beta <- sub("\\\\.beta.*", "", beta_strings)
         unique_strings <- unique(before_beta)
         for(i in unique_strings) {
-            FluteMLE(mle, treatname= i, proj=i, pathview.top=5)
-            }
+            tryCatch(
+                {
+                    FluteMLE(mle, treatname= i, proj=i, pathview.top=5)
+                },
+            error=function(e) {
+                    print(paste("Could not run FluteMLE with project",i))
+                }
+            )
+        }
     } else {
         beta_strings <- grep("\\\\.beta", colnames(mle), value = TRUE)
         before_beta <- sub("\\\\.beta.*", "", beta_strings)
         unique_strings <- unique(before_beta)
         for(i in unique_strings) {
-            FluteMLE(mle, treatname= i, proj=i, ${args}, pathview.top=5)
+            tryCatch(
+                {
+                FluteMLE(mle, treatname= i, proj=i, ${args}, pathview.top=5)
+                },
+            error=function(e) {
+                    print(paste("Could not run FluteMLE with project",i))
+                }
+            )
         }
     }
 
