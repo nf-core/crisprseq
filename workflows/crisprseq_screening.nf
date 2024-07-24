@@ -263,6 +263,7 @@ workflow CRISPRSEQ_SCREENING {
     }
 
     if((params.mle_design_matrix) || (params.contrasts && !params.rra) || (params.day0_label)) {
+        //if the user only wants to run mle through their own design matrices
         if(params.mle_design_matrix) {
             INITIALISATION_CHANNEL_CREATION_SCREENING.out.design.map {
                 it -> [[id: it.getBaseName()], it]
@@ -274,6 +275,7 @@ workflow CRISPRSEQ_SCREENING {
             MAGECK_FLUTEMLE(MAGECK_MLE_MATRIX.out.gene_summary)
             ch_versions = ch_versions.mix(MAGECK_FLUTEMLE.out.versions)
         }
+        //if the user specified a contrast file
         if(params.contrasts) {
             MATRICESCREATION(ch_contrasts)
             ch_mle = MATRICESCREATION.out.design_matrix.combine(ch_counts)
@@ -294,6 +296,7 @@ workflow CRISPRSEQ_SCREENING {
         }
     }
 
+    // Launch module drugZ
     if(params.drugz) {
         Channel.fromPath(params.drugz)
                 .splitCsv(header:true, sep:';' )

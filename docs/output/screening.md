@@ -148,6 +148,20 @@ For further reading and documentation see the [cutadapt helper page](https://cut
 
 [bagel2](https://github.com/hart-lab/bagel) is a computational tool to identify important essential genes for CRISPR-Cas9 screening experiments.
 
+### DrugZ
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `drugz`
+  - `*.foldchange`: foldchange between the reference and treatment contrast provided
+- `drugz`
+  - `*.txt`: Z score and associated p-value per gene
+
+</details>
+
+[bagel2](https://github.com/hart-lab/bagel) is a computational tool to identify important essential genes for CRISPR-Cas9 screening experiments.
+
 ### Venn diagram
 
 <details markdown="1">

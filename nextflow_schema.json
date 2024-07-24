@@ -232,7 +232,7 @@
                 },
                 "drugz": {
                     "type": "string",
-                    "description": "Specify drugz and your contrast file on which comparisons should be done"
+                    "description": "Specifies drugz to be run and your contrast file on which comparisons should be done"
                 },
                 "drugz_remove_genes": {
                     "type": "string",
