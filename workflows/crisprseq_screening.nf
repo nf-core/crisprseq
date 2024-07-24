@@ -265,7 +265,7 @@ workflow CRISPRSEQ_SCREENING {
     if(params.mle_control_sgrna) {
         ch_mle_control_sgrna = Channel.fromPath(params.mle_control_sgrna)
     } else {
-        ch_mle_control_sgrna = Channel.of([[]])
+        ch_mle_control_sgrna = Channel.empty()
     }
 
     if((params.mle_design_matrix) || (params.contrasts && !params.rra) || (params.day0_label)) {
