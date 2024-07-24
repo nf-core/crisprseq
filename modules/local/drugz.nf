@@ -12,9 +12,9 @@ process DRUGZ {
     tuple val(meta), path(count_table)
 
     output:
-    tuple val(meta), path("*.txt"), emit: per_gene_results
+    tuple val(meta), path("*.txt"),        emit: per_gene_results
     tuple val(meta), path("*.foldchange"), emit: fold_change
-    path "versions.yml"           , emit: versions
+    path "versions.yml"                  , emit: versions
 
 
     when:
