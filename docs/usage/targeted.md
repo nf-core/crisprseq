@@ -24,7 +24,7 @@ You will need to create a samplesheet with information about the samples you wou
 
 The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across 3 lanes _(see section below for an explanation of samplesheet columns)_:
 
-```console
+```csv title="samplesheet.csv"
 sample,fastq_1,fastq_2,reference,protospacer,template
 CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,GCT...CCT,GGGGCCACTAGGGACAGGAT,
 CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz,GCT...CCT,GGGGCCACTAGGGACAGGAT,
@@ -37,7 +37,7 @@ The pipeline will auto-detect whether a sample is single- or paired-end using th
 
 A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 3 samples, where `chr6` is single-end and has a template sequence _(this is a reduced samplesheet, please refer to the [pipeline example samplesheet](https://raw.githubusercontent.com/nf-core/test-datasets/crisprseq/testdata-edition/samplesheet_test_full.csv) to see the full version)_.
 
-```console
+```csv title="samplesheet.csv"
 sample,fastq_1,fastq_2,reference,protospacer,template
 hCas9-TRAC-a,hCas9-TRAC-a_R1.fastq.gz,hCas9-TRAC-a_R2.fastq.gz,GCT...CCT,GGGGCCACTAGGGACAGGAT,
 hCas9-AAVS1-a,hCas9-AAVS1-a_R1.fastq.gz,hCas9-AAVS1-a_R2.fastq.gz,GCT...CCT,GGGGCCACTAGGGACAGGAT,
@@ -108,8 +108,7 @@ Please refer to the original [CRISPR-Analytics](https://doi.org/10.1371/journal.
 
 In order to customise such parameters, you can override the arguments given to `minimap2` by creating a configuration file and provide it to your nextflow run with `-c`:
 
-```groovy
-// Custom config file custom.config
+```groovy title="custom.config"
 process {
     withName: MINIMAP2_ALIGN_ORIGINAL {
         ext.args = '-A 29 -B 17 -O 25 -E 2'
