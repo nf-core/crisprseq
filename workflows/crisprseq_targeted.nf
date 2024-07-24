@@ -14,6 +14,7 @@ include { CLUSTERING_SUMMARY                        } from '../modules/local/clu
 include { ALIGNMENT_SUMMARY                         } from '../modules/local/alignment_summary'
 include { TEMPLATE_REFERENCE                        } from '../modules/local/template_reference'
 include { CRISPRSEQ_PLOTTER                         } from '../modules/local/crisprseq_plotter'
+include { CLONALITY_CLASSIFIER                      } from '../modules/local/clonality_classifier'
 // nf-core modules
 include { FASTQC                                    } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                                   } from '../modules/nf-core/multiqc/main'
@@ -683,6 +684,19 @@ workflow CRISPRSEQ_TARGETED {
     ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.edition.collect{it[2]})
     ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.qcindels.collect{it[1]})
     ch_versions = ch_versions.mix(CIGAR_PARSER.out.versions.first())
+
+
+    //
+    // MODULE: Apply clonality classification
+    //
+    if (!params.skip_clonality) {
+        CLONALITY_CLASSIFIER (
+            CIGAR_PARSER.out.indels
+            .join(CIGAR_PARSER.out.edition)
+            .map { [it[0], it[1], it[4]] }
+        )
+        ch_versions = ch_versions.mix(CLONALITY_CLASSIFIER.out.versions.first())
+    }
 
 
     //
