@@ -262,6 +262,12 @@ workflow CRISPRSEQ_SCREENING {
 
     }
 
+    if(params.mle_control_sgrna) {
+        ch_mle_control_sgrna = Channel.fromPath(params.mle_control_sgrna)
+    } else {
+        ch_mle_control_sgrna = Channel.of([[]])
+    }
+
     if((params.mle_design_matrix) || (params.contrasts && !params.rra) || (params.day0_label)) {
         if(params.mle_design_matrix) {
             INITIALISATION_CHANNEL_CREATION_SCREENING.out.design.map {
@@ -269,7 +275,7 @@ workflow CRISPRSEQ_SCREENING {
                 }.set { ch_designed_mle }
 
             ch_mle = ch_designed_mle.combine(ch_counts)
-            MAGECK_MLE_MATRIX (ch_mle)
+            MAGECK_MLE_MATRIX (ch_mle, ch_mle_control_sgrna)
             ch_versions = ch_versions.mix(MAGECK_MLE_MATRIX.out.versions)
             MAGECK_FLUTEMLE(MAGECK_MLE_MATRIX.out.gene_summary)
             ch_versions = ch_versions.mix(MAGECK_FLUTEMLE.out.versions)
@@ -277,7 +283,7 @@ workflow CRISPRSEQ_SCREENING {
         if(params.contrasts) {
             MATRICESCREATION(ch_contrasts)
             ch_mle = MATRICESCREATION.out.design_matrix.combine(ch_counts)
-            MAGECK_MLE (ch_mle)
+            MAGECK_MLE (ch_mle, ch_mle_control_sgrna)
             ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
             MAGECK_FLUTEMLE_CONTRASTS(MAGECK_MLE.out.gene_summary)
             ch_versions = ch_versions.mix(MAGECK_FLUTEMLE_CONTRASTS.out.versions)
@@ -287,7 +293,7 @@ workflow CRISPRSEQ_SCREENING {
         }
         if(params.day0_label) {
             ch_mle = Channel.of([id: "day0"]).merge(Channel.of([[]])).merge(ch_counts)
-            MAGECK_MLE_DAY0 (ch_mle)
+            MAGECK_MLE_DAY0 (ch_mle, ch_mle_control_sgrna)
             ch_versions = ch_versions.mix(MAGECK_MLE_DAY0.out.versions)
             MAGECK_FLUTEMLE_DAY0(MAGECK_MLE_DAY0.out.gene_summary)
             ch_versions = ch_versions.mix(MAGECK_FLUTEMLE_DAY0.out.versions)

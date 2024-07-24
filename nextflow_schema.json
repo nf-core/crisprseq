@@ -189,6 +189,10 @@
                     "exists": true,
                     "description": "Design matrix used for MAGeCK MLE to call essential genes under multiple conditions while considering sgRNA knockout efficiency"
                 },
+                "mle_control_sgrna": {
+                    "type": "string",
+                    "description": "control-sgrna file for MAGeCK MLE"
+                },
                 "contrasts": {
                     "type": "string",
                     "format": "file-path",

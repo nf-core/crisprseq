@@ -105,6 +105,11 @@ If there are several designs to be run, you can input a folder containing all th
 
 If you wish to run MAGeCK MLE with the day0 label you can do so by specifying `--day0_label` and the sample names that should be used as day0.
 
+#### Using negative control sgRNAs for MAGeCK MLE
+
+You can add the parameter `--mle_control_sgrna` followed by your file (one non targeting control sgRNA per line) to integrate the control sgRNA in MAGeCK MLE.
+
+
 ### Running BAGEL2
 
 BAGEL2 (Bayesian Analysis of Gene Essentiality with Location) is a computational tool developed by the Hart Lab at Harvard University. It is designed for analyzing large-scale genetic screens, particularly CRISPR-Cas9 screens, to identify genes that are essential for the survival or growth of cells under different conditions. BAGEL2 integrates information about the location of guide RNAs within a gene and leverages this information to improve the accuracy of gene essentiality predictions.
