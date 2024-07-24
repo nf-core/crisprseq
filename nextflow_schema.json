@@ -64,6 +64,12 @@
                     "type": "boolean",
                     "fa_icon": "fas fa-layer-group",
                     "description": "If the sample contains umi-molecular identifyers (UMIs), run the UMI extraction, clustering and consensus steps."
+                },
+                "skip_clonality": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-clone",
+                    "description": "Skip the classification of samples by clonality.",
+                    "help_text": "If the step is not skipped, samples are classified into: homologous WT, homologous NHEJ or heterologous NHME."
                 }
             },
             "fa_icon": "fas fa-shoe-prints"
