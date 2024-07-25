@@ -33,6 +33,7 @@ jobs:
           - "test_targeted"
           - "test_umis"
           - "test_screening_count_table"
+        profile: ["docker", "singularity", "conda"]
 
     steps:
       - name: Check out pipeline code
@@ -46,6 +47,6 @@ jobs:
       - name: Disk space cleanup
         uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
 
-      - name: Run pipeline with test data (${{ matrix.ANALYSIS }})
+      - name: Run pipeline with test data (${{ matrix.ANALYSIS }} - ${{ matrix.profile }})
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.ANALYSIS }},docker --outdir ./results_${{ matrix.ANALYSIS }}
+          nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.ANALYSIS }},${{ matrix.profile }} --outdir ./results_${{ matrix.ANALYSIS }}_${{ matrix.profile }}
