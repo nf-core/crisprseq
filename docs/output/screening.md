@@ -156,7 +156,7 @@ For further reading and documentation see the [cutadapt helper page](https://cut
 - `drugz`
   - `*.foldchange`: foldchange between the reference and treatment contrast provided
 - `drugz`
-  - `*.txt`: Z score and associated p-value per gene
+  - `*.txt`: z-score and associated p-value per gene
 
 </details>
 
