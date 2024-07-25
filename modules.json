@@ -95,7 +95,8 @@
                     "racon": {
                         "branch": "master",
                         "git_sha": "f5ed3ac0834b68e80a00a06a61d04ce8e896f275",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/racon/racon.diff"
                     },
                     "samtools/index": {
                         "branch": "master",
