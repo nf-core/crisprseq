@@ -3,6 +3,16 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.3.0dev
+
+### Added
+
+- Add module to classify samples by clonality ([#178](https://github.com/nf-core/crisprseq/pull/178))
+
+### Fixed
+
+### Deprecated
+
 ## [v2.2.1 Romarin Curie - patch](https://github.com/nf-core/crisprseq/releases/tag/2.2.1) - [23.07.2024]
 
 ### Fixed
