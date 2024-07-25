@@ -34,6 +34,7 @@ jobs:
           - "test_umis"
           - "test_screening_count_table"
         profile: ["docker", "singularity", "conda"]
+      fail-fast: false # run all tests even if one fails
 
     steps:
       - name: Check out pipeline code
