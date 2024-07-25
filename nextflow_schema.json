@@ -169,13 +169,11 @@
                 },
                 "five_prime_adapter": {
                     "type": "string",
-                    "description": "Sequencing adapter sequence to use for trimming on the 5' end",
-                    "fa_icon": "fab fa-500px"
+                    "description": "Sequencing adapter sequence to use for trimming on the 5' end"
                 },
                 "three_prime_adapter": {
                     "type": "string",
-                    "description": "Sequencing adapter sequence to use for trimming on the 3' end",
-                    "fa_icon": "fab fa-css3-alt"
+                    "description": "Sequencing adapter sequence to use for trimming on the 3' end"
                 },
                 "fasta": {
                     "type": "string",
@@ -243,7 +241,8 @@
                 },
                 "drugz_remove_genes": {
                     "type": "string",
-                    "description": "Essential genes to remove from the drugZ modules"
+                    "description": "Essential genes to remove from the drugZ modules",
+                    "pattern": "\\\\S+"
                 }
             }
         },
