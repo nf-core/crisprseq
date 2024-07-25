@@ -39,6 +39,26 @@ jobs:
       - name: Check out pipeline code
         uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4
 
+      - name: Set up Singularity
+        if: matrix.profile == 'singularity'
+        uses: eWaterCycle/setup-singularity@931d4e31109e875b13309ae1d07c70ca8fbc8537 # v7
+        with:
+          singularity-version: 3.8.3
+
+      - name: Set up miniconda
+        uses: conda-incubator/setup-miniconda@a4260408e20b96e80095f42ff7f1a15b27dd94ca # v3
+        with:
+          miniconda-version: "latest"
+          channels: conda-forge,bioconda,defaults
+
+      - name: Conda setup
+        run: |
+          conda clean -a
+          conda install -n base conda-libmamba-solver
+          conda config --set solver libmamba
+          echo $(realpath $CONDA)/condabin >> $GITHUB_PATH
+          echo $(realpath python) >> $GITHUB_PATH
+
       - name: Install Nextflow
         uses: nf-core/setup-nextflow@v2
         with:
