@@ -9,6 +9,7 @@ process MAGECK_MLE {
 
     input:
     tuple val(meta), path(design_matrix), path(count_table)
+    path(ch_mle_cnv_correction)
 
     output:
     tuple val(meta), path("*.gene_summary.txt") , emit: gene_summary
@@ -22,6 +23,7 @@ process MAGECK_MLE {
     def args = task.ext.args ?: ''
     prefix = meta.id ?: "${meta.treatment}_vs_${meta.reference}"
     def design_command = design_matrix ? "-d $design_matrix" : ''
+    def cnv_correction = ch_mle_cnv_correction ? "--cnv-norm $ch_mle_cnv_correction" : ''
 
     """
     mageck \\
@@ -30,6 +32,7 @@ process MAGECK_MLE {
         --threads $task.cpus \\
         -k $count_table \\
         -n $prefix     \\
+        $cnv_correction \\
         $design_command 
         
 

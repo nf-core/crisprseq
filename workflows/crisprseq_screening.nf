@@ -174,6 +174,7 @@ workflow CRISPRSEQ_SCREENING {
         .set { ch_counts }
     }
 
+    // Set crisprcleanr ccr library or table
     if(params.crisprcleanr) {
         ch_crispr_normalize = Channel.of([id: "count_table_normalize"]).concat(ch_counts)
 
@@ -227,6 +228,14 @@ workflow CRISPRSEQ_SCREENING {
             .set { ch_contrasts }
     counts = ch_contrasts.combine(ch_counts)
 
+    // Set mageck-cnv correction for MLE
+    if(params.mle_cnv_correction) {
+        ch_mle_cnv_correction = Channel.fromPath(params.mle_cnv_correction)
+    } else  {
+        ch_mle_cnv_correction = Channel.of([[]])
+    }
+
+    ch_mle_cnv_correction.dump(tag: "CNV correction")
 
     //Define non essential and essential genes channels for bagel2
     ch_bagel_reference_essentials= Channel.fromPath(params.bagel_reference_essentials).first()
@@ -269,7 +278,7 @@ workflow CRISPRSEQ_SCREENING {
                 }.set { ch_designed_mle }
 
             ch_mle = ch_designed_mle.combine(ch_counts)
-            MAGECK_MLE_MATRIX (ch_mle)
+            MAGECK_MLE_MATRIX (ch_mle, ch_mle_cnv_correction)
             ch_versions = ch_versions.mix(MAGECK_MLE_MATRIX.out.versions)
             MAGECK_FLUTEMLE(MAGECK_MLE_MATRIX.out.gene_summary)
             ch_versions = ch_versions.mix(MAGECK_FLUTEMLE.out.versions)
@@ -277,7 +286,7 @@ workflow CRISPRSEQ_SCREENING {
         if(params.contrasts) {
             MATRICESCREATION(ch_contrasts)
             ch_mle = MATRICESCREATION.out.design_matrix.combine(ch_counts)
-            MAGECK_MLE (ch_mle)
+            MAGECK_MLE (ch_mle, ch_mle_cnv_correction)
             ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
             MAGECK_FLUTEMLE_CONTRASTS(MAGECK_MLE.out.gene_summary)
             ch_versions = ch_versions.mix(MAGECK_FLUTEMLE_CONTRASTS.out.versions)
@@ -287,7 +296,7 @@ workflow CRISPRSEQ_SCREENING {
         }
         if(params.day0_label) {
             ch_mle = Channel.of([id: "day0"]).merge(Channel.of([[]])).merge(ch_counts)
-            MAGECK_MLE_DAY0 (ch_mle)
+            MAGECK_MLE_DAY0 (ch_mle, ch_mle_cnv_correction)
             ch_versions = ch_versions.mix(MAGECK_MLE_DAY0.out.versions)
             MAGECK_FLUTEMLE_DAY0(MAGECK_MLE_DAY0.out.gene_summary)
             ch_versions = ch_versions.mix(MAGECK_FLUTEMLE_DAY0.out.versions)
