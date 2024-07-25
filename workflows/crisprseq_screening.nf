@@ -36,7 +36,7 @@ include { paramsSummaryMultiqc                         } from '../subworkflows/n
 include { softwareVersionsToYAML                       } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText                       } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 include { validateParametersScreening                  } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
-include { DRUGZ                       } from '../modules/local/drugz'
+include { DRUGZ                                        } from '../modules/local/drugz'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -116,7 +116,7 @@ BAGEL2 uses the same contrasts from `--contrasts`.
 
 ### Running drugZ
 
-DrugZ detects synergistic and suppressor drug-gene interactions in CRISPR screens. DrugZ is an open-source Python software for the analysis of genome-scale drug modifier screens. The software accurately identifies genetic perturbations that enhance or suppress drug activity. To run drugZ, you can specify `--drugz` which resembles the previous contrast file:
+[DrugZ](https://github.com/hart-lab/drugz) detects synergistic and suppressor drug-gene interactions in CRISPR screens. DrugZ is an open-source Python software for the analysis of genome-scale drug modifier screens. The software accurately identifies genetic perturbations that enhance or suppress drug activity. To run drugZ, you can specify `--drugz` which resembles the previous contrast file:
 
 | reference         | treatment             |
 | ----------------- | --------------------- |
