@@ -238,6 +238,7 @@
                 },
                 "drugz": {
                     "type": "string",
+                    "format":"file-path",
                     "description": "Specifies drugz to be run and your contrast file on which comparisons should be done"
                 },
                 "drugz_remove_genes": {
