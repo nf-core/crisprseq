@@ -116,12 +116,14 @@ BAGEL2 uses the same contrasts from `--contrasts`.
 
 ### Running drugZ
 
-[DrugZ](https://github.com/hart-lab/drugz) detects synergistic and suppressor drug-gene interactions in CRISPR screens. DrugZ is an open-source Python software for the analysis of genome-scale drug modifier screens. The software accurately identifies genetic perturbations that enhance or suppress drug activity. To run drugZ, you can specify `--drugz` which resembles the previous contrast file:
+[DrugZ](https://github.com/hart-lab/drugz) detects synergistic and suppressor drug-gene interactions in CRISPR screens. DrugZ is an open-source Python software for the analysis of genome-scale drug modifier screens. The software accurately identifies genetic perturbations that enhance or suppress drug activity. To run drugZ, you can specify `--drugz` followed a contrast file with the mandatory headers "treatment" and "reference". These two columns should be separated with a dot comma (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma separating them in each column.
 
 | reference         | treatment             |
 | ----------------- | --------------------- |
 | control1          | treatment1            |
 | control1,control2 | treatment1,treatment2 |
+
+The contrast from reference to treatment should be ; separated
 
 #### Removing genes before analysis
 
