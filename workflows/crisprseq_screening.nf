@@ -87,7 +87,7 @@ workflow CRISPRSEQ_SCREENING {
                 [meta, fastq, proto]
             }.set { ch_cutadapt }
 
-            ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT.out.log.collect{it[1]})
+            ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT_FIVE_PRIME.out.log.collect{it[1]})
             ch_versions = ch_versions.mix(CUTADAPT_FIVE_PRIME.out.versions)
         }
 
@@ -96,7 +96,7 @@ workflow CRISPRSEQ_SCREENING {
                 ch_cutadapt
             )
             ch_cutadapt = CUTADAPT_THREE_PRIME.out.reads.combine(Channel.value([[]]))
-            ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT.out.log.collect{it[1]})
+            ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT_THREE_PRIME.out.log.collect{it[1]})
             ch_versions = ch_versions.mix(CUTADAPT_THREE_PRIME.out.versions)
         }
 
