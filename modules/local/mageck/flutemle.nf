@@ -7,6 +7,7 @@ process MAGECK_FLUTEMLE {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bioconductor-mageckflute:2.6.0--r43hdfd78af_0':
         'biocontainers/bioconductor-mageckflute:2.6.0--r43hdfd78af_0' }"
+
     input:
     tuple val(meta), path(gene_summary)
 
