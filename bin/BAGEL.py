@@ -983,7 +983,6 @@ def calculate_bayes_factors(
         #
 
         for loop in range(LOOPCOUNT):
-            # currentnbf = {}
             printstr = ""
             printstr += str(loop)
 
