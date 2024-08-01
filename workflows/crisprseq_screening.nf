@@ -36,6 +36,7 @@ include { paramsSummaryMultiqc                         } from '../subworkflows/n
 include { softwareVersionsToYAML                       } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText                       } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 include { validateParametersScreening                  } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
+include { DRUGZ                                        } from '../modules/local/drugz'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -259,7 +260,6 @@ workflow CRISPRSEQ_SCREENING {
     )
 
     ch_versions = ch_versions.mix(BAGEL2_GRAPH.out.versions)
-
     }
 
     if(params.mle_control_sgrna) {
@@ -269,6 +269,7 @@ workflow CRISPRSEQ_SCREENING {
     }
 
     if((params.mle_design_matrix) || (params.contrasts && !params.rra) || (params.day0_label)) {
+        //if the user only wants to run mle through their own design matrices
         if(params.mle_design_matrix) {
             INITIALISATION_CHANNEL_CREATION_SCREENING.out.design.map {
                 it -> [[id: it.getBaseName()], it]
@@ -280,6 +281,7 @@ workflow CRISPRSEQ_SCREENING {
             MAGECK_FLUTEMLE(MAGECK_MLE_MATRIX.out.gene_summary)
             ch_versions = ch_versions.mix(MAGECK_FLUTEMLE.out.versions)
         }
+        //if the user specified a contrast file
         if(params.contrasts) {
             MATRICESCREATION(ch_contrasts)
             ch_mle = MATRICESCREATION.out.design_matrix.combine(ch_counts)
@@ -298,6 +300,19 @@ workflow CRISPRSEQ_SCREENING {
             MAGECK_FLUTEMLE_DAY0(MAGECK_MLE_DAY0.out.gene_summary)
             ch_versions = ch_versions.mix(MAGECK_FLUTEMLE_DAY0.out.versions)
         }
+    }
+
+    // Launch module drugZ
+    if(params.drugz) {
+        Channel.fromPath(params.drugz)
+                .splitCsv(header:true, sep:';' )
+                .set { ch_drugz }
+
+        counts = ch_drugz.combine(ch_counts)
+        DRUGZ (
+            counts
+            )
+        ch_versions = ch_versions.mix(DRUGZ.out.versions)
     }
 
     //

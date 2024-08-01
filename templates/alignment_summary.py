@@ -6,7 +6,6 @@
 #### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
 ############################
 
-import sys
 
 import pysam
 
