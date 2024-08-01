@@ -7,7 +7,6 @@
 ############################
 
 import gzip
-import sys
 
 import Bio
 from Bio import SeqIO

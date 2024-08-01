@@ -177,11 +177,13 @@
                 },
                 "fasta": {
                     "type": "string",
-                    "description": "Library in fasta file format in case you want to map with bowtie2 and then MAGeCK count"
+                    "description": "Library in fasta file format in case you want to map with bowtie2 and then MAGeCK count",
+                    "fa_icon": "fas fa-book-reader"
                 },
                 "day0_label": {
                     "type": "string",
-                    "description": "Specify the label for control sample (usually day 0 or plasmid). For every other sample label, the module will treat it as a treatment condition and compare with control sample for MAGeCK MLE"
+                    "description": "Specify the label for control sample (usually day 0 or plasmid). For every other sample label, the module will treat it as a treatment condition and compare with control sample for MAGeCK MLE",
+                    "fa_icon": "fas fa-cloud-sun"
                 },
                 "mle_design_matrix": {
                     "type": "string",
@@ -193,7 +195,8 @@
                     "type": "string",
                     "format": "file-path",
                     "exists": true,
-                    "description": "Comma-separated file with the conditions to be compared. The first one will be the reference (control)"
+                    "description": "Comma-separated file with the conditions to be compared. The first one will be the reference (control)",
+                    "fa_icon": "fas fa-adjust"
                 },
                 "rra": {
                     "type": "boolean",
@@ -230,6 +233,16 @@
                     "type": "string",
                     "description": "Non essential gene set  for BAGEL2",
                     "default": "https://raw.githubusercontent.com/hart-lab/bagel/master/NEGv1.txt"
+                },
+                "drugz": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Specifies drugz to be run and your contrast file on which comparisons should be done"
+                },
+                "drugz_remove_genes": {
+                    "type": "string",
+                    "description": "Essential genes to remove from the drugZ modules",
+                    "pattern": "\\\\S+"
                 }
             }
         },
