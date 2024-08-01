@@ -4,6 +4,14 @@
     ####
     #### graphs mageck MLE
 
+    # Required to fix corrupted cache from Singularity container
+    library(BiocFileCache)
+    bfc <- BiocFileCache("~/.cache/R/ExperimentHub")
+    res <- bfcquery(bfc, "experimenthub.index.rds", field="rname", exact=TRUE)
+    bfcremove(bfc, rids=res$rid)
+    library(ExperimentHub)
+    eh = ExperimentHub()
+
     library(MAGeCKFlute)
     library(clusterProfiler)
     library(ggplot2)

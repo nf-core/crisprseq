@@ -3,7 +3,7 @@ process VENNDIAGRAM {
     label 'process_low'
 
 
-    conda "bioconda::r-venndiagram=1.6.16"
+    conda "conda-forge::r-ggvenn=0.1.10"
     container "ghcr.io/qbic-pipelines/rnadeseq:dev"
 
     input:

@@ -11,8 +11,8 @@ process RACON {
     tuple val(meta), path(reads), path(assembly), path(paf)
 
     output:
-    tuple val(meta), path('*_assembly_consensus.fasta.gz') , emit: improved_assembly
-    path "versions.yml"          , emit: versions
+    tuple val(meta), path('*_assembly_consensus.fasta.gz'), emit: improved_assembly
+    path "versions.yml"                                   , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,11 +21,11 @@ process RACON {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    racon -t "$task.cpus" \\
-        "${reads}" \\
-        "${paf}" \\
+    racon -t $task.cpus \\
+        ${reads} \\
+        ${paf} \\
         $args \\
-        "${assembly}" > \\
+        ${assembly} > \\
         ${prefix}_assembly_consensus.fasta
 
     gzip -n ${prefix}_assembly_consensus.fasta

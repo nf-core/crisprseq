@@ -507,7 +507,8 @@ workflow CRISPRSEQ_TARGETED {
         //
         MEDAKA (
             ch_clusters_sequence
-                .join(RACON_2.out.improved_assembly)
+                .join(RACON_2.out.improved_assembly),
+            Channel.value( file(params.medaka_model) )
         )
         ch_versions = ch_versions.mix(MEDAKA.out.versions.first())
 
