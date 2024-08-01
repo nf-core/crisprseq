@@ -109,6 +109,10 @@ This label is not mandatory as in case you are running time series. If you wish 
 
 The downstream analysis involves distinguishing essential, non-essential, and target-associated genes. Additionally, it encompasses conducting biological functional category analysis and pathway enrichment analysis for these genes. Furthermore, it provides visualization of genes within pathways, enhancing user exploration of screening data. MAGECKFlute is run automatically after MAGeCK MLE and for each MLE design matrice. If you have used the `--day0_label`, MAGeCKFlute will be ran on all the other conditions. Please note that the DepMap data is used for these plots.
 
+#### Using negative control sgRNAs for MAGeCK MLE
+
+You can add the parameter `--mle_control_sgrna` followed by your file (one non targeting control sgRNA per line) to integrate the control sgRNA in MAGeCK MLE.
+
 ### Running BAGEL2
 
 BAGEL2 (Bayesian Analysis of Gene Essentiality with Location) is a computational tool developed by the Hart Lab at Harvard University. It is designed for analyzing large-scale genetic screens, particularly CRISPR-Cas9 screens, to identify genes that are essential for the survival or growth of cells under different conditions. BAGEL2 integrates information about the location of guide RNAs within a gene and leverages this information to improve the accuracy of gene essentiality predictions.
