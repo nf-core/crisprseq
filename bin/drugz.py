@@ -34,6 +34,7 @@
 
 import argparse
 import logging as log
+
 # ------------------------------------
 # python modules
 # ------------------------------------
@@ -42,7 +43,6 @@ import sys
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
-import six
 
 log.basicConfig(level=log.INFO)
 log_ = log.getLogger(__name__)
@@ -123,7 +123,7 @@ def calculate_fold_change(
     fc_replicate_id = "fc_{replicate}".format(replicate=replicate)
     fc_zscore_id = "zscore_" + fc_replicate_id
     empirical_bayes_id = "eb_std_{replicate}".format(replicate=replicate)
-    one_based_idx = replicate + 1
+    # one_based_idx = replicate + 1
 
     # Get the control and treatment sample ids for each replicate
     control_sample = control_samples[replicate]
@@ -191,9 +191,9 @@ def empirical_bayes(
 
         # If the current variation is greater than the one for previous bin then set variation equal to this
         if std_dev >= fold_change[empirical_bayes_id][i - 1]:
-            fold_change[empirical_bayes_id][
-                i : i + 25
-            ] = std_dev  # set new std in whole step size (25)
+            fold_change[empirical_bayes_id][i : i + 25] = (
+                std_dev  # set new std in whole step size (25)
+            )
         # Otherwise, set it equal to the variation of the previous bin
         # This allows variation estimate for each bin to only increase or stay the same as the previous
         else:
@@ -505,7 +505,7 @@ def drugZ_analysis(args):
     control_samples = args.control_samples.split(",")
     treatment_samples = args.drug_samples.split(",")
 
-    if args.remove_genes == None:
+    if args.remove_genes is None:
         remove_genes = []
     else:
         remove_genes = args.remove_genes.split(",")
@@ -527,8 +527,8 @@ def drugZ_analysis(args):
     fc_zscore_ids = list()
     fold_changes = list()
 
-    if (len(control_samples) != len(treatment_samples) and args.unpaired == True) or (
-        len(control_samples) == len(treatment_samples) and args.unpaired == True
+    if (len(control_samples) != len(treatment_samples) and args.unpaired) or (
+        len(control_samples) == len(treatment_samples) and args.unpaired
     ):
         log_.info("Calculating gene-level Zscores unpaired approach")
         fold_change2 = calculate_unpaired_foldchange(
@@ -561,7 +561,7 @@ def drugZ_analysis(args):
         log_.info("Writing output file unpaired results")
         write_drugZ_output(outfile=args.drugz_output_file, output=gene_normZ2)
 
-    elif len(control_samples) != len(treatment_samples) and args.unpaired == False:
+    elif len(control_samples) != len(treatment_samples) and not args.unpaired:
         log_.error(
             "Must have the same number of control and drug samples to run the paired approach"
         )
@@ -611,7 +611,7 @@ def drugZ_analysis(args):
 
         log_.info("Writing output file paired results")
         write_drugZ_output(outfile=args.drugz_output_file, output=gene_normZ)
-    if args.unpaired == True:
+    if args.unpaired:
         return gene_normZ2
     else:
         return gene_normZ
