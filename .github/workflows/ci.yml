@@ -46,6 +46,10 @@ jobs:
         with:
           singularity-version: 3.8.3
 
+      - name: Singularity mount HOME
+        if: matrix.profile == 'singularity'
+        run: echo "NXF_SINGULARITY_HOME_MOUNT=true" >> $GITHUB_ENV
+
       - name: Set up miniconda
         uses: conda-incubator/setup-miniconda@a4260408e20b96e80095f42ff7f1a15b27dd94ca # v3
         with:
