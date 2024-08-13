@@ -168,11 +168,18 @@ workflow INITIALISATION_CHANNEL_CREATION_SCREENING {
         ch_design = Channel.fromPath(params.mle_design_matrix)
     }
 
+    if(params.mle_control_sgrna) {
+        ch_mle_control_sgrna = Channel.fromPath(params.mle_control_sgrna)
+    } else {
+        ch_mle_control_sgrna = []
+    }
+
 
     emit:
-    library = ch_library            // channel: library file
-    crisprcleanr = ch_crisprcleanr  // channel: crisprcleanr file or value
-    design = ch_design              // channel: design matrix file
+    library = ch_library                     // channel: library file
+    crisprcleanr = ch_crisprcleanr           // channel: crisprcleanr file or value
+    design = ch_design                       // channel: design matrix file
+    mle_control_sgrna = ch_mle_control_sgrna // channel: negative control sgRNA for MAGeCK MLE
 }
 
 /*
