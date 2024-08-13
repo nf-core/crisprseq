@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix cutadapt 3' and 5' no such variable found bug ([#187](https://github.com/nf-core/crisprseq/pull/187))
+- Fix design matrix bug that introduced dots instead of a hyphen
 
 ### Deprecated
 
