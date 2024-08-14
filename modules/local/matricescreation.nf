@@ -33,6 +33,9 @@ process MATRICESCREATION {
                                 dimnames = list(all_samples,
                                                 c("Samples", "baseline",
                                                     name))))
+    # R automatically converts "-" to "." in the column names
+    # so here we re-assign the column names to keep the dashes defined by the user
+    colnames(design_matrix) <- c("Samples", "baseline", name)
 
     # Set baseline and treatment values in the design matrix
     design_matrix[, "Samples"] <- rownames(design_matrix)
@@ -40,7 +43,7 @@ process MATRICESCREATION {
     design_matrix[treatment_samples, name] <- 1
     design_matrix[treatment_samples, paste0(gsub(',', '_', '$meta.treatment'),"_vs_",gsub(",","_",'$meta.reference'))] <- 1
 
-    colnames(design_matrix) <- c("Samples", "baseline", name)
+
     # Print the design matrix to a file
     output_file <- paste0(gsub(',', '_', '$meta.treatment' ),"_vs_",gsub(",","_",'$meta.reference'),".txt")
     write.table(design_matrix, output_file, sep = "\t", quote = FALSE, row.names=FALSE)
