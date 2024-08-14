@@ -12,11 +12,11 @@ process MAGECK_FLUTEMLE {
     tuple val(meta), path(gene_summary)
 
     output:
-    tuple val(meta), path("MAGeCKFlute_*/Enrichment/*") , emit: enrich, optional: true
-    tuple val(meta), path("MAGeCKFlute_*/QC/*")         , emit: qc, optional: true
-    tuple val(meta), path("MAGeCKFlute_*/Selection/*")  , emit: select, optional: true
+    tuple val(meta), path("MAGeCKFlute_*/Enrichment/*") , emit: enrich     , optional: true
+    tuple val(meta), path("MAGeCKFlute_*/QC/*")         , emit: qc         , optional: true
+    tuple val(meta), path("MAGeCKFlute_*/Selection/*")  , emit: select     , optional: true
     tuple val(meta), path("MAGeCKFlute_*/PathwayView/*"), emit: pathwayview, optional: true
-    path "versions.yml"                                 , emit: versions, optional: true
+    path "versions.yml"                                 , emit: versions   , optional: true
 
     when:
     task.ext.when == null || task.ext.when
