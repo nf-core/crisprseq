@@ -10,6 +10,7 @@ include { BAGEL2_BF                                    } from '../modules/local/
 include { BAGEL2_PR                                    } from '../modules/local/bagel2/pr'
 include { BAGEL2_GRAPH                                 } from '../modules/local/bagel2/graph'
 include { MATRICESCREATION                             } from '../modules/local/matricescreation'
+include { HITSELECTION                                 } from '../modules/local/hitselection'
 include { MAGECK_FLUTEMLE                              } from '../modules/local/mageck/flutemle'
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_CONTRASTS } from '../modules/local/mageck/flutemle'
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_DAY0      } from '../modules/local/mageck/flutemle'
@@ -286,6 +287,8 @@ workflow CRISPRSEQ_SCREENING {
             ch_venndiagram = BAGEL2_PR.out.pr.join(MAGECK_MLE.out.gene_summary)
             VENNDIAGRAM(ch_venndiagram)
             ch_versions = ch_versions.mix(VENNDIAGRAM.out.versions)
+            MAGECK_MLE.out.gene_summary.dump(tag: "There you go!")
+            HITSELECTION(MAGECK_MLE.out.gene_summary, INITIALISATION_CHANNEL_CREATION_SCREENING.out.biogrid)
         }
         if(params.day0_label) {
             ch_mle = Channel.of([id: "day0"]).merge(Channel.of([[]])).merge(ch_counts)

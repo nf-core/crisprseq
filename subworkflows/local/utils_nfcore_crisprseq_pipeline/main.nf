@@ -168,11 +168,14 @@ workflow INITIALISATION_CHANNEL_CREATION_SCREENING {
         ch_design = Channel.fromPath(params.mle_design_matrix)
     }
 
+    ch_biogrid = Channel.fromPath("$projectDir/assets/biogrid_hgncid_noduplicate_dropna.csv", checkIfExists: true)
+
 
     emit:
     library = ch_library            // channel: library file
     crisprcleanr = ch_crisprcleanr  // channel: crisprcleanr file or value
     design = ch_design              // channel: design matrix file
+    biogrid = ch_biogrid            // channel: biogrid
 }
 
 /*
