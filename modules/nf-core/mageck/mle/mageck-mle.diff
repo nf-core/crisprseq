@@ -18,6 +18,7 @@ Changes in 'mageck/mle/main.nf':
 @@ -21,16 +21,21 @@
  
      script:
+     
      def args = task.ext.args ?: ''
 -    def prefix = task.ext.prefix ?: "${meta.id}"
 +    def args2 = task.ext.args2 ?: ''
