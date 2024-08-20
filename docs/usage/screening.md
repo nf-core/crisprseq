@@ -89,7 +89,8 @@ Running MAGeCK MLE and BAGEL2 with a contrast file will also output a Venn diagr
 
 ### Running MAGeCK RRA only
 
-MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK RRA, you can define the contrasts as previously stated in the last section (with a `.txt` extension) and also specify `--rra`.
+MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK RRA, you can define the contrasts as previously stated in the last section with --contrasts your_file.txt(with a `.txt` extension) and also specify `--rra`.
+MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK RRA, you can define the contrasts as previously stated in the last section with `--contrasts your_file.txt` (with a `.txt` extension) and also specify `--rra`.
 
 ### Running MAGeCK MLE only
 
@@ -108,6 +109,10 @@ This label is not mandatory as in case you are running time series. If you wish 
 ### MAGECKFlute
 
 The downstream analysis involves distinguishing essential, non-essential, and target-associated genes. Additionally, it encompasses conducting biological functional category analysis and pathway enrichment analysis for these genes. Furthermore, it provides visualization of genes within pathways, enhancing user exploration of screening data. MAGECKFlute is run automatically after MAGeCK MLE and for each MLE design matrice. If you have used the `--day0_label`, MAGeCKFlute will be ran on all the other conditions. Please note that the DepMap data is used for these plots.
+
+#### Using negative control sgRNAs for MAGeCK MLE
+
+You can add the parameter `--mle_control_sgrna` followed by your file (one non targeting control sgRNA per line) to integrate the control sgRNA in MAGeCK MLE.
 
 ### Running BAGEL2
 
