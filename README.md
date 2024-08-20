@@ -134,7 +134,6 @@ We thank the following people for their extensive assistance in the development 
 - [@SusiJo](https://github.com/SusiJo)
 - [@joannakraw](https://github.com/joannakraw)
 - [@metinyazar](https://github.com/metinyazar)
-- [@metinyazar](https://github.com/metinyazar)
 - [@bolenala](https://github.com/bolenala)
 
 ## Contributions and Support
