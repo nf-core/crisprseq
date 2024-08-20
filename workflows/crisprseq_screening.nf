@@ -262,6 +262,11 @@ workflow CRISPRSEQ_SCREENING {
     ch_versions = ch_versions.mix(BAGEL2_GRAPH.out.versions)
     }
 
+    if(params.mle_control_sgrna) {
+        ch_mle_control_sgrna = Channel.fromPath(params.mle_control_sgrna)
+    } else {
+        ch_mle_control_sgrna =[]
+    }
 
     if((params.mle_design_matrix) || (params.contrasts && !params.rra) || (params.day0_label)) {
         //if the user only wants to run mle through their own design matrices
