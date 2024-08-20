@@ -36,7 +36,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-
 import sys
 import time
 
@@ -105,7 +104,7 @@ def func_linear(x, a, b):
 
 class Training:
     def __init__(self, X, n=None, cvnum=10):
-        if n == None:
+        if n is None:
             self._n = len(X)
         self._cvnum = cvnum
         self._bid = int(self._n / cvnum)
@@ -275,7 +274,7 @@ def calculate_fold_change(
         reads.drop(ctrl_labels, axis=1, inplace=True)
         ctrl_label_new = ";".join(ctrl_labels)
         reads[ctrl_label_new] = ctrl_sum
-    except:
+    except Exception:
         print(reads[ctrl_labels].sum(axis=1))
         print("Invalid input controls")
         sys.exit(1)
@@ -519,7 +518,7 @@ def calculate_bayes_factors(
                         mismatch_1bp_gene,
                     )
 
-        except:
+        except Exception:
             print("Please check align-info file")
             sys.exit(1)
 
@@ -551,7 +550,7 @@ def calculate_bayes_factors(
             print("Using column:  " + ", ".join(column_labels))
         # print "Using column:  " + ", ".join(map(str,column_list))
 
-        except:
+        except Exception:
             print("Invalid columns")
             sys.exit(1)
 
@@ -588,7 +587,7 @@ def calculate_bayes_factors(
     coreEss = []
 
     with open(essential_genes) as fin:
-        skip_header = fin.readline()
+        # skip_header = fin.readline()
         for line in fin:
             coreEss.append(line.rstrip().split("\t")[0])
     coreEss = np.array(coreEss)
@@ -596,7 +595,7 @@ def calculate_bayes_factors(
 
     nonEss = []
     with open(non_essential_genes) as fin:
-        skip_header = fin.readline()
+        # skip_header = fin.readline()
         for line in fin:
             nonEss.append(line.rstrip().split("\t")[0])
 
@@ -617,9 +616,9 @@ def calculate_bayes_factors(
                     for i in [0, 1]:
                         if linearray[i] not in network:
                             network[linearray[i]] = {}
-                        network[linearray[i]][
-                            linearray[-1 * (i - 1)]
-                        ] = 1  # save edge information
+                        network[linearray[i]][linearray[-1 * (i - 1)]] = (
+                            1  # save edge information
+                        )
                     edgecount += 1
 
         print("Number of network edges: " + str(edgecount))
@@ -667,18 +666,17 @@ def calculate_bayes_factors(
     elif train_method == 1:
         LOOPCOUNT = no_of_cross_validations  # 10-folds
 
-    if run_test_mode == True:
+    if run_test_mode:
         fp = open(output_file + ".traininfo", "w")
         fp.write("#1: Loopcount\n#2: Training set\n#3: Testset\n")
     # No resampling option
-    if no_resampling == True:
+    if no_resampling:
         print("# Caution: Resampling is disabled")
         LOOPCOUNT = 1
 
     print("Iter TrainEss TrainNon TestSet")
     sys.stdout.flush()
     for loop in range(LOOPCOUNT):
-        currentbf = {}
         printstr = ""
         printstr += str(loop)
 
@@ -688,7 +686,7 @@ def calculate_bayes_factors(
         # training set
         # define essential and nonessential training sets:  arrays of indexes
         #
-        if no_resampling == True:
+        if no_resampling:
             # no resampling
             gene_train_idx = gene_idx
             gene_test_idx = gene_idx
@@ -787,7 +785,7 @@ def calculate_bayes_factors(
             slope, intercept, r_value, p_value, std_err = stats.linregress(
                 np.array(testx), np.array(testy)
             )
-        except:
+        except Exception:
             print("Regression failed. Check quality of the screen")
             sys.exit(1)
         #
@@ -801,7 +799,7 @@ def calculate_bayes_factors(
                     bayes_factor.append(slope * fc[rnatag][rep] + intercept)
                 bf[rnatag].append(bayes_factor)
 
-    if run_test_mode == True:
+    if run_test_mode:
         fp.close()
 
     num_obs = dict()
@@ -825,7 +823,7 @@ def calculate_bayes_factors(
                     bf_mean_rna_rep[rnatag][column_list[rep]] = np.mean(t[rep])
                     bf_std_rna_rep[rnatag][column_list[rep]] = np.std(t[rep])
 
-        if rna_level == False:
+        if not rna_level:
             sumofbf_list = list()
             for i in range(num_obs[g]):
                 sumofbf = 0.0
@@ -911,7 +909,7 @@ def calculate_bayes_factors(
                 % (coeff_df["Coefficient"][0], coeff_df["Coefficient"][1])
             )
 
-            if rna_level == False:
+            if not rna_level:
                 for g in gene2rna:
                     penalty = 0.0
                     for seqid in gene2rna[g]:
@@ -942,8 +940,8 @@ def calculate_bayes_factors(
     #
     #  NORMALIZE sgRNA COUNT
     #
-    if rna_level is False and flat_sgrna == True:
-        if filter_multi_target == True:
+    if rna_level is False and flat_sgrna:
+        if filter_multi_target:
             targetbf = bf_multi_corrected_gene
         else:
             targetbf = bf_mean
@@ -964,10 +962,8 @@ def calculate_bayes_factors(
     # calculate network scores
     #
 
-    if (
-        network_boost == True and rna_level == False
-    ):  # Network boost is only working for gene level
-        if run_test_mode == True:  # TEST MODE
+    if network_boost and not rna_level:  # Network boost is only working for gene level
+        if run_test_mode:  # TEST MODE
             fp = open(output_file + ".netscore", "w")
         print("\nNetwork score calculation start\n")
 
@@ -987,7 +983,6 @@ def calculate_bayes_factors(
         #
 
         for loop in range(LOOPCOUNT):
-            currentnbf = {}
             printstr = ""
             printstr += str(loop)
 
@@ -1073,7 +1068,7 @@ def calculate_bayes_factors(
 
             for g in genes_array[gene_test_idx]:
                 if g in networkscores:
-                    if run_test_mode == True:
+                    if run_test_mode:
                         fp.write(
                             "%s\t%f\t%f\n"
                             % (
@@ -1087,10 +1082,10 @@ def calculate_bayes_factors(
                     nbf = 0.0
 
                 boostedbf[g].append(bf_mean[g] + nbf)
-                if flat_sgrna == True:
+                if flat_sgrna:
                     boostedbf[g].append(bf_norm[g] + nbf)
 
-        if run_test_mode == True:
+        if run_test_mode:
             fp.close()
 
     #
@@ -1098,14 +1093,14 @@ def calculate_bayes_factors(
     #
 
     # Equalizing factor (Replicates)
-    if flat_rep == True:
+    if flat_rep:
         eqf = equalise_rep_no / float(len(column_labels))
     else:
         eqf = 1
 
     # print out
     with open(output_file, "w") as fout:
-        if rna_level == True:
+        if rna_level:
             fout.write("RNA\tGENE")
             for i in range(len(column_list)):
                 fout.write(f"\t{column_labels[i]:s}")
@@ -1130,7 +1125,7 @@ def calculate_bayes_factors(
                         fout.write(f"{bf_std_rna_rep[rnatag][rep]:4.3f}\t")
 
                 # Sum BF of replicates
-                if filter_multi_target == True:
+                if filter_multi_target:
                     fout.write(
                         f"{float(bf_multi_corrected_rna[rnatag]) * eqf:4.3f}"
                     )  # eqf = equalizing factor for the number of replicates
@@ -1145,21 +1140,21 @@ def calculate_bayes_factors(
                 fout.write("\n")
         else:
             fout.write("GENE")
-            if network_boost == True:
+            if network_boost:
                 fout.write("\tBoostedBF")
                 if train_method == 0:
                     fout.write("\tSTD_BoostedBF")
             fout.write("\tBF")
             if train_method == 0:
                 fout.write("\tSTD\tNumObs")
-            if flat_sgrna == True:
+            if flat_sgrna:
                 fout.write("\tNormBF")
             fout.write("\n")
 
             for g in sorted(genes.keys()):
                 # Gene
                 fout.write(f"{g:s}")
-                if network_boost == True:
+                if network_boost:
                     boostedbf_mean = np.mean(boostedbf[g])
                     boostedbf_std = np.std(boostedbf[g])
                     fout.write(f"\t{float(boostedbf_mean) * eqf:4.3f}")
@@ -1167,7 +1162,7 @@ def calculate_bayes_factors(
                         fout.write(f"\t{float(boostedbf_std) * eqf:4.3f}")
 
                 # BF
-                if filter_multi_target == True:
+                if filter_multi_target:
                     fout.write(
                         f"\t{float(bf_multi_corrected_gene[g]) * eqf:4.3f}"
                     )  # eqf = equalizing factor for the number of replicates
@@ -1177,7 +1172,7 @@ def calculate_bayes_factors(
                 if train_method == 0:
                     fout.write(f"\t{float(bf_std[g]):4.3f}\t{num_obs[g]:d}")
                 # Normalized BF
-                if flat_sgrna == True:
+                if flat_sgrna:
                     fout.write(f"\t{float(bf_norm[g]):4.3f}")
 
                 fout.write("\n")

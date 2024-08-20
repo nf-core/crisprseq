@@ -132,6 +132,8 @@ We thank the following people for their extensive assistance in the development 
 - [@msanvicente](https://github.com/msanvicente)
 - [@mschaffer-incyte](https://github.com/mschaffer-incyte)
 - [@SusiJo](https://github.com/SusiJo)
+- [@joannakraw](https://github.com/joannakraw)
+- [@metinyazar](https://github.com/metinyazar)
 
 ## Contributions and Support
 
