@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix cutadapt 3' and 5' no such variable found bug ([#187](https://github.com/nf-core/crisprseq/pull/187))
 - Fix design matrix bug that introduced dots instead of a hyphen ([#190](https://github.com/nf-core/crisprseq/pull/190))
 - Make output of FluteMLE optional as when some pathways produce bugs some channels are then empty ([#190](https://github.com/nf-core/crisprseq/pull/190))
-- Fix a typo in crisprcleanr/normalize, when a user inputs a file
+- Fix a typo in crisprcleanr/normalize, when a user inputs a file ([#192](https://github.com/nf-core/crisprseq/pull/192))
 
 ### Deprecated
 
