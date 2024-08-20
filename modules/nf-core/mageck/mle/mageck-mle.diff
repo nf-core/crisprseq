@@ -1,4 +1,7 @@
 Changes in module 'nf-core/mageck/mle'
+'modules/nf-core/mageck/mle/environment.yml' is unchanged
+'modules/nf-core/mageck/mle/meta.yml' is unchanged
+Changes in 'mageck/mle/main.nf':
 --- modules/nf-core/mageck/mle/main.nf
 +++ modules/nf-core/mageck/mle/main.nf
 @@ -8,8 +8,8 @@
@@ -46,4 +49,7 @@ Changes in module 'nf-core/mageck/mle'
 -}
 +    
 +}
+'modules/nf-core/mageck/mle/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/mageck/mle/tests/tags.yml' is unchanged
+'modules/nf-core/mageck/mle/tests/main.nf.test' is unchanged
 ************************************************************
