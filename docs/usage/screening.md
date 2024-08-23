@@ -129,6 +129,10 @@ The contrast from reference to treatment should be ; separated
 
 If you wish to remove specific genes before the drugZ analysis, you can use the `--drugz_remove_genes` option following a comma separated list of genes.
 
+### Running Hitselection
+
+// TO DO METIN'S EXPLANATION HERE :
+
 Note that the pipeline will create the following files in your working directory:
 
 ```bash

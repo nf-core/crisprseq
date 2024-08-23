@@ -29,6 +29,9 @@ process HITSELECTION {
     path(biogrid)
 
     output:
+    //path("overrepresented.png")   , emit: png
+    path("test.csv")   , emit: png
+
     path "versions.yml"           , emit: versions
 
     when:
@@ -46,11 +49,14 @@ process HITSELECTION {
 
     library(igraph)
     library(dplyr)
-
-
+    #library(ggplot2)
 
 
     interactions_df <- read.csv('${biogrid}',sep=",")
+    interactions_genes <- interactions_df\$hgnc_id
+    g <- graph_from_data_frame(interactions_df[, c("hgnc_id_1", "hgnc_id_2")], directed=FALSE)
+
+
     screen_genes_df <- read.csv('${gene_summary}',sep="\t")
 
     # Define the prefix variable and get the beta column
@@ -60,8 +66,9 @@ process HITSELECTION {
     # Arrange the data frame by the beta column
     print(colnames(screen_genes_df))
     genes_ordered <- screen_genes_df %>% arrange(.data[[beta_col]])
+    genes_ordered <- genes_ordered[[beta_col]][1:1000]
 
-    g <- graph_from_data_frame(interactions_df[, c("hgnc_id_1", "hgnc_id_2")], directed=FALSE)
+
     #valid_hit_genes <- hit_genes[hit_genes %in% V(g)\$name]
 
     # Calculating degree for each gene (node)
@@ -105,7 +112,7 @@ process HITSELECTION {
                 for(k in 1:length(temp.frequency)){
                     sample.temp <- which(degree == as.numeric(names(temp.frequency[k])))
                     hit.genes.permuted.degree.conserved <- c(hit.genes.permuted.degree.conserved,names(sample(x = sample.temp,size = temp.frequency[k], replace = FALSE)))
-            }
+                }
             }
             if(length(hit.genes) != length(hit.genes.permuted.degree.conserved)) {
                 print("we have a problem")
@@ -132,9 +139,28 @@ process HITSELECTION {
         return(data.frame(logp.val.degree.conserved,edges,avg_edges_permutation_degree_conserved))
     }
 
+    min <- 0
+    max <- 1000
+    steps <- max - min
+    hit.genes.last <- NULL
+    final_results <- list() # Initialize as an empty list
+    for(i in 1:steps) {
+        print(i)
+        final_hit.genes <- intersect(interactions_genes[c(1:i)], V(g)\$name)
+        hit.genes.last <- final_hit.genes
+        result <- Find.Significance(g, hit.genes.last, degree, permutation = 500)
+        final_results[[i]]  <- result
+    }
 
+    print(final_hit.genes)
+    final_dataframe <- bind_rows(final_results)
+    #final_dataframe\$gene_symbols <- gene_symbols_1000
 
+    #write.table(final_dataframe, file = "test.tsv",sep="\t")
 
+    #png("plot.png")
+    #plot(final_dataframe\$logp.val.degree.conserved)
+    #dev.off()
 
     version_file_path <- "versions.yml"
     version_igraph <- paste(unlist(packageVersion("igraph")), collapse = ".")

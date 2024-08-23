@@ -190,6 +190,12 @@ For further reading and documentation see the [cutadapt helper page](https://cut
   - `*.txt`: Pathway view for top enriched pathways.
   - `*.png`: Pathway view for top enriched pathways.
 
+### HitSelection
+
+- `HitSelection`
+  - `*.png` : TODOs METIN EXPLANATION
+  - `*.txt` : TODOs METIN EXPLANATION
+
 ## MultiQC
 
 <details markdown="1">
