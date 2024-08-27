@@ -11,6 +11,7 @@ process HITSELECTION {
     tuple val(meta), path(per_gene_results)
     path(biogrid)
     path(hgnc)
+    val(hit_selection_iteration_nb)
 
     output:
     path("*_converted.txt"),        emit: png
@@ -176,7 +177,7 @@ process HITSELECTION {
     }
 
     min <- 0
-    max <- 1000
+    max <- ${hit_selection_iteration_nb}
     steps <- max - min
     hit.genes.last <- NULL
     final_results <- list() # Initialize as an empty list

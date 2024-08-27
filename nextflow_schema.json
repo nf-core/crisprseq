@@ -243,6 +243,11 @@
                     "type": "string",
                     "description": "Essential genes to remove from the drugZ modules",
                     "pattern": "\\\\S+"
+                },
+                "hit_selection_iteration_nb": {
+                    "type": "number",
+                    "description": "Number of iterations the hit selection module should provide",
+                    "default": 1000
                 }
             }
         },

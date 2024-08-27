@@ -311,7 +311,8 @@ workflow CRISPRSEQ_SCREENING {
         DRUGZ.out.per_gene_results.dump(tag: "There you go!")
         HITSELECTION(DRUGZ.out.per_gene_results,
         INITIALISATION_CHANNEL_CREATION_SCREENING.out.biogrid,
-        INITIALISATION_CHANNEL_CREATION_SCREENING.out.hgnc)
+        INITIALISATION_CHANNEL_CREATION_SCREENING.out.hgnc,
+        params.hit_selection_iteration_nb)
 
     }
 
