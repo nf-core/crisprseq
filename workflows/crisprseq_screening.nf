@@ -287,8 +287,6 @@ workflow CRISPRSEQ_SCREENING {
             ch_venndiagram = BAGEL2_PR.out.pr.join(MAGECK_MLE.out.gene_summary)
             VENNDIAGRAM(ch_venndiagram)
             ch_versions = ch_versions.mix(VENNDIAGRAM.out.versions)
-            MAGECK_MLE.out.gene_summary.dump(tag: "There you go!")
-            HITSELECTION(MAGECK_MLE.out.gene_summary, INITIALISATION_CHANNEL_CREATION_SCREENING.out.biogrid)
         }
         if(params.day0_label) {
             ch_mle = Channel.of([id: "day0"]).merge(Channel.of([[]])).merge(ch_counts)
@@ -310,6 +308,11 @@ workflow CRISPRSEQ_SCREENING {
             counts
             )
         ch_versions = ch_versions.mix(DRUGZ.out.versions)
+        DRUGZ.out.per_gene_results.dump(tag: "There you go!")
+        HITSELECTION(DRUGZ.out.per_gene_results,
+        INITIALISATION_CHANNEL_CREATION_SCREENING.out.biogrid,
+        INITIALISATION_CHANNEL_CREATION_SCREENING.out.hgnc)
+
     }
 
     //
