@@ -123,7 +123,6 @@ def calculate_fold_change(
     fc_replicate_id = "fc_{replicate}".format(replicate=replicate)
     fc_zscore_id = "zscore_" + fc_replicate_id
     empirical_bayes_id = "eb_std_{replicate}".format(replicate=replicate)
-    # one_based_idx = replicate + 1
 
     # Get the control and treatment sample ids for each replicate
     control_sample = control_samples[replicate]
