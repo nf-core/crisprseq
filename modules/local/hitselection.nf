@@ -36,39 +36,48 @@ process HITSELECTION {
     library(ggplot2)
     library(readr)
 
-    screen <- read_delim("${per_gene_results}",
-                    delim = '\t')
+    # Load necessary data
+    screen <- read_delim("${per_gene_results}", delim = '\t')  # Load gene screening results
+    hgnc <- read_delim("${hgnc}", delim = '\t')  # Load HGNC gene data
 
-    hgnc <- read_delim("${hgnc}", delim = '\t')
+    # Select relevant columns from HGNC data
     columns_to_include <- c('hgnc_id', 'symbol', 'prev_symbol', 'ensembl_gene_id', 'alias_symbol', 'entrez_id')
-    hgnc <- hgnc[columns_to_include]
+    hgnc <- hgnc[columns_to_include]  # Keep only the necessary columns
+
+    # Convert HGNC data to a list of dictionaries, where each entry corresponds to a gene
     hgnc_dict <- split(hgnc, seq(nrow(hgnc)))
+
+    # Function to process gene symbols from the screen data
     update_gene_columns <- function(gene_symbol) {
         gene_symbol_str <- as.character(gene_symbol)
-        parts <- strsplit(gene_symbol_str, '-')[[1]]
+        parts <- strsplit(gene_symbol_str, '-')[[1]]  # Split gene symbol by hyphen
         if (length(parts) > 1 && nchar(tail(parts, n=1)) >= 2) {
+            # If there's a suffix with at least 2 characters, split it off as Gene_2
             return(list(paste(parts[-length(parts)], collapse = '-'), tail(parts, n = 1)))
         } else {
+            # If no valid suffix, return the full symbol and NA for Gene_2
             return(list(gene_symbol_str, NA))
         }
     }
 
+    # Apply the update_gene_columns function to each gene symbol in the screen data
     updated_genes <- do.call(rbind, lapply(screen[[1]], update_gene_columns))
-    screen[[1]] <- updated_genes[, 1]
-    screen\$Gene_2 <- updated_genes[, 2]
+    screen[[1]] <- updated_genes[, 1]  # Update the main gene symbol column
+    screen\$Gene_2 <- updated_genes[, 2]  # Add a new column for the suffixes (Gene_2)
 
-
+    # Create a lookup dictionary for gene information based on HGNC data
     gene_lookup <- list()
     for (entry in hgnc_dict) {
+        # Add main gene symbol to lookup table
         gene_lookup[[entry\$symbol]] <- list(entry\$hgnc_id, entry\$ensembl_gene_id)
-
+        # Add previous symbols (if any) to lookup table
         if (!is.na(entry\$prev_symbol)) {
             prev_symbols <- unlist(strsplit(entry\$prev_symbol, split = "|", fixed = TRUE))
             for (prev_symbol in prev_symbols) {
                 gene_lookup[[prev_symbol]] <- list(entry\$hgnc_id, entry\$ensembl_gene_id)
             }
         }
-
+        # Add alias symbols (if any) to lookup table
         if (!is.na(entry\$alias_symbol)) {
             alias_symbols <- unlist(strsplit(entry\$alias_symbol, split = "|", fixed = TRUE))
             for (alias in alias_symbols) {
@@ -77,83 +86,94 @@ process HITSELECTION {
         }
     }
 
+    # Function to look up gene information based on gene symbols
     lookup_gene_info <- function(gene_symbol, gene_symbol_2) {
-        result <- gene_lookup[[gene_symbol]]
+        result <- gene_lookup[[gene_symbol]]  # Try to find information for the main symbol
         if (is.null(result)) {
-            result <- gene_lookup[[gene_symbol_2]]
+            result <- gene_lookup[[gene_symbol_2]]  # Try the second symbol (suffix) if the first one fails
             if (is.null(result)) {
+                # If neither symbol is found, return a "No entry is found" message
                 result <- list('No entry is found', 'No entry is found')
             }
         }
         return(result)
     }
 
+    # Apply the lookup_gene_info function to each row in the screen data
     info <- do.call(rbind, apply(screen, 1, function(row) lookup_gene_info(as.character(row[1]), as.character(row\$Gene_2))))
     info <- as.data.frame(info)
+
+    # Add the HGNC and Ensembl gene IDs back into the screen data
     screen\$hgnc_id <- as.character(info[, 1])
     screen\$ensembl_gene_id <- as.character(info[, 2])
-    screen\$GENE <- as.character(screen\$GENE)
 
-    write_delim(as.data.frame(screen), 'treatment1_vs_control1_drugz_output_converted.txt', delim = '\t')
+    # Save the updated screen data with HGNC and Ensembl IDs to a file
+    write_delim(as.data.frame(screen), '${meta.treatment}_vs_${meta.reference}_output_converted.txt', delim = '\t')
+
+    # Select the HGNC IDs from the screen data and the first 1000 gene symbols
     screen_genes <- screen\$hgnc_id
     gene_symbols_1000 <- screen\$Gene[1:1000]
 
+    # Load interaction data from BioGRID
     interactions_df <- read.csv("${biogrid}")
 
+    # Create an undirected graph from the interaction data
     g <- graph_from_data_frame(interactions_df[, c("hgnc_id_1", "hgnc_id_2")], directed=FALSE)
 
+    # Calculate the degree (number of connections) for each gene in the graph
     degree <- degree(g)
     names(degree) <- V(g)\$name
 
-    EdgePermutationDegreeConserved <- function(permutation,frequency,degree,hit.genes,graph)
-    {
-        edges.permutation.degree.conserved <- rep(NA,permutation)
-        if(length(hit.genes) > 0)
-        {
-            for(j in 1:permutation)
-            {
-                set.seed(j) # seed has to be changed with each permutation so that they are permuted differently
+    # Function to perform degree-conserved edge permutations
+    EdgePermutationDegreeConserved <- function(permutation, frequency, degree, hit.genes, graph) {
+        edges.permutation.degree.conserved <- rep(NA, permutation)  # Initialize result vector
+        if(length(hit.genes) > 0) {
+            for(j in 1:permutation) {
+                set.seed(j)  # Change the seed for each permutation
                 hit.genes.permuted.degree.conserved <- NULL
-                if(sum(frequency[which(as.numeric(names(frequency)) > 500)]) > 0){ # Check if there is any gene with degree greater than 500
+                # Permute genes based on degree thresholds
+                if(sum(frequency[which(as.numeric(names(frequency)) > 500)]) > 0){
                     sample.temp <- which(degree > 500)
                     hit.genes.permuted.degree.conserved <- c(hit.genes.permuted.degree.conserved,
-                                                            names(sample(x = sample.temp,size = sum(frequency[which(as.numeric(names(frequency)) > 500)]), replace = FALSE)))
+                                                            names(sample(x = sample.temp, size = sum(frequency[which(as.numeric(names(frequency)) > 500)]), replace = FALSE)))
                 }
                 if(sum(frequency[which(as.numeric(names(frequency)) <= 500 & as.numeric(names(frequency)) > 100)]) > 0){
                     sample.temp <- which(degree <= 500 & degree > 100)
                     hit.genes.permuted.degree.conserved <- c(hit.genes.permuted.degree.conserved,
-                                                            names(sample(x = sample.temp,size = sum(frequency[which(as.numeric(names(frequency)) <= 500 & as.numeric(names(frequency)) > 100)]), replace = FALSE)))
+                                                            names(sample(x = sample.temp, size = sum(frequency[which(as.numeric(names(frequency)) <= 500 & as.numeric(names(frequency)) > 100)]), replace = FALSE)))
                 }
                 if(sum(frequency[which(as.numeric(names(frequency)) <= 100 & as.numeric(names(frequency)) > 50)]) > 0){
                     sample.temp <- which(degree <= 100 & degree > 50)
                     hit.genes.permuted.degree.conserved <- c(hit.genes.permuted.degree.conserved,
-                                                            names(sample(x = sample.temp,size = sum(frequency[which(as.numeric(names(frequency)) <= 100 & as.numeric(names(frequency)) > 50)]), replace = FALSE)))
+                                                            names(sample(x = sample.temp, size = sum(frequency[which(as.numeric(names(frequency)) <= 100 & as.numeric(names(frequency)) > 50)]), replace = FALSE)))
                 }
                 if(sum(frequency[which(as.numeric(names(frequency)) <= 50 & as.numeric(names(frequency)) > 30)]) > 0){
                     sample.temp <- which(degree <= 50 & degree > 30)
                     hit.genes.permuted.degree.conserved <- c(hit.genes.permuted.degree.conserved,
-                                                            names(sample(x = sample.temp,size = sum(frequency[which(as.numeric(names(frequency)) <= 50 & as.numeric(names(frequency)) > 30)]), replace = FALSE)))
+                                                            names(sample(x = sample.temp, size = sum(frequency[which(as.numeric(names(frequency)) <= 50 & as.numeric(names(frequency)) > 30)]), replace = FALSE)))
                 }
                 if(sum(frequency[which(as.numeric(names(frequency)) <= 30 & as.numeric(names(frequency)) > 10)]) > 0){
                     sample.temp <- which(degree <= 30 & degree > 10)
                     hit.genes.permuted.degree.conserved <- c(hit.genes.permuted.degree.conserved,
-                                                            names(sample(x = sample.temp,size = sum(frequency[which(as.numeric(names(frequency)) <= 30 & as.numeric(names(frequency)) > 10)]), replace = FALSE)))
+                                                            names(sample(x = sample.temp, size = sum(frequency[which(as.numeric(names(frequency)) <= 30 & as.numeric(names(frequency)) > 10)]), replace = FALSE)))
                 }
                 if(length(which(as.numeric(names(frequency)) <= 10)) > 0) {
                     temp.frequency <- frequency[which(as.numeric(names(frequency)) <= 10)]
                     for(k in 1:length(temp.frequency)){
                         sample.temp <- which(degree == as.numeric(names(temp.frequency[k])))
-                        hit.genes.permuted.degree.conserved <- c(hit.genes.permuted.degree.conserved,names(sample(x = sample.temp,size = temp.frequency[k], replace = FALSE)))
+                        hit.genes.permuted.degree.conserved <- c(hit.genes.permuted.degree.conserved,
+                                                                names(sample(x = sample.temp, size = temp.frequency[k], replace = FALSE)))
                     }
                 }
+                # Ensure the number of permuted genes matches the original hit genes
                 if(length(hit.genes) != length(hit.genes.permuted.degree.conserved)) {
                     print("we have a problem")
                 }
-                #      edges.permutation.degree.conserved[j] <- length(E(induced.subgraph(graph,intersect(hit.genes.permuted.degree.conserved,V(graph)))))
-                edges.permutation.degree.conserved[j] <- length(E(induced.subgraph(graph,hit.genes.permuted.degree.conserved)))
+                # Count the number of edges in the permuted subgraph and store it
+                edges.permutation.degree.conserved[j] <- length(E(induced.subgraph(graph, hit.genes.permuted.degree.conserved)))
             }
         } else {
-            edges.permutation.degree.conserved[1:permutation] = 0
+            edges.permutation.degree.conserved[1:permutation] = 0  # If no hit genes, all edge counts are zero
         }
         return(edges.permutation.degree.conserved)
     }
@@ -169,10 +189,6 @@ process HITSELECTION {
         #logp.val.degree.conserved <-  -log10(p.val.degree.conserved)
         no.nodes <- length(V(subGraph))
         no.edges <- length(E(subGraph))
-        #  connected.components <- length(connectedComp(subGraph))
-        #  clustering.coefficient <- clusteringCoef(subGraph)
-        #  return(data.frame(p.val.degree.conserved,p.val.random,no.nodes,no.edges,connected.components,clustering.coefficient))
-
         return(data.frame(logp.val.degree.conserved,edges,avg_edges_permutation_degree_conserved))
     }
 
