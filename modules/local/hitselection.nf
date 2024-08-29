@@ -14,8 +14,9 @@ process HITSELECTION {
     val(hit_selection_iteration_nb)
 
     output:
-    path("*_converted.txt"),        emit: png
+    path("*_converted.txt"),        emit: gene_converted
     path("*_hitselection.tsv"),     emit: hitselection
+    path("*_logpvalue_distribution.png"),         emit: plot
     path "versions.yml",            emit: versions
 
     when:
@@ -198,7 +199,6 @@ process HITSELECTION {
     hit.genes.last <- NULL
     final_results <- list() # Initialize as an empty list
     for(i in 1:steps) {
-        print(i)
         final_hit.genes <- intersect(screen_genes[c(1:i)], V(g)\$name)
         hit.genes.last <- final_hit.genes
         result <- Find.Significance(g, hit.genes.last, degree, permutation = 500)
@@ -208,6 +208,39 @@ process HITSELECTION {
     final_dataframe <- bind_rows(final_results)
     final_dataframe\$gene_symbols <- gene_symbols_1000
     write.table(final_dataframe, file="${meta.treatment}_vs_${meta.reference}_hitselection.tsv",row.names=FALSE,quote=FALSE,sep="\t")
+
+    max_value <- max(final_dataframe\$logp.val.degree.conserved)
+    max_index <- which.max(final_dataframe\$logp.val.degree.conserved)
+
+    # Add a column to the dataframe to indicate whether each point is the maximum or not
+    final_dataframe <- final_dataframe %>%
+    mutate(is_max = ifelse(logp.val.degree.conserved == max_value, "Maximum", "Other"))
+
+    # Create the plot
+
+    ggplot(final_dataframe, aes(x = seq_along(logp.val.degree.conserved), y = logp.val.degree.conserved)) +
+        geom_point(aes(color = is_max, size = is_max)) +
+        scale_color_manual(values = c("Maximum" = "red", "Other" = "black")) +
+        scale_size_manual(values = c("Maximum" = 3, "Other" = 1)) +  # Adjust sizes as needed
+        labs(title = "Log P-value (Degree Conserved) vs Index",
+        x = "Index",
+        y = "Log P-value (Degree Conserved)",
+        color = "Point Type",
+        size = "Point Size") +
+    theme(
+        panel.background = element_rect(fill = "white"),
+        plot.background = element_rect(fill = "white"),
+        legend.background = element_rect(fill = "white"),
+        axis.text = element_text(color = "black"),
+        axis.title = element_text(color = "black"),
+        plot.title = element_text(color = "black"),
+        legend.text = element_text(color = "black"),
+        legend.title = element_text(color = "black"),
+        legend.position = "top",
+        panel.grid.major = element_line(color = "gray80"),  # Major grid lines
+        panel.grid.minor = element_line(color = "gray90")   # Minor grid lines
+    )
+    ggsave("${meta.treatment}_vs_${meta.reference}_logpvalue_distribution.png")
 
     version_file_path <- "versions.yml"
     version_igraph <- paste(unlist(packageVersion("igraph")), collapse = ".")
@@ -230,11 +263,22 @@ process HITSELECTION {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    touch ${prefix}.bam
+    touch "${meta.treatment}_vs_${meta.reference}_hitselection.tsv"
+    touch "${meta.treatment}_vs_${meta.reference}_output_converted.txt"
 
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        hitselection: \$(samtools --version |& sed '1!d ; s/samtools //')
-    END_VERSIONS
+    version_file_path <- "versions.yml"
+    version_igraph <- paste(unlist(packageVersion("igraph")), collapse = ".")
+    version_dplyr <- paste(unlist(packageVersion("dplyr")), collapse = ".")
+    version_ggplot2 <- paste(unlist(packageVersion("ggplot2")), collapse = ".")
+
+    f <- file(version_file_path, "w")
+    writeLines('"${task.process}":', f)
+    writeLines("    igraph: ", f, sep = "")
+    writeLines(version_igraph, f)
+    writeLines("    dplyr: ", f, sep = "")
+    writeLines(version_dplyr, f)
+    writeLines("    ggplot2: ", f, sep = "")
+    writeLines(version_ggplot2, f)
+    close(f)
     """
 }
