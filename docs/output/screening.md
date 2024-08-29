@@ -193,8 +193,8 @@ For further reading and documentation see the [cutadapt helper page](https://cut
 ### HitSelection
 
 - `HitSelection`
-  - `*.png` : TODOs METIN EXPLANATION
-  - `*.txt` : TODOs METIN EXPLANATION
+  - `*.png` : -logP value vs gene rank plot to determine the rank threshols
+  - `*.txt` : Ranked -logP value and gene symbols table
 
 ## MultiQC
 

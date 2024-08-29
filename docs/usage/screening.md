@@ -131,7 +131,7 @@ If you wish to remove specific genes before the drugZ analysis, you can use the 
 
 ### Running Hitselection
 
-// TO DO METIN'S EXPLANATION HERE :
+Hitselection is a script for identifying rank thresholds for CRISPR screen results based on using the connectivity of subgraphs of protein-protein interaction (PPI) networks. The script is based on R and is also an implementation of RNAiCut (Kaplow et al., 2009), a method for estimating thresholds in RNAi data. The principle behind Hitselection is that true positive hits are densely connected in the PPI networks. The script runs a simulation based on Poisson distribution of the ranked screen gene list to calculate the -logP value for comparing the interconnectivity of the real subnetwork and the degree match random subnetwork of each gene, one by one. The degree of the nodes is used as the interconnectivity metric. To run Hitselection, you can specify '--hitselection'. The outputs are a png file containing the -logP value vs gene rank plot and a txt file containing all the -logP values, edge and average edge values and ranked gene symbols.
 
 Note that the pipeline will create the following files in your working directory:
 
