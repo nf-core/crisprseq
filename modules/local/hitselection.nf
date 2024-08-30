@@ -14,7 +14,7 @@ process HITSELECTION {
     val(hit_selection_iteration_nb)
 
     output:
-    path("*_converted.txt"),        emit: gene_converted
+    path("*_gene_conversion.txt"),        emit: gene_converted
     path("*_hitselection.tsv"),     emit: hitselection
     path("*_logpvalue_distribution.png"),         emit: plot
     path "versions.yml",            emit: versions
@@ -37,17 +37,6 @@ process HITSELECTION {
     library(ggplot2)
     library(readr)
 
-    # Load necessary data
-    screen <- read_delim("${per_gene_results}", delim = '\t')  # Load gene screening results
-    hgnc <- read_delim("${hgnc}", delim = '\t')  # Load HGNC gene data
-
-    # Select relevant columns from HGNC data
-    columns_to_include <- c('hgnc_id', 'symbol', 'prev_symbol', 'ensembl_gene_id', 'alias_symbol', 'entrez_id')
-    hgnc <- hgnc[columns_to_include]  # Keep only the necessary columns
-
-    # Convert HGNC data to a list of dictionaries, where each entry corresponds to a gene
-    hgnc_dict <- split(hgnc, seq(nrow(hgnc)))
-
     # Function to process gene symbols from the screen data
     update_gene_columns <- function(gene_symbol) {
         gene_symbol_str <- as.character(gene_symbol)
@@ -58,32 +47,6 @@ process HITSELECTION {
         } else {
             # If no valid suffix, return the full symbol and NA for Gene_2
             return(list(gene_symbol_str, NA))
-        }
-    }
-
-    # Apply the update_gene_columns function to each gene symbol in the screen data
-    updated_genes <- do.call(rbind, lapply(screen[[1]], update_gene_columns))
-    screen[[1]] <- updated_genes[, 1]  # Update the main gene symbol column
-    screen\$Gene_2 <- updated_genes[, 2]  # Add a new column for the suffixes (Gene_2)
-
-    # Create a lookup dictionary for gene information based on HGNC data
-    gene_lookup <- list()
-    for (entry in hgnc_dict) {
-        # Add main gene symbol to lookup table
-        gene_lookup[[entry\$symbol]] <- list(entry\$hgnc_id, entry\$ensembl_gene_id)
-        # Add previous symbols (if any) to lookup table
-        if (!is.na(entry\$prev_symbol)) {
-            prev_symbols <- unlist(strsplit(entry\$prev_symbol, split = "|", fixed = TRUE))
-            for (prev_symbol in prev_symbols) {
-                gene_lookup[[prev_symbol]] <- list(entry\$hgnc_id, entry\$ensembl_gene_id)
-            }
-        }
-        # Add alias symbols (if any) to lookup table
-        if (!is.na(entry\$alias_symbol)) {
-            alias_symbols <- unlist(strsplit(entry\$alias_symbol, split = "|", fixed = TRUE))
-            for (alias in alias_symbols) {
-                gene_lookup[[alias]] <- list(entry\$hgnc_id, entry\$ensembl_gene_id)
-            }
         }
     }
 
@@ -99,31 +62,6 @@ process HITSELECTION {
         }
         return(result)
     }
-
-    # Apply the lookup_gene_info function to each row in the screen data
-    info <- do.call(rbind, apply(screen, 1, function(row) lookup_gene_info(as.character(row[1]), as.character(row\$Gene_2))))
-    info <- as.data.frame(info)
-
-    # Add the HGNC and Ensembl gene IDs back into the screen data
-    screen\$hgnc_id <- as.character(info[, 1])
-    screen\$ensembl_gene_id <- as.character(info[, 2])
-
-    # Save the updated screen data with HGNC and Ensembl IDs to a file
-    write_delim(as.data.frame(screen), '${meta.treatment}_vs_${meta.reference}_output_converted.txt', delim = '\t')
-
-    # Select the HGNC IDs from the screen data and the first 1000 gene symbols
-    screen_genes <- screen\$hgnc_id
-    gene_symbols_1000 <- screen\$Gene[1:1000]
-
-    # Load interaction data from BioGRID
-    interactions_df <- read.csv("${biogrid}")
-
-    # Create an undirected graph from the interaction data
-    g <- graph_from_data_frame(interactions_df[, c("hgnc_id_1", "hgnc_id_2")], directed=FALSE)
-
-    # Calculate the degree (number of connections) for each gene in the graph
-    degree <- degree(g)
-    names(degree) <- V(g)\$name
 
     # Function to perform degree-conserved edge permutations
     EdgePermutationDegreeConserved <- function(permutation, frequency, degree, hit.genes, graph) {
@@ -193,6 +131,89 @@ process HITSELECTION {
         return(data.frame(logp.val.degree.conserved,edges,avg_edges_permutation_degree_conserved))
     }
 
+    # Load necessary data
+    screen <- read_delim("${per_gene_results}", delim = '\t')  # Load gene screening results
+
+    beta_col <- grep("beta", colnames(screen), value = TRUE)
+
+    #For MAGeCK MLE output
+    if(length(beta_col) >= 1) {
+        screen\$Rank <- rank(screen[[beta_col]])
+        screen <- screen[order(screen\$Rank), ]
+    }
+
+    hgnc <- read_delim("${hgnc}", delim = '\t')  # Load HGNC gene data
+
+    # Select relevant columns from HGNC data
+    columns_to_include <- c('hgnc_id', 'symbol', 'prev_symbol', 'ensembl_gene_id', 'alias_symbol', 'entrez_id')
+    hgnc <- hgnc[columns_to_include]  # Keep only the necessary columns
+
+    # Convert HGNC data to a list of dictionaries, where each entry corresponds to a gene
+    hgnc_dict <- split(hgnc, seq(nrow(hgnc)))
+
+    # Apply the update_gene_columns function to each gene symbol in the screen data
+    updated_genes <- do.call(rbind, lapply(screen[[1]], update_gene_columns))
+    screen[[1]] <- updated_genes[, 1]  # Update the main gene symbol column
+    screen\$Gene_2 <- updated_genes[, 2]  # Add a new column for the suffixes (Gene_2)
+
+    # Create a lookup dictionary for gene information based on HGNC data
+    gene_lookup <- list()
+    for (entry in hgnc_dict) {
+        # Add main gene symbol to lookup table
+        gene_lookup[[entry\$symbol]] <- list(entry\$hgnc_id, entry\$ensembl_gene_id)
+        # Add previous symbols (if any) to lookup table
+        if (!is.na(entry\$prev_symbol)) {
+            prev_symbols <- unlist(strsplit(entry\$prev_symbol, split = "|", fixed = TRUE))
+            for (prev_symbol in prev_symbols) {
+                gene_lookup[[prev_symbol]] <- list(entry\$hgnc_id, entry\$ensembl_gene_id)
+            }
+        }
+        # Add alias symbols (if any) to lookup table
+        if (!is.na(entry\$alias_symbol)) {
+            alias_symbols <- unlist(strsplit(entry\$alias_symbol, split = "|", fixed = TRUE))
+            for (alias in alias_symbols) {
+                gene_lookup[[alias]] <- list(entry\$hgnc_id, entry\$ensembl_gene_id)
+            }
+        }
+    }
+
+
+    # Apply the lookup_gene_info function to each row in the screen data
+    info <- do.call(rbind, apply(screen, 1, function(row) lookup_gene_info(as.character(row[1]), as.character(row\$Gene_2))))
+    info <- as.data.frame(info)
+
+    # Add the HGNC and Ensembl gene IDs back into the screen data
+    screen\$hgnc_id <- as.character(info[, 1])
+    screen\$ensembl_gene_id <- as.character(info[, 2])
+
+    if(length(beta_col) >= 1) {
+        screen\$Gene <- as.character(screen\$Gene)
+    } else {
+        screen\$GENE <- as.character(screen\$GENE)
+    }
+
+    # Save the updated screen data with HGNC and Ensembl IDs to a file
+    if(length(beta_col) >= 1) {
+        filename <- '${meta.treatment}_vs_${meta.reference}_mle'
+    } else {
+        filename <- '${meta.treatment}_vs_${meta.reference}'
+    }
+
+    write_delim(as.data.frame(screen), paste0(filename, '_gene_conversion.txt'), delim = '\t')
+
+    # Select the HGNC IDs from the screen data and the first 1000 gene symbols
+    screen_genes <- screen\$hgnc_id
+    gene_symbols_1000 <- screen[[1]][1:${hit_selection_iteration_nb}]
+    # Load interaction data from BioGRID
+    interactions_df <- read.csv("${biogrid}")
+
+    # Create an undirected graph from the interaction data
+    g <- graph_from_data_frame(interactions_df[, c("hgnc_id_1", "hgnc_id_2")], directed=FALSE)
+
+    # Calculate the degree (number of connections) for each gene in the graph
+    degree <- degree(g)
+    names(degree) <- V(g)\$name
+
     min <- 0
     max <- ${hit_selection_iteration_nb}
     steps <- max - min
@@ -207,7 +228,7 @@ process HITSELECTION {
 
     final_dataframe <- bind_rows(final_results)
     final_dataframe\$gene_symbols <- gene_symbols_1000
-    write.table(final_dataframe, file="${meta.treatment}_vs_${meta.reference}_hitselection.tsv",row.names=FALSE,quote=FALSE,sep="\t")
+    write.table(final_dataframe, file=paste0(filename,"_hitselection.tsv"),row.names=FALSE,quote=FALSE,sep="\t")
 
     max_value <- max(final_dataframe\$logp.val.degree.conserved)
     max_index <- which.max(final_dataframe\$logp.val.degree.conserved)
@@ -240,7 +261,7 @@ process HITSELECTION {
         panel.grid.major = element_line(color = "gray80"),  # Major grid lines
         panel.grid.minor = element_line(color = "gray90")   # Minor grid lines
     )
-    ggsave("${meta.treatment}_vs_${meta.reference}_logpvalue_distribution.png")
+    ggsave(paste0(filename, "_logpvalue_distribution.png"))
 
     version_file_path <- "versions.yml"
     version_igraph <- paste(unlist(packageVersion("igraph")), collapse = ".")
