@@ -127,14 +127,15 @@ Main developers:
 We thank the following people for their extensive assistance in the development of this pipeline:
 
 - [@alan-tracey](https://github.com/alan-tracey)
+- [@bolenala](https://github.com/bolenala)
 - [@ggabernet](https://github.com/ggabernet)
 - [@jianhong](https://github.com/jianhong)
+- [@joannakraw](https://github.com/joannakraw)
 - [@mashehu](https://github.com/mashehu)
+- [@metinyazar](https://github.com/metinyazar)
 - [@msanvicente](https://github.com/msanvicente)
 - [@mschaffer-incyte](https://github.com/mschaffer-incyte)
 - [@SusiJo](https://github.com/SusiJo)
-- [@joannakraw](https://github.com/joannakraw)
-- [@metinyazar](https://github.com/metinyazar)
 
 ## Contributions and Support
 

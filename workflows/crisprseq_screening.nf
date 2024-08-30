@@ -11,6 +11,7 @@ include { BAGEL2_PR                                    } from '../modules/local/
 include { BAGEL2_GRAPH                                 } from '../modules/local/bagel2/graph'
 include { MATRICESCREATION                             } from '../modules/local/matricescreation'
 include { HITSELECTION                                 } from '../modules/local/hitselection'
+include { HITSELECTION as HITSELECTION_MLE             } from '../modules/local/hitselection'
 include { MAGECK_FLUTEMLE                              } from '../modules/local/mageck/flutemle'
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_CONTRASTS } from '../modules/local/mageck/flutemle'
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_DAY0      } from '../modules/local/mageck/flutemle'
@@ -271,7 +272,7 @@ workflow CRISPRSEQ_SCREENING {
                 }.set { ch_designed_mle }
 
             ch_mle = ch_designed_mle.combine(ch_counts)
-            MAGECK_MLE_MATRIX (ch_mle)
+            MAGECK_MLE_MATRIX (ch_mle, INITIALISATION_CHANNEL_CREATION_SCREENING.out.mle_control_sgrna)
             ch_versions = ch_versions.mix(MAGECK_MLE_MATRIX.out.versions)
             MAGECK_FLUTEMLE(MAGECK_MLE_MATRIX.out.gene_summary)
             ch_versions = ch_versions.mix(MAGECK_FLUTEMLE.out.versions)
@@ -280,19 +281,23 @@ workflow CRISPRSEQ_SCREENING {
         if(params.contrasts) {
             MATRICESCREATION(ch_contrasts)
             ch_mle = MATRICESCREATION.out.design_matrix.combine(ch_counts)
-            MAGECK_MLE (ch_mle)
+            MAGECK_MLE (ch_mle, INITIALISATION_CHANNEL_CREATION_SCREENING.out.mle_control_sgrna)
             ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
+
+            HITSELECTION_MLE(MAGECK_MLE.out.gene_summary,
+            INITIALISATION_CHANNEL_CREATION_SCREENING.out.biogrid,
+            INITIALISATION_CHANNEL_CREATION_SCREENING.out.hgnc,
+            params.hit_selection_iteration_nb)
+
             MAGECK_FLUTEMLE_CONTRASTS(MAGECK_MLE.out.gene_summary)
             ch_versions = ch_versions.mix(MAGECK_FLUTEMLE_CONTRASTS.out.versions)
             ch_venndiagram = BAGEL2_PR.out.pr.join(MAGECK_MLE.out.gene_summary)
             VENNDIAGRAM(ch_venndiagram)
             ch_versions = ch_versions.mix(VENNDIAGRAM.out.versions)
-            MAGECK_MLE.out.gene_summary.dump(tag: "There you go!")
-            HITSELECTION(MAGECK_MLE.out.gene_summary, INITIALISATION_CHANNEL_CREATION_SCREENING.out.biogrid)
         }
         if(params.day0_label) {
             ch_mle = Channel.of([id: "day0"]).merge(Channel.of([[]])).merge(ch_counts)
-            MAGECK_MLE_DAY0 (ch_mle)
+            MAGECK_MLE_DAY0 (ch_mle, INITIALISATION_CHANNEL_CREATION_SCREENING.out.mle_control_sgrna)
             ch_versions = ch_versions.mix(MAGECK_MLE_DAY0.out.versions)
             MAGECK_FLUTEMLE_DAY0(MAGECK_MLE_DAY0.out.gene_summary)
             ch_versions = ch_versions.mix(MAGECK_FLUTEMLE_DAY0.out.versions)
@@ -310,6 +315,12 @@ workflow CRISPRSEQ_SCREENING {
             counts
             )
         ch_versions = ch_versions.mix(DRUGZ.out.versions)
+        DRUGZ.out.per_gene_results.dump(tag: "There you go!")
+        HITSELECTION(DRUGZ.out.per_gene_results,
+        INITIALISATION_CHANNEL_CREATION_SCREENING.out.biogrid,
+        INITIALISATION_CHANNEL_CREATION_SCREENING.out.hgnc,
+        params.hit_selection_iteration_nb)
+
     }
 
     //

@@ -168,14 +168,24 @@ workflow INITIALISATION_CHANNEL_CREATION_SCREENING {
         ch_design = Channel.fromPath(params.mle_design_matrix)
     }
 
-    ch_biogrid = Channel.fromPath("$projectDir/assets/biogrid_hgncid_noduplicate_dropna.csv", checkIfExists: true)
 
+    ch_biogrid = Channel.fromPath("$projectDir/assets/biogrid_hgncid_noduplicate_dropna.csv", checkIfExists: true)
+    ch_hgnc = Channel.fromPath("$projectDir/assets/hgnc_complete_set.txt", checkIfExists: true)
+
+    if(params.mle_control_sgrna) {
+        ch_mle_control_sgrna = Channel.fromPath(params.mle_control_sgrna)
+    } else {
+        ch_mle_control_sgrna = []
+    }
 
     emit:
-    library = ch_library            // channel: library file
-    crisprcleanr = ch_crisprcleanr  // channel: crisprcleanr file or value
-    design = ch_design              // channel: design matrix file
+    library = ch_library                     // channel: library file
+    crisprcleanr = ch_crisprcleanr           // channel: crisprcleanr file or value
+    design = ch_design                       // channel: design matrix file
+    mle_control_sgrna = ch_mle_control_sgrna // channel: negative control sgRNA for MAGeCK MLE
     biogrid = ch_biogrid            // channel: biogrid
+    hgnc = ch_hgnc                  // channel: hgnc
+
 }
 
 /*

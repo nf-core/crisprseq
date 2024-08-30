@@ -677,7 +677,6 @@ def calculate_bayes_factors(
     print("Iter TrainEss TrainNon TestSet")
     sys.stdout.flush()
     for loop in range(LOOPCOUNT):
-        # currentbf = {}
         printstr = ""
         printstr += str(loop)
 
@@ -984,7 +983,6 @@ def calculate_bayes_factors(
         #
 
         for loop in range(LOOPCOUNT):
-            # currentnbf = {}
             printstr = ""
             printstr += str(loop)
 
