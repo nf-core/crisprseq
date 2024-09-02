@@ -193,7 +193,7 @@ For further reading and documentation see the [cutadapt helper page](https://cut
 ### HitSelection
 
 - `HitSelection`
-  - `*.png` : -logP value vs gene rank plot to determine the rank threshols
+  - `*.png` : -logP value vs gene rank plot to determine the rank thresholds
   - `*.txt` : Ranked -logP value and gene symbols table
 
 ## MultiQC
