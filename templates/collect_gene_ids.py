@@ -1,4 +1,4 @@
- #!/usr/bin/env python3
+#!/usr/bin/env python3
 
 data = "${gene_data}"
 question = "${gpt_question}"
