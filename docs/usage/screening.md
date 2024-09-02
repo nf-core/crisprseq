@@ -142,7 +142,7 @@ Hitselection is a script for identifying rank thresholds for CRISPR screen resul
 
 To run Hitselection, you can specify '--hitselection' and it will automatically run on the gene essentiality algorithms you have chosen. The outputs are a png file containing the -logP value vs gene rank plot and a txt file containing all the -logP values, edge and average edge values and ranked gene symbols.
 
-## :warning: The hitselection algorithm is for the moment developped only for KO screens and requires the library to map to genes with an EntrezID.
+## :warning: The hitselection algorithm is for the moment developped only for KO screens and requires the library to map to genes with an Homosapiens EntrezID.
 
 ## :warning: Please be advised that the Hitselection algorithm is time intensive and will make the pipeline run longer
 
