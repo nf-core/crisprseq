@@ -14,6 +14,7 @@ include { MAGECK_FLUTEMLE                              } from '../modules/local/
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_CONTRASTS } from '../modules/local/mageck/flutemle'
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_DAY0      } from '../modules/local/mageck/flutemle'
 include { VENNDIAGRAM                                  } from '../modules/local/venndiagram'
+include { PREPARE_GPT_INPUT                            } from '../modules/local/prepare_gpt_input'
 // nf-core modules
 include { FASTQC                                       } from '../modules/nf-core/fastqc/main'
 include { CUTADAPT as CUTADAPT_THREE_PRIME             } from '../modules/nf-core/cutadapt/main'
@@ -32,6 +33,7 @@ include { BOWTIE2_ALIGN                                } from '../modules/nf-cor
 include { INITIALISATION_CHANNEL_CREATION_SCREENING    } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 // Functions
 include { paramsSummaryMap                             } from 'plugin/nf-validation'
+include { gptPromptForText                             } from 'plugin/nf-gpt'
 include { paramsSummaryMultiqc                         } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML                       } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText                       } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
@@ -308,6 +310,28 @@ workflow CRISPRSEQ_SCREENING {
             )
         ch_versions = ch_versions.mix(DRUGZ.out.versions)
     }
+
+    //
+    // Parse genes from drugZ to Open AI api
+    //
+    gene_source = DRUGZ.out.per_gene_results.map { meta, genes -> genes}
+    
+    def question = "Which of the following genes enhance or supress drug activity. Only write the gene names with yes or no respectively."
+    
+    PREPARE_GPT_INPUT(
+        gene_source,
+        question
+    )
+
+    PREPARE_GPT_INPUT.out.query.map {
+        it -> it.text
+    }
+    .collect()
+    .flatMap { it -> gptPromptForText(it[0]) }
+    .set { gpt_genes_output }
+
+    gpt_genes_output
+        .collectFile( name: 'gpt_important_genes.txt', newLine: true, sort: false )
 
     //
     // Collate and save software versions
