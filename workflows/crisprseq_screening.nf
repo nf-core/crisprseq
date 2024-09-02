@@ -315,9 +315,7 @@ workflow CRISPRSEQ_SCREENING {
     // Parse genes from drugZ to Open AI api
     //
     gene_source = DRUGZ.out.per_gene_results.map { meta, genes -> genes}
-    
     def question = "Which of the following genes enhance or supress drug activity. Only write the gene names with yes or no respectively."
-    
     PREPARE_GPT_INPUT(
         gene_source,
         question
