@@ -71,7 +71,8 @@ For crispr screening:
    - ([MAGeCK mle](https://sourceforge.net/p/mageck/wiki/Home/#mle))
    - ([BAGEL2](https://github.com/hart-lab/bagel))
    - ([DrugZ](https://github.com/hart-lab/drugz))
-5. Visualize analysis
+5. Optional: hit selection on KO screen allowing a subset of more likely true positives
+6. Visualize analysis
 
 ## Usage
 
