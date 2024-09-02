@@ -135,10 +135,17 @@ process HITSELECTION {
     screen <- read_delim("${per_gene_results}", delim = '\t')  # Load gene screening results
 
     beta_col <- grep("beta", colnames(screen), value = TRUE)
+    bf_col <- grep("BF", colnames(screen), value = TRUE)
 
     #For MAGeCK MLE output
     if(length(beta_col) >= 1) {
         screen\$Rank <- rank(screen[[beta_col]])
+        screen <- screen[order(screen\$Rank), ]
+    }
+
+    #For BAGEL2
+    if(length(bf_col) >= 1) {
+        screen\$Rank <- rank(screen[[bf_col]])
         screen <- screen[order(screen\$Rank), ]
     }
 
@@ -186,7 +193,7 @@ process HITSELECTION {
     screen\$hgnc_id <- as.character(info[, 1])
     screen\$ensembl_gene_id <- as.character(info[, 2])
 
-    if(length(beta_col) >= 1) {
+    if(length(beta_col) >= 1 || length(bf_col) >= 1) {
         screen\$Gene <- as.character(screen\$Gene)
     } else {
         screen\$GENE <- as.character(screen\$GENE)
@@ -195,8 +202,12 @@ process HITSELECTION {
     # Save the updated screen data with HGNC and Ensembl IDs to a file
     if(length(beta_col) >= 1) {
         filename <- '${meta.treatment}_vs_${meta.reference}_mle'
-    } else {
-        filename <- '${meta.treatment}_vs_${meta.reference}'
+    } else if(length(bf_col) >= 1) {
+        filename <- '${meta.treatment}_vs_${meta.reference}_bagel2'
+    }
+
+    if(length(beta_col) == 0 || length(bf_col) == 0) {
+        filename <- '${meta.treatment}_vs_${meta.reference}_drugz'
     }
 
     write_delim(as.data.frame(screen), paste0(filename, '_gene_conversion.txt'), delim = '\t')
