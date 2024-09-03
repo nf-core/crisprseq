@@ -314,22 +314,24 @@ workflow CRISPRSEQ_SCREENING {
     //
     // Parse genes from drugZ to Open AI api
     //
-    gene_source = DRUGZ.out.per_gene_results.map { meta, genes -> genes}
-    def question = "Which of the following genes enhance or supress drug activity. Only write the gene names with yes or no respectively."
-    PREPARE_GPT_INPUT(
-        gene_source,
-        question
-    )
+    if(params.gpt_interpretation) {
+        gene_source = DRUGZ.out.per_gene_results.map { meta, genes -> genes}
+        def question = "Which of the following genes enhance or supress drug activity. Only write the gene names with yes or no respectively."
+        PREPARE_GPT_INPUT(
+            gene_source,
+            question
+        )
 
-    PREPARE_GPT_INPUT.out.query.map {
-        it -> it.text
+        PREPARE_GPT_INPUT.out.query.map {
+            it -> it.text
+        }
+        .collect()
+        .flatMap { it -> gptPromptForText(it[0]) }
+        .set { gpt_genes_output }
+
+        gpt_genes_output
+            .collectFile( name: 'gpt_important_genes.txt', newLine: true, sort: false )
     }
-    .collect()
-    .flatMap { it -> gptPromptForText(it[0]) }
-    .set { gpt_genes_output }
-
-    gpt_genes_output
-        .collectFile( name: 'gpt_important_genes.txt', newLine: true, sort: false )
 
     //
     // Collate and save software versions

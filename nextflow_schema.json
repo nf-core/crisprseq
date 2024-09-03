@@ -247,6 +247,10 @@
                     "type": "string",
                     "description": "Essential genes to remove from the drugZ modules",
                     "pattern": "\\\\S+"
+                },
+                "gpt_interpretation": {
+                    "type": "boolean",
+                    "description": "Determines whether or not to run nf-gpt plugin"
                 }
             }
         },
