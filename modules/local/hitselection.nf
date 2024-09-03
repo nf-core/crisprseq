@@ -136,10 +136,17 @@ process HITSELECTION {
 
     beta_col <- grep("beta", colnames(screen), value = TRUE)
     bf_col <- grep("BF", colnames(screen), value = TRUE)
+    rra_col <- grep("neg.*score", colnames(screen), value = TRUE)
 
     #For MAGeCK MLE output
     if(length(beta_col) >= 1) {
         screen\$Rank <- rank(screen[[beta_col]])
+        screen <- screen[order(screen\$Rank), ]
+    }
+
+    #For RRA output
+    if(length(rra_col) >= 1) {
+        screen\$Rank <- rank(screen[[rra_col]])
         screen <- screen[order(screen\$Rank), ]
     }
 
@@ -195,6 +202,8 @@ process HITSELECTION {
 
     if(length(beta_col) >= 1 || length(bf_col) >= 1) {
         screen\$Gene <- as.character(screen\$Gene)
+    } else if(length(rra_col) >= 1) {
+        screen\$id <- as.character(screen\$id)
     } else {
         screen\$GENE <- as.character(screen\$GENE)
     }
@@ -204,9 +213,9 @@ process HITSELECTION {
         filename <- '${meta.treatment}_vs_${meta.reference}_mle'
     } else if(length(bf_col) >= 1) {
         filename <- '${meta.treatment}_vs_${meta.reference}_bagel2'
-    }
-
-    if(length(beta_col) == 0 || length(bf_col) == 0) {
+    } else if(length(rra_col) >= 1) {  # New else if condition
+    filename <- '${meta.treatment}_vs_${meta.reference}_rra'
+    } else {
         filename <- '${meta.treatment}_vs_${meta.reference}_drugz'
     }
 

@@ -13,6 +13,7 @@ include { MATRICESCREATION                             } from '../modules/local/
 include { HITSELECTION                                 } from '../modules/local/hitselection'
 include { HITSELECTION as HITSELECTION_MLE             } from '../modules/local/hitselection'
 include { HITSELECTION as HITSELECTION_BAGEL2          } from '../modules/local/hitselection'
+include { HITSELECTION as HITSELECTION_RRA             } from '../modules/local/hitselection'
 include { MAGECK_FLUTEMLE                              } from '../modules/local/mageck/flutemle'
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_CONTRASTS } from '../modules/local/mageck/flutemle'
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_DAY0      } from '../modules/local/mageck/flutemle'
@@ -223,6 +224,16 @@ workflow CRISPRSEQ_SCREENING {
             MAGECK_TEST.out.gene_summary
         )
         ch_versions = ch_versions.mix(MAGECK_GRAPHRRA.out.versions)
+
+        if(params.hitselection) {
+            HITSELECTION_RRA (
+                MAGECK_TEST.out.gene_summary,
+                INITIALISATION_CHANNEL_CREATION_SCREENING.out.biogrid,
+                INITIALISATION_CHANNEL_CREATION_SCREENING.out.hgnc,
+                params.hit_selection_iteration_nb
+            )
+            ch_versions = ch_versions.mix(HITSELECTION_RRA.out.versions)
+        }
     }
 
     if(params.contrasts) {
