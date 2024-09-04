@@ -10,6 +10,10 @@ include { BAGEL2_BF                                    } from '../modules/local/
 include { BAGEL2_PR                                    } from '../modules/local/bagel2/pr'
 include { BAGEL2_GRAPH                                 } from '../modules/local/bagel2/graph'
 include { MATRICESCREATION                             } from '../modules/local/matricescreation'
+include { HITSELECTION                                 } from '../modules/local/hitselection'
+include { HITSELECTION as HITSELECTION_MLE             } from '../modules/local/hitselection'
+include { HITSELECTION as HITSELECTION_BAGEL2          } from '../modules/local/hitselection'
+include { HITSELECTION as HITSELECTION_RRA             } from '../modules/local/hitselection'
 include { MAGECK_FLUTEMLE                              } from '../modules/local/mageck/flutemle'
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_CONTRASTS } from '../modules/local/mageck/flutemle'
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_DAY0      } from '../modules/local/mageck/flutemle'
@@ -220,6 +224,16 @@ workflow CRISPRSEQ_SCREENING {
             MAGECK_TEST.out.gene_summary
         )
         ch_versions = ch_versions.mix(MAGECK_GRAPHRRA.out.versions)
+
+        if(params.hitselection) {
+            HITSELECTION_RRA (
+                MAGECK_TEST.out.gene_summary,
+                INITIALISATION_CHANNEL_CREATION_SCREENING.out.biogrid,
+                INITIALISATION_CHANNEL_CREATION_SCREENING.out.hgnc,
+                params.hit_selection_iteration_nb
+            )
+            ch_versions = ch_versions.mix(HITSELECTION_RRA.out.versions)
+        }
     }
 
     if(params.contrasts) {
@@ -260,6 +274,19 @@ workflow CRISPRSEQ_SCREENING {
     )
 
     ch_versions = ch_versions.mix(BAGEL2_GRAPH.out.versions)
+
+    // Run hit selection on BAGEL2
+    if(params.hitselection) {
+
+        HITSELECTION_BAGEL2 (
+            BAGEL2_PR.out.pr,
+            INITIALISATION_CHANNEL_CREATION_SCREENING.out.biogrid,
+            INITIALISATION_CHANNEL_CREATION_SCREENING.out.hgnc,
+            params.hit_selection_iteration_nb
+        )
+        ch_versions = ch_versions.mix(HITSELECTION_BAGEL2.out.versions)
+    }
+
     }
 
     if((params.mle_design_matrix) || (params.contrasts && !params.rra) || (params.day0_label)) {
@@ -275,17 +302,29 @@ workflow CRISPRSEQ_SCREENING {
             MAGECK_FLUTEMLE(MAGECK_MLE_MATRIX.out.gene_summary)
             ch_versions = ch_versions.mix(MAGECK_FLUTEMLE.out.versions)
         }
+
         //if the user specified a contrast file
         if(params.contrasts) {
             MATRICESCREATION(ch_contrasts)
             ch_mle = MATRICESCREATION.out.design_matrix.combine(ch_counts)
             MAGECK_MLE (ch_mle, INITIALISATION_CHANNEL_CREATION_SCREENING.out.mle_control_sgrna)
             ch_versions = ch_versions.mix(MAGECK_MLE.out.versions)
+
+            if(params.hitselection) {
+                HITSELECTION_MLE(MAGECK_MLE.out.gene_summary,
+                INITIALISATION_CHANNEL_CREATION_SCREENING.out.biogrid,
+                INITIALISATION_CHANNEL_CREATION_SCREENING.out.hgnc,
+                params.hit_selection_iteration_nb)
+
+                ch_versions = ch_versions.mix(HITSELECTION_BAGEL2.out.versions)
+            }
+
             MAGECK_FLUTEMLE_CONTRASTS(MAGECK_MLE.out.gene_summary)
             ch_versions = ch_versions.mix(MAGECK_FLUTEMLE_CONTRASTS.out.versions)
             ch_venndiagram = BAGEL2_PR.out.pr.join(MAGECK_MLE.out.gene_summary)
             VENNDIAGRAM(ch_venndiagram)
             ch_versions = ch_versions.mix(VENNDIAGRAM.out.versions)
+
         }
         if(params.day0_label) {
             ch_mle = Channel.of([id: "day0"]).merge(Channel.of([[]])).merge(ch_counts)
@@ -307,6 +346,16 @@ workflow CRISPRSEQ_SCREENING {
             counts
             )
         ch_versions = ch_versions.mix(DRUGZ.out.versions)
+
+        if(params.hitselection) {
+            HITSELECTION(DRUGZ.out.per_gene_results,
+                INITIALISATION_CHANNEL_CREATION_SCREENING.out.biogrid,
+                INITIALISATION_CHANNEL_CREATION_SCREENING.out.hgnc,
+                params.hit_selection_iteration_nb)
+
+            ch_versions = ch_versions.mix(HITSELECTION_BAGEL2.out.versions)
+        }
+
     }
 
     //
