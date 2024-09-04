@@ -136,7 +136,7 @@ If you wish to remove specific genes before the drugZ analysis, you can use the 
 
 ### Running Hitselection
 
-Hitselection provides the user with a threshold and a set of genes that are likely to be closer to true positives by identifying the most interconnected subnetworks within the ranked gene list. This module is for now only developped for KO screens on Human data mapped to Entrez IDs.
+Hitselection provides the user with a threshold and a set of genes that are likely to be closer to true positives by identifying the most interconnected subnetworks within the ranked gene list. This module is for now only developed for KO screens on Human data mapped to Entrez IDs.
 
 Hitselection is a script for identifying rank thresholds for CRISPR screen results based on using the connectivity of subgraphs of protein-protein interaction (PPI) networks. The script is based on R and is also an implementation of RNAiCut (Kaplow et al., 2009), a method for estimating thresholds in RNAi data. The principle behind Hitselection is that true positive hits are densely connected in the PPI networks. The script runs a simulation based on Poisson distribution of the ranked screen gene list to calculate the -logP value for comparing the interconnectivity of the real subnetwork and the degree match random subnetwork of each gene, one by one. The degree of the nodes is used as the interconnectivity metric.
 
