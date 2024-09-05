@@ -249,7 +249,7 @@
                     "pattern": "\\\\S+"
                 },
                 "gpt_interpretation": {
-                    "type": "boolean",
+                    "type": "string",
                     "description": "Determines whether or not to run nf-gpt plugin"
                 }
             }

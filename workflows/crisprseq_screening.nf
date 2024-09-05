@@ -14,7 +14,10 @@ include { MAGECK_FLUTEMLE                              } from '../modules/local/
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_CONTRASTS } from '../modules/local/mageck/flutemle'
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_DAY0      } from '../modules/local/mageck/flutemle'
 include { VENNDIAGRAM                                  } from '../modules/local/venndiagram'
-include { PREPARE_GPT_INPUT                            } from '../modules/local/prepare_gpt_input'
+include { GPT_PREPARE_BAGEL2_QUERY                     } from '../modules/local/gpt_prepare_bagel2_query'
+include { GPT_PREPARE_DRUGZ_QUERY                      } from '../modules/local/gpt_prepare_drugz_query'
+include { GPT_PREPARE_MLE_QUERY                        } from '../modules/local/gpt_prepare_mle_query'
+
 // nf-core modules
 include { FASTQC                                       } from '../modules/nf-core/fastqc/main'
 include { CUTADAPT as CUTADAPT_THREE_PRIME             } from '../modules/nf-core/cutadapt/main'
@@ -312,25 +315,61 @@ workflow CRISPRSEQ_SCREENING {
     }
 
     //
-    // Parse genes from drugZ to Open AI api
+    // Calling of nf-gpt plugin on drugZ or MAGeCK mle
     //
-    if(params.gpt_interpretation) {
-        gene_source = DRUGZ.out.per_gene_results.map { meta, genes -> genes}
-        def question = "Which of the following genes enhance or supress drug activity. Only write the gene names with yes or no respectively."
-        PREPARE_GPT_INPUT(
-            gene_source,
-            question
+    if(params.gpt_interpretation.contains("drugz")) {
+        def gpt_drugz_data = DRUGZ.out.per_gene_results.map { meta, genes -> genes }
+        def gpt_drugz_gene_amount = 100
+        def gpt_drugz_question = "Which of the following genes enhance or supress drug activity?"
+        GPT_PREPARE_DRUGZ_QUERY(
+            gpt_drugz_data,
+            gpt_drugz_gene_amount,
+            gpt_drugz_question
         )
 
-        PREPARE_GPT_INPUT.out.query.map {
+        GPT_PREPARE_DRUGZ_QUERY.out.query.map {
             it -> it.text
         }
         .collect()
         .flatMap { it -> gptPromptForText(it[0]) }
-        .set { gpt_genes_output }
+        .collectFile( name: 'gpt_drugz_output.txt', newLine: true, sort: false )
+        .set { gpt_drugz_output }
+    }
+    if(params.gpt_interpretation.contains("mle")) {
+        def gpt_mle_data = MAGECK_MLE.out.gene_summary.map { meta, genes -> genes }
+        def gpt_mle_gene_amount = 100
+        def gpt_mle_question = "What genes are known to have pan-effects on cancer?"
+        GPT_PREPARE_MLE_QUERY(
+            gpt_mle_data,
+            gpt_mle_gene_amount,
+            gpt_mle_question
+        )
 
-        gpt_genes_output
-            .collectFile( name: 'gpt_important_genes.txt', newLine: true, sort: false )
+        GPT_PREPARE_MLE_QUERY.out.query.map {
+            it -> it.text
+        }
+        .collect()
+        .flatMap { it -> gptPromptForText(it[0]) }
+        .collectFile( name: 'gpt_mle_output.txt', newLine: true, sort: false )
+        .set { gpt_mle_output }
+    }
+    if(params.gpt_interpretation.contains("bagel2")) {
+        def gpt_bagel2_data = BAGEL2_BF.out.bf.map { meta, genes -> genes }
+        def gpt_bagel2_gene_amount = 100
+        def gpt_bagel_question = "What can you tell me about these genes in the context of functional genomics?"
+        GPT_PREPARE_BAGEL2_QUERY(
+            gpt_bagel2_data,
+            gpt_bagel2_gene_amount,
+            gpt_bagel_question
+        )
+
+        GPT_PREPARE_BAGEL2_QUERY.out.query.map {
+            it -> it.text
+        }
+        .collect()
+        .flatMap { it -> gptPromptForText(it[0]) }
+        .collectFile( name: 'gpt_bagel2_output.txt', newLine: true, sort: false )
+        .set { gpt_bagel2_output }
     }
 
     //
