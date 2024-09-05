@@ -18,7 +18,6 @@ include { MAGECK_FLUTEMLE                              } from '../modules/local/
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_CONTRASTS } from '../modules/local/mageck/flutemle'
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_DAY0      } from '../modules/local/mageck/flutemle'
 include { VENNDIAGRAM                                  } from '../modules/local/venndiagram'
-include { PREPARE_GPT_INPUT                            } from '../modules/local/prepare_gpt_input'
 // nf-core modules
 include { FASTQC                                       } from '../modules/nf-core/fastqc/main'
 include { CUTADAPT as CUTADAPT_THREE_PRIME             } from '../modules/nf-core/cutadapt/main'
