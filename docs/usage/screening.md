@@ -132,7 +132,7 @@ BAGEL2 uses the same contrasts from `--contrasts` and is run with the extra para
 
 ### Running drugZ
 
-[DrugZ](https://github.com/hart-lab/drugz) detects synergistic and suppressor drug-gene interactions in CRISPR screens. DrugZ is an open-source Python software for the analysis of genome-scale drug modifier screens. The software accurately identifies genetic perturbations that enhance or suppress drug activity. To run drugZ, you can specify `--drugz` with the contrast file `--contrasts`. These two columns should be separated with a dot comma (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma separating them in each column.
+[DrugZ](https://github.com/hart-lab/drugz) detects synergistic and suppressor drug-gene interactions in CRISPR screens. DrugZ is an open-source Python software for the analysis of genome-scale drug modifier screens. The software accurately identifies genetic perturbations that enhance or suppress drug activity. To run drugZ, you can specify `--drugz` with the contrast file `--contrasts <your_file.csv>`. The contrasts file should contain two columns, separated with a semicolon (;), and have the `csv` extension. You can also integrate several samples/conditions by comma-separating them in each column:
 
 | reference         | treatment             |
 | ----------------- | --------------------- |
