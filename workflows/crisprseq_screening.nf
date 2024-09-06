@@ -285,7 +285,7 @@ workflow CRISPRSEQ_SCREENING {
                 params.hit_selection_iteration_nb
             )
             ch_versions = ch_versions.mix(HITSELECTION_BAGEL2.out.versions)
-            }
+        }
 
         }
 
