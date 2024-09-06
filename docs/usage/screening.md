@@ -115,7 +115,7 @@ This label is not mandatory as in case you are running time series. If you wish 
 
 #### With the contrast file
 
-To run MAGeCK MLE, you can define the contrasts as previously stated in the last section with --contrasts your_file.txt and also specify `--mle`.
+To run MAGeCK MLE, you can define the contrasts as previously stated in the last section with `--contrasts <your_file.txt>` and also specify `--mle`.
 
 ### MAGeCKFlute
 
