@@ -77,10 +77,10 @@ Otherwise, if you wish to provide your own file, please provide it in CSV format
 nf-core/crisprseq supports 4 gene essentiality analysis modules: MAGeCK RRA, MAGeCK MLE,
 BAGEL2 and DrugZ. You can run any of these modules by providing a contrast file using `--contrasts` and the flag of the tool you wish to use:
 
-- `--rra` for MAGeCK RRA,
+- `--rra` for MAGeCK RRA
 - `--mle` for MAGeCK MLE
 - `--drugz` for DrugZ
-- `--bagel2` for BAGEL2.
+- `--bagel2` for BAGEL2
 
 The contrast file must contain the headers "reference" and "treatment". These two columns should be separated with a semicolon (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma-separating them in each column. Please find an example below:
 
