@@ -82,7 +82,7 @@ BAGEL2 and DrugZ. You can run any of these modules by providing a contrast file 
 - `--drugz` for DrugZ
 - `--bagel2` for BAGEL2.
 
-The contrast file must contain the headers "treatment" and "reference".These two columns should be separated with a dot comma (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma separating them in each column. Please find an example here below :
+The contrast file must contain the headers "reference" and "treatment". These two columns should be separated with a semicolon (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma-separating them in each column. Please find an example below:
 
 | reference         | treatment             |
 | ----------------- | --------------------- |
