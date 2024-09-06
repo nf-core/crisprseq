@@ -275,7 +275,7 @@ workflow CRISPRSEQ_SCREENING {
         )
 
         ch_versions = ch_versions.mix(BAGEL2_GRAPH.out.versions)
-            // Run hit selection on BAGEL2
+        // Run hit selection on BAGEL2
         if(params.hitselection) {
 
             HITSELECTION_BAGEL2 (
