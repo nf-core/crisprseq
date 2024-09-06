@@ -97,7 +97,7 @@ Running MAGeCK MLE and BAGEL2 with a contrast file will also output a Venn diagr
 
 ### MAGeCK RRA
 
-MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK RRA, you can define the contrasts as previously stated in the last section with --contrasts your_file.txt(with a `.txt` extension) and also specify `--rra`.
+MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK RRA, you can define the contrasts as previously stated in the last section with --contrasts <<your_file.txt>>(with a `.txt` extension) and also specify `--rra`.
 
 ### Running MAGeCK MLE only
 
@@ -115,7 +115,7 @@ This label is not mandatory as in case you are running time series. If you wish 
 
 #### With the contrast file
 
-To run MAGeCK MLE, you can define the contrasts as previously stated in the last section with --contrasts your_file.txt and also specify `--mle`.
+To run MAGeCK MLE, you can define the contrasts as previously stated in the last section with --contrasts <your_file.txt> and also specify `--mle`.
 
 ### MAGeCKFlute
 
