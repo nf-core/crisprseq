@@ -169,8 +169,8 @@ workflow INITIALISATION_CHANNEL_CREATION_SCREENING {
     }
 
 
-    ch_biogrid = Channel.fromPath("$projectDir/assets/biogrid_hgncid_noduplicate_dropna.csv", checkIfExists: true)
-    ch_hgnc = Channel.fromPath("$projectDir/assets/hgnc_complete_set.txt", checkIfExists: true)
+    ch_biogrid = Channel.fromPath("$projectDir/assets/biogrid_hgncid_noduplicate_dropna.csv", checkIfExists: true).first()
+    ch_hgnc = Channel.fromPath("$projectDir/assets/hgnc_complete_set.txt", checkIfExists: true).first()
 
     if(params.mle_control_sgrna) {
         ch_mle_control_sgrna = Channel.fromPath(params.mle_control_sgrna)
