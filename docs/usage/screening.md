@@ -74,7 +74,7 @@ Otherwise, if you wish to provide your own file, please provide it in CSV format
 
 ### Running gene essentiality scoring
 
-nf-core/crisprseq supports 4 gene essentiality analysis modules : MAGeCK RRA, MAGeCK MLE,
+nf-core/crisprseq supports 4 gene essentiality analysis modules: MAGeCK RRA, MAGeCK MLE,
 BAGEL2 and DrugZ. You can run any of these modules by providing a contrast file using `--contrasts` and the flag of the tool you wish to use:
 
 - `--rra` for MAGeCK RRA,
