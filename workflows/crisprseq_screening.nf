@@ -245,8 +245,8 @@ workflow CRISPRSEQ_SCREENING {
 
     if(params.bagel2) {
     //Define non essential and essential genes channels for bagel2
-        ch_bagel_reference_essentials= Channel.fromPath(params.bagel_reference_essentials).first()
-        ch_bagel_reference_nonessentials= Channel.fromPath(params.bagel_reference_nonessentials).first()
+        ch_bagel_reference_essentials    = Channel.fromPath(params.bagel_reference_essentials).first()
+        ch_bagel_reference_nonessentials = Channel.fromPath(params.bagel_reference_nonessentials).first()
 
         BAGEL2_FC (
                 counts
