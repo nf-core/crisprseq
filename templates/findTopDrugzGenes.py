@@ -7,7 +7,7 @@ num_of_genes = int(num_of_genes)
 question = "${question}"
 
 # Read the file and split it into lines
-with open(file_path, 'r') as file:
+with open(file_path, "r") as file:
     lines = file.readlines()
 
 # Extract the header and the rows
@@ -21,7 +21,7 @@ rows_sorted = sorted(rows, key=lambda row: int(row[header.index("rank_synth")]))
 top_genes = rows_sorted[:num_of_genes]
 
 # Write the output to query.txt
-with open("gpt_drugz_query.txt", 'w') as output:
-    output.write(question + '''\n''')
+with open("gpt_drugz_query.txt", "w") as output:
+    output.write(question + """\n""")
     for gene in top_genes:
-        output.write(gene[header.index("GENE")] + '''\n''')
+        output.write(gene[header.index("GENE")] + """\n""")

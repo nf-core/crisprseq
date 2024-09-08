@@ -7,7 +7,7 @@ num_of_genes = int(num_of_genes)
 question = "${question}"
 
 # Open and read the data file
-with open(file_path, 'r') as file:
+with open(file_path, "r") as file:
     lines = file.readlines()
 
 # Skip the header row and process the data
@@ -32,7 +32,7 @@ for i in range(len(genes_data)):
 top_genes = genes_data[:num_of_genes]
 
 # Write the question and top genes into a new output file
-with open("gpt_bagel2_query.txt", 'w') as outfile:
-    outfile.write(question + '''\n''')
+with open("gpt_bagel2_query.txt", "w") as outfile:
+    outfile.write(question + """\n""")
     for gene, bf_value in top_genes:
-        outfile.write(gene + '''\n''')
+        outfile.write(gene + """\n""")

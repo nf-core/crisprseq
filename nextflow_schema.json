@@ -529,5 +529,37 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "gpt_drugz_gene_amount": {
+            "type": "integer",
+            "default": 100,
+            "description": "Number of top genes to be selected from drugZ."
+        },
+        "gpt_drugz_question": {
+            "type": "string",
+            "default": "Which of the following genes enhance or supress drug activity?",
+            "description": "Question parsed with drugZ data to gpt."
+        },
+        "gpt_mle_gene_amount": {
+            "type": "integer",
+            "default": 100,
+            "description": "Number of top genes to be selected from mle."
+        },
+        "gpt_mle_question": {
+            "type": "string",
+            "default": "What genes are known to have pan-effects on cancer?",
+            "description": "Question parsed with MAGeCK mle data to gpt."
+        },
+        "gpt_bagel2_gene_amount": {
+            "type": "integer",
+            "default": 100,
+            "description": "Number of top genes to be selected from bagel2."
+        },
+        "gpt_bagel_question": {
+            "type": "string",
+            "default": "What can you tell me about these genes in the context of functional genomics?",
+            "description": "Question parsed with bagel2 data to gpt."
+        }
+    }
 }

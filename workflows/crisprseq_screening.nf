@@ -319,12 +319,10 @@ workflow CRISPRSEQ_SCREENING {
     //
     if(params.gpt_interpretation.contains("drugz")) {
         def gpt_drugz_data = DRUGZ.out.per_gene_results.map { meta, genes -> genes }
-        def gpt_drugz_gene_amount = 100
-        def gpt_drugz_question = "Which of the following genes enhance or supress drug activity?"
         GPT_PREPARE_DRUGZ_QUERY(
             gpt_drugz_data,
-            gpt_drugz_gene_amount,
-            gpt_drugz_question
+            params.gpt_drugz_gene_amount,
+            params.gpt_drugz_question
         )
 
         GPT_PREPARE_DRUGZ_QUERY.out.query.map {
@@ -332,17 +330,14 @@ workflow CRISPRSEQ_SCREENING {
         }
         .collect()
         .flatMap { it -> gptPromptForText(it[0]) }
-        .collectFile( name: 'gpt_drugz_output.txt', newLine: true, sort: false )
-        .set { gpt_drugz_output }
+        .collectFile( name: "${params.outdir}/gpt/gpt_drugz_output.txt", newLine: true, sort: false )
     }
     if(params.gpt_interpretation.contains("mle")) {
         def gpt_mle_data = MAGECK_MLE.out.gene_summary.map { meta, genes -> genes }
-        def gpt_mle_gene_amount = 100
-        def gpt_mle_question = "What genes are known to have pan-effects on cancer?"
         GPT_PREPARE_MLE_QUERY(
             gpt_mle_data,
-            gpt_mle_gene_amount,
-            gpt_mle_question
+            params.gpt_mle_gene_amount,
+            params.gpt_mle_question
         )
 
         GPT_PREPARE_MLE_QUERY.out.query.map {
@@ -350,17 +345,14 @@ workflow CRISPRSEQ_SCREENING {
         }
         .collect()
         .flatMap { it -> gptPromptForText(it[0]) }
-        .collectFile( name: 'gpt_mle_output.txt', newLine: true, sort: false )
-        .set { gpt_mle_output }
+        .collectFile( name: "${params.outdir}/gpt/gpt_mle_output.txt", newLine: true, sort: false )
     }
     if(params.gpt_interpretation.contains("bagel2")) {
         def gpt_bagel2_data = BAGEL2_BF.out.bf.map { meta, genes -> genes }
-        def gpt_bagel2_gene_amount = 100
-        def gpt_bagel_question = "What can you tell me about these genes in the context of functional genomics?"
         GPT_PREPARE_BAGEL2_QUERY(
             gpt_bagel2_data,
-            gpt_bagel2_gene_amount,
-            gpt_bagel_question
+            params.gpt_bagel2_gene_amount,
+            params.gpt_bagel_question
         )
 
         GPT_PREPARE_BAGEL2_QUERY.out.query.map {
@@ -368,8 +360,7 @@ workflow CRISPRSEQ_SCREENING {
         }
         .collect()
         .flatMap { it -> gptPromptForText(it[0]) }
-        .collectFile( name: 'gpt_bagel2_output.txt', newLine: true, sort: false )
-        .set { gpt_bagel2_output }
+        .collectFile( name: "${params.outdir}/gpt/gpt_bagel2_output.txt", newLine: true, sort: false )
     }
 
     //
