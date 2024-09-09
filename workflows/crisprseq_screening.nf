@@ -14,9 +14,9 @@ include { MAGECK_FLUTEMLE                              } from '../modules/local/
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_CONTRASTS } from '../modules/local/mageck/flutemle'
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_DAY0      } from '../modules/local/mageck/flutemle'
 include { VENNDIAGRAM                                  } from '../modules/local/venndiagram'
-include { GPT_PREPARE_BAGEL2_QUERY                     } from '../modules/local/gpt_prepare_bagel2_query'
-include { GPT_PREPARE_DRUGZ_QUERY                      } from '../modules/local/gpt_prepare_drugz_query'
-include { GPT_PREPARE_MLE_QUERY                        } from '../modules/local/gpt_prepare_mle_query'
+include { GPT_PREPARE_QUERY as GPT_PREPARE_BAGEL2_QUERY} from '../modules/local/gpt_prepare_query'
+include { GPT_PREPARE_QUERY as GPT_PREPARE_DRUGZ_QUERY } from '../modules/local/gpt_prepare_query'
+include { GPT_PREPARE_QUERY as GPT_PREPARE_MLE_QUERY   } from '../modules/local/gpt_prepare_query'
 
 // nf-core modules
 include { FASTQC                                       } from '../modules/nf-core/fastqc/main'
@@ -315,13 +315,19 @@ workflow CRISPRSEQ_SCREENING {
     }
 
     //
-    // Calling of nf-gpt plugin on drugZ or MAGeCK mle
+    // Calling of nf-gpt plugin on drugZ, MAGeCK mle or bagel2
     //
-    if(params.gpt_interpretation.contains("drugz")) {
+    if(params.gpt_interpretation.split(',').contains('drugz')) {
         def gpt_drugz_data = DRUGZ.out.per_gene_results.map { meta, genes -> genes }
+        def gpt_drugZ_source = "drugZ"
+        def gpt_drugZ_target_column = "pval_supp"
+        def gpt_drugZ_mode = "high"
         GPT_PREPARE_DRUGZ_QUERY(
             gpt_drugz_data,
+            gpt_drugZ_source,
+            gpt_drugZ_target_column,
             params.gpt_drugz_gene_amount,
+            gpt_drugZ_mode,
             params.gpt_drugz_question
         )
 
@@ -332,11 +338,17 @@ workflow CRISPRSEQ_SCREENING {
         .flatMap { it -> gptPromptForText(it[0]) }
         .collectFile( name: "${params.outdir}/gpt/gpt_drugz_output.txt", newLine: true, sort: false )
     }
-    if(params.gpt_interpretation.contains("mle")) {
+    if(params.gpt_interpretation.split(',').contains('mle')) {
         def gpt_mle_data = MAGECK_MLE.out.gene_summary.map { meta, genes -> genes }
+        def gpt_mle_source = "mle"
+        def gpt_mle_target_column = "control_vs_treatment|p-value"
+        def gpt_mle_mode = "high"
         GPT_PREPARE_MLE_QUERY(
             gpt_mle_data,
+            gpt_mle_source,
+            gpt_mle_target_column,
             params.gpt_mle_gene_amount,
+            gpt_mle_mode,
             params.gpt_mle_question
         )
 
@@ -347,11 +359,17 @@ workflow CRISPRSEQ_SCREENING {
         .flatMap { it -> gptPromptForText(it[0]) }
         .collectFile( name: "${params.outdir}/gpt/gpt_mle_output.txt", newLine: true, sort: false )
     }
-    if(params.gpt_interpretation.contains("bagel2")) {
+    if(params.gpt_interpretation.split(',').contains('bagel2')) {
         def gpt_bagel2_data = BAGEL2_BF.out.bf.map { meta, genes -> genes }
+        def gpt_bagel2_source = "bagel2"
+        def gpt_bagel2_target_column = "BF"
+        def gpt_bagel2_mode = "high"
         GPT_PREPARE_BAGEL2_QUERY(
             gpt_bagel2_data,
+            gpt_bagel2_source,
+            gpt_bagel2_target_column,
             params.gpt_bagel2_gene_amount,
+            gpt_bagel2_mode,
             params.gpt_bagel_question
         )
 
