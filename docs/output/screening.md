@@ -190,6 +190,12 @@ For further reading and documentation see the [cutadapt helper page](https://cut
   - `*.txt`: Pathway view for top enriched pathways.
   - `*.png`: Pathway view for top enriched pathways.
 
+### HitSelection
+
+- `HitSelection`
+  - `*.png` : -logP value vs gene rank plot to determine the rank thresholds
+  - `*.txt` : Ranked -logP value and gene symbols table
+
 ## MultiQC
 
 <details markdown="1">

@@ -202,9 +202,22 @@
                     "description": "Comma-separated file with the conditions to be compared. The first one will be the reference (control)",
                     "fa_icon": "fas fa-adjust"
                 },
+                "mle": {
+                    "type": "boolean",
+                    "description": "Parameter indicating if MAGeCK MLE should be run"
+                },
                 "rra": {
                     "type": "boolean",
-                    "description": "Parameter indicating if MAGeCK RRA should be ran instead of MAGeCK MLE."
+                    "description": "Parameter indicating if MAGeCK RRA should be run instead of MAGeCK MLE."
+                },
+                "bagel2": {
+                    "type": "boolean",
+                    "description": "Parameter indicating if BAGEL2 should be run"
+                },
+                "drugz": {
+                    "type": "boolean",
+                    "format": "file-path",
+                    "description": "Parameter indicating if DrugZ should be run"
                 },
                 "count_table": {
                     "type": "string",
@@ -238,11 +251,6 @@
                     "description": "Non essential gene set  for BAGEL2",
                     "default": "https://raw.githubusercontent.com/hart-lab/bagel/master/NEGv1.txt"
                 },
-                "drugz": {
-                    "type": "string",
-                    "format": "file-path",
-                    "description": "Specifies drugz to be run and your contrast file on which comparisons should be done"
-                },
                 "drugz_remove_genes": {
                     "type": "string",
                     "description": "Essential genes to remove from the drugZ modules",
@@ -251,6 +259,15 @@
                 "gpt_interpretation": {
                     "type": "string",
                     "description": "Determines whether or not to run nf-gpt plugin"
+                },
+                "hitselection": {
+                    "type": "boolean",
+                    "description": "Specify to run the Hitselection algorithm"
+                },
+                "hit_selection_iteration_nb": {
+                    "type": "number",
+                    "description": "Number of iterations the hit selection module should provide",
+                    "default": 1000
                 }
             }
         },
