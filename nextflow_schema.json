@@ -577,6 +577,16 @@
             "type": "string",
             "default": "What can you tell me about these genes in the context of functional genomics?",
             "description": "Question parsed with bagel2 data to gpt."
+        },
+        "gpt_rra_gene_amount": {
+            "type": "integer",
+            "default": 100,
+            "description": "Number of top genes to be selected from rra."
+        },
+        "gpt_rra_question": {
+            "type": "string",
+            "default": "What genes are known to have pan-effects on cancer?",
+            "description": "Question parsed with rra data to gpt."
         }
     }
 }
