@@ -74,15 +74,15 @@ Otherwise, if you wish to provide your own file, please provide it in CSV format
 
 ### Running gene essentiality scoring
 
-nf-core/crisprseq supports 4 gene essentiality analysis modules : MAGeCK RRA, MAGeCK MLE,
+nf-core/crisprseq supports 4 gene essentiality analysis modules: MAGeCK RRA, MAGeCK MLE,
 BAGEL2 and DrugZ. You can run any of these modules by providing a contrast file using `--contrasts` and the flag of the tool you wish to use:
 
-- `--rra` for MAGeCK RRA,
+- `--rra` for MAGeCK RRA
 - `--mle` for MAGeCK MLE
 - `--drugz` for DrugZ
-- `--bagel2` for BAGEL2.
+- `--bagel2` for BAGEL2
 
-The contrast file must contain the headers "treatment" and "reference".These two columns should be separated with a dot comma (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma separating them in each column. Please find an example here below :
+The contrast file must contain the headers "reference" and "treatment". These two columns should be separated with a semicolon (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma-separating them in each column. Please find an example below:
 
 | reference         | treatment             |
 | ----------------- | --------------------- |
@@ -115,7 +115,12 @@ This label is not mandatory as in case you are running time series. If you wish 
 
 #### With the contrast file
 
+<<<<<<< HEAD
 To run MAGeCK MLE, you can define the contrasts as previously stated in the last section with --contrasts <your_file.txt> and also specify `--mle`.
+=======
+To run MAGeCK MLE, you can define the contrasts as previously stated in the last section with `--contrasts <your_file.txt>` and also specify `--mle`.
+
+> > > > > > > 59fa3d6aad22e83b4846ad8dfcb9407e89d5938b
 
 ### MAGeCKFlute
 
@@ -132,7 +137,7 @@ BAGEL2 uses the same contrasts from `--contrasts` and is run with the extra para
 
 ### Running drugZ
 
-[DrugZ](https://github.com/hart-lab/drugz) detects synergistic and suppressor drug-gene interactions in CRISPR screens. DrugZ is an open-source Python software for the analysis of genome-scale drug modifier screens. The software accurately identifies genetic perturbations that enhance or suppress drug activity. To run drugZ, you can specify `--drugz` with the contrast file `--contrasts`. These two columns should be separated with a dot comma (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma separating them in each column.
+[DrugZ](https://github.com/hart-lab/drugz) detects synergistic and suppressor drug-gene interactions in CRISPR screens. DrugZ is an open-source Python software for the analysis of genome-scale drug modifier screens. The software accurately identifies genetic perturbations that enhance or suppress drug activity. To run drugZ, you can specify `--drugz` with the contrast file `--contrasts <your_file.csv>`. The contrasts file should contain two columns, separated with a semicolon (;), and have the `csv` extension. You can also integrate several samples/conditions by comma-separating them in each column:
 
 | reference         | treatment             |
 | ----------------- | --------------------- |

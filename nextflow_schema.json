@@ -204,11 +204,11 @@
                 },
                 "mle": {
                     "type": "boolean",
-                    "description": "Parameter specifying MAGeCK MLE should be run"
+                    "description": "Parameter indicating if MAGeCK MLE should be run"
                 },
                 "rra": {
                     "type": "boolean",
-                    "description": "Parameter indicating if MAGeCK RRA should be ran instead of MAGeCK MLE."
+                    "description": "Parameter indicating if MAGeCK RRA should be run instead of MAGeCK MLE."
                 },
                 "bagel2": {
                     "type": "boolean",
