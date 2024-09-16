@@ -50,8 +50,8 @@ process VENNDIAGRAM {
                         MAGeCK_MLE = filtered_mageck_mle\$Gene)
 
     plot_test <- ggvenn(data)
-    ggsave(paste0("venn_",name,"_mageckmle.png"),plot_test)
-    write.table(common_genes, paste0('${prefix}_',name_module,"_common_genes_mle.txt"),sep = "\t", quote = FALSE, row.names=FALSE)
+    ggsave(paste0("venn_",name_module,"_mageckmle_",name,".png"),plot_test)
+    write.table(common_genes, paste0(name,'_',name_module,"_common_genes_mle.txt"),sep = "\t", quote = FALSE, row.names=FALSE)
 
     #version
     version_file_path <- "versions.yml"

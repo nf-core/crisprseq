@@ -372,9 +372,8 @@ workflow CRISPRSEQ_SCREENING {
     }
 
     if(params.mle && params.drugz) {
-        ch_venndiagram = DRUGZ.out.per_gene_results.join(MAGECK_MLE.out.gene_summary)
-        ch_venndiagram.dump(tag: "Venn diagram")
-        VENNDIAGRAM_DRUGZ(ch_venndiagram)
+        ch_venndiagram_mle_drugz = DRUGZ.out.per_gene_results.join(MAGECK_MLE.out.gene_summary)
+        VENNDIAGRAM_DRUGZ(ch_venndiagram_mle_drugz)
         ch_versions = ch_versions.mix(VENNDIAGRAM_DRUGZ.out.versions)
     }
 
