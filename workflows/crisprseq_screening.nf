@@ -18,6 +18,8 @@ include { MAGECK_FLUTEMLE                              } from '../modules/local/
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_CONTRASTS } from '../modules/local/mageck/flutemle'
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_DAY0      } from '../modules/local/mageck/flutemle'
 include { VENNDIAGRAM                                  } from '../modules/local/venndiagram'
+include { VENNDIAGRAM as VENNDIAGRAM_DRUGZ             } from '../modules/local/venndiagram'
+
 // nf-core modules
 include { FASTQC                                       } from '../modules/nf-core/fastqc/main'
 include { CUTADAPT as CUTADAPT_THREE_PRIME             } from '../modules/nf-core/cutadapt/main'
@@ -357,10 +359,22 @@ workflow CRISPRSEQ_SCREENING {
 
     }
 
+    //
+    // Venn diagrams
+    //
 
+    // BAGEL2 and MAGeCK MLE
     if(params.mle && params.bagel2) {
         ch_venndiagram = BAGEL2_PR.out.pr.join(MAGECK_MLE.out.gene_summary)
+        ch_venndiagram.dump(tag: "Venn diagram")
         VENNDIAGRAM(ch_venndiagram)
+        ch_versions = ch_versions.mix(VENNDIAGRAM.out.versions)
+    }
+
+    if(params.mle && params.drugz) {
+        ch_venndiagram_mle_drugz = DRUGZ.out.per_gene_results.join(MAGECK_MLE.out.gene_summary)
+        VENNDIAGRAM_DRUGZ(ch_venndiagram_mle_drugz)
+        ch_versions = ch_versions.mix(VENNDIAGRAM_DRUGZ.out.versions)
     }
 
     //
