@@ -366,7 +366,7 @@ workflow CRISPRSEQ_SCREENING {
     //
     // Calling of nf-gpt plugin on drugZ, MAGeCK mle or bagel2
     //
-    if(params.gpt_interpretation.split(',').contains('drugz')) {
+    if(params.gpt_interpretation && params.gpt_interpretation.split(',').contains('drugz')) {
         if(params.drugz) {
             def gpt_drugz_data = DRUGZ.out.per_gene_results.map { meta, genes -> genes }
             def gpt_drugZ_source = "drugZ"
@@ -391,7 +391,7 @@ workflow CRISPRSEQ_SCREENING {
             error "You specified DrugZ for gpt interpretation, but DrugZ is not running."
         }
     }
-    if(params.gpt_interpretation.split(',').contains('mle')) {
+    if(params.gpt_interpretation && params.gpt_interpretation.split(',').contains('mle')) {
         if(params.mle) {
             def gpt_mle_data = MAGECK_MLE.out.gene_summary.map { meta, genes -> genes }
             def gpt_mle_source = "mle"
@@ -416,7 +416,7 @@ workflow CRISPRSEQ_SCREENING {
             error "You specified MAGeCK MLE for gpt interpretation, but MAGeCK MLE is not running."
         }
     }
-    if(params.gpt_interpretation.split(',').contains('bagel2')) {
+    if(params.gpt_interpretation && params.gpt_interpretation.split(',').contains('bagel2')) {
         if(params.bagel2) {
             def gpt_bagel2_data = BAGEL2_BF.out.bf.map { meta, genes -> genes }
             def gpt_bagel2_source = "bagel2"
@@ -441,7 +441,7 @@ workflow CRISPRSEQ_SCREENING {
             error "You specified BAGEL2 for gpt interpretation, but BAGEL2 is not running."
         }
     }
-    if(params.gpt_interpretation.split(',').contains('rra')) {
+    if(params.gpt_interpretation && params.gpt_interpretation.split(',').contains('rra')) {
         if(params.rra) {
             def gpt_rra_data = MAGECK_TEST.out.gene_summary.map { meta, genes -> genes }
             def gpt_rra_source = "rra"
