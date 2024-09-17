@@ -3,13 +3,14 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v2.3.0dev
+## [v2.3.0 - Lime Nightingale](https://github.com/nf-core/crisprseq/releases/tag/2.3.0) - [17.09.2024]
 
 ### Added
 
 - Add module to classify samples by clonality ([#178](https://github.com/nf-core/crisprseq/pull/178))
 - Add DrugZ, a module for chemogenetic interaction ([#168](https://github.com/nf-core/crisprseq/pull/168))
 - Add Hitselection, a module for subsetting more likely true positives for KO screen based on the protein protein interaction ([#191](https://github.com/nf-core/crisprseq/pull/191))
+- Make the usage of essential genes more friendly by allowing the user to just add the name of the modules to use as a flag ([#194](https://github.com/nf-core/crisprseq/pull/194))
 
 ### Fixed
 
