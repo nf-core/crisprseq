@@ -117,7 +117,6 @@ This label is not mandatory as in case you are running time series. If you wish 
 
 To run MAGeCK MLE, you can define the contrasts as previously stated in the last section with `--contrasts <your_file.txt>` and also specify `--mle`.
 
-
 ### MAGeCKFlute
 
 The downstream analysis involves distinguishing essential, non-essential, and target-associated genes. Additionally, it encompasses conducting biological functional category analysis and pathway enrichment analysis for these genes. Furthermore, it provides visualization of genes within pathways, enhancing user exploration of screening data. MAGECKFlute is run automatically after MAGeCK MLE and for each MLE design matrice. If you have used the `--day0_label`, MAGeCKFlute will be ran on all the other conditions. Please note that the DepMap data is used for these plots.
