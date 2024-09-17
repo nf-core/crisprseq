@@ -19,8 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make output of FluteMLE optional as when some pathways produce bugs some channels are then empty ([#190](https://github.com/nf-core/crisprseq/pull/190))
 - Fix a typo in crisprcleanr/normalize, when a user inputs a file ([#192](https://github.com/nf-core/crisprseq/pull/192))
 
-### Deprecated
-
 ## [v2.2.1 Romarin Curie - patch](https://github.com/nf-core/crisprseq/releases/tag/2.2.1) - [23.07.2024]
 
 ### Fixed
