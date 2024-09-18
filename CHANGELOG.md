@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v2.3.0dev
+## [v2.3.0 - Lime Nightingale](https://github.com/nf-core/crisprseq/releases/tag/2.3.0) - [17.09.2024]
 
 ### Added
 
@@ -18,8 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix design matrix bug that introduced dots instead of a hyphen ([#190](https://github.com/nf-core/crisprseq/pull/190))
 - Make output of FluteMLE optional as when some pathways produce bugs some channels are then empty ([#190](https://github.com/nf-core/crisprseq/pull/190))
 - Fix a typo in crisprcleanr/normalize, when a user inputs a file ([#192](https://github.com/nf-core/crisprseq/pull/192))
-
-### Deprecated
 
 ## [v2.2.1 Romarin Curie - patch](https://github.com/nf-core/crisprseq/releases/tag/2.2.1) - [23.07.2024]
 
