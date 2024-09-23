@@ -27,6 +27,8 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - [MAGeCK mle](#mageck-mle) - maximum-likelihood estimation (MLE) for robust identification of CRISPR-screen hits
   - [BAGEL2](#BAGEL2) - Bayes Factor to identify essential genes
   - [MAGeCKFlute](#flutemle) - graphics to visualise MAGECK MLE output
+  - [DrugZ](#DrugZ) - Identifying chemogenetic interactions from CRISPR screens
+- [Hitselection](#HitSelection) - Identifying tresholds on KO screens on Homo Sapiens
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
