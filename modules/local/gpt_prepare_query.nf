@@ -2,7 +2,7 @@ process GPT_PREPARE_QUERY {
     input:
     path data
     val source
-    val column
+    val index
     val count
     val mode
     val question

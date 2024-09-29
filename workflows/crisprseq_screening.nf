@@ -370,8 +370,8 @@ workflow CRISPRSEQ_SCREENING {
         if(params.drugz) {
             def gpt_drugz_data = DRUGZ.out.per_gene_results.map { meta, genes -> genes }
             def gpt_drugZ_source = "drugZ"
-            def gpt_drugZ_target_column = "pval_supp"
-            def gpt_drugZ_mode = "high"
+            def gpt_drugZ_target_column = 5
+            def gpt_drugZ_mode = "low"
             GPT_PREPARE_DRUGZ_QUERY(
                 gpt_drugz_data,
                 gpt_drugZ_source,
@@ -395,7 +395,7 @@ workflow CRISPRSEQ_SCREENING {
         if(params.mle) {
             def gpt_mle_data = MAGECK_MLE.out.gene_summary.map { meta, genes -> genes }
             def gpt_mle_source = "mle"
-            def gpt_mle_target_column = "control_vs_treatment|p-value"
+            def gpt_mle_target_column = 2
             def gpt_mle_mode = "high"
             GPT_PREPARE_MLE_QUERY(
                 gpt_mle_data,
@@ -420,7 +420,7 @@ workflow CRISPRSEQ_SCREENING {
         if(params.bagel2) {
             def gpt_bagel2_data = BAGEL2_BF.out.bf.map { meta, genes -> genes }
             def gpt_bagel2_source = "bagel2"
-            def gpt_bagel2_target_column = "BF"
+            def gpt_bagel2_target_column = 1
             def gpt_bagel2_mode = "high"
             GPT_PREPARE_BAGEL2_QUERY(
                 gpt_bagel2_data,
@@ -428,7 +428,7 @@ workflow CRISPRSEQ_SCREENING {
                 gpt_bagel2_target_column,
                 params.gpt_bagel2_gene_amount,
                 gpt_bagel2_mode,
-                params.gpt_bagel_question
+                params.gpt_bagel2_question
             )
 
             GPT_PREPARE_BAGEL2_QUERY.out.query.map {
@@ -445,7 +445,7 @@ workflow CRISPRSEQ_SCREENING {
         if(params.rra) {
             def gpt_rra_data = MAGECK_TEST.out.gene_summary.map { meta, genes -> genes }
             def gpt_rra_source = "rra"
-            def gpt_rra_target_column = "neg|rank"
+            def gpt_rra_target_column = 5
             def gpt_rra_mode = "low"
             GPT_PREPARE_RRA_QUERY(
                 gpt_rra_data,
