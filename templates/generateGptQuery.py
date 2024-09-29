@@ -14,11 +14,11 @@ question = "${question}"
 with open(data_path, "r") as file:
     # Read the header row (though it’s not necessary for column names anymore)
     header = file.readline().strip().split("\t")
-    
+
     # Ensure target_index is within the bounds of available columns
     if target_index >= len(header) or target_index < 0:
         print(f"Error: The specified column index {target_index} is out of range!")
-    
+
     # Initiate list to store gene IDs with corresponding data values
     data = []
 
