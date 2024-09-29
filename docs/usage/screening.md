@@ -97,7 +97,7 @@ Running MAGeCK MLE and BAGEL2 with a contrast file will also output a Venn diagr
 
 ### MAGeCK RRA
 
-MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK RRA, you can define the contrasts as previously stated in the last section with --contrasts your_file.txt(with a `.txt` extension) and also specify `--rra`.
+MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK RRA, you can define the contrasts as previously stated in the last section with `--contrasts` <<your_file.txt>> (with a `.txt` extension) and also specify `--rra`.
 
 ### Running MAGeCK MLE only
 
@@ -153,9 +153,14 @@ Hitselection is a script for identifying rank thresholds for CRISPR screen resul
 
 To run Hitselection, you can specify '--hitselection' and it will automatically run on the gene essentiality algorithms you have chosen. The outputs are a png file containing the -logP value vs gene rank plot and a txt file containing all the -logP values, edge and average edge values and ranked gene symbols.
 
-## :warning: The hitselection algorithm is for the moment developed only for KO screens and requires the library to map to genes with an Homosapiens EntrezID.
+> [!WARNING]
+> The hitselection algorithm is for the moment developed
+> only for KO screens and requires the library to map to
+> genes with an Homosapiens EntrezID.
 
-## :warning: Please be advised that the Hitselection algorithm is time intensive and will make the pipeline run longer
+> [!WARNING]
+> Please be advised that the Hitselection algorithm is
+> time intensive and will make the pipeline run longer
 
 Note that the pipeline will create the following files in your working directory:
 

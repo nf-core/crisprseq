@@ -22,6 +22,8 @@ include { GPT_PREPARE_QUERY as GPT_PREPARE_BAGEL2_QUERY} from '../modules/local/
 include { GPT_PREPARE_QUERY as GPT_PREPARE_DRUGZ_QUERY } from '../modules/local/gpt_prepare_query'
 include { GPT_PREPARE_QUERY as GPT_PREPARE_MLE_QUERY   } from '../modules/local/gpt_prepare_query'
 include { GPT_PREPARE_QUERY as GPT_PREPARE_RRA_QUERY   } from '../modules/local/gpt_prepare_query'
+include { VENNDIAGRAM as VENNDIAGRAM_DRUGZ             } from '../modules/local/venndiagram'
+
 
 // nf-core modules
 include { FASTQC                                       } from '../modules/nf-core/fastqc/main'
@@ -364,6 +366,7 @@ workflow CRISPRSEQ_SCREENING {
     }
 
     //
+
     // Calling of nf-gpt plugin on drugZ, MAGeCK mle or bagel2
     //
     if(params.gpt_interpretation && params.gpt_interpretation.split(',').contains('drugz')) {
@@ -467,9 +470,21 @@ workflow CRISPRSEQ_SCREENING {
         }
     }
 
+    // Venn diagrams
+    //
+
+    // BAGEL2 and MAGeCK MLE
     if(params.mle && params.bagel2) {
         ch_venndiagram = BAGEL2_PR.out.pr.join(MAGECK_MLE.out.gene_summary)
+        ch_venndiagram.dump(tag: "Venn diagram")
         VENNDIAGRAM(ch_venndiagram)
+        ch_versions = ch_versions.mix(VENNDIAGRAM.out.versions)
+    }
+
+    if(params.mle && params.drugz) {
+        ch_venndiagram_mle_drugz = DRUGZ.out.per_gene_results.join(MAGECK_MLE.out.gene_summary)
+        VENNDIAGRAM_DRUGZ(ch_venndiagram_mle_drugz)
+        ch_versions = ch_versions.mix(VENNDIAGRAM_DRUGZ.out.versions)
     }
 
     //
