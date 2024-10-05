@@ -527,7 +527,7 @@
                 },
                 "gpt_drugz_question": {
                     "type": "string",
-                    "default": "Which of the following genes have historically shown records of enhancing drug activitys upon CRISPR knockout? Also provde some literature to your findings.",
+                    "default": "Which of the following genes have historically shown records of enhancing drug activitys upon CRISPR knockout? For each positive gene write a paragraph explaining the findings in detail.",
                     "description": "Question parsed with drugZ data to gpt."
                 },
                 "gpt_mle_gene_amount": {
@@ -537,7 +537,7 @@
                 },
                 "gpt_mle_question": {
                     "type": "string",
-                    "default": "Which of the following genes have historically shown significance in the context of a CRISPR knockout? Also provde some literature to your findings.",
+                    "default": "Which of the following genes have historically shown significance in the context of a CRISPR knockout? For each positive gene write a paragraph explaining the findings in detail.",
                     "description": "Question parsed with MAGeCK mle data to gpt."
                 },
                 "gpt_bagel2_gene_amount": {
@@ -547,7 +547,7 @@
                 },
                 "gpt_bagel2_question": {
                     "type": "string",
-                    "default": "Which of the following genes have historically shown significance in the context of a CRISPR knockout? Also provde some literature to your findings."
+                    "default": "Which of the following genes have historically shown significance in the context of a CRISPR knockout? For each positive gene write a paragraph explaining the findings in detail."
                 },
                 "gpt_rra_gene_amount": {
                     "type": "integer",
@@ -556,7 +556,7 @@
                 },
                 "gpt_rra_question": {
                     "type": "string",
-                    "default": "Which of the following genes have historically shown significance in the context of a CRISPR knockout? Also provde some literature to your findings.",
+                    "default": "Which of the following genes have historically shown significance in the context of a CRISPR knockout? For each positive gene write a paragraph explaining the findings in detail.",
                     "description": "Question parsed with rra data to gpt."
                 }
             }
