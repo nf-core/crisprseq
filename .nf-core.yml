@@ -5,7 +5,7 @@ lint:
     - conf/test_full.config
   files_unchanged:
     - .github/PULL_REQUEST_TEMPLATE.md
-nf_core_version: 3.0.0
+nf_core_version: 3.0.1
 org_path: null
 repository_type: pipeline
 template:
