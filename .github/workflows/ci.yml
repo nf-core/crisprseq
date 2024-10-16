@@ -24,7 +24,7 @@ jobs:
     strategy:
       matrix:
         NXF_VER:
-          - "23.04.0"
+          - "24.03.0-edge"
           - "latest-everything"
         ANALYSIS:
           - "test_screening"
