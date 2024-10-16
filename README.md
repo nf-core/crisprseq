@@ -67,10 +67,12 @@ For crispr screening:
    - ([`bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml))
 3. Optional: CNV correction and normalization with ([`CRISPRcleanR`](https://github.com/francescojm/CRISPRcleanR))
 4. Rank sgRNAs and genes ;
-   a. ([MAGeCK test](https://sourceforge.net/p/mageck/wiki/usage/#test))
-   b. ([MAGeCK mle](https://sourceforge.net/p/mageck/wiki/Home/#mle))
-   c. ([BAGEL2](https://github.com/hart-lab/bagel))
-5. Visualize analysis
+   - ([MAGeCK test](https://sourceforge.net/p/mageck/wiki/usage/#test))
+   - ([MAGeCK mle](https://sourceforge.net/p/mageck/wiki/Home/#mle))
+   - ([BAGEL2](https://github.com/hart-lab/bagel))
+   - ([DrugZ](https://github.com/hart-lab/drugz))
+5. Optional: hit selection on KO screen allowing a subset of more likely true positives
+6. Visualize analysis
 
 ## Usage
 
@@ -125,12 +127,16 @@ Main developers:
 
 We thank the following people for their extensive assistance in the development of this pipeline:
 
+- [@alan-tracey](https://github.com/alan-tracey)
+- [@bolenala](https://github.com/bolenala)
 - [@ggabernet](https://github.com/ggabernet)
 - [@jianhong](https://github.com/jianhong)
+- [@joannakraw](https://github.com/joannakraw)
 - [@mashehu](https://github.com/mashehu)
+- [@metinyazar](https://github.com/metinyazar)
 - [@msanvicente](https://github.com/msanvicente)
-- [@SusiJo](https://github.com/SusiJo)
 - [@mschaffer-incyte](https://github.com/mschaffer-incyte)
+- [@SusiJo](https://github.com/SusiJo)
 
 ## Contributions and Support
 

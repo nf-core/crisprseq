@@ -7,7 +7,7 @@ process VENNDIAGRAM {
     container "ghcr.io/qbic-pipelines/rnadeseq:dev"
 
     input:
-    tuple val(meta), path(bagel_pr), path(gene_summary)
+    tuple val(meta), path(bagel_drugz_genes), path(gene_summary)
 
     output:
     tuple val(meta), path("*.txt"), emit: common_list
@@ -31,20 +31,27 @@ process VENNDIAGRAM {
     library(ggvenn)
     mle = read.table('$gene_summary', sep = "\t",
                 header=TRUE)
-    bagel = read.table('$bagel_pr', sep = "\t",
+    bagel_drugz_genes = read.table('$bagel_drugz_genes', sep = "\t",
                         header=TRUE)
 
-    filtered_precision_recall <- subset(bagel, FDR < 0.1)
+    if (any(grepl("sumZ", colnames(bagel_drugz_genes)))) {
+            filtered_precision_recall <- subset(bagel_drugz_genes, fdr_supp < 0.1)
+            name_module = 'drugZ'
+    } else {
+            filtered_precision_recall <- subset(bagel_drugz_genes, FDR < 0.1)
+            name_module = 'BAGEL2'
+    }
+
     name <- gsub(",","_",paste0('${prefix}',".fdr"))
     filtered_mageck_mle <- mle[mle[, name] < 0.1, ]
     common_genes <- intersect(filtered_mageck_mle\$Gene,
-                        filtered_precision_recall\$Gene)
-    data <- list(Bagel2 = filtered_precision_recall\$Gene,
+                        filtered_precision_recall[[1]])
+    data <- list(Bagel2 = filtered_precision_recall[[1]],
                         MAGeCK_MLE = filtered_mageck_mle\$Gene)
 
     plot_test <- ggvenn(data)
-    ggsave("venn_bagel2_mageckmle.png",plot_test)
-    write.table(common_genes, paste0('${prefix}',"_common_genes_bagel_mle.txt"),sep = "\t", quote = FALSE, row.names=FALSE)
+    ggsave(paste0("venn_",name_module,"_mageckmle_",name,".png"),plot_test)
+    write.table(common_genes, paste0(name,'_',name_module,"_common_genes_mle.txt"),sep = "\t", quote = FALSE, row.names=FALSE)
 
     #version
     version_file_path <- "versions.yml"

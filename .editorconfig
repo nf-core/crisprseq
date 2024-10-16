@@ -31,3 +31,6 @@ indent_size = unset
 # ignore python and markdown
 [*.{py,md}]
 indent_style = unset
+
+[/assets/hgnc_complete_set.txt]
+trim_trailing_whitespace = unset
