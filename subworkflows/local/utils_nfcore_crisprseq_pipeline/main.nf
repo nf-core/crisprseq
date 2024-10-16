@@ -68,33 +68,228 @@ workflow PIPELINE_INITIALISATION {
     //
     validateInputParameters()
 
+    reads_targeted   = Channel.empty()
+    reads_screening  = Channel.empty()
+    fastqc_screening = Channel.empty()
+    reference        = Channel.empty()
+    protospacer      = Channel.empty()
+    template         = Channel.empty()
+    versions         = Channel.empty()
+
     //
     // Create channel from input file provided through params.input
     //
+    if(params.input) {
+        Channel
+            .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
+            .multiMap {
+                meta, fastq_1, fastq_2, reference, protospacer, template ->
+                    if (fastq_2) {
+                        files = [ fastq_1, fastq_2 ]
+                    } else {
+                        files = [ fastq_1 ]
+                    }
+                    reads_targeted: [ meta.id, meta - meta.subMap('condition') + [ single_end : fastq_2 ? false : true, self_reference : reference ? false : true, template : template ? true : false ], files ]
+                    reads_screening:[ meta + [ single_end:fastq_2?false:true ], files ]
+                    reference:      [meta - meta.subMap('condition') + [ single_end : fastq_2 ? false : true, self_reference : reference ? false : true, template : template ? true : false ], reference]
+                    protospacer:    [meta - meta.subMap('condition') + [ single_end : fastq_2 ? false : true, self_reference : reference ? false : true, template : template ? true : false ], protospacer]
+                    template:       [meta - meta.subMap('condition') + [ single_end : fastq_2 ? false : true, self_reference : reference ? false : true, template : template ? true : false ], template]
+            }
+            .set { ch_input }
 
-    Channel
-        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
-        .map {
-            meta, fastq_1, fastq_2 ->
-                if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
-                } else {
-                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
-                }
-        }
-        .groupTuple()
-        .map { samplesheet ->
+        //
+        // Validate input samplesheet
+        //
+        ch_input.reads_targeted
+            .groupTuple()
+            .map { samplesheet ->
             validateInputSamplesheet(samplesheet)
         }
-        .map {
-            meta, fastqs ->
-                return [ meta, fastqs.flatten() ]
-        }
-        .set { ch_samplesheet }
+            .set { reads_targeted }
+
+        fastqc_screening = ch_input.reads_screening
+        reference = ch_input.reference
+        protospacer = ch_input.protospacer
+        template = ch_input.template
+    } else {
+        ch_input = Channel.empty()
+    }
 
     emit:
-    samplesheet = ch_samplesheet
-    versions    = ch_versions
+    reads_targeted
+    fastqc_screening
+    reference
+    protospacer
+    template
+    versions = ch_versions
+}
+
+/*
+========================================================================================
+    SUBWORKFLOW TO INITIALISE PIPELINE CHANNELS - SCREENING
+========================================================================================
+*/
+
+workflow INITIALISATION_CHANNEL_CREATION_SCREENING {
+
+    take:
+
+    main:
+
+    ch_library = Channel.empty()
+    ch_crisprcleanr = Channel.empty()
+    ch_design = Channel.empty()
+
+    // Library
+    if (params.library) {
+        ch_library = Channel.fromPath(params.library)
+    }
+
+    // Crisprcleanr
+    if (params.crisprcleanr) {
+        if(params.crisprcleanr.endsWith(".csv")) {
+            ch_crisprcleanr = Channel.fromPath(params.crisprcleanr)
+        } else {
+            ch_crisprcleanr = Channel.value(params.crisprcleanr)
+        }
+    }
+
+    // MLE design matrix
+    if(params.mle_design_matrix) {
+        ch_design = Channel.fromPath(params.mle_design_matrix)
+    }
+
+
+    ch_biogrid = Channel.fromPath("$projectDir/assets/biogrid_hgncid_noduplicate_dropna.csv", checkIfExists: true).first()
+    ch_hgnc = Channel.fromPath("$projectDir/assets/hgnc_complete_set.txt", checkIfExists: true).first()
+
+    if(params.mle_control_sgrna) {
+        ch_mle_control_sgrna = Channel.fromPath(params.mle_control_sgrna)
+    } else {
+        ch_mle_control_sgrna = []
+    }
+
+    emit:
+    library = ch_library                     // channel: library file
+    crisprcleanr = ch_crisprcleanr           // channel: crisprcleanr file or value
+    design = ch_design                       // channel: design matrix file
+    mle_control_sgrna = ch_mle_control_sgrna // channel: negative control sgRNA for MAGeCK MLE
+    biogrid = ch_biogrid            // channel: biogrid
+    hgnc = ch_hgnc                  // channel: hgnc
+
+}
+
+/*
+========================================================================================
+    SUBWORKFLOW TO INITIALISE PIPELINE CHANNELS - TARGETED
+========================================================================================
+*/
+
+workflow INITIALISATION_CHANNEL_CREATION_TARGETED {
+
+    take:
+    input_reads
+    input_reference
+    input_template
+    input_protospacer
+
+    main:
+
+    //
+    // Separate samples by the ones containing all reads in one file or the ones with many files to be concatenated
+    //
+    input_reads
+    .groupTuple()
+    .branch {
+        meta, fastqs ->
+            single  : fastqs.size() == 1
+                return [ meta, fastqs.flatten() ]
+            multiple: fastqs.size() > 1
+                return [ meta, fastqs.flatten() ]
+    }
+    .set { ch_fastq }
+
+    //
+    // Add reference sequences to file
+    //
+    input_reference
+    .tap{ meta_reference }
+    .filter{ meta, sequence -> sequence instanceof String }
+    .collectFile() { meta, reference ->
+        [ "${meta.id}_reference.fasta", ">${meta.id}\n${reference}\n" ] // Write each reference sequence to a file
+    }
+    .map{ new_file ->
+        [new_file.baseName.split("_reference")[0], new_file] // create a channel with the meta.id and the new file
+    }
+    .join(meta_reference
+        .map{ meta, reference ->
+            [meta.id, meta] // Join the channel by meta.id with the meta map
+        }
+    )
+    .map{ metaid, new_file, meta ->
+        [meta, new_file] // Obtain the final channel with meta map and the new file
+    }
+    .set{ ch_seq_reference }
+
+
+    //
+    // Add template sequences to file
+    //
+    input_template
+    .tap{ meta_template }
+    .filter{ meta, sequence -> sequence instanceof String }
+    .collectFile() { meta, template ->
+        [ "${meta.id}_template.fasta", ">${meta.id}\n${template}\n" ] // Write each template sequence to a file
+    }
+    .map{ new_file ->
+        [new_file.baseName.split("_template")[0], new_file] // create a channel with the meta.id and the new file
+    }
+    .join(meta_template
+        .map{ meta, template ->
+            [meta.id, meta] // Join the channel by meta.id with the meta map
+        }
+    )
+    .map{ metaid, new_file, meta ->
+        [meta, new_file] // Obtain the final channel with meta map and the new file
+    }
+    .set{ ch_seq_template }
+
+
+    // Join channels with reference and protospacer
+    // to channel: [ meta, reference, protospacer]
+    if (!params.reference_fasta && !params.protospacer) {
+        ch_seq_reference
+            .join(input_protospacer)
+            .set{ reference_protospacer }
+    } else if (!params.reference_fasta) {
+        // If a protospacer was provided through the --protospacer param instead of the samplesheet
+        ch_protospacer = Channel.of(params.protospacer)
+        ch_seq_reference
+            .combine(ch_protospacer)
+            .set{ reference_protospacer }
+    } else if (!params.protospacer) {
+        // If a reference was provided through a fasta file or igenomes instead of the samplesheet
+        ch_reference = Channel.fromPath(params.reference_fasta)
+        input_protospacer
+            .combine(ch_reference)
+            .map{ meta, protospacer, reference -> [ meta, reference, protospacer ]} // Change the order of the channel
+            .set{ reference_protospacer }
+    } else {
+        ch_reference = Channel.fromPath(params.reference_fasta)
+        ch_protospacer = Channel.of(params.protospacer)
+        input_reads
+            .combine(ch_reference)
+            .combine(ch_protospacer)
+            .map{ meta, fastqs, reference, protospacer -> [ meta, reference, protospacer ]} // Don't add fastqs to the channel
+            .set{ reference_protospacer }
+    }
+
+    emit:
+    fastq_multiple = ch_fastq.multiple // [ meta, fastqs ] // Channel with the samples with multiple files
+    fastq_single = ch_fastq.single // [ meta, fastqs ] // Channel with the samples with only one file
+    template = ch_seq_template // [ meta, template ] // Channel with the template sequences
+    reference_protospacer = reference_protospacer // [ meta, reference, protospacer] // Channel with the reference and protospacer sequences
+
 }
 
 /*
@@ -166,6 +361,18 @@ def validateInputSamplesheet(input) {
     def endedness_ok = metas.collect{ meta -> meta.single_end }.unique().size == 1
     if (!endedness_ok) {
         error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${metas[0].id}")
+    }
+
+    // Check that multiple runs of the same sample contain a reference or not
+    def reference_ok = metas.collect{ it.self_reference }.unique().size == 1
+    if (!reference_ok) {
+        error("Please check input samplesheet -> Multiple runs of a sample must all contain a reference or not: ${metas[0].id}")
+    }
+
+    // Check that multiple runs of the same sample contain a template or not
+    def template_ok = metas.collect{ it.template }.unique().size == 1
+    if (!template_ok) {
+        error("Please check input samplesheet -> Multiple runs of a sample must all contain a template or not: ${metas[0].id}")
     }
 
     return [ metas[0], fastqs ]

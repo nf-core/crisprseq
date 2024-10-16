@@ -1,6 +1,7 @@
 bump_version: null
 lint:
   files_exist:
+    # We skip the linting of these files as we have splitted tests between targeted and screening
     - conf/test.config
     - conf/test_full.config
   files_unchanged:
