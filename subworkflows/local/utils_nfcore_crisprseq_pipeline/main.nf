@@ -468,3 +468,29 @@ def methodsDescriptionText(mqc_methods_yaml) {
     return description_html.toString()
 }
 
+def validateParametersScreening() {
+    if(params.rra && params.mle_design_matrix) {
+        warning "mle_design_matrix will only be used for the MAGeCK MLE computations"
+    }
+
+    if(params.fasta && params.count_table) {
+        error "Please provide either a fasta file or a count_table"
+    }
+
+    if(params.fasta && !params.library) {
+        error "Please provide a fasta file and the library file"
+    }
+
+    if(params.day0_label && params.mle_design_matrix) {
+        warning "MAGeCK MLE module will be run twice, once with the design matrix and once with day0-label"
+    }
+
+    if(params.rra && params.mle_design_matrix) {
+        warning "mle_design_matrix will only be used for the MAGeCK MLE computations"
+    }
+
+    if(params.rra && !params.contrasts) {
+        error "Please also provide the contrasts table to compare the samples for MAGeCK RRA"
+    }
+}
+
