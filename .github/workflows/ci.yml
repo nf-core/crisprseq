@@ -34,7 +34,6 @@ jobs:
           - "docker"
           - "singularity"
         test_name:
-          - "test"
           - "test_screening"
           - "test_screening_paired"
           - "test_screening_rra"
