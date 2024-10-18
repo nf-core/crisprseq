@@ -34,6 +34,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - [Edits calling](#edits-calling)
   - [CIGAR](#cigar) - Parse CIGAR to call edits
   - [Output plots](#output-plots) - Results visualisation
+  - [Clonality classifier](#clonality-classifier) - Classify samples by clonality
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
@@ -258,6 +259,15 @@ This section contains the final output of the pipeline. It contains information 
   - `*_reads.html`: Interactive pie chart with percentage of the number of raw reads, reads merged with Pear, reads passing quality filters and UMI clustered reads. A table with this information can be visualised in the MultiQC report.
     ![Test sample hCas9-AAVS1-a reads plot](../images/hCas9-AAVS1-a_reads.png)
   - `*_subs-perc.csv`: Table containing the percentage of each nucleotide found for each reference position.
+
+</details>
+
+### Clonality classifier
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `*_edits_classified.csv`: Table containing the samples classified into Homologous WT, Homologous NHEJ and Heterologous NHEJ.
 
 </details>
 
