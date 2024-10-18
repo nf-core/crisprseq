@@ -41,10 +41,10 @@ include { SAMTOOLS_INDEX                            } from '../modules/nf-core/s
 // Local subworkflows
 include { INITIALISATION_CHANNEL_CREATION_TARGETED  } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 // Functions
-include { paramsSummaryMap                          } from 'plugin/nf-validation'
-include { paramsSummaryMultiqc                      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML                    } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText                    } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
+include { paramsSummaryMap       } from 'plugin/nf-schema'
+include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -735,7 +735,9 @@ workflow CRISPRSEQ_TARGETED {
         ch_multiqc_files.collect(),
         ch_multiqc_config.toList(),
         ch_multiqc_custom_config.toList(),
-        ch_multiqc_logo.toList()
+        ch_multiqc_logo.toList(),
+        [],
+        []
     )
 
     emit:
