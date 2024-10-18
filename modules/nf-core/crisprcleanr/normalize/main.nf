@@ -55,7 +55,8 @@ process CRISPRCLEANR_NORMALIZE {
         rownames(library) = library[,1]
         library = library[order(rownames(library)),]
         library = library[,-1]
-        count_file_to_normalize <- count_file
+        names(count_file)[names(count_file) == 'Gene'] <- 'gene'
+        count_file_to_normalize <- count_file %>% dplyr::select(sgRNA, gene, everything())
         }
 
     normANDfcs <- ccr.NormfoldChanges(Dframe=count_file_to_normalize,saveToFig = FALSE,min_reads=${min_reads},EXPname="${prefix}", libraryAnnotation=library,display=FALSE)

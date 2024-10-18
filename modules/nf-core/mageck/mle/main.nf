@@ -9,6 +9,7 @@ process MAGECK_MLE {
 
     input:
     tuple val(meta), path(design_matrix), path(count_table)
+    path(mle_control_sgrna)
 
     output:
     tuple val(meta), path("*.gene_summary.txt") , emit: gene_summary
@@ -20,13 +21,16 @@ process MAGECK_MLE {
 
     script:
     def args = task.ext.args ?: ''
+    def args2 = task.ext.args2 ?: ''
     prefix = meta.id ?: "${meta.treatment}_vs_${meta.reference}"
     def design_command = design_matrix ? "-d $design_matrix" : ''
+    def control_sgrna = mle_control_sgrna ? "--control-sgrna $mle_control_sgrna" : ''
 
     """
     mageck \\
         mle \\
         $args \\
+        $control_sgrna \\
         --threads $task.cpus \\
         -k $count_table \\
         -n $prefix     \\

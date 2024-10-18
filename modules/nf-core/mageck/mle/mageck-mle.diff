@@ -1,28 +1,36 @@
 Changes in module 'nf-core/mageck/mle'
+'modules/nf-core/mageck/mle/environment.yml' is unchanged
+'modules/nf-core/mageck/mle/meta.yml' is unchanged
+Changes in 'mageck/mle/main.nf':
 --- modules/nf-core/mageck/mle/main.nf
 +++ modules/nf-core/mageck/mle/main.nf
-@@ -8,8 +8,7 @@
+@@ -8,8 +8,8 @@
          'biocontainers/mageck:0.5.9.5--py39h1f90b4d_3' }"
  
      input:
 -    tuple val(meta), path(count_table)
 -    path(design_matrix)
 +    tuple val(meta), path(design_matrix), path(count_table)
++    path(mle_control_sgrna)
  
      output:
      tuple val(meta), path("*.gene_summary.txt") , emit: gene_summary
-@@ -21,7 +20,8 @@
+@@ -21,16 +21,21 @@
  
      script:
+     
      def args = task.ext.args ?: ''
 -    def prefix = task.ext.prefix ?: "${meta.id}"
++    def args2 = task.ext.args2 ?: ''
 +    prefix = meta.id ?: "${meta.treatment}_vs_${meta.reference}"
 +    def design_command = design_matrix ? "-d $design_matrix" : ''
++    def control_sgrna = mle_control_sgrna ? "--control-sgrna $mle_control_sgrna" : ''
  
      """
      mageck \\
-@@ -29,8 +29,9 @@
+         mle \\
          $args \\
++        $control_sgrna \\
          --threads $task.cpus \\
          -k $count_table \\
 -        -d $design_matrix \\
@@ -33,7 +41,7 @@ Changes in module 'nf-core/mageck/mle'
  
      cat <<-END_VERSIONS > versions.yml
      "${task.process}":
-@@ -49,6 +50,5 @@
+@@ -49,6 +54,5 @@
          mageck: \$(mageck -v)
      END_VERSIONS
      """
@@ -42,4 +50,7 @@ Changes in module 'nf-core/mageck/mle'
 -}
 +    
 +}
+'modules/nf-core/mageck/mle/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/mageck/mle/tests/tags.yml' is unchanged
+'modules/nf-core/mageck/mle/tests/main.nf.test' is unchanged
 ************************************************************

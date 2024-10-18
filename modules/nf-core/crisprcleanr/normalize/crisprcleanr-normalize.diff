@@ -1,4 +1,7 @@
 Changes in module 'nf-core/crisprcleanr/normalize'
+'modules/nf-core/crisprcleanr/normalize/environment.yml' is unchanged
+'modules/nf-core/crisprcleanr/normalize/meta.yml' is unchanged
+Changes in 'crisprcleanr/normalize/main.nf':
 --- modules/nf-core/crisprcleanr/normalize/main.nf
 +++ modules/nf-core/crisprcleanr/normalize/main.nf
 @@ -8,12 +8,15 @@
@@ -18,7 +21,7 @@ Changes in module 'nf-core/crisprcleanr/normalize'
      path "versions.yml",                       emit: versions
  
      when:
-@@ -26,20 +29,48 @@
+@@ -26,20 +29,49 @@
      """
      #!/usr/bin/env Rscript
      library(CRISPRcleanR)
@@ -51,7 +54,8 @@ Changes in module 'nf-core/crisprcleanr/normalize'
 +        rownames(library) = library[,1]
 +        library = library[order(rownames(library)),]
 +        library = library[,-1]
-+        count_file_to_normalize <- count_file
++        names(count_file)[names(count_file) == 'Gene'] <- 'gene'
++        count_file_to_normalize <- count_file %>% dplyr::select(sgRNA, gene, everything())
 +        }
 +
 +    normANDfcs <- ccr.NormfoldChanges(Dframe=count_file_to_normalize,saveToFig = FALSE,min_reads=${min_reads},EXPname="${prefix}", libraryAnnotation=library,display=FALSE)
