@@ -1,4 +1,13 @@
 Changes in module 'nf-core/medaka'
+--- modules/nf-core/medaka/environment.yml
++++ modules/nf-core/medaka/environment.yml
+@@ -4,4 +4,4 @@
+   - bioconda
+   - defaults
+ dependencies:
+-  - bioconda::medaka=1.4.4
++  - bioconda::medaka=1.11.3 # Updating version due to unable to find tensorflow with the previous version
+
 --- modules/nf-core/medaka/main.nf
 +++ modules/nf-core/medaka/main.nf
 @@ -11,8 +11,8 @@
