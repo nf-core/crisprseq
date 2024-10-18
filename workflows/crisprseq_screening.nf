@@ -18,7 +18,12 @@ include { MAGECK_FLUTEMLE                              } from '../modules/local/
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_CONTRASTS } from '../modules/local/mageck/flutemle'
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_DAY0      } from '../modules/local/mageck/flutemle'
 include { VENNDIAGRAM                                  } from '../modules/local/venndiagram'
+include { GPT_PREPARE_QUERY as GPT_PREPARE_BAGEL2_QUERY} from '../modules/local/gpt_prepare_query'
+include { GPT_PREPARE_QUERY as GPT_PREPARE_DRUGZ_QUERY } from '../modules/local/gpt_prepare_query'
+include { GPT_PREPARE_QUERY as GPT_PREPARE_MLE_QUERY   } from '../modules/local/gpt_prepare_query'
+include { GPT_PREPARE_QUERY as GPT_PREPARE_RRA_QUERY   } from '../modules/local/gpt_prepare_query'
 include { VENNDIAGRAM as VENNDIAGRAM_DRUGZ             } from '../modules/local/venndiagram'
+
 
 // nf-core modules
 include { FASTQC                                       } from '../modules/nf-core/fastqc/main'
@@ -37,10 +42,17 @@ include { BOWTIE2_ALIGN                                } from '../modules/nf-cor
 // Local subworkflows
 include { INITIALISATION_CHANNEL_CREATION_SCREENING    } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 // Functions
+
+include { gptPromptForText                             } from 'plugin/nf-gpt'
+include { paramsSummaryMap                             } from 'plugin/nf-validation'
+include { paramsSummaryMultiqc                         } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML                       } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText                       } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
+
 include { validateParametersScreening                  } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 include { DRUGZ                                        } from '../modules/local/drugz'
 
@@ -360,6 +372,110 @@ workflow CRISPRSEQ_SCREENING {
     }
 
     //
+
+    // Calling of nf-gpt plugin on drugZ, MAGeCK mle or bagel2
+    //
+    if(params.gpt_interpretation && params.gpt_interpretation.split(',').contains('drugz')) {
+        if(params.drugz) {
+            def gpt_drugz_data = DRUGZ.out.per_gene_results.map { meta, genes -> genes }
+            def gpt_drugZ_source = "drugZ"
+            def gpt_drugZ_target_column = 5
+            def gpt_drugZ_mode = "low"
+            GPT_PREPARE_DRUGZ_QUERY(
+                gpt_drugz_data,
+                gpt_drugZ_source,
+                gpt_drugZ_target_column,
+                params.gpt_drugz_gene_amount,
+                gpt_drugZ_mode,
+                params.gpt_drugz_question
+            )
+
+            GPT_PREPARE_DRUGZ_QUERY.out.query.map {
+                it -> it.text
+            }
+            .collect()
+            .flatMap { it -> gptPromptForText(it[0]) }
+            .collectFile( name: "${params.outdir}/gpt/gpt_drugz_output.txt", newLine: true, sort: false )
+        } else {
+            error "You specified DrugZ for gpt interpretation, but DrugZ is not running."
+        }
+    }
+    if(params.gpt_interpretation && params.gpt_interpretation.split(',').contains('mle')) {
+        if(params.mle) {
+            def gpt_mle_data = MAGECK_MLE.out.gene_summary.map { meta, genes -> genes }
+            def gpt_mle_source = "mle"
+            def gpt_mle_target_column = 2
+            def gpt_mle_mode = "high"
+            GPT_PREPARE_MLE_QUERY(
+                gpt_mle_data,
+                gpt_mle_source,
+                gpt_mle_target_column,
+                params.gpt_mle_gene_amount,
+                gpt_mle_mode,
+                params.gpt_mle_question
+            )
+
+            GPT_PREPARE_MLE_QUERY.out.query.map {
+                it -> it.text
+            }
+            .collect()
+            .flatMap { it -> gptPromptForText(it[0]) }
+            .collectFile( name: "${params.outdir}/gpt/gpt_mle_output.txt", newLine: true, sort: false )
+        } else {
+            error "You specified MAGeCK MLE for gpt interpretation, but MAGeCK MLE is not running."
+        }
+    }
+    if(params.gpt_interpretation && params.gpt_interpretation.split(',').contains('bagel2')) {
+        if(params.bagel2) {
+            def gpt_bagel2_data = BAGEL2_BF.out.bf.map { meta, genes -> genes }
+            def gpt_bagel2_source = "bagel2"
+            def gpt_bagel2_target_column = 1
+            def gpt_bagel2_mode = "high"
+            GPT_PREPARE_BAGEL2_QUERY(
+                gpt_bagel2_data,
+                gpt_bagel2_source,
+                gpt_bagel2_target_column,
+                params.gpt_bagel2_gene_amount,
+                gpt_bagel2_mode,
+                params.gpt_bagel2_question
+            )
+
+            GPT_PREPARE_BAGEL2_QUERY.out.query.map {
+                it -> it.text
+            }
+            .collect()
+            .flatMap { it -> gptPromptForText(it[0]) }
+            .collectFile( name: "${params.outdir}/gpt/gpt_bagel2_output.txt", newLine: true, sort: false )
+        } else {
+            error "You specified BAGEL2 for gpt interpretation, but BAGEL2 is not running."
+        }
+    }
+    if(params.gpt_interpretation && params.gpt_interpretation.split(',').contains('rra')) {
+        if(params.rra) {
+            def gpt_rra_data = MAGECK_TEST.out.gene_summary.map { meta, genes -> genes }
+            def gpt_rra_source = "rra"
+            def gpt_rra_target_column = 5
+            def gpt_rra_mode = "low"
+            GPT_PREPARE_RRA_QUERY(
+                gpt_rra_data,
+                gpt_rra_source,
+                gpt_rra_target_column,
+                params.gpt_rra_gene_amount,
+                gpt_rra_mode,
+                params.gpt_rra_question
+            )
+
+            GPT_PREPARE_RRA_QUERY.out.query.map {
+                it -> it.text
+            }
+            .collect()
+            .flatMap { it -> gptPromptForText(it[0]) }
+            .collectFile( name: "${params.outdir}/gpt/gpt_rra_output.txt", newLine: true, sort: false )
+        } else {
+            error "You specified MAGeCK RRA for gpt interpretation, but MAGeCK RRA is not running."
+        }
+    }
+
     // Venn diagrams
     //
 
