@@ -27,6 +27,8 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
   - [MAGeCK mle](#mageck-mle) - maximum-likelihood estimation (MLE) for robust identification of CRISPR-screen hits
   - [BAGEL2](#BAGEL2) - Bayes Factor to identify essential genes
   - [MAGeCKFlute](#flutemle) - graphics to visualise MAGECK MLE output
+  - [DrugZ](#DrugZ) - Identifying chemogenetic interactions from CRISPR screens
+- [Hitselection](#HitSelection) - Identifying tresholds on KO screens on Homo Sapiens
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
@@ -148,6 +150,20 @@ For further reading and documentation see the [cutadapt helper page](https://cut
 
 [bagel2](https://github.com/hart-lab/bagel) is a computational tool to identify important essential genes for CRISPR-Cas9 screening experiments.
 
+### DrugZ
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `drugz`
+  - `*.foldchange`: foldchange between the reference and treatment contrast provided
+- `drugz`
+  - `*.txt`: z-score and associated p-value per gene
+
+</details>
+
+[drugZ](https://github.com/hart-lab/drugz) is a computational tool to identify synergistic and suppressor drug-gene interactions in CRISPR screens.
+
 ### Venn diagram
 
 <details markdown="1">
@@ -175,6 +191,12 @@ For further reading and documentation see the [cutadapt helper page](https://cut
 - `FluteMLE/PathwayView`
   - `*.txt`: Pathway view for top enriched pathways.
   - `*.png`: Pathway view for top enriched pathways.
+
+### HitSelection
+
+- `HitSelection`
+  - `*.png` : -logP value vs gene rank plot to determine the rank thresholds
+  - `*.txt` : Ranked -logP value and gene symbols table
 
 ## MultiQC
 
