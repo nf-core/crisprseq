@@ -8,7 +8,7 @@
     library(BiocFileCache)
     bfc <- BiocFileCache("~/.cache/R/ExperimentHub")
     res <- bfcquery(bfc, "experimenthub.index.rds", field="rname", exact=TRUE)
-    bfcremove(bfc, rids=res$rid)
+    bfcremove(bfc, rids=res\$rid)
     library(ExperimentHub)
     eh = ExperimentHub()
 
