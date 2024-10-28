@@ -88,7 +88,7 @@
                 },
                 "medaka_model": {
                     "type": "string",
-                    "default": "r941_min_high_g303",
+                    "default": "https://github.com/nanoporetech/medaka/raw/master/medaka/data/r941_min_high_g303_model.hdf5",
                     "fa_icon": "fas fa-font",
                     "description": "Medaka model (-m) to use according to the basecaller used."
                 }
