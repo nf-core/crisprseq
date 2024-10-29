@@ -33,6 +33,7 @@ process MAGECK_GRAPHRRA {
     res <- bfcquery(bfc, "experimenthub.index.rds", field="rname", exact=TRUE)
     bfcremove(bfc, rids=res\$rid)
     eh = ExperimentHub()
+    Sys.setenv(BIOMART_CACHE=tempdir())
 
     library(MAGeCKFlute)
     library(ggplot2)
