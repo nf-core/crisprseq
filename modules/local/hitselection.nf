@@ -2,7 +2,7 @@ process HITSELECTION {
     tag "${meta.treatment}_${meta.reference}"
     label 'process_high'
 
-    conda "r-base=4.4.1,r-igraph=2.0.3,r-dplyr=1.1.4,r-tidyr=1.3.1,r-readr=2.1.5,r-ggplot2=3.5.1"
+    conda "r-base=4.4.1 r-igraph=2.0.3 r-dplyr=1.1.4 r-tidyr=1.3.1 r-readr=2.1.5 r-ggplot2=3.5.1"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/mulled-v2-dcfb6eba6adda57b9d4a990b9096cb040320914f:588e2c290fce5c5c11ef2340b6184370efd2c628-0':
         'biocontainers/mulled-v2-dcfb6eba6adda57b9d4a990b9096cb040320914f:588e2c290fce5c5c11ef2340b6184370efd2c628-0' }"
