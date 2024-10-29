@@ -27,11 +27,16 @@ process MAGECK_GRAPHRRA {
     #### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
     ####
     #### Orient a reference sequence according to reads orientation.
+    library(BiocFileCache)
+    bfc <- BiocFileCache("~/.cache/R/ExperimentHub")
+    library(ExperimentHub)
+    res <- bfcquery(bfc, "experimenthub.index.rds", field="rname", exact=TRUE)
+    bfcremove(bfc, rids=res\$rid)
+    eh = ExperimentHub()
 
     library(MAGeCKFlute)
     library(ggplot2)
     options(ggrepel.max.overlaps = Inf)
-
     gdata = ReadRRA("$gene_summary")
     gdata <- transform(gdata, LogFDR = -log10(FDR))
     png(filename = paste0("$meta.treatment","_vs_","$meta.reference","_scatterview.png"), width = 6, height = 4, units = "in", res = 300)
@@ -60,6 +65,4 @@ process MAGECK_GRAPHRRA {
     writeLines(version_ggplot, f)
     close(f)
     """
-
-
 }
