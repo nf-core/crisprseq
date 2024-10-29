@@ -2,7 +2,8 @@ process ORIENT_REFERENCE {
     tag "$meta.id"
     label 'process_single'
 
-    conda "r-seqinr=4.2_16 bioconductor-biostrings=2.62.0 bioconductor-shortread=1.52.0"
+    // jpeg is required in the conda container to fix a "libjpeg.so.9: No such file or directory" error
+    conda "r-seqinr=4.2_16 bioconductor-biostrings=2.62.0 bioconductor-shortread=1.52.0 jpeg=9d"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/mulled-v2-63136bce0d642de81864be727b6b42a26026e33b:d3ce5caf7bcbf6cecedcf51b0135646831c01e77-0' :
         'biocontainers/mulled-v2-63136bce0d642de81864be727b6b42a26026e33b:d3ce5caf7bcbf6cecedcf51b0135646831c01e77-0' }"

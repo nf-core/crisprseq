@@ -3,13 +3,14 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v2.3.0dev
+## [v2.3.0 - Lime Nightingale](https://github.com/nf-core/crisprseq/releases/tag/2.3.0) - [16.10.2024]
 
 ### Added
 
 - Add module to classify samples by clonality ([#178](https://github.com/nf-core/crisprseq/pull/178))
 - Add DrugZ, a module for chemogenetic interaction ([#168](https://github.com/nf-core/crisprseq/pull/168))
 - Add Hitselection, a module for subsetting more likely true positives for KO screen based on the protein protein interaction ([#191](https://github.com/nf-core/crisprseq/pull/191))
+- Make the use of gene essentiality module more user friendly and readable in the code ([#194](https://github.com/nf-core/crisprseq/pull/194))
 
 ### Fixed
 
@@ -18,7 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make output of FluteMLE optional as when some pathways produce bugs some channels are then empty ([#190](https://github.com/nf-core/crisprseq/pull/190))
 - Fix a typo in crisprcleanr/normalize, when a user inputs a file ([#192](https://github.com/nf-core/crisprseq/pull/192))
 
-### Deprecated
+### General
+
+- Run pipeline tests with docker, singularity and conda on CI ([#185](https://github.com/nf-core/crisprseq/pull/185))
 
 ## [v2.2.1 Romarin Curie - patch](https://github.com/nf-core/crisprseq/releases/tag/2.2.1) - [23.07.2024]
 

@@ -72,9 +72,17 @@ Otherwise, if you wish to provide your own file, please provide it in CSV format
 | CTCTACGAGAAGCTCTACAC | NM_021446.2 | 0610007P14Rik | ex2  | 12     | +        | 85822108 |
 | GACTCTATCACATCACACTG | NM_021446.2 | 0610007P14Rik | ex4  | 12     | +        | 85816419 |
 
-### Running MAGeCK MLE and BAGEL2 with a contrast file
+### Running gene essentiality scoring
 
-To run both MAGeCK MLE and BAGEL2, you can provide a contrast file with the flag `--contrasts` with the mandatory headers "treatment" and "reference". These two columns should be separated with a dot comma (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma separating them in each column. Please find an example here below :
+nf-core/crisprseq supports 4 gene essentiality analysis modules: MAGeCK RRA, MAGeCK MLE,
+BAGEL2 and DrugZ. You can run any of these modules by providing a contrast file using `--contrasts` and the flag of the tool you wish to use:
+
+- `--rra` for MAGeCK RRA
+- `--mle` for MAGeCK MLE
+- `--drugz` for DrugZ
+- `--bagel2` for BAGEL2
+
+The contrast file must contain the headers "reference" and "treatment". These two columns should be separated with a semicolon (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma-separating them in each column. Please find an example below:
 
 | reference         | treatment             |
 | ----------------- | --------------------- |
@@ -87,14 +95,13 @@ A full example can be found [here](https://raw.githubusercontent.com/nf-core/tes
 
 Running MAGeCK MLE and BAGEL2 with a contrast file will also output a Venn diagram showing common genes having an FDR < 0.1.
 
-### Running MAGeCK RRA only
+### MAGeCK RRA
 
-MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK RRA, you can define the contrasts as previously stated in the last section with --contrasts your_file.txt(with a `.txt` extension) and also specify `--rra`.
-MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK RRA, you can define the contrasts as previously stated in the last section with `--contrasts your_file.txt` (with a `.txt` extension) and also specify `--rra`.
+MAGeCK RRA performs robust ranking aggregation to identify genes that are consistently ranked highly across multiple replicate screens. To run MAGeCK RRA, you can define the contrasts as previously stated in the last section with `--contrasts` <<your_file.txt>> (with a `.txt` extension) and also specify `--rra`.
 
 ### Running MAGeCK MLE only
 
-#### With design matrices
+#### With your own design matrices
 
 If you wish to run MAGeCK MLE only, you can specify several design matrices (where you state which comparisons you wish to run) with the flag `--mle_design_matrix`.
 MAGeCK MLE uses a maximum likelihood estimation approach to estimate the effects of gene knockout on cell fitness. It models the read count data of guide RNAs targeting each gene and estimates the dropout probability for each gene.
@@ -106,7 +113,11 @@ If there are several designs to be run, you can input a folder containing all th
 
 This label is not mandatory as in case you are running time series. If you wish to run MAGeCK MLE with the day0 label you can do so by specifying `--day0_label` and the sample names that should be used as day0. The contrast will then be automatically adjusted for the other days.
 
-### MAGECKFlute
+#### With the contrast file
+
+To run MAGeCK MLE, you can define the contrasts as previously stated in the last section with `--contrasts <your_file.txt>` and also specify `--mle`.
+
+### MAGeCKFlute
 
 The downstream analysis involves distinguishing essential, non-essential, and target-associated genes. Additionally, it encompasses conducting biological functional category analysis and pathway enrichment analysis for these genes. Furthermore, it provides visualization of genes within pathways, enhancing user exploration of screening data. MAGECKFlute is run automatically after MAGeCK MLE and for each MLE design matrice. If you have used the `--day0_label`, MAGeCKFlute will be ran on all the other conditions. Please note that the DepMap data is used for these plots.
 
@@ -117,11 +128,11 @@ You can add the parameter `--mle_control_sgrna` followed by your file (one non t
 ### Running BAGEL2
 
 BAGEL2 (Bayesian Analysis of Gene Essentiality with Location) is a computational tool developed by the Hart Lab at Harvard University. It is designed for analyzing large-scale genetic screens, particularly CRISPR-Cas9 screens, to identify genes that are essential for the survival or growth of cells under different conditions. BAGEL2 integrates information about the location of guide RNAs within a gene and leverages this information to improve the accuracy of gene essentiality predictions.
-BAGEL2 uses the same contrasts from `--contrasts`.
+BAGEL2 uses the same contrasts from `--contrasts` and is run with the extra parameter `--bagel2`.
 
 ### Running drugZ
 
-[DrugZ](https://github.com/hart-lab/drugz) detects synergistic and suppressor drug-gene interactions in CRISPR screens. DrugZ is an open-source Python software for the analysis of genome-scale drug modifier screens. The software accurately identifies genetic perturbations that enhance or suppress drug activity. To run drugZ, you can specify `--drugz` followed a contrast file with the mandatory headers "treatment" and "reference". These two columns should be separated with a dot comma (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma separating them in each column.
+[DrugZ](https://github.com/hart-lab/drugz) detects synergistic and suppressor drug-gene interactions in CRISPR screens. DrugZ is an open-source Python software for the analysis of genome-scale drug modifier screens. The software accurately identifies genetic perturbations that enhance or suppress drug activity. To run drugZ, you can specify `--drugz` with the contrast file `--contrasts <your_file.csv>`. The contrasts file should contain two columns, separated with a semicolon (;), and have the `csv` extension. You can also integrate several samples/conditions by comma-separating them in each column:
 
 | reference         | treatment             |
 | ----------------- | --------------------- |
@@ -140,11 +151,12 @@ Hitselection provides the user with a threshold and a set of genes that are like
 
 Hitselection is a script for identifying rank thresholds for CRISPR screen results based on using the connectivity of subgraphs of protein-protein interaction (PPI) networks. The script is based on R and is also an implementation of RNAiCut (Kaplow et al., 2009), a method for estimating thresholds in RNAi data. The principle behind Hitselection is that true positive hits are densely connected in the PPI networks. The script runs a simulation based on Poisson distribution of the ranked screen gene list to calculate the -logP value for comparing the interconnectivity of the real subnetwork and the degree match random subnetwork of each gene, one by one. The degree of the nodes is used as the interconnectivity metric.
 
-To run Hitselection, you can specify '--hitselection' and it will automatically run on the gene essentiality algorithms you have chosen. The outputs are a png file containing the -logP value vs gene rank plot and a txt file containing all the -logP values, edge and average edge values and ranked gene symbols.
+To run Hitselection, you can specify '--hitselection' and it will automatically run on the gene essentiality algorithms you have chosen. The outputs are a `png` file containing the -logP value vs gene rank plot and a txt file containing all the -logP values, edge and average edge values and ranked gene symbols.
 
-## :warning: The hitselection algorithm is for the moment developed only for KO screens and requires the library to map to genes with an Homosapiens EntrezID.
+> [!WARNING]
+> The hitselection algorithm is for the moment developed only for KO screens and requires the library to map to genes with an Homo Sapiens EntrezID.
 
-## :warning: Please be advised that the Hitselection algorithm is time intensive and will make the pipeline run longer
+> [!WARNING] Please be advised that the Hitselection algorithm is time intensive and will make the pipeline run longer
 
 Note that the pipeline will create the following files in your working directory:
 

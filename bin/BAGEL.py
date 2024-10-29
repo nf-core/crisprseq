@@ -587,7 +587,6 @@ def calculate_bayes_factors(
     coreEss = []
 
     with open(essential_genes) as fin:
-        # skip_header = fin.readline()
         for line in fin:
             coreEss.append(line.rstrip().split("\t")[0])
     coreEss = np.array(coreEss)
@@ -595,7 +594,6 @@ def calculate_bayes_factors(
 
     nonEss = []
     with open(non_essential_genes) as fin:
-        # skip_header = fin.readline()
         for line in fin:
             nonEss.append(line.rstrip().split("\t")[0])
 

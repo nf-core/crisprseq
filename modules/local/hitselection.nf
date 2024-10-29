@@ -153,7 +153,7 @@ process HITSELECTION {
     #For BAGEL2
     if(length(bf_col) >= 1) {
         screen\$Rank <- rank(screen[[bf_col]])
-        screen <- screen[order(screen\$Rank), ]
+        screen <- screen[order(screen\$Rank), decreasing=T ]
     }
 
     hgnc <- read_delim("${hgnc}", delim = '\t')  # Load HGNC gene data
