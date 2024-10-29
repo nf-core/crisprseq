@@ -7,10 +7,11 @@
     # Required to fix corrupted cache from Singularity container
     library(BiocFileCache)
     bfc <- BiocFileCache("~/.cache/R/ExperimentHub")
+    library(ExperimentHub)
     res <- bfcquery(bfc, "experimenthub.index.rds", field="rname", exact=TRUE)
     bfcremove(bfc, rids=res\$rid)
-    library(ExperimentHub)
     eh = ExperimentHub()
+    Sys.setenv(BIOMART_CACHE=tempdir())
 
     library(MAGeCKFlute)
     library(clusterProfiler)
