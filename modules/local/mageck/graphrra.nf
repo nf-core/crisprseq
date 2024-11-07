@@ -27,14 +27,7 @@ process MAGECK_GRAPHRRA {
     #### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
     ####
     #### Orient a reference sequence according to reads orientation.
-    library(BiocFileCache)
-    bfc <- BiocFileCache("~/.cache/R/ExperimentHub")
-    library(ExperimentHub)
-    res <- bfcquery(bfc, "experimenthub.index.rds", field="rname", exact=TRUE)
-    bfcremove(bfc, rids=res\$rid)
-    eh = ExperimentHub()
-    Sys.setenv(BIOMART_CACHE=tempdir())
-
+    Sys.setenv(HOME = getwd())  # Required for Singularity/Apptainer
     library(MAGeCKFlute)
     library(ggplot2)
     options(ggrepel.max.overlaps = Inf)
