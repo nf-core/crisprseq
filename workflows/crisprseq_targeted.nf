@@ -14,6 +14,7 @@ include { CLUSTERING_SUMMARY                        } from '../modules/local/clu
 include { ALIGNMENT_SUMMARY                         } from '../modules/local/alignment_summary'
 include { TEMPLATE_REFERENCE                        } from '../modules/local/template_reference'
 include { CRISPRSEQ_PLOTTER                         } from '../modules/local/crisprseq_plotter'
+include { CLONALITY_CLASSIFIER                      } from '../modules/local/clonality_classifier'
 // nf-core modules
 include { FASTQC                                    } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                                   } from '../modules/nf-core/multiqc/main'
@@ -40,10 +41,10 @@ include { SAMTOOLS_INDEX                            } from '../modules/nf-core/s
 // Local subworkflows
 include { INITIALISATION_CHANNEL_CREATION_TARGETED  } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 // Functions
-include { paramsSummaryMap                          } from 'plugin/nf-validation'
-include { paramsSummaryMultiqc                      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML                    } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText                    } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
+include { paramsSummaryMap       } from 'plugin/nf-schema'
+include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -506,7 +507,8 @@ workflow CRISPRSEQ_TARGETED {
         //
         MEDAKA (
             ch_clusters_sequence
-                .join(RACON_2.out.improved_assembly)
+                .join(RACON_2.out.improved_assembly),
+            Channel.value( file(params.medaka_model) )
         )
         ch_versions = ch_versions.mix(MEDAKA.out.versions.first())
 
@@ -686,6 +688,19 @@ workflow CRISPRSEQ_TARGETED {
 
 
     //
+    // MODULE: Apply clonality classification
+    //
+    if (!params.skip_clonality) {
+        CLONALITY_CLASSIFIER (
+            CIGAR_PARSER.out.indels
+            .join(CIGAR_PARSER.out.edition)
+            .map { [it[0], it[1], it[4]] }
+        )
+        ch_versions = ch_versions.mix(CLONALITY_CLASSIFIER.out.versions.first())
+    }
+
+
+    //
     //
     //
     CRISPRSEQ_PLOTTER (
@@ -721,7 +736,9 @@ workflow CRISPRSEQ_TARGETED {
         ch_multiqc_files.collect(),
         ch_multiqc_config.toList(),
         ch_multiqc_custom_config.toList(),
-        ch_multiqc_logo.toList()
+        ch_multiqc_logo.toList(),
+        [],
+        []
     )
 
     emit:

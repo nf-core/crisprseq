@@ -2,10 +2,10 @@ process MAGECK_GRAPHRRA {
     tag "$meta.treatment"
     label 'process_single'
 
-    conda "bioconda::bioconductor-mageckflute=2.2.0"
+    conda "bioconda::bioconductor-mageckflute==2.6.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mageckflute:2.2.0--r42hdfd78af_0':
-        'biocontainers/bioconductor-mageckflute:2.2.0--r42hdfd78af_0' }"
+        'https://depot.galaxyproject.org/singularity/bioconductor-mageckflute:2.6.0--r43hdfd78af_0':
+        'biocontainers/bioconductor-mageckflute:2.6.0--r43hdfd78af_0' }"
 
     input:
     tuple val(meta), path(gene_summary)
@@ -27,11 +27,10 @@ process MAGECK_GRAPHRRA {
     #### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
     ####
     #### Orient a reference sequence according to reads orientation.
-
+    Sys.setenv(HOME = getwd())  # Required for Singularity/Apptainer
     library(MAGeCKFlute)
     library(ggplot2)
     options(ggrepel.max.overlaps = Inf)
-
     gdata = ReadRRA("$gene_summary")
     gdata <- transform(gdata, LogFDR = -log10(FDR))
     png(filename = paste0("$meta.treatment","_vs_","$meta.reference","_scatterview.png"), width = 6, height = 4, units = "in", res = 300)
@@ -60,6 +59,4 @@ process MAGECK_GRAPHRRA {
     writeLines(version_ggplot, f)
     close(f)
     """
-
-
 }

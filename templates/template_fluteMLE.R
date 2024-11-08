@@ -4,6 +4,9 @@
     ####
     #### graphs mageck MLE
 
+    # Required to fix .cache issue with Singularity/Apptainer container
+    Sys.setenv(HOME = getwd())
+
     library(MAGeCKFlute)
     library(clusterProfiler)
     library(ggplot2)
