@@ -136,6 +136,7 @@ We thank the following people for their extensive assistance in the development 
 - [@jianhong](https://github.com/jianhong)
 - [@joannakraw](https://github.com/joannakraw)
 - [@mashehu](https://github.com/mashehu)
+- [@medmaca](https://github.com/medmaca)
 - [@metinyazar](https://github.com/metinyazar)
 - [@msanvicente](https://github.com/msanvicente)
 - [@mschaffer-incyte](https://github.com/mschaffer-incyte)
