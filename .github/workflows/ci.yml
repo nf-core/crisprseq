@@ -41,7 +41,7 @@ jobs:
           - "test_umis"
           - "test_screening_count_table"
         isMaster:
-          - true
+          - ${{ github.base_ref == 'master' }}
         # Exclude conda and singularity on dev
         exclude:
           - isMaster: false
