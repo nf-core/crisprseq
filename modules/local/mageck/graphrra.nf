@@ -27,11 +27,10 @@ process MAGECK_GRAPHRRA {
     #### Released under the MIT license. See git repository (https://github.com/nf-core/crisprseq) for full license text.
     ####
     #### Orient a reference sequence according to reads orientation.
-
+    Sys.setenv(HOME = getwd())  # Required for Singularity/Apptainer
     library(MAGeCKFlute)
     library(ggplot2)
     options(ggrepel.max.overlaps = Inf)
-
     gdata = ReadRRA("$gene_summary")
     gdata <- transform(gdata, LogFDR = -log10(FDR))
     png(filename = paste0("$meta.treatment","_vs_","$meta.reference","_scatterview.png"), width = 6, height = 4, units = "in", res = 300)
@@ -60,6 +59,4 @@ process MAGECK_GRAPHRRA {
     writeLines(version_ggplot, f)
     close(f)
     """
-
-
 }
