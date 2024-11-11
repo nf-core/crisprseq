@@ -104,6 +104,10 @@ nextflow run nf-core/crisprseq --input samplesheet.csv --analysis <targeted/scre
 > [!WARNING]
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
 
+> [!WARNING]
+> Since Nextflow 23.07.0, Nextflow no longer mounts the host's HOME directory when using Apptainer or Singularity. MAGeCKFlute needs HOME directory write access. As a workaround, you can revert to the old behavior by setting the environment variable NXF_APPTAINER_HOME_MOUNT or NXF_SINGULARITY_HOME_MOUNT to true in the machine from which you launch the pipeline.
+> `export NXF_SINGULARITY_HOME_MOUNT=true; nextflow run nf-core/crisprseq --input samplesheet.csv --analysis screening --outdir <OUTDIR> -profile <singularity/aptainer>`
+
 For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/crisprseq/usage) and the [parameter documentation](https://nf-co.re/crisprseq/parameters).
 
 ## Pipeline output
@@ -132,6 +136,7 @@ We thank the following people for their extensive assistance in the development 
 - [@jianhong](https://github.com/jianhong)
 - [@joannakraw](https://github.com/joannakraw)
 - [@mashehu](https://github.com/mashehu)
+- [@medmaca](https://github.com/medmaca)
 - [@metinyazar](https://github.com/metinyazar)
 - [@msanvicente](https://github.com/msanvicente)
 - [@mschaffer-incyte](https://github.com/mschaffer-incyte)

@@ -11,19 +11,19 @@ process VSEARCH_CLUSTER {
     tuple val(meta), path(fasta)
 
     output:
-    tuple val(meta), path('*.aln.gz')                , optional: true, emit: aln
-    tuple val(meta), path('*.biom.gz')               , optional: true, emit: biom
-    tuple val(meta), path('*.mothur.tsv.gz')         , optional: true, emit: mothur
-    tuple val(meta), path('*.otu.tsv.gz')            , optional: true, emit: otu
-    tuple val(meta), path('*.bam')                   , optional: true, emit: bam
-    tuple val(meta), path('*.out.tsv.gz')            , optional: true, emit: out
-    tuple val(meta), path('*.blast.tsv.gz')          , optional: true, emit: blast
-    tuple val(meta), path('*.uc.tsv.gz')             , optional: true, emit: uc
-    tuple val(meta), path('*.centroids.fasta.gz')    , optional: true, emit: centroids
-    tuple val(meta), path('*.clusters.fasta*.gz')    , optional: true, emit: clusters
-    tuple val(meta), path('*.profile.txt.gz')        , optional: true, emit: profile
-    tuple val(meta), path('*.msa.fasta.gz')          , optional: true, emit: msa
-    path "versions.yml"                              , emit: versions
+    tuple val(meta), path('*.aln.gz')            , optional: true, emit: aln
+    tuple val(meta), path('*.biom.gz')           , optional: true, emit: biom
+    tuple val(meta), path('*.mothur.tsv.gz')     , optional: true, emit: mothur
+    tuple val(meta), path('*.otu.tsv.gz')        , optional: true, emit: otu
+    tuple val(meta), path('*.bam')               , optional: true, emit: bam
+    tuple val(meta), path('*.out.tsv.gz')        , optional: true, emit: out
+    tuple val(meta), path('*.blast.tsv.gz')      , optional: true, emit: blast
+    tuple val(meta), path('*.uc.tsv.gz')         , optional: true, emit: uc
+    tuple val(meta), path('*.centroids.fasta.gz'), optional: true, emit: centroids
+    tuple val(meta), path('*_clusters*')         , optional: true, emit: clusters
+    tuple val(meta), path('*.profile.txt.gz')    , optional: true, emit: profile
+    tuple val(meta), path('*.msa.fasta.gz')      , optional: true, emit: msa
+    path "versions.yml"                                          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -41,7 +41,7 @@ process VSEARCH_CLUSTER {
                     args3.contains("--biomout") ? "biom" :
                     args3.contains("--blast6out") ? "blast.tsv" :
                     args3.contains("--centroids") ? "centroids.fasta" :
-                    args3.contains("--clusters") ? "clusters.fasta" :
+                    args3.contains("--clusters") ? "clusters" :
                     args3.contains("--mothur_shared_out") ? "mothur.tsv" :
                     args3.contains("--msaout") ? "msa.fasta" :
                     args3.contains("--otutabout") ? "otu.tsv" :
@@ -54,7 +54,7 @@ process VSEARCH_CLUSTER {
     """
     vsearch \\
         $args2 $fasta \\
-        $args3 ${prefix}.${out_ext} \\
+        $args3 ${prefix}_${out_ext} \\
         --threads $task.cpus \\
         $args
 
