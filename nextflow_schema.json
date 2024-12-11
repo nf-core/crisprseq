@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/nf-core/crisprseq/main/nextflow_schema.json",
+    "$id": "https://raw.githubusercontent.com/nf-core/crisprseq/master/nextflow_schema.json",
     "title": "nf-core/crisprseq pipeline parameters",
     "description": "Pipeline for the analysis of CRISPR data",
     "type": "object",
