@@ -21,7 +21,7 @@ nextflow run nf-core/crisprseq --analysis screening --input samplesheet.csv --li
 ```
 
 The following required parameters are here described.
-If you wish to input a raw count or normalized table, you can skip the samplesheet parameter as well as the library one and directly input your table using count_table `--count_table your_count_table`. Your count table should contain the following columns : sgRNA and gene. You can find an example [here](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/count_table.csv) If your count table is normalized, be sure to set the normalization method to none in MAGeCK MLE or MAGeCK RRA using a config file.
+If you wish to input a raw count or normalized table, you can skip the samplesheet parameter as well as the library one and directly input your table using count_table `--count_table your_count_table`. Your count table should contain the following columns : sgRNA and gene. You can find an example [here](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/count_table.tsv) If your count table is normalized, be sure to set the normalization method to none in MAGeCK MLE or MAGeCK RRA using a config file.
 
 ### Full samplesheet
 
