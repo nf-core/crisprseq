@@ -1,0 +1,7 @@
+name: medaka
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bioconda::medaka=1.11.3 # Updating version due to unable to find tensorflow with the previous version
