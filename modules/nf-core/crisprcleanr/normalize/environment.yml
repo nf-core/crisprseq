@@ -5,3 +5,4 @@ channels:
   - defaults
 dependencies:
   - bioconda::r-crisprcleanr=3.0.0
+  - conda-forge::r-dplyr==1.1.4
