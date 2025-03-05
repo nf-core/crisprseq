@@ -175,10 +175,10 @@
                     "type": "string",
                     "description": "Sequencing adapter sequence to use for trimming on the 3' end"
                 },
-                "fasta": {
-                    "type": "string",
-                    "description": "Library in fasta file format in case you want to map with bowtie2 and then MAGeCK count",
-                    "fa_icon": "fas fa-book-reader"
+                "bowtie": {
+                    "type": "boolean",
+                    "description": "Use Bowtie for sgRNA alignment",
+                    "fa_icon": "fas fa-align-left"
                 },
                 "day0_label": {
                     "type": "string",
@@ -459,9 +459,6 @@
     "allOf": [
         {
             "$ref": "#/$defs/input_output_options"
-        },
-        {
-            "$ref": "#/$defs/reference_genome_options"
         },
         {
             "$ref": "#/$defs/targeted_pipeline_steps"

@@ -19,6 +19,7 @@ include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_CONTRASTS } from '../modules/local/
 include { MAGECK_FLUTEMLE as MAGECK_FLUTEMLE_DAY0      } from '../modules/local/mageck/flutemle'
 include { VENNDIAGRAM                                  } from '../modules/local/venndiagram'
 include { VENNDIAGRAM as VENNDIAGRAM_DRUGZ             } from '../modules/local/venndiagram'
+include { GUIDES_TO_FASTA                              } from '../modules/local/guides_to_fasta/main'
 
 // nf-core modules
 include { FASTQC                                       } from '../modules/nf-core/fastqc/main'
@@ -34,13 +35,15 @@ include { MAGECK_MLE as MAGECK_MLE_MATRIX              } from '../modules/nf-cor
 include { MAGECK_MLE as MAGECK_MLE_DAY0                } from '../modules/nf-core/mageck/mle/main'
 include { BOWTIE2_BUILD                                } from '../modules/nf-core/bowtie2/build/main'
 include { BOWTIE2_ALIGN                                } from '../modules/nf-core/bowtie2/align/main'
+
 // Local subworkflows
 include { INITIALISATION_CHANNEL_CREATION_SCREENING    } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
+
 // Functions
-include { paramsSummaryMap       } from 'plugin/nf-schema'
-include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
+include { paramsSummaryMap                             } from 'plugin/nf-schema'
+include { paramsSummaryMultiqc                         } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML                       } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText                       } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 include { validateParametersScreening                  } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
 include { DRUGZ                                        } from '../modules/local/drugz'
 
@@ -109,34 +112,41 @@ workflow CRISPRSEQ_SCREENING {
 
         if(params.five_prime_adapter || params.three_prime_adapter) {
             ch_cutadapt
-            .map{ meta, fastq, empty  ->
+            .map{ meta, fastq, _empty  ->
                 [meta, fastq]
             }
             .set { ch_input }
         }
 
-        if(params.fasta){
-            Channel.of("fasta")
-                .combine(Channel.fromPath(params.fasta))
-                .set{ ch_fasta }
+        if(params.bowtie){
 
-            BOWTIE2_BUILD(ch_fasta)
+            GUIDES_TO_FASTA (
+                INITIALISATION_CHANNEL_CREATION_SCREENING.out.library
+            )
+            ch_versions = ch_versions.mix(GUIDES_TO_FASTA.out.versions)
+
+            GUIDES_TO_FASTA.out.fasta
+                .map { fasta -> [[], fasta] }
+                .set { ch_fasta }
+
+            BOWTIE2_BUILD(
+                ch_fasta
+            )
             ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
 
             BOWTIE2_ALIGN (
-            ch_input,
-            BOWTIE2_BUILD.out.index,
-            ch_fasta,
-            false,
-            false
+                ch_input,
+                BOWTIE2_BUILD.out.index,
+                ch_fasta,
+                false,
+                false
             )
-
             ch_versions = ch_versions.mix(BOWTIE2_ALIGN.out.versions)
-
 
             BOWTIE2_ALIGN.out.bam.map{ meta, bam ->
                 [meta, [bam]]
             }.set{ch_input}
+
         }
 
         // this is to concatenate everything for mageck count
