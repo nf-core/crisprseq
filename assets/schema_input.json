@@ -24,8 +24,28 @@
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'",
+                "pattern": "^\\S+\\.f(ast)?q\\.gz$"
+            },
+            "condition": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "meta": ["condition"]
+            },
+            "reference": {
+                "type": "string",
+                "pattern": "^[ACTGNactgn]+$",
+                "errorMessage": "Reference sequence must be a valid DNA sequence"
+            },
+            "protospacer": {
+                "type": "string",
+                "pattern": "^[ACTGNactgn]+$",
+                "errorMessage": "Protospacer sequence must be a valid DNA sequence"
+            },
+            "template": {
+                "type": "string",
+                "pattern": "^[ACTGNactgn]+$",
+                "errorMessage": "Template sequence must be a valid DNA sequence"
             }
         },
         "required": ["sample", "fastq_1"]
