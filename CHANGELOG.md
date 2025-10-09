@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed link to example contranst file in the usage documentation ([#236](https://github.com/nf-core/crisprseq/pull/236))
 - Fixed bug in Bowtie alignment for guide libraries ([#247](https://github.com/nf-core/crisprseq/pull/247))
 - Sample names instead of conditions are used in the MAGeCK output ([#252](https://github.com/nf-core/crisprseq/pull/252))
+- Supports precomputed count matrices without a samplesheet, interpreting contrast file entries as samples instead of conditions ([#260](https://github.com/nf-core/crisprseq/pull/260))
 
 ### General
 
