@@ -162,7 +162,7 @@ workflow INITIALISATION_CHANNEL_CREATION_SCREENING {
     ch_hgnc = Channel.fromPath("$projectDir/assets/hgnc_complete_set.txt", checkIfExists: true).first()
 
     if(params.mle_control_sgrna) {
-        ch_mle_control_sgrna = Channel.fromPath(params.mle_control_sgrna)
+        ch_mle_control_sgrna = Channel.value(file(params.mle_control_sgrna, checkIfExists: true))
     } else {
         ch_mle_control_sgrna = []
     }
