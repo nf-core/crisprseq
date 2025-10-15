@@ -16,6 +16,9 @@ inputs:
   tags:
     description: "Tags to pass as argument for nf-test --tag parameter"
     required: false
+  NXF_VER:
+    description: "Nextflow version"
+    required: true
 runs:
   using: "composite"
   steps:
@@ -103,6 +106,14 @@ runs:
         else
           echo "| ⚠️ | No test results found | ${{ inputs.profile }} | ${{ inputs.shard }}/${{ inputs.total_shards }} |" >> $GITHUB_STEP_SUMMARY
         fi
+
+    # Keep this code when resolving merge conflicts. Was added for debugging of nf-test
+    - name: Upload nf-test output directory
+      if: always()
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      with:
+        name: nf-test-output-${{ inputs.profile }}-${{ inputs.NXF_VER }}-${{ inputs.shard }}
+        path: ${{ github.workspace }}/${{ env.NFT_WORKDIR }}/tests/*/output
 
     - name: Clean up
       if: always()

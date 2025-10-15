@@ -3,3 +3,33 @@ reports:
     display: "MultiQC HTML report"
   samplesheet.csv:
     display: "Auto-created samplesheet with collated metadata and FASTQ paths"
+  "plots/*accumulative.html":
+    display: "accumulative"
+  "plots/*delAlleles_plot.png":
+    display: "delAlleles_plot"
+  "plots/*Deletions.html":
+    display: "Deletions"
+  "plots/*Insertions.html":
+    display: "Insertions"
+  "plots/*subs-perc_plot_LOGO.png":
+    display: "subs-perc_plot_LOGO"
+  "plots/*subs-perc_plot.png":
+    display: "subs-perc_plot"
+  "plots/*top-alleles_LOGO.png":
+    display: "top-alleles_LOGO"
+  "plots/*top.html":
+    display: "top"
+  "cigar/*_cutSite.json":
+    display: "cutSite"
+  "cigar/*_edition.html":
+    display: "edition"
+  "cigar/*_edits.csv":
+    display: "edits"
+  "cigar/*_indels.csv":
+    display: "indels"
+  "cigar/*_QC-indels.html":
+    display: "QC-indels"
+  "cigar/*_reads.html":
+    display: "reads"
+  "cigar/*_subs-perc.csv":
+    display: "subs-perc"

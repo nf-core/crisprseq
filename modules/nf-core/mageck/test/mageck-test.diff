@@ -1,0 +1,23 @@
+Changes in component 'nf-core/mageck/test'
+'modules/nf-core/mageck/test/environment.yml' is unchanged
+'modules/nf-core/mageck/test/meta.yml' is unchanged
+Changes in 'mageck/test/main.nf':
+--- modules/nf-core/mageck/test/main.nf
++++ modules/nf-core/mageck/test/main.nf
+@@ -13,7 +13,9 @@
+     output:
+     tuple val(meta), path("*.gene_summary.txt")  , emit: gene_summary
+     tuple val(meta), path("*.sgrna_summary.txt") , emit: sgrna_summary
+-    tuple val(meta), path("*.R")                 , emit: r_script, optional: true
++    tuple val(meta), path("*.R")                 , emit: r_script
++    tuple val(meta), path("*.Rnw")               , emit: r_summary
++    tuple val(meta), path("*.log")               , emit: logs
+     path "versions.yml"                          , emit: versions
+ 
+     when:
+
+'modules/nf-core/mageck/test/tests/nextflow-day0_label.config' is unchanged
+'modules/nf-core/mageck/test/tests/nextflow.config' is unchanged
+'modules/nf-core/mageck/test/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/mageck/test/tests/main.nf.test' is unchanged
+************************************************************
