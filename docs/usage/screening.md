@@ -82,7 +82,7 @@ BAGEL2 and DrugZ. You can run any of these modules by providing a contrast file 
 - `--drugz` for DrugZ
 - `--bagel2` for BAGEL2
 
-The contrast file must contain the headers "reference" and "treatment". These two columns should be separated with a semicolon (;) and contain the `csv` extension. You can also integrate several samples/conditions by comma-separating them in each column. Please find an example below:
+The contrast file must contain the headers "reference" and "treatment". These two columns should be separated with a semicolon (;) and contain the `csv` extension. You can also integrate several conditions by comma-separating them in each column. Please find an example below:
 
 | reference         | treatment             |
 | ----------------- | --------------------- |
@@ -90,6 +90,8 @@ The contrast file must contain the headers "reference" and "treatment". These tw
 | control1,control2 | treatment1,treatment2 |
 
 A full example can be found [here](https://raw.githubusercontent.com/nf-core/test-datasets/crisprseq/testdata/rra_contrasts.txt).
+
+When providing a precomputed count matrix with `--count_table`, the contrast file must list sample names (not conditions). Use the exact sample labels from the count table header, and if you want to group multiple samples, separate them with commas within each column.
 
 #### Venn diagram
 
