@@ -1,0 +1,130 @@
+{
+    "Test screening bowtie": {
+        "content": [
+            {
+                "BOWTIE2_ALIGN": {
+                    "bowtie2": "2.5.2",
+                    "samtools": 1.18,
+                    "pigz": 2.6
+                },
+                "BOWTIE2_BUILD": {
+                    "bowtie2": "2.5.2"
+                },
+                "FASTQC": {
+                    "fastqc": "0.12.1"
+                },
+                "GUIDES_TO_FASTA": {
+                    "mawk": "1.3.4 20200120",
+                    "sed": 4.7
+                },
+                "MAGECK_COUNT": {
+                    "mageck": "0.5.9.5"
+                },
+                "Workflow": {
+                    "nf-core/crisprseq": "v2.4.0dev"
+                }
+            },
+            [
+                "bowtie",
+                "bowtie/SRR8983579.bam",
+                "bowtie/SRR8983579.bowtie2.log",
+                "bowtie/SRR8983580.bam",
+                "bowtie/SRR8983580.bowtie2.log",
+                "mageck",
+                "mageck/count",
+                "mageck/count/count_table.count.txt",
+                "mageck/count/count_table.count_normalized.txt",
+                "mageck/count/count_table.countsummary.txt",
+                "mageck/count/count_table.log",
+                "multiqc",
+                "multiqc/multiqc_data",
+                "multiqc/multiqc_data/fastqc-status-check-heatmap.txt",
+                "multiqc/multiqc_data/fastqc_per_base_n_content_plot.txt",
+                "multiqc/multiqc_data/fastqc_per_base_sequence_quality_plot.txt",
+                "multiqc/multiqc_data/fastqc_per_sequence_gc_content_plot_Counts.txt",
+                "multiqc/multiqc_data/fastqc_per_sequence_gc_content_plot_Percentages.txt",
+                "multiqc/multiqc_data/fastqc_per_sequence_quality_scores_plot.txt",
+                "multiqc/multiqc_data/fastqc_sequence_counts_plot.txt",
+                "multiqc/multiqc_data/fastqc_sequence_duplication_levels_plot.txt",
+                "multiqc/multiqc_data/llms-full.txt",
+                "multiqc/multiqc_data/multiqc.log",
+                "multiqc/multiqc_data/multiqc.parquet",
+                "multiqc/multiqc_data/multiqc_citations.txt",
+                "multiqc/multiqc_data/multiqc_data.json",
+                "multiqc/multiqc_data/multiqc_fastqc.txt",
+                "multiqc/multiqc_data/multiqc_general_stats.txt",
+                "multiqc/multiqc_data/multiqc_mageck_count.txt",
+                "multiqc/multiqc_data/multiqc_software_versions.txt",
+                "multiqc/multiqc_data/multiqc_sources.txt",
+                "multiqc/multiqc_plots",
+                "multiqc/multiqc_plots/pdf",
+                "multiqc/multiqc_plots/pdf/fastqc-status-check-heatmap.pdf",
+                "multiqc/multiqc_plots/pdf/fastqc_per_base_n_content_plot.pdf",
+                "multiqc/multiqc_plots/pdf/fastqc_per_base_sequence_quality_plot.pdf",
+                "multiqc/multiqc_plots/pdf/fastqc_per_sequence_gc_content_plot_Counts.pdf",
+                "multiqc/multiqc_plots/pdf/fastqc_per_sequence_gc_content_plot_Percentages.pdf",
+                "multiqc/multiqc_plots/pdf/fastqc_per_sequence_quality_scores_plot.pdf",
+                "multiqc/multiqc_plots/pdf/fastqc_sequence_counts_plot-cnt.pdf",
+                "multiqc/multiqc_plots/pdf/fastqc_sequence_counts_plot-pct.pdf",
+                "multiqc/multiqc_plots/pdf/fastqc_sequence_duplication_levels_plot.pdf",
+                "multiqc/multiqc_plots/pdf/mageck_count.pdf",
+                "multiqc/multiqc_plots/png",
+                "multiqc/multiqc_plots/png/fastqc-status-check-heatmap.png",
+                "multiqc/multiqc_plots/png/fastqc_per_base_n_content_plot.png",
+                "multiqc/multiqc_plots/png/fastqc_per_base_sequence_quality_plot.png",
+                "multiqc/multiqc_plots/png/fastqc_per_sequence_gc_content_plot_Counts.png",
+                "multiqc/multiqc_plots/png/fastqc_per_sequence_gc_content_plot_Percentages.png",
+                "multiqc/multiqc_plots/png/fastqc_per_sequence_quality_scores_plot.png",
+                "multiqc/multiqc_plots/png/fastqc_sequence_counts_plot-cnt.png",
+                "multiqc/multiqc_plots/png/fastqc_sequence_counts_plot-pct.png",
+                "multiqc/multiqc_plots/png/fastqc_sequence_duplication_levels_plot.png",
+                "multiqc/multiqc_plots/png/mageck_count.png",
+                "multiqc/multiqc_plots/svg",
+                "multiqc/multiqc_plots/svg/fastqc-status-check-heatmap.svg",
+                "multiqc/multiqc_plots/svg/fastqc_per_base_n_content_plot.svg",
+                "multiqc/multiqc_plots/svg/fastqc_per_base_sequence_quality_plot.svg",
+                "multiqc/multiqc_plots/svg/fastqc_per_sequence_gc_content_plot_Counts.svg",
+                "multiqc/multiqc_plots/svg/fastqc_per_sequence_gc_content_plot_Percentages.svg",
+                "multiqc/multiqc_plots/svg/fastqc_per_sequence_quality_scores_plot.svg",
+                "multiqc/multiqc_plots/svg/fastqc_sequence_counts_plot-cnt.svg",
+                "multiqc/multiqc_plots/svg/fastqc_sequence_counts_plot-pct.svg",
+                "multiqc/multiqc_plots/svg/fastqc_sequence_duplication_levels_plot.svg",
+                "multiqc/multiqc_plots/svg/mageck_count.svg",
+                "multiqc/multiqc_report.html",
+                "pipeline_info",
+                "pipeline_info/nf_core_crisprseq_software_mqc_versions.yml",
+                "preprocessing",
+                "preprocessing/fastqc",
+                "preprocessing/fastqc/SRR8983579_fastqc.html",
+                "preprocessing/fastqc/SRR8983579_fastqc.zip",
+                "preprocessing/fastqc/SRR8983580_fastqc.html",
+                "preprocessing/fastqc/SRR8983580_fastqc.zip"
+            ],
+            [
+                "SRR8983579.bam:md5,358227eb161e275f396038ff32447a0f",
+                "SRR8983579.bowtie2.log:md5,9c1b9cdad446dbdfb0a4947e80cd911e",
+                "SRR8983580.bam:md5,67538c7ca40b6cebc94a1ee613b49ce0",
+                "SRR8983580.bowtie2.log:md5,9c1b9cdad446dbdfb0a4947e80cd911e",
+                "count_table.count.txt:md5,2347ea1c388ada4afb7cd59ccdf0cd3f",
+                "count_table.count_normalized.txt:md5,2347ea1c388ada4afb7cd59ccdf0cd3f",
+                "count_table.countsummary.txt:md5,b637d9fc48c388fde1096c32d16e1ad5",
+                "fastqc-status-check-heatmap.txt:md5,50129a4cd9c87d79a3841ac119f5a187",
+                "fastqc_per_base_n_content_plot.txt:md5,272dfea4dafcd2a7b122c27af4ed1aa3",
+                "fastqc_per_base_sequence_quality_plot.txt:md5,2332a2b6386d9a877c742af251bd51f1",
+                "fastqc_per_sequence_gc_content_plot_Counts.txt:md5,949842aa47b0fd9972d1774d28c150eb",
+                "fastqc_per_sequence_gc_content_plot_Percentages.txt:md5,4b830d2f6ff411a81dddf93c30ab14df",
+                "fastqc_per_sequence_quality_scores_plot.txt:md5,1686fe42e13615453e08c12e11abd4b5",
+                "fastqc_sequence_counts_plot.txt:md5,c47bcbff751fed295be9e0fd0c4714b7",
+                "fastqc_sequence_duplication_levels_plot.txt:md5,c441452ae5c12f9d281c9d367fd7f6fe",
+                "multiqc_citations.txt:md5,4c806e63a283ec1b7e78cdae3a923d4f",
+                "multiqc_general_stats.txt:md5,70b343b1d228d9306030913daad9a6fe",
+                "multiqc_mageck_count.txt:md5,8a7ed8eb3b594863d10bf85ff1937308"
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.04.8"
+        },
+        "timestamp": "2025-10-22T15:04:06.57005399"
+    }
+}
