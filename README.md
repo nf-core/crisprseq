@@ -19,54 +19,98 @@
 
 [![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23crisprseq-4A154B?labelColor=000000&logo=slack)](https://nfcore.slack.com/channels/crisprseq)[![Follow on Bluesky](https://img.shields.io/badge/bluesky-%40nf__core-1185fe?labelColor=000000&logo=bluesky)](https://bsky.app/profile/nf-co.re)[![Follow on Mastodon](https://img.shields.io/badge/mastodon-nf__core-6364ff?labelColor=FFFFFF&logo=mastodon)](https://mstdn.science/@nf_core)[![Watch on YouTube](http://img.shields.io/badge/youtube-nf--core-FF0000?labelColor=000000&logo=youtube)](https://www.youtube.com/c/nf-core)
 
+![HiRSE Code Promo Badge](https://img.shields.io/badge/Promo-8db427?style=plastic&label=HiRSE&labelColor=005aa0&link=https%3A%2F%2Fgo.fzj.de%2FCodePromo)
+
 ## Introduction
 
-**nf-core/crisprseq** is a bioinformatics pipeline that ...
+**nf-core/crisprseq** is a bioinformatics best-practice analysis pipeline for the analysis of CRISPR edited data. It allows the evaluation of the quality of gene editing experiments using targeted next generation sequencing (NGS) data (`targeted`) as well as the discovery of important genes from knock-out or activation CRISPR-Cas9 screens using CRISPR pooled DNA (`screening`).
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
+nf-core/crisprseq can be used to analyse:
 
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/guidelines/graphic_design/workflow_diagrams#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+- CRISPR gene knockouts (KO)
+- CRISPR knock-ins (KI)
+- Base editing (BE) and prime editing (PE) experiments
+- CRISPR screening experiments (KO, CRISPRa (activation) or CRISPRi (interference))
+
+The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from [nf-core/modules](https://github.com/nf-core/modules) in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!
+
+On release, automated continuous integration tests run the pipeline on a full-sized dataset on the AWS cloud infrastructure. This ensures that the pipeline runs on AWS, has sensible resource allocation defaults set to run on real-world datasets, and permits the persistent storage of results to benchmark between pipeline releases and other analysis sources. The results obtained from the full-sized test can be viewed on the [nf-core website](https://nf-co.re/crisprseq/results).
+
+## Pipeline summary
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_metropmap_all.png">
+  <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="https://raw.githubusercontent.com/nf-core/crisprseq/dev/docs/images/crisprseq_metropmap_all.png">
+</picture>
+
+For crispr targeting :
+
+1. Merge paired-end reads ([`Pear`](https://cme.h-its.org/exelixis/web/software/pear/doc.html))
+2. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+3. Adapter trimming ([`Cutadapt`](http://dx.doi.org/10.14806/ej.17.1.200))
+4. Quality filtering ([`Seqtk`](https://github.com/lh3/seqtk))
+5. UMI clustering (optional):
+   a. Extract UMI sequences (Python script)
+   b. Cluster UMI sequences ([`Vsearch`](https://github.com/torognes/vsearch))
+   c. Obtain the most abundant UMI sequence for each cluster ([`Vsearch`](https://github.com/torognes/vsearch))
+   d. Obtain a consensus for each cluster ([`minimap2`](https://github.com/lh3/minimap2))
+   e. Polish consensus sequence ([`racon`](https://github.com/lbcb-sci/racon))
+   f. Repeat a second rand of consensus + polishing (`minimap2` + `racon`)
+   g. Obtain the final consensus of each cluster ([Medaka](https://nanoporetech.github.io/medaka/index.html))
+6. Read mapping:
+   - ([`minimap2`](https://github.com/lh3/minimap2), _default_)
+   - ([`bwa`](http://bio-bwa.sourceforge.net/))
+   - ([`bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml))
+7. CIGAR parsing for edit calling ([`R`](https://www.r-project.org/))
+
+For crispr screening:
+
+1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+2. Read mapping ([`MAGeCK count`](https://sourceforge.net/p/mageck/wiki/usage/#count))
+   - ([`MAGeCK count`](https://github.com/lh3/minimap2), _default_)
+   - ([`bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml))
+3. Optional: CNV correction and normalization with ([`CRISPRcleanR`](https://github.com/francescojm/CRISPRcleanR))
+4. Rank sgRNAs and genes ;
+   - ([MAGeCK test](https://sourceforge.net/p/mageck/wiki/usage/#test))
+   - ([MAGeCK mle](https://sourceforge.net/p/mageck/wiki/Home/#mle))
+   - ([BAGEL2](https://github.com/hart-lab/bagel))
+   - ([DrugZ](https://github.com/hart-lab/drugz))
+5. Optional: hit selection on KO screen allowing a subset of more likely true positives
+6. Visualize analysis
 
 ## Usage
 
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
-
 First, prepare a samplesheet with your input data that looks as follows:
 
-`samplesheet.csv`:
-
-```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+```csv title="samplesheet.csv"
+sample,fastq_1,fastq_2,reference,protospacer,template
+SAMPLE1,SAMPLE1_R1.fastq.gz,SAMPLE1_R2.fastq.gz,ACTG,ACTG,ACTG
 ```
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
+or
 
--->
+```csv title="samplesheet.csv"
+sample,fastq_1,fastq_2,condition
+SAMPLE1,SAMPLE1_R1.fastq.gz,SAMPLE1_R2.fastq.gz,control
+```
+
+For more details on how to build a sample sheet, please refer to the [usage documentation](https://nf-co.re/crisprseq/usage)
 
 Now, you can run the pipeline using:
 
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
-
 ```bash
-nextflow run nf-core/crisprseq \
-   -profile <docker/singularity/.../institute> \
-   --input samplesheet.csv \
-   --outdir <OUTDIR>
+nextflow run nf-core/crisprseq --input samplesheet.csv --analysis <targeted/screening> --outdir <OUTDIR> -profile <docker/singularity/podman/shifter/charliecloud/conda/institute>
 ```
 
 > [!WARNING]
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
+
+> [!WARNING]
+> Since Nextflow 23.07.0, Nextflow no longer mounts the host's HOME directory when using Apptainer or Singularity. MAGeCKFlute needs HOME directory write access. As a workaround, you can revert to the old behavior by setting the environment variable NXF_APPTAINER_HOME_MOUNT or NXF_SINGULARITY_HOME_MOUNT to true in the machine from which you launch the pipeline.
+> `export NXF_SINGULARITY_HOME_MOUNT=true; nextflow run nf-core/crisprseq --input samplesheet.csv --analysis screening --outdir <OUTDIR> -profile <singularity/aptainer>`
 
 For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/crisprseq/usage) and the [parameter documentation](https://nf-co.re/crisprseq/parameters).
 
@@ -78,11 +122,31 @@ For more details about the output files and reports, please refer to the
 
 ## Credits
 
-nf-core/crisprseq was originally written by Júlia Mir Pedrol, Laurence Kuhlburger.
+nf-core/crisprseq targeted is based on [CRISPR-A](https://doi.org/10.1101/2022.09.02.506351) [[Sanvicente-García, et.al. (2023)](https://doi.org/10.1371/journal.pcbi.1011137)], originally written by Marta Sanvicente García at [Translational Synthetic Biology](https://synbio.upf.edu/) from [Universitat Pompeu Fabra](https://www.upf.edu/home).
+It was re-written in Nextflow DSL2 and is primarily maintained by Júlia Mir Pedrol ([@mirpedrol](https://github.com/mirpedrol)) at [Quantitative Biology Center (QBiC)](https://www.qbic.uni-tuebingen.de/) from [Universität Tübingen](https://uni-tuebingen.de/en/).
+
+nf-core/crisprseq screening was written by Laurence Kuhlburger ([@LaurenceKuhl](https://github.com/LaurenceKuhl)) at [Quantitative Biology Center (QBiC)](https://www.qbic.uni-tuebingen.de/) from [Universität Tübingen](https://uni-tuebingen.de/en/) and is currently primarly maintained by Matteo Bonfanti ([@matbonfanti](https://github.com/matbonfanti)) at the [National Facility for Data Handling & Analysis (nf-data)](https://humantechnopole.it/en/facilities/national-facility-for-data-handling-analysis/) from [Human Technopole, Milano](https://humantechnopole.it/en/).
+
+Main developers:
+
+- [@LaurenceKuhl](https://github.com/LaurenceKuhl)
+- [@mirpedrol](https://github.com/mirpedrol)
 
 We thank the following people for their extensive assistance in the development of this pipeline:
 
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
+- [@alan-tracey](https://github.com/alan-tracey)
+- [@bolenala](https://github.com/bolenala)
+- [@ggabernet](https://github.com/ggabernet)
+- [@jianhong](https://github.com/jianhong)
+- [@joannakraw](https://github.com/joannakraw)
+- [@LeonHornich](https://github.com/LeonHornich)
+- [@mashehu](https://github.com/mashehu)
+- [@matbonfanti](https://github.com/matbonfanti)
+- [@medmaca](https://github.com/medmaca)
+- [@metinyazar](https://github.com/metinyazar)
+- [@msanvicente](https://github.com/msanvicente)
+- [@mschaffer-incyte](https://github.com/mschaffer-incyte)
+- [@SusiJo](https://github.com/SusiJo)
 
 ## Contributions and Support
 
@@ -92,10 +156,7 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 
 ## Citations
 
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use nf-core/crisprseq for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
-
-<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
+If you use nf-core/crisprseq for your analysis, please cite it using the following doi: [10.5281/zenodo.7598496](https://doi.org/10.5281/zenodo.7598496)
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
@@ -106,3 +167,8 @@ You can cite the `nf-core` publication as follows:
 > Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
 >
 > _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
+
+Crispr-Analytics:
+
+> Sanvicente-García M, García-Valiente A, Jouide S, Jaraba-Wallace J, Bautista E, Escobosa M, et al. (2023)
+> CRISPR-Analytics (CRISPR-A): A platform for precise analytics and simulations for gene editing. PLoS Comput Biol 19(5): e1011137. https://doi.org/10.1371/journal.pcbi.1011137

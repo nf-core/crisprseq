@@ -29,7 +29,13 @@
                     "@id": "main.nf"
                 },
                 {
+                    "@id": "docs/images/crisprseq_targeted_metro_map_dark.png"
+                },
+                {
                     "@id": "assets/"
+                },
+                {
+                    "@id": "bin/"
                 },
                 {
                     "@id": "conf/"
@@ -42,6 +48,9 @@
                 },
                 {
                     "@id": "modules/"
+                },
+                {
+                    "@id": "modules/local/"
                 },
                 {
                     "@id": "modules/nf-core/"
@@ -121,21 +130,54 @@
         },
         {
             "@id": "main.nf",
-            "@type": ["File", "SoftwareSourceCode", "ComputationalWorkflow"],
+            "@type": [
+                "File",
+                "SoftwareSourceCode",
+                "ComputationalWorkflow"
+            ],
+            "creator": [
+                {
+                    "@id": "https://orcid.org/0000-0002-5599-5565"
+                }
+            ],
             "dateCreated": "",
             "dateModified": "2025-11-19T15:35:23Z",
             "dct:conformsTo": "https://bioschemas.org/profiles/ComputationalWorkflow/1.0-RELEASE/",
-            "keywords": ["nf-core", "nextflow", "crispr", "crispr-analysis", "crispr-cas", "ngs"],
-            "license": ["MIT"],
-            "name": ["nf-core/crisprseq"],
+            "image": {
+                "@id": "docs/images/crisprseq_targeted_metro_map_dark.png"
+            },
+            "keywords": [
+                "nf-core",
+                "nextflow",
+                "crispr",
+                "crispr-analysis",
+                "crispr-cas",
+                "ngs"
+            ],
+            "license": [
+                "MIT"
+            ],
+            "maintainer": [
+                {
+                    "@id": "https://orcid.org/0000-0002-5599-5565"
+                }
+            ],
+            "name": [
+                "nf-core/crisprseq"
+            ],
             "programmingLanguage": {
                 "@id": "https://w3id.org/workflowhub/workflow-ro-crate#nextflow"
             },
             "sdPublisher": {
                 "@id": "https://nf-co.re/"
             },
-            "url": ["https://github.com/nf-core/crisprseq", "https://nf-co.re/crisprseq/2.3.0/"],
-            "version": ["2.3.0"]
+            "url": [
+                "https://github.com/nf-core/crisprseq",
+                "https://nf-co.re/crisprseq/dev/"
+            ],
+            "version": [
+                "2.4.0dev"
+            ]
         },
         {
             "@id": "https://w3id.org/workflowhub/workflow-ro-crate#nextflow",
@@ -186,6 +228,11 @@
             "description": "Additional files"
         },
         {
+            "@id": "bin/",
+            "@type": "Dataset",
+            "description": "Scripts that must be callable from a pipeline process"
+        },
+        {
             "@id": "conf/",
             "@type": "Dataset",
             "description": "Configuration files"
@@ -204,6 +251,11 @@
             "@id": "modules/",
             "@type": "Dataset",
             "description": "Modules used by the pipeline"
+        },
+        {
+            "@id": "modules/local/",
+            "@type": "Dataset",
+            "description": "Pipeline-specific modules"
         },
         {
             "@id": "modules/nf-core/",
@@ -290,6 +342,12 @@
             "@type": "Organization",
             "name": "nf-core",
             "url": "https://nf-co.re/"
+        },
+        {
+            "@id": "https://orcid.org/0000-0002-5599-5565",
+            "@type": "Person",
+            "email": "mashehu3@gmail.com",
+            "name": "Matthias H\u00f6rtenhuber"
         }
     ]
 }
