@@ -373,6 +373,7 @@
                 "fastqc_sequence_length_distribution_plot.txt:md5,df4de234c3f47b006a9fff33c802e6d5",
                 "multiqc_citations.txt:md5,4c806e63a283ec1b7e78cdae3a923d4f",
                 "multiqc_edition_bargraph.txt:md5,2288de54633de14555a5fcedcb0d32a2",
+                "multiqc_fastqc.txt:md5,c3623f42a5982a65e88aed6dab0dcaba",
                 "multiqc_general_stats.txt:md5,095dffb793835d33e4bb980ec8a48c29",
                 "multiqc_indelqc_bargraph.txt:md5,fc54ca221025ee70f96ba3c072b94eb0",
                 "multiqc_read_processing.txt:md5,ad2694c5b06ba45e0a55a62688849348",
