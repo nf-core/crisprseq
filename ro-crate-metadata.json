@@ -135,11 +135,6 @@
                 "SoftwareSourceCode",
                 "ComputationalWorkflow"
             ],
-            "creator": [
-                {
-                    "@id": "https://orcid.org/0000-0002-5599-5565"
-                }
-            ],
             "dateCreated": "",
             "dateModified": "2025-11-19T15:35:23Z",
             "dct:conformsTo": "https://bioschemas.org/profiles/ComputationalWorkflow/1.0-RELEASE/",
@@ -156,11 +151,6 @@
             ],
             "license": [
                 "MIT"
-            ],
-            "maintainer": [
-                {
-                    "@id": "https://orcid.org/0000-0002-5599-5565"
-                }
             ],
             "name": [
                 "nf-core/crisprseq"
@@ -342,12 +332,6 @@
             "@type": "Organization",
             "name": "nf-core",
             "url": "https://nf-co.re/"
-        },
-        {
-            "@id": "https://orcid.org/0000-0002-5599-5565",
-            "@type": "Person",
-            "email": "mashehu3@gmail.com",
-            "name": "Matthias H\u00f6rtenhuber"
         }
     ]
 }

@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implementation of nf-gpt into crisprseq pipeline ([#193](https://github.com/nf-core/crisprseq/pull/193))
 - Added HiRSE badge ([#256](https://github.com/nf-core/crisprseq/pull/256))
 - Added logo with mascot ([#257](https://github.com/nf-core/crisprseq/pull/257))
+- Added new test for bowtie guide alignment ([#259](https://github.com/nf-core/crisprseq/pull/259))
 
 ### Fixed
 
