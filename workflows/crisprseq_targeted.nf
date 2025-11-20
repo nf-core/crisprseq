@@ -101,8 +101,8 @@ workflow CRISPRSEQ_TARGETED {
 
     main:
 
-    ch_versions = Channel.empty()
-    ch_multiqc_files = Channel.empty()
+    ch_versions = channel.empty()
+    ch_multiqc_files = channel.empty()
 
     //
     // Initialise channels
@@ -211,7 +211,7 @@ workflow CRISPRSEQ_TARGETED {
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
-    ch_trimmed = Channel.empty()
+    ch_trimmed = channel.empty()
 
     if (params.overrepresented) {
         //
@@ -390,7 +390,7 @@ workflow CRISPRSEQ_TARGETED {
         //
         VSEARCH_SORT(
             ch_umi_bysize.cluster,
-            Channel.value("--sortbysize")
+            channel.value("--sortbysize")
         )
         ch_versions = ch_versions.mix(VSEARCH_SORT.out.versions.first())
 
@@ -508,7 +508,7 @@ workflow CRISPRSEQ_TARGETED {
         MEDAKA (
             ch_clusters_sequence
                 .join(RACON_2.out.improved_assembly),
-            Channel.value( file(params.medaka_model) )
+            channel.value( file(params.medaka_model) )
         )
         ch_versions = ch_versions.mix(MEDAKA.out.versions.first())
 
@@ -715,7 +715,25 @@ workflow CRISPRSEQ_TARGETED {
     //
     // Collate and save software versions
     //
-    softwareVersionsToYAML(ch_versions)
+    def topic_versions = Channel.topic("versions")
+        .distinct()
+        .branch { entry ->
+            versions_file: entry instanceof Path
+            versions_tuple: true
+        }
+
+    def topic_versions_string = topic_versions.versions_tuple
+        .map { process, tool, version ->
+            [ process[process.lastIndexOf(':')+1..-1], "  ${tool}: ${version}" ]
+        }
+        .groupTuple(by:0)
+        .map { process, tool_versions ->
+            tool_versions.unique().sort()
+            "${process}:\n${tool_versions.join('\n')}"
+        }
+
+    softwareVersionsToYAML(ch_versions.mix(topic_versions.versions_file))
+        .mix(topic_versions_string)
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
             name: 'nf_core_'  +  'crisprseq_software_'  + 'mqc_'  + 'versions.yml',
@@ -726,13 +744,13 @@ workflow CRISPRSEQ_TARGETED {
     //
     // MODULE: MultiQC
     //
-    ch_multiqc_config                     = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-    ch_multiqc_custom_config              = params.multiqc_config ? Channel.fromPath(params.multiqc_config, checkIfExists: true) : Channel.empty()
-    ch_multiqc_logo                       = params.multiqc_logo ? Channel.fromPath(params.multiqc_logo, checkIfExists: true) : Channel.empty()
+    ch_multiqc_config                     = channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
+    ch_multiqc_custom_config              = params.multiqc_config ? channel.fromPath(params.multiqc_config, checkIfExists: true) : channel.empty()
+    ch_multiqc_logo                       = params.multiqc_logo ? channel.fromPath(params.multiqc_logo, checkIfExists: true) : channel.empty()
     summary_params                        = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
-    ch_workflow_summary                   = Channel.value(paramsSummaryMultiqc(summary_params))
+    ch_workflow_summary                   = channel.value(paramsSummaryMultiqc(summary_params))
     ch_multiqc_custom_methods_description = params.multiqc_methods_description ? file(params.multiqc_methods_description, checkIfExists: true) : file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
-    ch_methods_description                = Channel.value(methodsDescriptionText(ch_multiqc_custom_methods_description))
+    ch_methods_description                = channel.value(methodsDescriptionText(ch_multiqc_custom_methods_description))
     ch_multiqc_files                      = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files                      = ch_multiqc_files.mix(ch_collated_versions)
     ch_multiqc_files                      = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml', sort: false))

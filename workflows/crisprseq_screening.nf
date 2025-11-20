@@ -68,8 +68,8 @@ workflow CRISPRSEQ_SCREENING {
     main:
 
     // Set screening parameters and channels
-    ch_versions = Channel.empty()
-    ch_multiqc_files = Channel.empty()
+    ch_versions = channel.empty()
+    ch_multiqc_files = channel.empty()
 
     // Validate parameters specific to the screening subworkflow
     validateParametersScreening()
@@ -92,12 +92,12 @@ workflow CRISPRSEQ_SCREENING {
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
         //set adapter seq to null to make it compatible with crispr targeted
-        ch_cutadapt = ch_input.combine(Channel.value([[]]))
+        ch_cutadapt = ch_input.combine(channel.value([[]]))
         if(params.five_prime_adapter) {
             CUTADAPT_FIVE_PRIME(
                 ch_cutadapt
             )
-            CUTADAPT_FIVE_PRIME.out.reads.combine(Channel.value([[]])).set { ch_cutadapt }
+            CUTADAPT_FIVE_PRIME.out.reads.combine(channel.value([[]])).set { ch_cutadapt }
             ch_cutadapt.map{ meta, fastq, proto  ->
                 meta.id = "${meta.id}"
                 [meta, fastq, proto]
@@ -111,7 +111,7 @@ workflow CRISPRSEQ_SCREENING {
             CUTADAPT_THREE_PRIME(
                 ch_cutadapt
             )
-            ch_cutadapt = CUTADAPT_THREE_PRIME.out.reads.combine(Channel.value([[]]))
+            ch_cutadapt = CUTADAPT_THREE_PRIME.out.reads.combine(channel.value([[]]))
             ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT_THREE_PRIME.out.log.collect{it[1]})
             ch_versions = ch_versions.mix(CUTADAPT_THREE_PRIME.out.versions)
         }
@@ -200,12 +200,12 @@ workflow CRISPRSEQ_SCREENING {
         }.set { ch_counts }
 
     } else {
-        Channel.fromPath(params.count_table)
+        channel.fromPath(params.count_table)
         .set { ch_counts }
     }
 
     if(params.crisprcleanr) {
-        ch_crispr_normalize = Channel.of([id: "count_table_normalize"]).concat(ch_counts)
+        ch_crispr_normalize = channel.of([id: "count_table_normalize"]).concat(ch_counts)
 
         if(params.crisprcleanr.endsWith(".csv")) {
             CRISPRCLEANR_NORMALIZE(
@@ -216,7 +216,7 @@ workflow CRISPRSEQ_SCREENING {
                 params.min_targeted_genes
         ) } else
         {
-            ch_crispr_normalize = Channel.of([id: "count_table_normalize"]).concat(ch_counts)
+            ch_crispr_normalize = channel.of([id: "count_table_normalize"]).concat(ch_counts)
             CRISPRCLEANR_NORMALIZE(
                 ch_crispr_normalize.collect(),
                 INITIALISATION_CHANNEL_CREATION_SCREENING.out.crisprcleanr,
@@ -243,7 +243,7 @@ workflow CRISPRSEQ_SCREENING {
             .set { ch_samplesheet_conditions } // tuples (condition, [sample_id1, sample_id2, ...])
 
         // Map each contrast in the contrasts file to a the list of treatment / reference conditions to compare
-        Channel
+        channel
             .fromPath(params.contrasts)
             .splitCsv(header:true, sep:';')
             .map { line -> [
@@ -293,8 +293,8 @@ workflow CRISPRSEQ_SCREENING {
     if(params.bagel2) {
 
         //Define non essential and essential genes channels for bagel2
-        ch_bagel_reference_essentials    = Channel.fromPath(params.bagel_reference_essentials).first()
-        ch_bagel_reference_nonessentials = Channel.fromPath(params.bagel_reference_nonessentials).first()
+        ch_bagel_reference_essentials    = channel.fromPath(params.bagel_reference_essentials).first()
+        ch_bagel_reference_nonessentials = channel.fromPath(params.bagel_reference_nonessentials).first()
 
         BAGEL2_FC (
             ch_contrasts_counts
@@ -379,7 +379,7 @@ workflow CRISPRSEQ_SCREENING {
 
         if(params.day0_label) {
 
-            ch_mle = Channel.of([id: "day0"]).merge(Channel.of([[]])).merge(ch_counts)
+            ch_mle = channel.of([id: "day0"]).merge(channel.of([[]])).merge(ch_counts)
 
             MAGECK_MLE_DAY0 (ch_mle, INITIALISATION_CHANNEL_CREATION_SCREENING.out.mle_control_sgrna)
             ch_versions = ch_versions.mix(MAGECK_MLE_DAY0.out.versions)
@@ -540,7 +540,25 @@ workflow CRISPRSEQ_SCREENING {
     //
     // Collate and save software versions
     //
-    softwareVersionsToYAML(ch_versions)
+    def topic_versions = Channel.topic("versions")
+        .distinct()
+        .branch { entry ->
+            versions_file: entry instanceof Path
+            versions_tuple: true
+        }
+
+    def topic_versions_string = topic_versions.versions_tuple
+        .map { process, tool, version ->
+            [ process[process.lastIndexOf(':')+1..-1], "  ${tool}: ${version}" ]
+        }
+        .groupTuple(by:0)
+        .map { process, tool_versions ->
+            tool_versions.unique().sort()
+            "${process}:\n${tool_versions.join('\n')}"
+        }
+
+    softwareVersionsToYAML(ch_versions.mix(topic_versions.versions_file))
+        .mix(topic_versions_string)
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
             name: 'nf_core_'  +  'crisprseq_software_'  + 'mqc_'  + 'versions.yml',
@@ -551,13 +569,13 @@ workflow CRISPRSEQ_SCREENING {
     //
     // MODULE: MultiQC
     //
-    ch_multiqc_config                     = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-    ch_multiqc_custom_config              = params.multiqc_config ? Channel.fromPath(params.multiqc_config, checkIfExists: true) : Channel.empty()
-    ch_multiqc_logo                       = params.multiqc_logo ? Channel.fromPath(params.multiqc_logo, checkIfExists: true) : Channel.empty()
+    ch_multiqc_config                     = channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
+    ch_multiqc_custom_config              = params.multiqc_config ? channel.fromPath(params.multiqc_config, checkIfExists: true) : channel.empty()
+    ch_multiqc_logo                       = params.multiqc_logo ? channel.fromPath(params.multiqc_logo, checkIfExists: true) : channel.empty()
     summary_params                        = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
-    ch_workflow_summary                   = Channel.value(paramsSummaryMultiqc(summary_params))
+    ch_workflow_summary                   = channel.value(paramsSummaryMultiqc(summary_params))
     ch_multiqc_custom_methods_description = params.multiqc_methods_description ? file(params.multiqc_methods_description, checkIfExists: true) : file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
-    ch_methods_description                = Channel.value(methodsDescriptionText(ch_multiqc_custom_methods_description))
+    ch_methods_description                = channel.value(methodsDescriptionText(ch_multiqc_custom_methods_description))
     ch_multiqc_files                      = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files                      = ch_multiqc_files.mix(ch_collated_versions)
     ch_multiqc_files                      = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml', sort: false))

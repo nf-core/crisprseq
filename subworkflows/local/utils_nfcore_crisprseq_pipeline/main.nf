@@ -39,7 +39,7 @@ workflow PIPELINE_INITIALISATION {
 
     main:
 
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
     //
     // Print version and exit if required and dump pipeline parameters to JSON file
@@ -64,7 +64,7 @@ workflow PIPELINE_INITIALISATION {
 \033[0;35m  nf-core/crisprseq ${workflow.manifest.version}\033[0m
 -\033[2m----------------------------------------------------\033[0m-
 """
-    after_text = """${workflow.manifest.doi ? "\n* The pipeline\n" : ""}${workflow.manifest.doi.tokenize(",").collect { "    https://doi.org/${it.trim().replace('https://doi.org/','')}"}.join("\n")}${workflow.manifest.doi ? "\n" : ""}
+    after_text = """${workflow.manifest.doi ? "\n* The pipeline\n" : ""}${workflow.manifest.doi.tokenize(",").collect { doi -> "    https://doi.org/${doi.trim().replace('https://doi.org/','')}"}.join("\n")}${workflow.manifest.doi ? "\n" : ""}
 * The nf-core framework
     https://doi.org/10.1038/s41587-020-0439-x
 
@@ -97,19 +97,19 @@ workflow PIPELINE_INITIALISATION {
     //
     validateInputParameters()
 
-    reads_targeted   = Channel.empty()
-    reads_screening  = Channel.empty()
-    fastqc_screening = Channel.empty()
-    reference        = Channel.empty()
-    protospacer      = Channel.empty()
-    template         = Channel.empty()
-    versions         = Channel.empty()
+    reads_targeted   = channel.empty()
+    reads_screening  = channel.empty()
+    fastqc_screening = channel.empty()
+    reference        = channel.empty()
+    protospacer      = channel.empty()
+    template         = channel.empty()
+    versions         = channel.empty()
 
     //
     // Create channel from input file provided through params.input
     //
     if(params.input) {
-        Channel
+        channel
             .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
             .multiMap {
                 meta, fastq_1, fastq_2, reference, protospacer, template ->
@@ -141,7 +141,7 @@ workflow PIPELINE_INITIALISATION {
         protospacer = ch_input.protospacer
         template = ch_input.template
     } else {
-        ch_input = Channel.empty()
+        ch_input = channel.empty()
     }
 
     emit:
@@ -163,35 +163,35 @@ workflow INITIALISATION_CHANNEL_CREATION_SCREENING {
 
     main:
 
-    ch_library = Channel.empty()
-    ch_crisprcleanr = Channel.empty()
-    ch_design = Channel.empty()
+    ch_library = channel.empty()
+    ch_crisprcleanr = channel.empty()
+    ch_design = channel.empty()
 
     // Library
     if (params.library) {
-        ch_library = Channel.fromPath(params.library)
+        ch_library = channel.fromPath(params.library)
     }
 
     // Crisprcleanr
     if (params.crisprcleanr) {
         if(params.crisprcleanr.endsWith(".csv")) {
-            ch_crisprcleanr = Channel.fromPath(params.crisprcleanr)
+            ch_crisprcleanr = channel.fromPath(params.crisprcleanr)
         } else {
-            ch_crisprcleanr = Channel.value(params.crisprcleanr)
+            ch_crisprcleanr = channel.value(params.crisprcleanr)
         }
     }
 
     // MLE design matrix
     if(params.mle_design_matrix) {
-        ch_design = Channel.fromPath(params.mle_design_matrix)
+        ch_design = channel.fromPath(params.mle_design_matrix)
     }
 
 
-    ch_biogrid = Channel.fromPath("$projectDir/assets/biogrid_hgncid_noduplicate_dropna.csv", checkIfExists: true).first()
-    ch_hgnc = Channel.fromPath("$projectDir/assets/hgnc_complete_set.txt", checkIfExists: true).first()
+    ch_biogrid = channel.fromPath("$projectDir/assets/biogrid_hgncid_noduplicate_dropna.csv", checkIfExists: true).first()
+    ch_hgnc = channel.fromPath("$projectDir/assets/hgnc_complete_set.txt", checkIfExists: true).first()
 
     if(params.mle_control_sgrna) {
-        ch_mle_control_sgrna = Channel.fromPath(params.mle_control_sgrna)
+        ch_mle_control_sgrna = channel.fromPath(params.mle_control_sgrna)
     } else {
         ch_mle_control_sgrna = []
     }
@@ -290,20 +290,20 @@ workflow INITIALISATION_CHANNEL_CREATION_TARGETED {
             .set{ reference_protospacer }
     } else if (!params.reference_fasta) {
         // If a protospacer was provided through the --protospacer param instead of the samplesheet
-        ch_protospacer = Channel.of(params.protospacer)
+        ch_protospacer = channel.of(params.protospacer)
         ch_seq_reference
             .combine(ch_protospacer)
             .set{ reference_protospacer }
     } else if (!params.protospacer) {
         // If a reference was provided through a fasta file or igenomes instead of the samplesheet
-        ch_reference = Channel.fromPath(params.reference_fasta)
+        ch_reference = channel.fromPath(params.reference_fasta)
         input_protospacer
             .combine(ch_reference)
             .map{ meta, protospacer, reference -> [ meta, reference, protospacer ]} // Change the order of the channel
             .set{ reference_protospacer }
     } else {
-        ch_reference = Channel.fromPath(params.reference_fasta)
-        ch_protospacer = Channel.of(params.protospacer)
+        ch_reference = channel.fromPath(params.reference_fasta)
+        ch_protospacer = channel.of(params.protospacer)
         input_reads
             .combine(ch_reference)
             .combine(ch_protospacer)
@@ -312,10 +312,10 @@ workflow INITIALISATION_CHANNEL_CREATION_TARGETED {
     }
 
     emit:
-    fastq_multiple = ch_fastq.multiple // [ meta, fastqs ] // Channel with the samples with multiple files
-    fastq_single = ch_fastq.single // [ meta, fastqs ] // Channel with the samples with only one file
-    template = ch_seq_template // [ meta, template ] // Channel with the template sequences
-    reference_protospacer = reference_protospacer // [ meta, reference, protospacer] // Channel with the reference and protospacer sequences
+    fastq_multiple = ch_fastq.multiple // [ meta, fastqs ] // channel with the samples with multiple files
+    fastq_single = ch_fastq.single // [ meta, fastqs ] // channel with the samples with only one file
+    template = ch_seq_template // [ meta, template ] // channel with the template sequences
+    reference_protospacer = reference_protospacer // [ meta, reference, protospacer] // channel with the reference and protospacer sequences
 
 }
 
