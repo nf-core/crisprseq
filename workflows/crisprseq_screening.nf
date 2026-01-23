@@ -25,6 +25,10 @@ include { GPT_PREPARE_QUERY as GPT_PREPARE_DRUGZ_QUERY } from '../modules/local/
 include { GPT_PREPARE_QUERY as GPT_PREPARE_MLE_QUERY   } from '../modules/local/gpt_prepare_query'
 include { GPT_PREPARE_QUERY as GPT_PREPARE_RRA_QUERY   } from '../modules/local/gpt_prepare_query'
 
+// UMI deduplication modules for screening
+include { UMI_TOOLS_EXTRACT                            } from '../modules/local/umi_tools_extract_screening'
+include { UMI_DEDUP_SCREENING                          } from '../modules/local/umi_dedup_screening'
+include { MERGE_UMI_COUNTS                             } from '../modules/local/merge_umi_counts'
 
 // nf-core modules
 include { FASTQC                                       } from '../modules/nf-core/fastqc/main'
@@ -79,8 +83,53 @@ workflow CRISPRSEQ_SCREENING {
     //
     INITIALISATION_CHANNEL_CREATION_SCREENING()
 
+    // Channel to hold UMI dedup outputs (declared at workflow scope for visibility)
+    ch_umi_counts = Channel.empty()
+
+    //
+    // VALIDATION: Check UMI parameters
+    //
+    if (params.umi_dedup && !params.umi_pattern && !params.umi_pattern2) {
+        error "UMI deduplication (--umi_dedup) requires at least one UMI pattern.\\n" +
+              "Please specify --umi_pattern for R1 and/or --umi_pattern2 for R2.\\n" +
+              "Example: --umi_pattern 'NNNNNNNN' for an 8bp UMI at the 5' end of R1."
+    }
+
     if(!params.count_table){
         ch_input = ch_samplesheet
+
+        //
+        // MODULE: UMI extraction and deduplication (if enabled)
+        // Extract UMIs from reads and append to read headers before any other processing
+        // UMI dedup must be called here, immediately after extraction, to ensure all samples
+        // flow through before the channel is consumed by downstream processes
+        //
+        if(params.umi_dedup && (params.umi_pattern || params.umi_pattern2)) {
+            UMI_TOOLS_EXTRACT(ch_input)
+            ch_versions = ch_versions.mix(UMI_TOOLS_EXTRACT.out.versions.first())
+
+            // If not using bowtie2 alignment, run genome-free UMI deduplication
+            // IMPORTANT: Call UMI_DEDUP_SCREENING BEFORE reassigning ch_input
+            // to ensure both consumers can access UMI_TOOLS_EXTRACT.out.reads
+            if(!params.fasta) {
+                // Convert library to value channel so it can be reused for each sample
+                // Queue channels only emit once; value channels can be consumed multiple times
+                def ch_library_val = INITIALISATION_CHANNEL_CREATION_SCREENING.out.library.first()
+                
+                UMI_DEDUP_SCREENING(
+                    UMI_TOOLS_EXTRACT.out.reads,
+                    ch_library_val
+                )
+                ch_versions = ch_versions.mix(UMI_DEDUP_SCREENING.out.versions.first())
+
+                // Collect all per-sample count tables
+                ch_umi_counts = UMI_DEDUP_SCREENING.out.counts
+            }
+
+            // Update ch_input for downstream processing (FASTQC, cutadapt, etc.)
+            // In DSL2, this should be a separate subscription to the same output
+            ch_input = UMI_TOOLS_EXTRACT.out.reads
+        }
 
         //
         // MODULE: Run FastQC
@@ -198,6 +247,20 @@ workflow CRISPRSEQ_SCREENING {
         MAGECK_COUNT.out.count.map {
         it -> it[1]
         }.set { ch_counts }
+
+        //
+        // MODULE: Merge UMI-deduplicated counts with MAGECK counts (if UMI dedup was run)
+        // When UMI deduplication is enabled without Bowtie2, we generate per-sample count tables
+        // that need to be merged into a single combined count table for downstream analysis
+        //
+        if(params.umi_dedup && !params.fasta && ch_umi_counts) {
+            MERGE_UMI_COUNTS(
+                ch_umi_counts.collect(),
+                INITIALISATION_CHANNEL_CREATION_SCREENING.out.library.first()
+            )
+            ch_versions = ch_versions.mix(MERGE_UMI_COUNTS.out.versions)
+            ch_counts = MERGE_UMI_COUNTS.out.counts
+        }
 
     } else {
         channel.fromPath(params.count_table)

@@ -50,6 +50,37 @@ MAGeCK count which is the main alignment software used is normally able to autom
 
 The MAGeCK count module supports bam files, which allows you to align with bowtie2 first. If you wish to do so (for instance to allow mapping reads to the library with mismatches or to set the aligner with specific flags) you can use the flag `--bowtie`. The reference FASTA for the mapping is created automatically from the library file provided with `--library`.
 
+### UMI deduplication
+
+For CRISPR screens with Unique Molecular Identifiers (UMIs), the pipeline can perform UMI-based deduplication to remove PCR duplicates before counting. This is particularly useful for screens where accurate quantification is important.
+
+To enable UMI deduplication, use `--umi_dedup` along with a UMI pattern:
+
+```bash
+nextflow run nf-core/crisprseq \
+    --analysis screening \
+    --input samplesheet.csv \
+    --library library.txt \
+    --umi_dedup \
+    --umi_pattern 'NNNNNNNN' \
+    -profile singularity
+```
+
+#### UMI parameters
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `--umi_dedup` | Enable UMI-based deduplication | `false` |
+| `--umi_pattern` | UMI pattern for Read 1 (e.g., 'NNNNNNNN' for 8bp UMI) | `null` |
+| `--umi_pattern2` | UMI pattern for Read 2 | `null` |
+| `--umi_edit_distance` | Edit distance threshold for UMI clustering | `1` |
+| `--umi_clustering_method` | UMI clustering algorithm: `directional`, `adjacency`, or `cluster` | `directional` |
+| `--sgrna_start` | Position in read where sgRNA begins (0-based) | `0` |
+| `--sgrna_length` | Length of sgRNA sequence | `20` |
+| `--sgrna_edit_distance` | Edit distance for sgRNA-to-library matching | `0` |
+
+The UMI pattern uses UMI-tools format: `N` represents UMI bases, `X` represents bases to discard. For example, `NNNNNNNN` extracts an 8bp UMI from the 5' end of the read.
+
 ### library
 
 If you are running the pipeline with fastq files and wish to obtain a count table, the library parameter is needed. The library table has three mandatory columns : id, target transcript (or gRNA sequence) and gene symbol.

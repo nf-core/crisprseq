@@ -281,6 +281,71 @@
                 }
             }
         },
+        "umi_deduplication_options": {
+            "title": "UMI deduplication options",
+            "type": "object",
+            "fa_icon": "fas fa-barcode",
+            "description": "Options for UMI-based deduplication in CRISPR screening.",
+            "properties": {
+                "umi_dedup": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable UMI-based deduplication for CRISPR screening.",
+                    "fa_icon": "fas fa-toggle-on",
+                    "help_text": "When enabled, UMIs are extracted from reads and used to deduplicate PCR duplicates before counting sgRNAs. Requires --umi_pattern and/or --umi_pattern2."
+                },
+                "umi_pattern": {
+                    "type": "string",
+                    "description": "UMI pattern for Read 1 in UMI-tools format.",
+                    "fa_icon": "fas fa-barcode",
+                    "help_text": "Pattern describing the UMI structure in Read 1. Use 'N' for UMI bases and 'X' for bases to discard. Examples: 'NNNNNNNN' (8bp UMI at 5' end), 'NNNXXXNNN' (3bp UMI, 3bp spacer, 3bp UMI)."
+                },
+                "umi_pattern2": {
+                    "type": "string",
+                    "description": "UMI pattern for Read 2 in UMI-tools format.",
+                    "fa_icon": "fas fa-barcode",
+                    "help_text": "Pattern describing the UMI structure in Read 2. Same format as umi_pattern. Use when UMIs are on Read 2 or when using dual UMIs."
+                },
+                "umi_edit_distance": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Edit distance threshold for UMI clustering.",
+                    "fa_icon": "fas fa-sliders-h",
+                    "minimum": 0,
+                    "help_text": "UMIs within this Levenshtein distance are considered duplicates. Default: 1 (allows for single sequencing errors in UMIs)."
+                },
+                "sgrna_start": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Start position (0-based) for sgRNA extraction within the read.",
+                    "fa_icon": "fas fa-map-marker-alt",
+                    "help_text": "Position in the read where the sgRNA sequence begins. Used for genome-free UMI deduplication."
+                },
+                "sgrna_length": {
+                    "type": "integer",
+                    "default": 20,
+                    "description": "Length of the sgRNA sequence to extract.",
+                    "fa_icon": "fas fa-ruler-horizontal",
+                    "help_text": "Number of bases to extract as the sgRNA sequence. Default: 20 (standard sgRNA length)."
+                },
+                "sgrna_edit_distance": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "Edit distance threshold for sgRNA matching to library.",
+                    "fa_icon": "fas fa-crosshairs",
+                    "minimum": 0,
+                    "help_text": "Maximum edit distance allowed when matching extracted sgRNAs to the library. 0 = exact match only."
+                },
+                "umi_clustering_method": {
+                    "type": "string",
+                    "default": "directional",
+                    "enum": ["directional", "adjacency", "cluster"],
+                    "description": "Method for clustering UMIs.",
+                    "fa_icon": "fas fa-project-diagram",
+                    "help_text": "Algorithm for UMI clustering: 'directional' (UMI-tools default, accounts for PCR errors), 'adjacency' (simple edit distance clustering), 'cluster' (network-based clustering)."
+                }
+            }
+        },
         "reference_genome_options": {
             "title": "Reference genome options",
             "type": "object",
@@ -547,6 +612,9 @@
         },
         {
             "$ref": "#/$defs/screening_parameters"
+        },
+        {
+            "$ref": "#/$defs/umi_deduplication_options"
         },
         {
             "$ref": "#/$defs/reference_genome_options"
