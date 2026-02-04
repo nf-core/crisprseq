@@ -36,7 +36,6 @@ process VSEARCH_SORT {
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}.fasta
 

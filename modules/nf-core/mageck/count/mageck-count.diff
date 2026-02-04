@@ -1,4 +1,7 @@
-Changes in module 'nf-core/mageck/count'
+Changes in component 'nf-core/mageck/count'
+'modules/nf-core/mageck/count/environment.yml' is unchanged
+'modules/nf-core/mageck/count/meta.yml' is unchanged
+Changes in 'mageck/count/main.nf':
 --- modules/nf-core/mageck/count/main.nf
 +++ modules/nf-core/mageck/count/main.nf
 @@ -1,6 +1,7 @@
@@ -53,7 +56,7 @@ Changes in module 'nf-core/mageck/count'
  
  
      cat <<-END_VERSIONS > versions.yml
-@@ -43,14 +52,21 @@
+@@ -43,11 +52,18 @@
      stub:
      def args = task.ext.args ?: ''
      def prefix = task.ext.prefix ?: "${meta.id}"
@@ -74,8 +77,7 @@ Changes in module 'nf-core/mageck/count'
      cat <<-END_VERSIONS > versions.yml
      "${task.process}":
          mageck: \$(mageck -v)
-     END_VERSIONS
-     """
--}
-+}
+
+'modules/nf-core/mageck/count/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/mageck/count/tests/main.nf.test' is unchanged
 ************************************************************

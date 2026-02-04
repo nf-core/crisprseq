@@ -11,19 +11,19 @@ process VSEARCH_CLUSTER {
     tuple val(meta), path(fasta)
 
     output:
-    tuple val(meta), path('*.aln.gz')            , optional: true, emit: aln
-    tuple val(meta), path('*.biom.gz')           , optional: true, emit: biom
-    tuple val(meta), path('*.mothur.tsv.gz')     , optional: true, emit: mothur
-    tuple val(meta), path('*.otu.tsv.gz')        , optional: true, emit: otu
-    tuple val(meta), path('*.bam')               , optional: true, emit: bam
-    tuple val(meta), path('*.out.tsv.gz')        , optional: true, emit: out
-    tuple val(meta), path('*.blast.tsv.gz')      , optional: true, emit: blast
-    tuple val(meta), path('*.uc.tsv.gz')         , optional: true, emit: uc
-    tuple val(meta), path('*.centroids.fasta.gz'), optional: true, emit: centroids
-    tuple val(meta), path('*_clusters*')         , optional: true, emit: clusters
-    tuple val(meta), path('*.profile.txt.gz')    , optional: true, emit: profile
-    tuple val(meta), path('*.msa.fasta.gz')      , optional: true, emit: msa
-    path "versions.yml"                                          , emit: versions
+    tuple val(meta), path('*.aln.gz')                , optional: true, emit: aln
+    tuple val(meta), path('*.biom.gz')               , optional: true, emit: biom
+    tuple val(meta), path('*.mothur.tsv.gz')         , optional: true, emit: mothur
+    tuple val(meta), path('*.otu.tsv.gz')            , optional: true, emit: otu
+    tuple val(meta), path('*.bam')                   , optional: true, emit: bam
+    tuple val(meta), path('*.out.tsv.gz')            , optional: true, emit: out
+    tuple val(meta), path('*.blast.tsv.gz')          , optional: true, emit: blast
+    tuple val(meta), path('*.uc.tsv.gz')             , optional: true, emit: uc
+    tuple val(meta), path('*.centroids.fasta.gz')    , optional: true, emit: centroids
+    tuple val(meta), path('*.clusters.fasta*.gz')    , optional: true, emit: clusters
+    tuple val(meta), path('*.profile.txt.gz')        , optional: true, emit: profile
+    tuple val(meta), path('*.msa.fasta.gz')          , optional: true, emit: msa
+    path "versions.yml"                              , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -41,7 +41,7 @@ process VSEARCH_CLUSTER {
                     args3.contains("--biomout") ? "biom" :
                     args3.contains("--blast6out") ? "blast.tsv" :
                     args3.contains("--centroids") ? "centroids.fasta" :
-                    args3.contains("--clusters") ? "clusters" :
+                    args3.contains("--clusters") ? "clusters.fasta" :
                     args3.contains("--mothur_shared_out") ? "mothur.tsv" :
                     args3.contains("--msaout") ? "msa.fasta" :
                     args3.contains("--otutabout") ? "otu.tsv" :
@@ -54,19 +54,54 @@ process VSEARCH_CLUSTER {
     """
     vsearch \\
         $args2 $fasta \\
-        $args3 ${prefix}_${out_ext} \\
+        $args3 ${prefix}.${out_ext} \\
         --threads $task.cpus \\
         $args
 
     if [[ $args3 == "--clusters" ]]
     then
-        :
+        find . -type f -name \"${prefix}.${out_ext}*[0-9]\" | xargs gzip -n
     elif [[ $args3 != "--samout" ]]
     then
         gzip -n ${prefix}.${out_ext}
     else
         samtools view -T $fasta -S -b ${prefix}.${out_ext} > ${prefix}.bam
     fi
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        vsearch: \$(vsearch --version 2>&1 | head -n 1 | sed 's/vsearch //g' | sed 's/,.*//g' | sed 's/^v//' | sed 's/_.*//')
+    END_VERSIONS
+    """
+
+    stub:
+    def args = task.ext.args ?: ''
+    def args2 = task.ext.args2 ?: ''
+    def args3 = task.ext.args3 ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
+
+    if (!args2.contains("--cluster_fast") && !args2.contains("--cluster_size") && !args2.contains("--cluster_smallmem") && !args2.contains("--cluster_unoise") ) {
+            error "Unknown clustering option provided (${args2})"
+        }
+    def out_ext = args3.contains("--alnout") ? "aln.gz" :
+                    args3.contains("--biomout") ? "biom.gz" :
+                    args3.contains("--blast6out") ? "blast.tsv.gz" :
+                    args3.contains("--centroids") ? "centroids.fasta.gz" :
+                    args3.contains("--clusters") ? "clusters.fasta.gz" :
+                    args3.contains("--mothur_shared_out") ? "mothur.tsv.gz" :
+                    args3.contains("--msaout") ? "msa.fasta.gz" :
+                    args3.contains("--otutabout") ? "otu.tsv.gz" :
+                    args3.contains("--profile") ? "profile.txt.gz" :
+                    args3.contains("--samout") ? "bam.gz" :
+                    args3.contains("--uc") ? "uc.tsv.gz" :
+                    args3.contains("--userout") ? "out.tsv.gz" :
+                    ""
+    if (out_ext == "") { error "Unknown output file format provided (${args3})" }
+    def output = "${prefix}.${out_ext}"
+    def non_gz_out = args3.contains("--samout") ? "gunzip ${output}" : ""
+    """
+    echo | gzip > ${output}
+    ${non_gz_out}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

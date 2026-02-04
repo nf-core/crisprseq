@@ -16,8 +16,8 @@ Changes in 'mageck/test/main.nf':
  
      when:
 
+'modules/nf-core/mageck/test/tests/main.nf.test.snap' is unchanged
 'modules/nf-core/mageck/test/tests/nextflow-day0_label.config' is unchanged
 'modules/nf-core/mageck/test/tests/nextflow.config' is unchanged
-'modules/nf-core/mageck/test/tests/main.nf.test.snap' is unchanged
 'modules/nf-core/mageck/test/tests/main.nf.test' is unchanged
 ************************************************************

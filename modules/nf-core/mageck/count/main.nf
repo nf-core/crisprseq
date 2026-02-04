@@ -26,7 +26,7 @@ process MAGECK_COUNT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def sample_label =  "--sample-label ${meta.id}"
+    def sample_label = ("$fastq1".endsWith(".fastq.gz") || "$fastq1".endsWith(".fq.gz")) ? "--sample-label ${meta.id}" : ''
     
     if (meta.single_end && ("$fastq1".endsWith(".fastq.gz") || "$fastq1".endsWith(".fq.gz")) || "$fastq1".endsWith(".bam")) {
         input = "--fastq $fastq1" 
