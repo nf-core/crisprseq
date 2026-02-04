@@ -29,7 +29,6 @@ workflow PIPELINE_INITIALISATION {
     take:
     version           // boolean: Display version and exit
     validate_params   // boolean: Boolean whether to validate parameters against the schema at runtime
-    monochrome_logs   // boolean: Do not use coloured log outputs
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
     input             //  string: Path to input samplesheet
@@ -98,19 +97,17 @@ workflow PIPELINE_INITIALISATION {
     validateInputParameters()
 
     reads_targeted   = channel.empty()
-    reads_screening  = channel.empty()
     fastqc_screening = channel.empty()
     reference        = channel.empty()
     protospacer      = channel.empty()
     template         = channel.empty()
-    versions         = channel.empty()
 
     //
     // Create channel from input file provided through params.input
     //
-    if(params.input) {
+    if(input) {
         channel
-            .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
+            .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
             .multiMap {
                 meta, fastq_1, fastq_2, reference_element, protospacer_element, template_element ->
                     def files = []

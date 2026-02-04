@@ -89,7 +89,6 @@ workflow CRISPRSEQ_SCREENING {
             ch_input
         )
         ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it -> it[1]})
-        ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
         //set adapter seq to null to make it compatible with crispr targeted
         ch_cutadapt = ch_input.combine(channel.value([[]]))
@@ -104,7 +103,6 @@ workflow CRISPRSEQ_SCREENING {
             }.set { ch_cutadapt }
 
             ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT_FIVE_PRIME.out.log.collect{it -> it[1]})
-            ch_versions = ch_versions.mix(CUTADAPT_FIVE_PRIME.out.versions)
         }
 
         if(params.three_prime_adapter) {
@@ -113,7 +111,6 @@ workflow CRISPRSEQ_SCREENING {
             )
             ch_cutadapt = CUTADAPT_THREE_PRIME.out.reads.combine(channel.value([[]]))
             ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT_THREE_PRIME.out.log.collect{it -> it[1]})
-            ch_versions = ch_versions.mix(CUTADAPT_THREE_PRIME.out.versions)
         }
 
 
@@ -140,7 +137,6 @@ workflow CRISPRSEQ_SCREENING {
             BOWTIE2_BUILD(
                 ch_fasta
             )
-            ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
 
             BOWTIE2_BUILD.out.index
                 .collect()
@@ -153,7 +149,6 @@ workflow CRISPRSEQ_SCREENING {
                 false,
                 false
             )
-            ch_versions = ch_versions.mix(BOWTIE2_ALIGN.out.versions)
 
             BOWTIE2_ALIGN.out.bam.map{ meta, bam ->
                 [meta, [bam]]

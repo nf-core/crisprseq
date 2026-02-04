@@ -134,7 +134,6 @@ workflow CRISPRSEQ_TARGETED {
                 return [ meta, fastq ]
     }
     .set { ch_cat_fastq }
-    ch_versions = ch_versions.mix(CAT_FASTQ.out.versions)
 
     //
     // MODULE: Merge paired-end reads
@@ -203,7 +202,6 @@ workflow CRISPRSEQ_TARGETED {
         ch_pear_fastq
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it -> it[1]})
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
     ch_trimmed = channel.empty()
 
@@ -235,7 +233,6 @@ workflow CRISPRSEQ_TARGETED {
             ch_adapter_seqs.adapters
         )
         ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT.out.log.collect{it -> it[1]})
-        ch_versions = ch_versions.mix(CUTADAPT.out.versions)
 
         ch_adapter_seqs.no_adapters
         .mix(CUTADAPT.out.reads)
@@ -256,7 +253,6 @@ workflow CRISPRSEQ_TARGETED {
     SEQTK_SEQ_MASK (
         ch_trimmed
     )
-    ch_versions = ch_versions.mix(SEQTK_SEQ_MASK.out.versions)
 
     if (params.overrepresented) {
         ch_cat_fastq.paired
@@ -450,7 +446,6 @@ workflow CRISPRSEQ_TARGETED {
             false,
             false
         )
-        ch_versions = ch_versions.mix(MINIMAP2_ALIGN_UMI_1.out.versions.first())
 
 
         // Only continue with clusters that have aligned sequences
@@ -480,7 +475,6 @@ workflow CRISPRSEQ_TARGETED {
             false,
             false
         )
-        ch_versions = ch_versions.mix(MINIMAP2_ALIGN_UMI_2.out.versions.first())
 
         // Only continue with clusters that have aligned sequences
         MINIMAP2_ALIGN_UMI_2.out.paf
@@ -535,10 +529,11 @@ workflow CRISPRSEQ_TARGETED {
         //
         // MODULE: Convert fasta to fastq
         //
+        ch_umi_consensus.view()
+        ch_single_clusters_consensus.view()
         SEQTK_SEQ_FATOFQ (
-            ch_umi_consensus
+            ch_umi_consensus.concat(ch_single_clusters_consensus)
         )
-        ch_versions = ch_versions.mix(SEQTK_SEQ_FATOFQ.out.versions.first())
     }
 
     ch_preprocess_reads = params.umi_clustering ? SEQTK_SEQ_FATOFQ.out.fastx : SEQTK_SEQ_MASK.out.fastx
@@ -568,7 +563,6 @@ workflow CRISPRSEQ_TARGETED {
             true
         )
         ch_mapped_bam = MINIMAP2_ALIGN_ORIGINAL.out.bam
-        ch_versions = ch_versions.mix(MINIMAP2_ALIGN_ORIGINAL.out.versions)
     }
 
     //
@@ -578,7 +572,6 @@ workflow CRISPRSEQ_TARGETED {
         BWA_INDEX (
             ch_oriented_reference
         )
-        ch_versions = ch_versions.mix(BWA_INDEX.out.versions)
         BWA_MEM (
             ch_preprocess_reads,
             BWA_INDEX.out.index,
@@ -596,7 +589,6 @@ workflow CRISPRSEQ_TARGETED {
         BOWTIE2_BUILD (
             ch_oriented_reference
         )
-        ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
         BOWTIE2_ALIGN (
             ch_preprocess_reads,
             BOWTIE2_BUILD.out.index,
@@ -605,7 +597,6 @@ workflow CRISPRSEQ_TARGETED {
             true
         )
         ch_mapped_bam = BOWTIE2_ALIGN.out.bam
-        ch_versions = ch_versions.mix(BOWTIE2_ALIGN.out.versions)
     }
 
 
@@ -625,7 +616,6 @@ workflow CRISPRSEQ_TARGETED {
     SAMTOOLS_INDEX (
         ch_mapped_bam
     )
-    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
 
     //
     // MODULE: Obtain a new reference with the template modification
@@ -650,7 +640,6 @@ workflow CRISPRSEQ_TARGETED {
     )
     .bam
     .set { ch_template_bam }
-    ch_versions = ch_versions.mix(MINIMAP2_ALIGN_TEMPLATE.out.versions)
 
     ch_mapped_bam
         .join(SAMTOOLS_INDEX.out.bai)
