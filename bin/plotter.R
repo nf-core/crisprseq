@@ -405,7 +405,7 @@ subs_plot <- function(subsperc, gRNA_seq, cut_site){
     ref_nt <- stringr::str_split(gRNA_seq, "")[[1]]
     ### Get the plot
     plot <- ggplot(data=subsperc %>% filter(pos > pre_cut_site - 25) %>% filter(pos < post_cut_site + 25), aes(x=ordered(pos), y=percentage, fill=nucleotide, alpha=ifelse(percentage<95,1,0))) +
-        geom_bar(stat="identity") + theme_classic() + scale_fill_manual("Nuclotides", values = c("A" = "#109648", "C" = "#86b7ed", "G" = "#f7b32b", "T" = "#d62839", "-" = "#f2f2f2")) +
+        geom_bar(stat="identity") + theme_classic() + scale_fill_manual("Nucleotides", values = c("A" = "#109648", "C" = "#86b7ed", "G" = "#f7b32b", "T" = "#d62839", "-" = "#f2f2f2")) +
         scale_x_discrete(breaks = (pre_cut_site+1):(post_cut_site-1), labels = ref_nt) + xlab(NULL) + scale_alpha(guide = 'none') + ylab('nt (%)') +
         geom_text(aes(label = ifelse(percentage<50 & percentage>5,100-percentage,"")),
                 hjust = 0, vjust = 1.5, angle = 90, nudge_x = -.5,
