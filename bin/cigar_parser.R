@@ -348,9 +348,9 @@ error_rate_filter <- function(indel_count, indel_reads, wt){
 
 
 #########
-### Filter by pick
+### Filter by peak
 #########
-pick_filter <- function(indels_dataset){
+peak_filter <- function(indels_dataset){
     dels <- indels_dataset %>% filter(Modification == "del")
     # Count accumulated insertions and deletions by position
     accum.dels=unlist(apply(dels,1,function(X) return( seq(as.integer(X[2]), as.integer(X[2]) + as.integer(X[3])) )))
@@ -547,7 +547,7 @@ correct_insertion_vc <- function(cut_site_position, insertion_row, gRNA){
         after_inserted <- substr(as.character(bam[[1]]$seq[bam[[1]]$qname == insertion_row$Ids]), nts_bef_nt+1+insertion_row$Length + diff, nts_bef_nt+insertion_row$Length+3 + diff)
 
         if(before_inserted == before_cut && after_inserted == after_cut){
-            return(list(Modification="ins", Start=cut_site_position+1, Length=insertion_row$Length, Ids=insertion_row$Ids, above_error_rate=insertion_row$above_error_rate, in_pick = insertion_row$in_pick, freq = insertion_row$freq, Perc=insertion_row$Perc, patterns=insertion_row$patterns, pre_ins_nt=before_inserted, ins_nt=inserted, post_ins_nt=after_inserted))
+            return(list(Modification="ins", Start=cut_site_position+1, Length=insertion_row$Length, Ids=insertion_row$Ids, above_error_rate=insertion_row$above_error_rate, in_peak = insertion_row$in_peak, freq = insertion_row$freq, Perc=insertion_row$Perc, patterns=insertion_row$patterns, pre_ins_nt=before_inserted, ins_nt=inserted, post_ins_nt=after_inserted))
         } else {
             return(insertion_row)
         }
@@ -855,11 +855,11 @@ if (dim(alignment_info)[1] != 0){
         ##### Count of unique genotypes
         unique_genotypes_count <- indel_count_seq(separated_indels)
 
-        ##### Error rate filter & pick filter
+        ##### Error rate filter & peak filter
         filter_er <- error_rate_filter(unique_genotypes_count, separated_indels, wt_reads)
         separated_indels$above_error_rate <- (paste0(separated_indels$Modification,separated_indels$Start,separated_indels$Length) %in% paste0(filter_er$Modification, filter_er$Start, filter_er$Length))
-        filter_pick <- pick_filter(separated_indels)
-        separated_indels$in_pick <- (paste0(separated_indels$Modification,separated_indels$Start,separated_indels$Length) %in% paste0(filter_pick$Modification, filter_pick$Start, filter_pick$Length))
+        filter_peak <- peak_filter(separated_indels)
+        separated_indels$in_peak <- (paste0(separated_indels$Modification,separated_indels$Start,separated_indels$Length) %in% paste0(filter_peak$Modification, filter_peak$Start, filter_peak$Length))
 
         ##### Deletions and insertions classes: MMEJ detection
         ref_sread <- readFasta(ref_fasta)
@@ -883,15 +883,15 @@ if (dim(alignment_info)[1] != 0){
             unique_genotypes_count_ins <- unique_genotypes_count %>% filter(Modification == "ins")
             separated_indels_ins_all <- merge(x = separated_indels_ins, y = unique_genotypes_count_ins, by = c("Modification", "Start", "Length"), all = TRUE)
         } else {
-            separated_indels_ins_all <- data.frame("Modification"=c(),"Start"=c(),"Length"=c(),"Ids"=c(),"above_error_rate"=c(),"in_pick"=c(),"pre_ins_nt"=c(),"ins_nt"=c(),"post_ins_nt"=c(),"freq"=c(), "Perc"=c())
+            separated_indels_ins_all <- data.frame("Modification"=c(),"Start"=c(),"Length"=c(),"Ids"=c(),"above_error_rate"=c(),"in_peak"=c(),"pre_ins_nt"=c(),"ins_nt"=c(),"post_ins_nt"=c(),"freq"=c(), "Perc"=c())
         }
 
         # Join both data frames
         if(dim(separated_indels_dels)[1]>0 && dim(separated_indels_ins_all)[1]>0){
             delins <- separated_indels %>% filter(Modification == "delin")
-            separated_indels <- merge(x = separated_indels_dels, y = separated_indels_ins_all, by = c("Modification", "Start", "Length", "Ids", "above_error_rate", "in_pick", "freq", "Perc"), all = TRUE)
+            separated_indels <- merge(x = separated_indels_dels, y = separated_indels_ins_all, by = c("Modification", "Start", "Length", "Ids", "above_error_rate", "in_peak", "freq", "Perc"), all = TRUE)
             if(dim(delins)[1] >0 ){
-                separated_indels <- merge(x = separated_indels, y = delins, by = c("Modification", "Start", "Length", "Ids", "above_error_rate", "in_pick"), all = TRUE)
+                separated_indels <- merge(x = separated_indels, y = delins, by = c("Modification", "Start", "Length", "Ids", "above_error_rate", "in_peak"), all = TRUE)
             }
         } else if(dim(separated_indels_dels)[1]>0){
             separated_indels <- separated_indels_dels
@@ -1026,23 +1026,23 @@ if (dim(alignment_info)[1] != 0){
 
         ########### Pre-variant calling counts
         # Indel filters
-        ep_pre <- separated_indels %>% filter(in_pick == TRUE) %>% filter(above_error_rate == TRUE)
+        ep_pre <- separated_indels %>% filter(in_peak == TRUE) %>% filter(above_error_rate == TRUE)
         ep <- dim(ep_pre)[1]
-        nep_pre <- separated_indels %>% filter(in_pick == TRUE) %>% filter(above_error_rate == FALSE)
+        nep_pre <- separated_indels %>% filter(in_peak == TRUE) %>% filter(above_error_rate == FALSE)
         nep <- dim(nep_pre)[1]
-        nenp_pre <- separated_indels %>% filter(in_pick == FALSE) %>% filter(above_error_rate == FALSE)
+        nenp_pre <- separated_indels %>% filter(in_peak == FALSE) %>% filter(above_error_rate == FALSE)
         nenp <- dim(nenp_pre)[1]
-        enp_pre <- separated_indels %>% filter(in_pick == FALSE) %>% filter(above_error_rate == TRUE)
+        enp_pre <- separated_indels %>% filter(in_peak == FALSE) %>% filter(above_error_rate == TRUE)
         enp <- dim(enp_pre)[1]
 
         prevc_classes <- c("Aligned reads", "Wt", "Indels", "Wt passing filter", "Wt NOT passing filter", "Indels passing filter", "Indels NOT passing filter",
-            "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
+            "Above error & in peak", "NOT above error & in peak", "NOT above error & NOT in peak", "Above error & NOT in peak")
         prevc_counts <- c(aligned_reads, wt_reads+incorrect_wt, dim(separated_indels)[1]+trunc_reads, wt_reads, incorrect_wt, dim(separated_indels)[1], trunc_reads,
                                             ep, nep, nenp, enp)
         prevc_summary <- data.frame(classes = unlist(prevc_classes), counts = unlist(prevc_counts))
         # Write prevc_summary data to a csv for multiQC plots
         prevc_classes_mqc <- c("Wt passing filter", "Wt NOT passing filter", "Indels NOT passing filter",
-            "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
+            "Above error & in peak", "NOT above error & in peak", "NOT above error & NOT in peak", "Above error & NOT in peak")
         prevc_counts_mqc <- c(wt_reads, incorrect_wt, trunc_reads, ep, nep, nenp, enp)
         indel_filters <- data.frame(sample = unlist(prevc_counts_mqc), row.names = unlist(prevc_classes_mqc))
         colnames(indel_filters)[1] = results_path # Rename the column to add the sample ID
@@ -1060,7 +1060,7 @@ if (dim(alignment_info)[1] != 0){
         out_frame_dels = 0
         in_frame_ins = 0
         out_frame_ins = 0
-        columns = c("Modification", "Start", "Length", "Ids", "above_error_rate", "in_pick", "freq", "Perc", "patterns", "pre_ins_nt","ins_nt","post_ins_nt")
+        columns = c("Modification", "Start", "Length", "Ids", "above_error_rate", "in_peak", "freq", "Perc", "patterns", "pre_ins_nt","ins_nt","post_ins_nt")
         separated_indels = data.frame(matrix(nrow = 1, ncol = length(columns)))
         colnames(separated_indels) = columns
         ref_sread <- readFasta(ref_fasta)
@@ -1106,7 +1106,7 @@ if (dim(alignment_info)[1] != 0){
         enp = 0
 
         prevc_classes <- c("Aligned reads", "Wt", "Indels", "Wt passing filter", "Wt NOT passing filter", "Indels passing filter", "Indels NOT passing filter",
-            "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
+            "Above error & in peak", "NOT above error & in peak", "NOT above error & NOT in peak", "Above error & NOT in peak")
         prevc_counts <- c(aligned_reads, wt_reads+incorrect_wt, dim(separated_indels)[1]+trunc_reads, wt_reads, incorrect_wt, dim(separated_indels)[1], trunc_reads,
                                             ep, nep, nenp, enp)
         prevc_summary <- data.frame(classes = unlist(prevc_classes), counts = unlist(prevc_counts))
@@ -1114,7 +1114,7 @@ if (dim(alignment_info)[1] != 0){
         write(exportJson, paste(sample_id,"_cutSite.json",sep = ""))
         # Write prevc_summary data to a csv for multiQC plots
         prevc_classe_mqc <- c("Wt passing filter", "Wt NOT passing filter", "Indels NOT passing filter",
-            "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
+            "Above error & in peak", "NOT above error & in peak", "NOT above error & NOT in peak", "Above error & NOT in peak")
         prevc_counts_mqc <- c(wt_reads, incorrect_wt, trunc_reads, ep, nep, nenp, enp)
         indel_filters <- data.frame(sample = unlist(prevc_counts_mqc), row.names = unlist(prevc_classe_mqc))
         colnames(indel_filters)[1] = results_path # Rename the column to add the sample ID
@@ -1229,7 +1229,7 @@ if (dim(alignment_info)[1] != 0){
     htmlwidgets::saveWidget(plotly::as_widget(fig), paste0(results_path,"_edition.html"))
     htmlwidgets::saveWidget(plotly::as_widget(fig), paste0(results_path,"_QC-indels.html"))
     htmlwidgets::saveWidget(plotly::as_widget(fig), paste0(results_path,"_reads.html"))
-    columns = c("Modification", "Start", "Length", "Ids", "above_error_rate", "in_pick", "freq", "Perc", "patterns", "pre_ins_nt", "ins_nt", "post_ins_nt", "sample", "cut_site","aligned_reads","wt_reads", "t_reads")
+    columns = c("Modification", "Start", "Length", "Ids", "above_error_rate", "in_peak", "freq", "Perc", "patterns", "pre_ins_nt", "ins_nt", "post_ins_nt", "sample", "cut_site","aligned_reads","wt_reads", "t_reads")
     separated_indels = data.frame(matrix(nrow = 1, ncol = length(columns)))
     colnames(separated_indels) = columns
     write.csv(separated_indels,file=paste0(results_path, "_Badlyindels.csv"))
@@ -1240,7 +1240,7 @@ if (dim(alignment_info)[1] != 0){
     edit_summary_perc <- t(edit_summary_perc) # t() will add classes as columns and counts as values, 1 row per sample
     write.csv(edit_summary_perc,file=paste0(results_path, "_edits.csv"))
     prevc_classes_mqc <- c("Wt passing filter", "Wt NOT passing filter", "Indels NOT passing filter",
-            "Above error & in pick", "NOT above error & in pick", "NOT above error & NOT in pick", "Above error & NOT in pick")
+            "Above error & in peak", "NOT above error & in peak", "NOT above error & NOT in peak", "Above error & NOT in peak")
     prevc_counts_mqc <- c(0, 0, 0, 0, 0, 0, 0)
     indel_filters <- data.frame(sample = unlist(prevc_counts_mqc), row.names = unlist(prevc_classes_mqc))
     write.csv(indel_filters,file=paste0(results_path, "_QC-indels.csv"))
