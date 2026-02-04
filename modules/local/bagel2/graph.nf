@@ -42,7 +42,7 @@ process BAGEL2_GRAPH {
     plt.title('Precision-Recall Plot')
 
     # Save the plot to a PNG file
-    file_name = 'PR_plot_{}.png'.format('${meta.id}')
+    file_name = 'PR_plot_{}.png'.format('${prefix}')
 
     plt.savefig(file_name)
 
@@ -53,7 +53,7 @@ process BAGEL2_GRAPH {
     plt.xlabel('Bayes Factor')
     plt.ylabel('Number of Genes')
 
-    file_name = 'barplot_{}.png'.format('${meta.id}')
+    file_name = 'barplot_{}.png'.format('${prefix}')
 
     plt.savefig(file_name)
     plt.show()

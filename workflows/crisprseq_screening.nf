@@ -88,7 +88,7 @@ workflow CRISPRSEQ_SCREENING {
         FASTQC (
             ch_input
         )
-        ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it -> it[1]})
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
         //set adapter seq to null to make it compatible with crispr targeted
@@ -103,7 +103,7 @@ workflow CRISPRSEQ_SCREENING {
                 [meta, fastq, proto]
             }.set { ch_cutadapt }
 
-            ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT_FIVE_PRIME.out.log.collect{it[1]})
+            ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT_FIVE_PRIME.out.log.collect{it -> it[1]})
             ch_versions = ch_versions.mix(CUTADAPT_FIVE_PRIME.out.versions)
         }
 
@@ -112,7 +112,7 @@ workflow CRISPRSEQ_SCREENING {
                 ch_cutadapt
             )
             ch_cutadapt = CUTADAPT_THREE_PRIME.out.reads.combine(channel.value([[]]))
-            ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT_THREE_PRIME.out.log.collect{it[1]})
+            ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT_THREE_PRIME.out.log.collect{it -> it[1]})
             ch_versions = ch_versions.mix(CUTADAPT_THREE_PRIME.out.versions)
         }
 
@@ -193,7 +193,7 @@ workflow CRISPRSEQ_SCREENING {
         )
 
         ch_versions = ch_versions.mix(MAGECK_COUNT.out.versions.first())
-        ch_multiqc_files = ch_multiqc_files.mix(MAGECK_COUNT.out.summary.collect{it[1]})
+        ch_multiqc_files = ch_multiqc_files.mix(MAGECK_COUNT.out.summary.collect{it -> it[1]})
 
         MAGECK_COUNT.out.count.map {
         it -> it[1]
@@ -239,7 +239,7 @@ workflow CRISPRSEQ_SCREENING {
         ch_samplesheet
             .map { meta, _fastq -> [meta.condition, meta] }
             .groupTuple(by: 0) // Group by condition
-            .map { condition, metas -> [condition, metas.collect { it.id }]}
+            .map { condition, metas -> [condition, metas.collect { it -> it.id }]}
             .set { ch_samplesheet_conditions } // tuples (condition, [sample_id1, sample_id2, ...])
 
         // Map each contrast in the contrasts file to a the list of treatment / reference conditions to compare
@@ -258,8 +258,8 @@ workflow CRISPRSEQ_SCREENING {
         ch_contrasts
             .combine(ch_samplesheet_conditions.collect(flat: false).map{ it -> [it] }) // combine each contrast element with a single-element list containing all (condition, [sample_ids]) tuples
             .map { contrast_meta, all_conditions ->
-                def treatment_samples = all_conditions.find { it[0] in contrast_meta.treatment }  // Find samples for each condition
-                def reference_samples = all_conditions.find { it[0] in contrast_meta.reference }
+                def treatment_samples = all_conditions.find { it -> it[0] in contrast_meta.treatment }  // Find samples for each condition
+                def reference_samples = all_conditions.find { it -> it[0] in contrast_meta.reference }
                 return [ id: contrast_meta.id,  treatment: treatment_samples[1].join(","), reference: reference_samples[1].join(",") ]
             } // emits maps: [id: "...", treatment: "sample1,sample2", reference: "sample3,sample4"]
             .combine(ch_counts)
@@ -356,7 +356,7 @@ workflow CRISPRSEQ_SCREENING {
         //if the user specified a contrast file
         if(params.contrasts && params.mle) {
 
-            MATRICESCREATION(ch_contrasts_counts.map { it[0] })
+            MATRICESCREATION(ch_contrasts_counts.map { it -> it[0] })
             ch_mle = MATRICESCREATION.out.design_matrix.combine(ch_counts)
 
             MAGECK_MLE (ch_mle, INITIALISATION_CHANNEL_CREATION_SCREENING.out.mle_control_sgrna)
@@ -540,7 +540,7 @@ workflow CRISPRSEQ_SCREENING {
     //
     // Collate and save software versions
     //
-    def topic_versions = Channel.topic("versions")
+    def topic_versions = channel.topic("versions")
         .distinct()
         .branch { entry ->
             versions_file: entry instanceof Path

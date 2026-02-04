@@ -23,7 +23,7 @@ process BAGEL2_FC {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    BAGEL.py fc -i $count_table -o ${meta.id} -c $meta.reference $args
+    BAGEL.py fc -i $count_table -o ${prefix} -c $meta.reference $args
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         python: \$(python --version | sed 's/Python //g')

@@ -112,17 +112,18 @@ workflow PIPELINE_INITIALISATION {
         channel
             .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
             .multiMap {
-                meta, fastq_1, fastq_2, reference, protospacer, template ->
+                meta, fastq_1, fastq_2, reference_element, protospacer_element, template_element ->
+                    def files = []
                     if (fastq_2) {
                         files = [ fastq_1, fastq_2 ]
                     } else {
                         files = [ fastq_1 ]
                     }
-                    reads_targeted: [ meta.id, meta - meta.subMap('condition') + [ single_end : fastq_2 ? false : true, self_reference : reference ? false : true, template : template ? true : false ], files ]
+                    reads_targeted: [ meta.id, meta - meta.subMap('condition') + [ single_end : fastq_2 ? false : true, self_reference : reference_element ? false : true, template : template_element ? true : false ], files ]
                     reads_screening:[ meta + [ single_end:fastq_2?false:true ], files ]
-                    reference:      [meta - meta.subMap('condition') + [ single_end : fastq_2 ? false : true, self_reference : reference ? false : true, template : template ? true : false ], reference]
-                    protospacer:    [meta - meta.subMap('condition') + [ single_end : fastq_2 ? false : true, self_reference : reference ? false : true, template : template ? true : false ], protospacer]
-                    template:       [meta - meta.subMap('condition') + [ single_end : fastq_2 ? false : true, self_reference : reference ? false : true, template : template ? true : false ], template]
+                    reference:      [meta - meta.subMap('condition') + [ single_end : fastq_2 ? false : true, self_reference : reference_element ? false : true, template : template_element ? true : false ], reference_element]
+                    protospacer:    [meta - meta.subMap('condition') + [ single_end : fastq_2 ? false : true, self_reference : reference_element ? false : true, template : template_element ? true : false ], protospacer_element]
+                    template:       [meta - meta.subMap('condition') + [ single_end : fastq_2 ? false : true, self_reference : reference_element ? false : true, template : template_element ? true : false ], template_element]
             }
             .set { ch_input }
 
@@ -241,7 +242,7 @@ workflow INITIALISATION_CHANNEL_CREATION_TARGETED {
     //
     input_reference
     .tap{ meta_reference }
-    .filter{ meta, sequence -> sequence instanceof String }
+    .filter{ _meta, sequence -> sequence instanceof String }
     .collectFile() { meta, reference ->
         [ "${meta.id}_reference.fasta", ">${meta.id}\n${reference}\n" ] // Write each reference sequence to a file
     }
@@ -249,11 +250,11 @@ workflow INITIALISATION_CHANNEL_CREATION_TARGETED {
         [new_file.baseName.split("_reference")[0], new_file] // create a channel with the meta.id and the new file
     }
     .join(meta_reference
-        .map{ meta, reference ->
+        .map{ meta, _reference ->
             [meta.id, meta] // Join the channel by meta.id with the meta map
         }
     )
-    .map{ metaid, new_file, meta ->
+    .map{ _metaid, new_file, meta ->
         [meta, new_file] // Obtain the final channel with meta map and the new file
     }
     .set{ ch_seq_reference }
@@ -264,7 +265,7 @@ workflow INITIALISATION_CHANNEL_CREATION_TARGETED {
     //
     input_template
     .tap{ meta_template }
-    .filter{ meta, sequence -> sequence instanceof String }
+    .filter{ _meta, sequence -> sequence instanceof String }
     .collectFile() { meta, template ->
         [ "${meta.id}_template.fasta", ">${meta.id}\n${template}\n" ] // Write each template sequence to a file
     }
@@ -272,11 +273,11 @@ workflow INITIALISATION_CHANNEL_CREATION_TARGETED {
         [new_file.baseName.split("_template")[0], new_file] // create a channel with the meta.id and the new file
     }
     .join(meta_template
-        .map{ meta, template ->
+        .map{ meta, _template ->
             [meta.id, meta] // Join the channel by meta.id with the meta map
         }
     )
-    .map{ metaid, new_file, meta ->
+    .map{ _metaid, new_file, meta ->
         [meta, new_file] // Obtain the final channel with meta map and the new file
     }
     .set{ ch_seq_template }
@@ -307,7 +308,7 @@ workflow INITIALISATION_CHANNEL_CREATION_TARGETED {
         input_reads
             .combine(ch_reference)
             .combine(ch_protospacer)
-            .map{ meta, fastqs, reference, protospacer -> [ meta, reference, protospacer ]} // Don't add fastqs to the channel
+            .map{ meta, _fastqs, reference, protospacer -> [ meta, reference, protospacer ]} // Don't add fastqs to the channel
             .set{ reference_protospacer }
     }
 
@@ -392,13 +393,13 @@ def validateInputSamplesheet(input) {
     }
 
     // Check that multiple runs of the same sample contain a reference or not
-    def reference_ok = metas.collect{ it.self_reference }.unique().size == 1
+    def reference_ok = metas.collect{ it -> it.self_reference }.unique().size == 1
     if (!reference_ok) {
         error("Please check input samplesheet -> Multiple runs of a sample must all contain a reference or not: ${metas[0].id}")
     }
 
     // Check that multiple runs of the same sample contain a template or not
-    def template_ok = metas.collect{ it.template }.unique().size == 1
+    def template_ok = metas.collect{ it -> it.template }.unique().size == 1
     if (!template_ok) {
         error("Please check input samplesheet -> Multiple runs of a sample must all contain a template or not: ${metas[0].id}")
     }
@@ -498,7 +499,7 @@ def methodsDescriptionText(mqc_methods_yaml) {
 
 def validateParametersScreening() {
     if(params.rra && params.mle_design_matrix) {
-        warning "mle_design_matrix will only be used for the MAGeCK MLE computations"
+        log.warn "mle_design_matrix will only be used for the MAGeCK MLE computations"
     }
 
     if(params.bowtie && params.count_table) {
@@ -510,11 +511,11 @@ def validateParametersScreening() {
     }
 
     if(params.day0_label && params.mle_design_matrix) {
-        warning "MAGeCK MLE module will be run twice, once with the design matrix and once with day0-label"
+        log.warn "MAGeCK MLE module will be run twice, once with the design matrix and once with day0-label"
     }
 
     if(params.rra && params.mle_design_matrix) {
-        warning "mle_design_matrix will only be used for the MAGeCK MLE computations"
+        log.warn "mle_design_matrix will only be used for the MAGeCK MLE computations"
     }
 
     if(params.rra && !params.contrasts) {

@@ -53,12 +53,12 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_cris
 */
 
 def umi_to_sequence(cluster1) {
-    String line1
     String sequences = ""
     String sequence1
     String id1
-    cluster1.withReader {
-        while ( line1=it.readLine() ) {
+    cluster1.withReader { it ->
+        List<String> allLines = it.readLines()
+        allLines.each { line1 ->
             if (line1.startsWith(">")) {
                 sequence1 = (line1 =~ /;seq=(.*$)/)[0][1]
                 id1 = (line1 =~ /(>.*?);/)[0][1]
@@ -70,14 +70,14 @@ def umi_to_sequence(cluster1) {
 }
 
 def umi_to_sequence_centroid(cluster) {
-    String line
     String sequence
     String id
-    cluster.withReader {
-        while ( line=it.readLine() ) {
-            if (line.startsWith(">")) {
-                sequence = (line =~ /;seq=(.*$)/)[0][1]
-                id = (line =~ /(>.*?);/)[0][1]
+    cluster.withReader { it ->
+        List<String> allLines =it.readLines()
+        allLines.each { line1 ->
+            if (line1.startsWith(">")) {
+                sequence = (line1 =~ /;seq=(.*$)/)[0][1]
+                id = (line1 =~ /(>.*?);/)[0][1]
                 return id.replace(">", ">centroid_") + "\n" + sequence
             }
         }
@@ -162,7 +162,7 @@ workflow CRISPRSEQ_TARGETED {
     ch_pear_fastq
         .map {meta, reads ->
             // save single_end value and remove the key from the meta map
-            single_end = meta.single_end
+            def single_end = meta.single_end
             return [ meta - meta.subMap('single_end'), reads, single_end ]
         }
         .tap { no_single_end }
@@ -173,7 +173,7 @@ workflow CRISPRSEQ_TARGETED {
                 return [ meta - meta.subMap('single_end'), reference ]
             }
         )
-        .map {meta, reads, single_end, reference ->
+        .map {meta, _reads, single_end, reference ->
             // Add the correct single_end value to the reference meta map.
             return [ meta + ["single_end": single_end], reference ]
         }
@@ -185,18 +185,18 @@ workflow CRISPRSEQ_TARGETED {
                 return [ meta - meta.subMap('single_end'), template ]
             }
         )
-        .map {meta, reads, single_end, template ->
+        .map {meta, _reads, single_end, template ->
             return [ meta + ["single_end": single_end], template ]
         }
         .set{ ch_template }
     no_single_end
         .join(
             INITIALISATION_CHANNEL_CREATION_TARGETED.out.reference_protospacer
-            .map {meta, reference, protospacer ->
+            .map {meta, _reference, protospacer ->
                 return [ meta - meta.subMap('single_end'), protospacer ]
             }
         )
-        .map {meta, reads, single_end, protospacer ->
+        .map {meta, _reads, single_end, protospacer ->
             return [ meta + ["single_end": single_end], protospacer ]
         }
         .set{ ch_protospacer }
@@ -208,7 +208,7 @@ workflow CRISPRSEQ_TARGETED {
     FASTQC (
         ch_pear_fastq
     )
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it -> it[1]})
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
     ch_trimmed = channel.empty()
@@ -240,7 +240,7 @@ workflow CRISPRSEQ_TARGETED {
         CUTADAPT (
             ch_adapter_seqs.adapters
         )
-        ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT.out.log.collect{it[1]})
+        ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT.out.log.collect{it -> it[1]})
         ch_versions = ch_versions.mix(CUTADAPT.out.versions)
 
         ch_adapter_seqs.no_adapters
@@ -275,7 +275,7 @@ workflow CRISPRSEQ_TARGETED {
             .join(
                 SEQTK_SEQ_MASK.out.fastx
                 .map { meta, masked ->
-                    single_end = meta.single_end
+                    def single_end = meta.single_end
                     return [ meta - meta.subMap('single_end'), masked, single_end]
                 }
             )
@@ -303,7 +303,7 @@ workflow CRISPRSEQ_TARGETED {
             .join(
                 SEQTK_SEQ_MASK.out.fastx
                 .map { meta, masked ->
-                    single_end = meta.single_end
+                    def single_end = meta.single_end
                     return [ meta - meta.subMap('single_end'), masked, single_end]
                 }
             )
@@ -367,10 +367,10 @@ workflow CRISPRSEQ_TARGETED {
         ch_umi_bysize.single
         .tap{ meta_channel }
         .map{ meta, cluster ->
-            fasta_line = umi_to_sequence(cluster)
+            def fasta_line = umi_to_sequence(cluster)
             [meta, cluster.baseName, fasta_line]
         }
-        .collectFile() { meta, name, fasta ->
+        .collectFile() { _meta, name, fasta ->
             [ "${name}_consensus.fasta", fasta ]
         }
         .map{ new_file ->
@@ -380,7 +380,7 @@ workflow CRISPRSEQ_TARGETED {
             .map { meta, original_file ->
                 ["${original_file.baseName}_consensus", meta]
             })
-        .map{ file_name, new_file, meta ->
+        .map{ _file_name, new_file, meta ->
             [meta, new_file]
         }
         .set{ ch_single_clusters_consensus }
@@ -399,10 +399,10 @@ workflow CRISPRSEQ_TARGETED {
         VSEARCH_SORT.out.fasta // [[id:sample_id, ...], sample_top.fasta]
         .tap{ meta_channel_2 } // [[id:sample_id, ...], sample_top.fasta]
         .map{ meta, fasta ->
-            fasta_line = umi_to_sequence_centroid(fasta)
+            def fasta_line = umi_to_sequence_centroid(fasta)
             [meta, fasta.baseName, fasta_line] // [[id:sample_id, ...], sample_top, >centroid_...]
         }
-        .collectFile(cache:true,sort:true) { meta, name, fasta ->
+        .collectFile(cache:true,sort:true) { _meta, name, fasta ->
             [ "${name}.fasta", fasta ] // >centroid_... -> sample_top.fasta
         }
         .map{ new_file ->
@@ -422,10 +422,10 @@ workflow CRISPRSEQ_TARGETED {
         ch_umi_bysize.cluster // [[id:sample_id, ...], sample]
         .tap{ meta_channel_3 } // [[id:sample_id, ...], sample]
         .map{ meta, cluster ->
-            fasta_line = umi_to_sequence(cluster)
+            def fasta_line = umi_to_sequence(cluster)
             [meta, cluster.baseName, fasta_line] // [[id:sample_id, ...], sample, >...]
         }
-        .collectFile(cache:true,sort:true) { meta, name, fasta ->
+        .collectFile(cache:true,sort:true) { _meta, name, fasta ->
             [ "${name}_sequences.fasta", fasta ] // >... -> sample_sequences.fasta
         }
         .map{ new_file ->
@@ -460,7 +460,7 @@ workflow CRISPRSEQ_TARGETED {
 
         // Only continue with clusters that have aligned sequences
         MINIMAP2_ALIGN_UMI_1.out.paf
-            .filter{ it[1].countLines() > 0 }
+            .filter{ it -> it[1].countLines() > 0 }
             .set{ ch_minimap_1 }
 
         //
@@ -488,7 +488,7 @@ workflow CRISPRSEQ_TARGETED {
 
         // Only continue with clusters that have aligned sequences
         MINIMAP2_ALIGN_UMI_2.out.paf
-            .filter{ it[1].countLines() > 0 }
+            .filter{ it -> it[1].countLines() > 0 }
             .set{ ch_minimap_2 }
 
         //
@@ -516,7 +516,7 @@ workflow CRISPRSEQ_TARGETED {
         MEDAKA.out.assembly
         .tap{ meta_channel_4 }
         .map{ meta, file ->
-            file_content = file.getText()
+            def file_content = file.getText()
             [meta, file_content] // [[id:sample_id, ...], consensus_content]
         }
         .collectFile() { meta, file ->
@@ -526,11 +526,11 @@ workflow CRISPRSEQ_TARGETED {
             [new_file.baseName, new_file]
         }
         .join(meta_channel_4
-            .map{ meta, consensus ->
+            .map{ meta, _consensus ->
                 ["${meta.id}_consensus", meta]
             }
         )
-        .map{ name, file, meta ->
+        .map{ _name, file, meta ->
             [meta - meta.subMap('cluster_id'), file]
         }
         .set{ ch_umi_consensus }
@@ -585,6 +585,7 @@ workflow CRISPRSEQ_TARGETED {
         BWA_MEM (
             ch_preprocess_reads,
             BWA_INDEX.out.index,
+            ch_oriented_reference,
             true
         )
         ch_mapped_bam = BWA_MEM.out.bam
@@ -682,9 +683,9 @@ workflow CRISPRSEQ_TARGETED {
     CIGAR_PARSER (
         ch_to_parse_cigar
     )
-    ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.processing.collect{it[1]})
-    ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.edition.collect{it[2]})
-    ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.qcindels.collect{it[1]})
+    ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.processing.collect{it -> it[1]})
+    ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.edition.collect{it -> it[2]})
+    ch_multiqc_files = ch_multiqc_files.mix(CIGAR_PARSER.out.qcindels.collect{it -> it[1]})
     ch_versions = ch_versions.mix(CIGAR_PARSER.out.versions.first())
 
 
@@ -695,7 +696,7 @@ workflow CRISPRSEQ_TARGETED {
         CLONALITY_CLASSIFIER (
             CIGAR_PARSER.out.indels
             .join(CIGAR_PARSER.out.edition)
-            .map { [it[0], it[1], it[4]] }
+            .map { it -> [it[0], it[1], it[4]] }
         )
         ch_versions = ch_versions.mix(CLONALITY_CLASSIFIER.out.versions.first())
     }
@@ -715,7 +716,7 @@ workflow CRISPRSEQ_TARGETED {
     //
     // Collate and save software versions
     //
-    def topic_versions = Channel.topic("versions")
+    def topic_versions = channel.topic("versions")
         .distinct()
         .branch { entry ->
             versions_file: entry instanceof Path
