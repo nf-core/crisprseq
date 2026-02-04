@@ -56,14 +56,11 @@ def umi_to_sequence(cluster1) {
     String sequences = ""
     String sequence1
     String id1
-    cluster1.withReader { it ->
-        List<String> allLines = it.readLines()
-        allLines.each { line1 ->
-            if (line1.startsWith(">")) {
-                sequence1 = (line1 =~ /;seq=(.*$)/)[0][1]
-                id1 = (line1 =~ /(>.*?);/)[0][1]
-                sequences = sequences + id1 + "\n" + sequence1 + "\n"
-            }
+    cluster1.eachLine { line1 ->
+        if (line1.startsWith(">")) {
+            sequence1 = (line1 =~ /;seq=(.*$)/)[0][1]
+            id1 = (line1 =~ /(>.*?);/)[0][1]
+            sequences = sequences + id1 + "\n" + sequence1 + "\n"
         }
     }
     return sequences
@@ -72,14 +69,11 @@ def umi_to_sequence(cluster1) {
 def umi_to_sequence_centroid(cluster) {
     String sequence
     String id
-    cluster.withReader { it ->
-        List<String> allLines =it.readLines()
-        allLines.each { line1 ->
-            if (line1.startsWith(">")) {
-                sequence = (line1 =~ /;seq=(.*$)/)[0][1]
-                id = (line1 =~ /(>.*?);/)[0][1]
-                return id.replace(">", ">centroid_") + "\n" + sequence
-            }
+    cluster.eachLine { line1 ->
+        if (line1.startsWith(">")) {
+            sequence = (line1 =~ /;seq=(.*$)/)[0][1]
+            id = (line1 =~ /(>.*?);/)[0][1]
+            return id.replace(">", ">centroid_") + "\n" + sequence
         }
     }
 }
