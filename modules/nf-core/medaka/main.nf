@@ -4,11 +4,12 @@ process MEDAKA {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/medaka:1.4.4--py38h130def0_0' :
-        'biocontainers/medaka:1.4.4--py38h130def0_0' }"
+        'https://depot.galaxyproject.org/singularity/medaka:1.11.3--py38h2e44183_0' :
+        'biocontainers/medaka:1.11.3--py38h2e44183_0' }"
 
     input:
     tuple val(meta), path(reads), path(assembly)
+    path model
 
     output:
     tuple val(meta), path("*_medakaConsensus.fasta"), emit: assembly

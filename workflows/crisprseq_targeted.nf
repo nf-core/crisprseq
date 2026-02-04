@@ -446,6 +446,7 @@ workflow CRISPRSEQ_TARGETED {
             ch_clusters_sequence
                 .join(ch_top_clusters_sequence),
             false, //output in paf format
+            [],
             false,
             false
         )
@@ -475,6 +476,7 @@ workflow CRISPRSEQ_TARGETED {
             ch_clusters_sequence
                 .join(RACON_1.out.improved_assembly),
             false, //output in paf format
+            [],
             false,
             false
         )
@@ -561,6 +563,7 @@ workflow CRISPRSEQ_TARGETED {
             ch_preprocess_reads
                 .join(ch_oriented_reference),
             true,
+            [],
             false,
             true
         )
@@ -641,6 +644,7 @@ workflow CRISPRSEQ_TARGETED {
         TEMPLATE_REFERENCE.out.fasta
             .join(ch_oriented_reference),
         true,
+        [],
         false,
         true
     )
