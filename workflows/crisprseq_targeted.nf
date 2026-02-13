@@ -54,12 +54,10 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_cris
 
 def umi_to_sequence(cluster1) {
     String sequences = ""
-    String sequence1
-    String id1
     cluster1.eachLine { line1 ->
         if (line1.startsWith(">")) {
-            sequence1 = (line1 =~ /;seq=(.*$)/)[0][1]
-            id1 = (line1 =~ /(>.*?);/)[0][1]
+            def sequence1 = (line1 =~ /;seq=(.*$)/)[0][1]
+            def id1 = (line1 =~ /(>.*?);/)[0][1]
             sequences = sequences + id1 + "\n" + sequence1 + "\n"
         }
     }
@@ -67,15 +65,16 @@ def umi_to_sequence(cluster1) {
 }
 
 def umi_to_sequence_centroid(cluster) {
-    String sequence
-    String id
+    String result = null
+    String id = null
     cluster.eachLine { line1 ->
-        if (line1.startsWith(">")) {
-            sequence = (line1 =~ /;seq=(.*$)/)[0][1]
+        if (result == null && line1.startsWith(">")) {
+            def sequence = (line1 =~ /;seq=(.*$)/)[0][1]
             id = (line1 =~ /(>.*?);/)[0][1]
-            return id.replace(">", ">centroid_") + "\n" + sequence
+            result = id.replace(">", ">centroid_") + "\n" + sequence
         }
     }
+    return [result, id]
 }
 
 
@@ -389,23 +388,25 @@ workflow CRISPRSEQ_TARGETED {
         VSEARCH_SORT.out.fasta // [[id:sample_id, ...], sample_top.fasta]
         .tap{ meta_channel_2 } // [[id:sample_id, ...], sample_top.fasta]
         .map{ meta, fasta ->
-            def fasta_line = umi_to_sequence_centroid(fasta)
-            [meta, fasta.baseName, fasta_line] // [[id:sample_id, ...], sample_top, >centroid_...]
+            def result = umi_to_sequence_centroid(fasta)
+            def fasta_line = result[0]
+            def id = result[1]
+            [meta, fasta.baseName, id, fasta_line] // [[id:sample_id, ...], sample_top, centroid_id, >centroid_...]
         }
-        .collectFile(cache:true,sort:true) { _meta, name, fasta ->
-            [ "${name}.fasta", fasta ] // >centroid_... -> sample_top.fasta
+        .collectFile(cache:true,sort:true) { _meta, name, id, fasta ->
+            [ "${name}_${id}.fasta", fasta ] // >centroid_... -> sample_top_centroid_id.fasta
         }
         .map{ new_file ->
-            [new_file.baseName, new_file] // [sample, sample_top.fasta]
+            [new_file.baseName.tokenize('.')[0], new_file] // [sample, sample_top_centroid_id.fasta]
         }
         .join(meta_channel_2
             .map { meta, original_file ->
-                ["${original_file.baseName}", meta] // [sample, [id:sample_id, ...]]
+                ["${original_file.baseName.tokenize('.')[0]}", meta] // [sample, [id:sample_id, ...]]
             }) // [sample, sample_top.fasta, [id:sample_id, ...]]
-        .map{ file_name, new_file, meta ->
-            [meta + [cluster_id: file_name[0..-5]], new_file] // Add cluster ID to meta map // [[id:sample_id, ..., cluster_id:sample], sample_top.fasta]
+        .map{ _sample_name, new_file, meta ->
+            [meta + [cluster_id: new_file.baseName.tokenize('>')[1].tokenize('.')[0]], new_file] // Add cluster ID to meta map // [[id:sample_id, ..., cluster_id:id], sample_top.fasta]
         }
-        .set{ ch_top_clusters_sequence } // [[id:sample_id, ..., cluster_id:sample], sample_top.fasta]
+        .set{ ch_top_clusters_sequence } // [[id:sample_id, ..., cluster_id:id], sample_top.fasta]
 
 
         // Get the correspondent fasta sequencences from UMI clusters
@@ -419,14 +420,15 @@ workflow CRISPRSEQ_TARGETED {
             [ "${name}_sequences.fasta", fasta ] // >... -> sample_sequences.fasta
         }
         .map{ new_file ->
-            [new_file.baseName[0..-11], new_file] // [sample, sample_sequences.fasta]
+            [new_file.baseName.tokenize('.')[0], new_file] // [sample, sample_sequences.fasta]
         }
         .join(meta_channel_3
             .map { meta, original_file ->
-                ["${original_file.baseName}", meta] // [sample, [id:sample_id, ...]]
+                ["${original_file.baseName.tokenize('.')[0]}", meta] // [sample, [id:sample_id, ...]]
             }) // [sample, sample_sequences.fasta, [id:sample_id, ...]]
-        .map{ file_name, new_file, meta ->
-            [meta + [cluster_id: file_name], new_file] // Add cluster ID to meta map // [[id:sample_id, ..., cluster_id:sample], sample_sequences.fasta]
+        .view()
+        .map{ _sample_name, new_file, meta ->
+            [meta + [cluster_id: new_file.baseName.tokenize('>')[1].tokenize('.')[1]], new_file] // Add cluster ID to meta map // [[id:sample_id, ..., cluster_id:id], sample_sequences.fasta]
         }
         .set{ ch_clusters_sequence }
 
@@ -438,6 +440,8 @@ workflow CRISPRSEQ_TARGETED {
         // MODULE: Mapping with minimap2 - cycle 1
         //
         // Map each cluster against the top read (most abundant UMI) in the cluster
+        ch_clusters_sequence.view()
+        ch_top_clusters_sequence.view()
         MINIMAP2_ALIGN_UMI_1 (
             ch_clusters_sequence
                 .join(ch_top_clusters_sequence),
@@ -529,8 +533,6 @@ workflow CRISPRSEQ_TARGETED {
         //
         // MODULE: Convert fasta to fastq
         //
-        ch_umi_consensus.view()
-        ch_single_clusters_consensus.view()
         SEQTK_SEQ_FATOFQ (
             ch_umi_consensus.concat(ch_single_clusters_consensus)
         )

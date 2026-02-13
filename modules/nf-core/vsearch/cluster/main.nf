@@ -20,7 +20,7 @@ process VSEARCH_CLUSTER {
     tuple val(meta), path('*.blast.tsv.gz')          , optional: true, emit: blast
     tuple val(meta), path('*.uc.tsv.gz')             , optional: true, emit: uc
     tuple val(meta), path('*.centroids.fasta.gz')    , optional: true, emit: centroids
-    tuple val(meta), path('*.clusters.fasta*.gz')    , optional: true, emit: clusters
+    tuple val(meta), path('*.clusters.fasta*')       , optional: true, emit: clusters
     tuple val(meta), path('*.profile.txt.gz')        , optional: true, emit: profile
     tuple val(meta), path('*.msa.fasta.gz')          , optional: true, emit: msa
     path "versions.yml"                              , emit: versions
@@ -60,7 +60,7 @@ process VSEARCH_CLUSTER {
 
     if [[ $args3 == "--clusters" ]]
     then
-        find . -type f -name \"${prefix}.${out_ext}*[0-9]\" | xargs gzip -n
+        :
     elif [[ $args3 != "--samout" ]]
     then
         gzip -n ${prefix}.${out_ext}
@@ -87,7 +87,7 @@ process VSEARCH_CLUSTER {
                     args3.contains("--biomout") ? "biom.gz" :
                     args3.contains("--blast6out") ? "blast.tsv.gz" :
                     args3.contains("--centroids") ? "centroids.fasta.gz" :
-                    args3.contains("--clusters") ? "clusters.fasta.gz" :
+                    args3.contains("--clusters") ? "clusters.fasta" :
                     args3.contains("--mothur_shared_out") ? "mothur.tsv.gz" :
                     args3.contains("--msaout") ? "msa.fasta.gz" :
                     args3.contains("--otutabout") ? "otu.tsv.gz" :
@@ -98,10 +98,11 @@ process VSEARCH_CLUSTER {
                     ""
     if (out_ext == "") { error "Unknown output file format provided (${args3})" }
     def output = "${prefix}.${out_ext}"
-    def non_gz_out = args3.contains("--samout") ? "gunzip ${output}" : ""
+    def create_output = args3.contains("--clusters") ? "touch ${output}0" :
+                        args3.contains("--samout") ? "echo | gzip > ${output} && gunzip ${output}" :
+                        "echo | gzip > ${output}"
     """
-    echo | gzip > ${output}
-    ${non_gz_out}
+    ${create_output}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

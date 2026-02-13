@@ -1,63 +1,53 @@
-Changes in module 'nf-core/vsearch/cluster'
+Changes in component 'nf-core/vsearch/cluster'
+'modules/nf-core/vsearch/cluster/environment.yml' is unchanged
+'modules/nf-core/vsearch/cluster/meta.yml' is unchanged
+Changes in 'vsearch/cluster/main.nf':
 --- modules/nf-core/vsearch/cluster/main.nf
 +++ modules/nf-core/vsearch/cluster/main.nf
-@@ -11,19 +11,19 @@
-     tuple val(meta), path(fasta)
- 
-     output:
--    tuple val(meta), path('*.aln.gz')                , optional: true, emit: aln
--    tuple val(meta), path('*.biom.gz')               , optional: true, emit: biom
--    tuple val(meta), path('*.mothur.tsv.gz')         , optional: true, emit: mothur
--    tuple val(meta), path('*.otu.tsv.gz')            , optional: true, emit: otu
--    tuple val(meta), path('*.bam')                   , optional: true, emit: bam
--    tuple val(meta), path('*.out.tsv.gz')            , optional: true, emit: out
--    tuple val(meta), path('*.blast.tsv.gz')          , optional: true, emit: blast
--    tuple val(meta), path('*.uc.tsv.gz')             , optional: true, emit: uc
--    tuple val(meta), path('*.centroids.fasta.gz')    , optional: true, emit: centroids
+@@ -20,7 +20,7 @@
+     tuple val(meta), path('*.blast.tsv.gz')          , optional: true, emit: blast
+     tuple val(meta), path('*.uc.tsv.gz')             , optional: true, emit: uc
+     tuple val(meta), path('*.centroids.fasta.gz')    , optional: true, emit: centroids
 -    tuple val(meta), path('*.clusters.fasta*.gz')    , optional: true, emit: clusters
--    tuple val(meta), path('*.profile.txt.gz')        , optional: true, emit: profile
--    tuple val(meta), path('*.msa.fasta.gz')          , optional: true, emit: msa
--    path "versions.yml"                              , emit: versions
-+    tuple val(meta), path('*.aln.gz')            , optional: true, emit: aln
-+    tuple val(meta), path('*.biom.gz')           , optional: true, emit: biom
-+    tuple val(meta), path('*.mothur.tsv.gz')     , optional: true, emit: mothur
-+    tuple val(meta), path('*.otu.tsv.gz')        , optional: true, emit: otu
-+    tuple val(meta), path('*.bam')               , optional: true, emit: bam
-+    tuple val(meta), path('*.out.tsv.gz')        , optional: true, emit: out
-+    tuple val(meta), path('*.blast.tsv.gz')      , optional: true, emit: blast
-+    tuple val(meta), path('*.uc.tsv.gz')         , optional: true, emit: uc
-+    tuple val(meta), path('*.centroids.fasta.gz'), optional: true, emit: centroids
-+    tuple val(meta), path('*_clusters*')         , optional: true, emit: clusters
-+    tuple val(meta), path('*.profile.txt.gz')    , optional: true, emit: profile
-+    tuple val(meta), path('*.msa.fasta.gz')      , optional: true, emit: msa
-+    path "versions.yml"                                          , emit: versions
- 
-     when:
-     task.ext.when == null || task.ext.when
-@@ -41,7 +41,7 @@
-                     args3.contains("--biomout") ? "biom" :
-                     args3.contains("--blast6out") ? "blast.tsv" :
-                     args3.contains("--centroids") ? "centroids.fasta" :
--                    args3.contains("--clusters") ? "clusters.fasta" :
-+                    args3.contains("--clusters") ? "clusters" :
-                     args3.contains("--mothur_shared_out") ? "mothur.tsv" :
-                     args3.contains("--msaout") ? "msa.fasta" :
-                     args3.contains("--otutabout") ? "otu.tsv" :
-@@ -54,13 +54,13 @@
-     """
-     vsearch \\
-         $args2 $fasta \\
--        $args3 ${prefix}.${out_ext} \\
-+        $args3 ${prefix}_${out_ext} \\
-         --threads $task.cpus \\
-         $args
++    tuple val(meta), path('*.clusters.fasta*')       , optional: true, emit: clusters
+     tuple val(meta), path('*.profile.txt.gz')        , optional: true, emit: profile
+     tuple val(meta), path('*.msa.fasta.gz')          , optional: true, emit: msa
+     path "versions.yml"                              , emit: versions
+@@ -60,7 +60,7 @@
  
      if [[ $args3 == "--clusters" ]]
      then
--        gzip -n ${prefix}.${out_ext}*
+-        find . -type f -name \"${prefix}.${out_ext}*[0-9]\" | xargs gzip -n
 +        :
      elif [[ $args3 != "--samout" ]]
      then
          gzip -n ${prefix}.${out_ext}
+@@ -87,7 +87,7 @@
+                     args3.contains("--biomout") ? "biom.gz" :
+                     args3.contains("--blast6out") ? "blast.tsv.gz" :
+                     args3.contains("--centroids") ? "centroids.fasta.gz" :
+-                    args3.contains("--clusters") ? "clusters.fasta.gz" :
++                    args3.contains("--clusters") ? "clusters.fasta" :
+                     args3.contains("--mothur_shared_out") ? "mothur.tsv.gz" :
+                     args3.contains("--msaout") ? "msa.fasta.gz" :
+                     args3.contains("--otutabout") ? "otu.tsv.gz" :
+@@ -98,10 +98,11 @@
+                     ""
+     if (out_ext == "") { error "Unknown output file format provided (${args3})" }
+     def output = "${prefix}.${out_ext}"
+-    def non_gz_out = args3.contains("--samout") ? "gunzip ${output}" : ""
++    def create_output = args3.contains("--clusters") ? "touch ${output}0" :
++                        args3.contains("--samout") ? "echo | gzip > ${output} && gunzip ${output}" :
++                        "echo | gzip > ${output}"
+     """
+-    echo | gzip > ${output}
+-    ${non_gz_out}
++    ${create_output}
+ 
+     cat <<-END_VERSIONS > versions.yml
+     "${task.process}":
 
+'modules/nf-core/vsearch/cluster/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/vsearch/cluster/tests/nextflow.config' is unchanged
+'modules/nf-core/vsearch/cluster/tests/main.nf.test' is unchanged
 ************************************************************
