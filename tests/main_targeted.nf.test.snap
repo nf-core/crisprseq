@@ -37,7 +37,7 @@
                     "cowplot": "1.1.1"
                 },
                 "CUTADAPT": {
-                    "cutadapt": 4.6
+                    "cutadapt": 5.2
                 },
                 "FASTQC": {
                     "fastqc": "0.12.1"
@@ -46,22 +46,22 @@
                     "fastqcr": "0.1.2"
                 },
                 "MINIMAP2_ALIGN_ORIGINAL": {
-                    "minimap2": "2.28-r1209"
+                    "minimap2": "2.29-r1283"
                 },
                 "MINIMAP2_ALIGN_TEMPLATE": {
-                    "minimap2": "2.28-r1209"
+                    "minimap2": "2.29-r1283"
                 },
                 "ORIENT_REFERENCE": {
                     "Rscript": null
                 },
                 "PEAR": {
-                    "pear": "0.9.6)"
+                    "pear": "0.9.6"
                 },
                 "PREPROCESSING_SUMMARY": {
                     "biopython": "1.78"
                 },
                 "SAMTOOLS_INDEX": {
-                    "samtools": "1.19.2"
+                    "samtools": "1.22.1"
                 },
                 "SEQTK_SEQ_MASK": {
                     "seqtk": "1.4-r122"
@@ -145,6 +145,7 @@
                 "multiqc/multiqc_data/multiqc_sources.txt",
                 "multiqc/multiqc_plots",
                 "multiqc/multiqc_plots/pdf",
+                "multiqc/multiqc_plots/pdf/fastqc-status-check-heatmap.pdf",
                 "multiqc/multiqc_plots/pdf/cutadapt_filtered_reads_plot-cnt.pdf",
                 "multiqc/multiqc_plots/pdf/cutadapt_filtered_reads_plot-pct.pdf",
                 "multiqc/multiqc_plots/pdf/cutadapt_trimmed_sequences_plot_5_Counts.pdf",
@@ -167,6 +168,7 @@
                 "multiqc/multiqc_plots/pdf/indelqc_bargraph-pct.pdf",
                 "multiqc/multiqc_plots/pdf/read_processing.pdf",
                 "multiqc/multiqc_plots/png",
+                "multiqc/multiqc_plots/png/fastqc-status-check-heatmap.png",
                 "multiqc/multiqc_plots/png/cutadapt_filtered_reads_plot-cnt.png",
                 "multiqc/multiqc_plots/png/cutadapt_filtered_reads_plot-pct.png",
                 "multiqc/multiqc_plots/png/cutadapt_trimmed_sequences_plot_5_Counts.png",
@@ -189,6 +191,7 @@
                 "multiqc/multiqc_plots/png/indelqc_bargraph-pct.png",
                 "multiqc/multiqc_plots/png/read_processing.png",
                 "multiqc/multiqc_plots/svg",
+                "multiqc/multiqc_plots/svg/fastqc-status-check-heatmap.svg",
                 "multiqc/multiqc_plots/svg/cutadapt_filtered_reads_plot-cnt.svg",
                 "multiqc/multiqc_plots/svg/cutadapt_filtered_reads_plot-pct.svg",
                 "multiqc/multiqc_plots/svg/cutadapt_trimmed_sequences_plot_5_Counts.svg",
@@ -299,12 +302,12 @@
                 "chr6_edits_classified.csv:md5,5de83c21e57d2641ed51cd6e0f807976",
                 "hCas9-AAVS1-a_edits_classified.csv:md5,5765c9c42065820f947bb571458711d0",
                 "hCas9-TRAC-a_edits_classified.csv:md5,07aaadbcb6210bdea8ccd8b6eff988de",
-                "chr6.bam:md5,17f99868d17fc4195b5b25593f6174a4",
+                "chr6.bam:md5,5b4520b393ff3f2ddf5a9a50b35840db",
                 "chr6.bam.bai:md5,1563d893aada5f967765663c8e3d5f9e",
-                "hCas9-AAVS1-a.bam:md5,f11622ae70beb40010b22a083f1ecc76",
-                "hCas9-AAVS1-a.bam.bai:md5,1572a5f78e6217f8461584e6d6495a01",
-                "hCas9-TRAC-a.bam:md5,197702b78ee7105b1c8c0adcdcdac39d",
-                "hCas9-TRAC-a.bam.bai:md5,c876ef982797ea22e3b09f6b6cf4b55c",
+                "hCas9-AAVS1-a.bam:md5,00d6baec15ad53098dd9bdf0a0436d3d",
+                "hCas9-AAVS1-a.bam.bai:md5,c2aa73151f7b643617ee5cb88fdc7ed7",
+                "hCas9-TRAC-a.bam:md5,264c12d3429ae79a52d7d7566581285e",
+                "hCas9-TRAC-a.bam.bai:md5,149550dc15c203ce43efad4dc0f9d472", 
                 "cutadapt_filtered_reads_plot.txt:md5,5b6e525c9c4db6299945fdb932451063",
                 "cutadapt_trimmed_sequences_plot_5_Counts.txt:md5,0c6bab1733f566ee643b7b7325ef6ab6",
                 "cutadapt_trimmed_sequences_plot_5_Obs_Exp.txt:md5,432bea989f8f54719dd60a5b61e5c5ee",
@@ -320,7 +323,7 @@
                 "fastqc_sequence_duplication_levels_plot.txt:md5,e22607f4ca3b8f479562f3275394f204",
                 "fastqc_sequence_length_distribution_plot.txt:md5,363a86561a86259d91149b463294bdb1",
                 "multiqc_citations.txt:md5,78cc0f4521878c6c4beaf54ad968e411",
-                "multiqc_cutadapt.txt:md5,6bf68b90cb2b3985add256ef7830ded5",
+                "multiqc_cutadapt.txt:md5,223473c4f650520601b37e91be220556",
                 "multiqc_edition_bargraph.txt:md5,eaa80086028ee45cc2f6a8f9b9bcd15d",
                 "multiqc_fastqc.txt:md5,47cc5c1d22a95caa05f70a1be4a3803c", 
                 "multiqc_general_stats.txt:md5,84883ee128ab99f8082f67310ec15bfb",
@@ -353,7 +356,7 @@
                 "hCas9-AAVS1-a.seqtk-seq.fastq.gz:md5,66df17686a9700f51827e640ecfc8711",
                 "hCas9-TRAC-a.seqtk-seq.fastq.gz:md5,af1cfc40cc4bd9ffad3a151ad1b57162",
                 "chr6_NewReference.fasta:md5,37a5dcbff4e0e305cd0ef723c33623e6",
-                "chr6_template-align.bam:md5,c89ced9af15cd82ec2f2f03fd918ab45",
+                "chr6_template-align.bam:md5,042b65da98c836e1667873f828d5868d",
                 "chr6_alignment_summary.csv:md5,0aa30af2bfe39e9d980948afc6d14785",
                 "hCas9-AAVS1-a_alignment_summary.csv:md5,48679a137dd512ff180a8b4723a28b1b",
                 "hCas9-TRAC-a_alignment_summary.csv:md5,59c695e2906b6540cb8d377ec6467027"
