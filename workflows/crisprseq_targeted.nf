@@ -34,7 +34,6 @@ include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_ORIGINAL } from '../modules/nf-core/m
 include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_1    } from '../modules/nf-core/minimap2/align/main'
 include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_UMI_2    } from '../modules/nf-core/minimap2/align/main'
 include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_TEMPLATE } from '../modules/nf-core/minimap2/align/main'
-include { MINIMAP2_INDEX                            } from '../modules/nf-core/minimap2/index/main'
 include { MEDAKA                                    } from '../modules/nf-core/medaka/main'
 include { CUTADAPT                                  } from '../modules/nf-core/cutadapt/main'
 include { SAMTOOLS_INDEX                            } from '../modules/nf-core/samtools/index/main'
@@ -148,7 +147,6 @@ workflow CRISPRSEQ_TARGETED {
     }
     .mix( ch_cat_fastq.single )
     .set { ch_pear_fastq }
-    ch_versions = ch_versions.mix(PEAR.out.versions)
 
     // Change reference, protospacer and template channels to have the same meta information as the reads
     ch_pear_fastq
@@ -330,7 +328,6 @@ workflow CRISPRSEQ_TARGETED {
         VSEARCH_CLUSTER (
             EXTRACT_UMIS.out.fasta
         )
-        ch_versions = ch_versions.mix(VSEARCH_CLUSTER.out.versions.first())
 
         //  Obtain a file with UBS (UBI bin size) and UMI ID
         VSEARCH_CLUSTER.out.clusters
@@ -381,7 +378,6 @@ workflow CRISPRSEQ_TARGETED {
             ch_umi_bysize.cluster,
             channel.value("--sortbysize")
         )
-        ch_versions = ch_versions.mix(VSEARCH_SORT.out.versions.first())
 
         // Get the correspondent fasta sequencences from top cluster sequences
         // Replaces the sequence name adding the "centroid_" prefix to avoid having two sequences with the same name in following steps
@@ -581,7 +577,6 @@ workflow CRISPRSEQ_TARGETED {
             true
         )
         ch_mapped_bam = BWA_MEM.out.bam
-        ch_versions = ch_versions.mix(BWA_MEM.out.versions)
     }
 
     //

@@ -12,7 +12,7 @@ Changes in 'vsearch/cluster/main.nf':
 +    tuple val(meta), path('*.clusters.fasta*')       , optional: true, emit: clusters
      tuple val(meta), path('*.profile.txt.gz')        , optional: true, emit: profile
      tuple val(meta), path('*.msa.fasta.gz')          , optional: true, emit: msa
-     path "versions.yml"                              , emit: versions
+     tuple val("${task.process}"), val('vsearch'), eval('vsearch --version 2>&1 | sed -n "1s/.*v\\([0-9.]*\\).*/\\\\1/p"'), emit: versions_vsearch, topic: versions
 @@ -60,7 +60,7 @@
  
      if [[ $args3 == "--clusters" ]]
@@ -22,7 +22,7 @@ Changes in 'vsearch/cluster/main.nf':
      elif [[ $args3 != "--samout" ]]
      then
          gzip -n ${prefix}.${out_ext}
-@@ -87,7 +87,7 @@
+@@ -81,7 +81,7 @@
                      args3.contains("--biomout") ? "biom.gz" :
                      args3.contains("--blast6out") ? "blast.tsv.gz" :
                      args3.contains("--centroids") ? "centroids.fasta.gz" :
@@ -31,7 +31,7 @@ Changes in 'vsearch/cluster/main.nf':
                      args3.contains("--mothur_shared_out") ? "mothur.tsv.gz" :
                      args3.contains("--msaout") ? "msa.fasta.gz" :
                      args3.contains("--otutabout") ? "otu.tsv.gz" :
-@@ -98,10 +98,11 @@
+@@ -92,9 +92,10 @@
                      ""
      if (out_ext == "") { error "Unknown output file format provided (${args3})" }
      def output = "${prefix}.${out_ext}"
@@ -43,9 +43,8 @@ Changes in 'vsearch/cluster/main.nf':
 -    echo | gzip > ${output}
 -    ${non_gz_out}
 +    ${create_output}
- 
-     cat <<-END_VERSIONS > versions.yml
-     "${task.process}":
+     """
+ }
 
 'modules/nf-core/vsearch/cluster/tests/main.nf.test.snap' is unchanged
 'modules/nf-core/vsearch/cluster/tests/nextflow.config' is unchanged

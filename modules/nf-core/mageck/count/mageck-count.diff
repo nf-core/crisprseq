@@ -4,16 +4,15 @@ Changes in component 'nf-core/mageck/count'
 Changes in 'mageck/count/main.nf':
 --- modules/nf-core/mageck/count/main.nf
 +++ modules/nf-core/mageck/count/main.nf
-@@ -1,6 +1,7 @@
+@@ -1,6 +1,6 @@
  process MAGECK_COUNT {
      tag "$meta.id"
 -    label 'process_medium'
 +    label 'process_high'
-+
  
      conda "${moduleDir}/environment.yml"
      container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-@@ -8,12 +9,15 @@
+@@ -8,12 +8,15 @@
          'biocontainers/mageck:0.5.9.5--py39h1f90b4d_3' }"
  
      input:
@@ -22,8 +21,7 @@ Changes in 'mageck/count/main.nf':
      path(library)
  
      output:
--    tuple val(meta), path("*count.txt")           , emit: count
-+    tuple val(meta), path("*count.txt")            , emit: count
+     tuple val(meta), path("*count.txt")           , emit: count
      tuple val(meta), path("*.count_normalized.txt"), emit: norm
 +    tuple val(meta), path("*.countsummary.txt")    , emit: summary
 +    tuple val(meta), path("*.count_normalized.txt"), emit: normalized
@@ -31,14 +29,13 @@ Changes in 'mageck/count/main.nf':
      path "versions.yml"                            , emit: versions
  
      when:
-@@ -22,8 +26,13 @@
+@@ -22,8 +25,12 @@
      script:
      def args = task.ext.args ?: ''
      def prefix = task.ext.prefix ?: "${meta.id}"
 -    def input_file = ("$inputfile".endsWith(".fastq.gz")) ? "--fastq ${inputfile}" : "-k ${inputfile}"
 -    def sample_label = ("$inputfile".endsWith(".fastq.gz") || "$inputfile".endsWith(".fq.gz")) ? "--sample-label ${meta.id}" : ''
 +    def sample_label = ("$fastq1".endsWith(".fastq.gz") || "$fastq1".endsWith(".fq.gz")) ? "--sample-label ${meta.id}" : ''
-+    
 +    if (meta.single_end && ("$fastq1".endsWith(".fastq.gz") || "$fastq1".endsWith(".fq.gz")) || "$fastq1".endsWith(".bam")) {
 +        input = "--fastq $fastq1" 
 +    } else {
@@ -47,7 +44,7 @@ Changes in 'mageck/count/main.nf':
  
      """
      mageck \\
-@@ -32,7 +41,7 @@
+@@ -32,7 +39,7 @@
          -l $library \\
          -n $prefix \\
          $sample_label \\
@@ -56,19 +53,7 @@ Changes in 'mageck/count/main.nf':
  
  
      cat <<-END_VERSIONS > versions.yml
-@@ -43,11 +52,18 @@
-     stub:
-     def args = task.ext.args ?: ''
-     def prefix = task.ext.prefix ?: "${meta.id}"
--    def input_file = ("$inputfile".endsWith(".fastq.gz")) ? "--fastq ${inputfile}" : "-k ${inputfile}"
--    def sample_label = ("$inputfile".endsWith(".fastq.gz") || "$inputfile".endsWith(".fq.gz")) ? "--sample-label ${meta.id}" : ''
-+    def sample_label = ("$fastq1".endsWith(".fastq.gz") || "$fastq1".endsWith(".fq.gz")) ? "--sample-label ${meta.id}" : ''
-+    
-+    if (meta.single_end && ("$fastq1".endsWith(".fastq.gz") || "$fastq1".endsWith(".fq.gz")) || "$fastq1".endsWith(".bam")) {
-+        input = "--fastq $fastq1" 
-+    } else {
-+        input = "--fastq $fastq1 --fastq-2 $fastq2" 
-+    }
+@@ -45,6 +52,8 @@
      """
      touch ${prefix}.count.txt
      touch ${prefix}.count_normalized.txt

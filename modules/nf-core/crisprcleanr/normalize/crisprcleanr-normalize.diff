@@ -21,7 +21,7 @@ Changes in 'crisprcleanr/normalize/main.nf':
      path "versions.yml",                       emit: versions
  
      when:
-@@ -26,20 +29,49 @@
+@@ -25,20 +28,49 @@
      """
      #!/usr/bin/env Rscript
      library(CRISPRcleanR)
