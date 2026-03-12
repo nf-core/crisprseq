@@ -90,7 +90,7 @@ workflow CRISPRSEQ_TARGETED {
     ch_input_reference // channel: reference sequence read in from --input
     ch_input_template // channel: template sequence read in from --input
     ch_input_protospacer // channel: protospacer sequence read in from --input
-    
+
     main:
 
     ch_versions = channel.empty()
