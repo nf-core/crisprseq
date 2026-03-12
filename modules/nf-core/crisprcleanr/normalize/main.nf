@@ -23,7 +23,6 @@ process CRISPRCLEANR_NORMALIZE {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
@@ -81,4 +80,17 @@ process CRISPRCLEANR_NORMALIZE {
     close(f)
 
     """
+
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+
+    """
+    touch ${prefix}_norm_table.tsv
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        R: R --version | sed '1!d; s/.*version //; s/ .*//'
+        CRISPRcleanR: Rscript -e 'packageVersion("CRISPRcleanR")'
+    END_VERSIONS
+    """
+
 }
