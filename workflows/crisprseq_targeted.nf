@@ -744,7 +744,7 @@ workflow CRISPRSEQ_TARGETED {
     MULTIQC(
         ch_multiqc_files.flatten().collect().map { files ->
             [
-                [id: '{{ crisprseq }}'],
+                [id: 'crisprseq'],
                 files,
                 params.multiqc_config
                     ? file(params.multiqc_config, checkIfExists: true)
