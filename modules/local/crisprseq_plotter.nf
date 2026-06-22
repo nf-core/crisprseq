@@ -25,6 +25,8 @@ process CRISPRSEQ_PLOTTER {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
+    export HOME="\${HOME:-\$PWD}"
+
     plotter.R \\
         $args \\
         --indels_info=$indels \\
