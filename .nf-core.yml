@@ -4,13 +4,16 @@ lint:
     # We skip the linting of these files as we have splitted tests between targeted and screening
     - conf/test.config
     - conf/test_full.config
+    - .github/workflows/linting_comment.yml
   files_unchanged:
     - .github/PULL_REQUEST_TEMPLATE.md
+    - .github/workflows/branch.yml
+    - .github/workflows/linting.yml
 nf_core_version: 3.0.2
 org_path: null
 repository_type: pipeline
 template:
-  author: "J\xFAlia Mir Pedrol, Laurence Kuhlburger"
+  author: "Júlia Mir Pedrol, Laurence Kuhlburger"
   description: Pipeline for the analysis of CRISPR data
   force: false
   is_nfcore: true
