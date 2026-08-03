@@ -1,0 +1,22 @@
+{
+    "Test paired-guide CRISPRDecode screening wiring": {
+        "content": [
+            "nf_core_crisprseq_software_mqc_versions.yml:md5,b3928c4eedfe84b5dcd5a82137095913"
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.04.0"
+        },
+        "timestamp": "2026-08-03T19:41:04.231213"
+    },
+    "Test default MAGeCK counting route is unchanged": {
+        "content": [
+            "nf_core_crisprseq_software_mqc_versions.yml:md5,b9cc7fb8dedb44d0687abb3c8a361fdf"
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.04.0"
+        },
+        "timestamp": "2026-08-03T19:46:48.059081"
+    }
+}

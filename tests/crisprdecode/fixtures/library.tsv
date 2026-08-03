@@ -1,0 +1,6 @@
+construct_id	target_id	spacer_r1	spacer_r2
+construct_a	GENE_A	AAAAA	CCCCC
+construct_b	GENE_B	GGGGG	TTTTT
+construct_dup_1	GENE_DUP	ACGTA	TGCAT
+construct_dup_2	GENE_DUP	ACGTA	TGCAT
+construct_zero	GENE_ZERO	CATCA	GTACG

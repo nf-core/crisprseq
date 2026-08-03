@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: crisprdecode_paired_guide
+description: Validate a paired-guide construct library, assign synchronized read pairs, and aggregate a screening count matrix and QC files
+keywords:
+  - CRISPR
+  - screen
+  - paired-guide
+  - construct
+  - counting
+components:
+  - crisprdecode/validate
+  - crisprdecode/assign
+  - crisprdecode/aggregate
+input:
+  - reads:
+      type: file
+      description: Channel containing sample metadata and exactly two synchronized FASTQ files per sample
+      pattern: "*.{fastq,fq,fastq.gz,fq.gz}"
+  - library:
+      type: file
+      description: Headered paired-guide construct library with construct_id, target_id, spacer_r1 and spacer_r2 columns
+      pattern: "*.tsv"
+output:
+  - counts:
+      type: file
+      description: MAGeCK-compatible construct count matrix
+      pattern: "count_table.count.txt"
+  - assignment_summary:
+      type: file
+      description: Per-sample assignment category counts
+      pattern: "assignment_summary.tsv"
+  - library_recovery:
+      type: file
+      description: Per-construct assignability, total count and zero-count status
+      pattern: "library_recovery.tsv"
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+authors:
+  - "@Yifan1835"
+maintainers:
+  - "@Yifan1835"

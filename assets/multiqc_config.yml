@@ -192,6 +192,45 @@ custom_data:
         max: 1
         min: 0
 
+  # CRISPRDecode paired-guide assignment summary
+  crisprdecode_assignment:
+    id: "crisprdecode_assignment"
+    section_name: "CRISPRDecode paired-guide assignment"
+    plot_type: "table"
+    file_format: "tsv"
+    description: |
+      Exact paired-guide construct assignment statistics per sample. Uniquely assigned,
+      ambiguous, unassigned and extraction-failed reads sum to the total read count.
+    pconfig:
+      id: "crisprdecode_assignment"
+      namespace: "CRISPRDecode paired-guide assignment"
+      table_title: "CRISPRDecode paired-guide assignment"
+    headers:
+      total_reads:
+        title: "Total reads"
+        description: "Total synchronized read pairs"
+        format: "{:,.0f}"
+      extracted_reads:
+        title: "Extracted reads"
+        description: "Read pairs for which both guide elements were extracted"
+        format: "{:,.0f}"
+      unique_reads:
+        title: "Unique"
+        description: "Read pairs uniquely assigned to one construct"
+        format: "{:,.0f}"
+      ambiguous_reads:
+        title: "Ambiguous"
+        description: "Read pairs matching a signature shared by multiple constructs"
+        format: "{:,.0f}"
+      unassigned_reads:
+        title: "Unassigned"
+        description: "Extracted signatures absent from the construct library"
+        format: "{:,.0f}"
+      extraction_failed_reads:
+        title: "Extraction failed"
+        description: "Read pairs from which one or both guide elements could not be extracted"
+        format: "{:,.0f}"
+
 sp:
   edition_plot:
     fn: "*_edits.csv"
@@ -203,6 +242,8 @@ sp:
     fn: "*.cutadapt.log"
   mageck_count:
     fn: "*.countsummary.txt"
+  crisprdecode_assignment:
+    fn: "assignment_summary.tsv"
 
 # Define the order of sections
 module_order:
@@ -217,6 +258,7 @@ custom_content:
     - read_processing
     - edition_plot
     - indel_qc_plot
+    - crisprdecode_assignment
 
 # Order of table columns
 table_columns_placement:

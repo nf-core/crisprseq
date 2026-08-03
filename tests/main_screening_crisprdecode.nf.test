@@ -1,0 +1,85 @@
+nextflow_workflow {
+
+    name "Test screening workflow with CRISPRDecode paired-guide counting"
+    script "../workflows/crisprseq_screening.nf"
+    workflow "CRISPRSEQ_SCREENING"
+    tag "workflow"
+    tag "crisprdecode"
+
+    test("Test paired-guide CRISPRDecode screening wiring") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "${outputDir}"
+                screening_count_method = "crisprdecode"
+                library = "${projectDir}/tests/crisprdecode/fixtures/library.tsv"
+                crisprdecode_r1_anchor = null
+                crisprdecode_r2_anchor = null
+                crisprdecode_r1_offset = 0
+                crisprdecode_r2_offset = 0
+                crisprdecode_reverse_complement_r1 = false
+                crisprdecode_reverse_complement_r2 = false
+            }
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [id: 'sample', condition: 'control', single_end: false],
+                    [
+                        file("${projectDir}/tests/crisprdecode/fixtures/sample_R1.fastq.gz", checkIfExists: true),
+                        file("${projectDir}/tests/crisprdecode/fixtures/sample_R2.fastq.gz", checkIfExists: true)
+                    ]
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.trace.succeeded().size() == 5 },
+                { assert file("$outputDir/crisprdecode/count_table.count.txt").exists() },
+                { assert file("$outputDir/crisprdecode/assignment_summary.tsv").exists() },
+                { assert file("$outputDir/crisprdecode/library_recovery.tsv").exists() },
+                { assert file("$outputDir/multiqc/multiqc_report.html").exists() },
+                { assert snapshot(file("$outputDir/pipeline_info/nf_core_crisprseq_software_mqc_versions.yml")).match() }
+            )
+        }
+    }
+
+    test("Test default MAGeCK counting route is unchanged") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "${outputDir}"
+                screening_count_method = "mageck"
+                library = "${projectDir}/tests/crisprdecode/fixtures/library.tsv"
+            }
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [id: 'sample', condition: 'control', single_end: false],
+                    [
+                        file("${projectDir}/tests/crisprdecode/fixtures/sample_R1.fastq.gz", checkIfExists: true),
+                        file("${projectDir}/tests/crisprdecode/fixtures/sample_R2.fastq.gz", checkIfExists: true)
+                    ]
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.trace.succeeded().size() == 3 },
+                { assert file("$outputDir/mageck/count/count_table.count.txt").exists() },
+                { assert !file("$outputDir/crisprdecode").exists() },
+                { assert file("$outputDir/multiqc/multiqc_report.html").exists() },
+                { assert snapshot(file("$outputDir/pipeline_info/nf_core_crisprseq_software_mqc_versions.yml")).match() }
+            )
+        }
+    }
+}
