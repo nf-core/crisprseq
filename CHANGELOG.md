@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add exact paired-guide construct counting with CRISPRDecode, including conservative ambiguity handling, QC, MultiQC integration and synthetic nf-tests ([#278](https://github.com/nf-core/crisprseq/issues/278))
 - Add an acknowlodgement to Hitselection method ([#222]https://github.com/nf-core/crisprseq/pull/222)
 - Added parameters specifying additional arguments for the cutadapt command line ([#237](https://github.com/nf-core/crisprseq/pull/237))
 - Template update to 3.2.1 ([#244](https://github.com/nf-core/crisprseq/pull/244))

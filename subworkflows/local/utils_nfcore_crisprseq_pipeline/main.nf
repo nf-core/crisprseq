@@ -497,12 +497,38 @@ def methodsDescriptionText(mqc_methods_yaml) {
 }
 
 def validateParametersScreening() {
+    def supported_count_methods = ['mageck', 'crisprdecode']
+    if(!supported_count_methods.contains(params.screening_count_method)) {
+        error "Unsupported screening count method '${params.screening_count_method}'. Choose one of: ${supported_count_methods.join(', ')}"
+    }
+
     if(params.rra && params.mle_design_matrix) {
         warning "mle_design_matrix will only be used for the MAGeCK MLE computations"
     }
 
     if(params.bowtie && params.count_table) {
         error "the bowtie option cannot be used when a precomputed count table is provided"
+    }
+
+    if(params.bowtie && params.screening_count_method == 'crisprdecode') {
+        error "the bowtie option cannot be combined with --screening_count_method crisprdecode"
+    }
+
+    if(params.screening_count_method == 'crisprdecode' && params.count_table) {
+        warning "--screening_count_method is ignored when --count_table is provided"
+    }
+
+    if(params.screening_count_method == 'crisprdecode') {
+        ['r1', 'r2'].each { read ->
+            def anchor = params["crisprdecode_${read}_anchor"]
+            def offset = params["crisprdecode_${read}_offset"]
+            if(anchor && !(anchor ==~ /(?i)[ACGT]+/)) {
+                error "--crisprdecode_${read}_anchor must contain only A, C, G and T"
+            }
+            if(offset == null || offset < 0) {
+                error "--crisprdecode_${read}_offset must be a non-negative integer"
+            }
+        }
     }
 
     if(!params.count_table && !params.library) {

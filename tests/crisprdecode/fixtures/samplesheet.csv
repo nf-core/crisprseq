@@ -1,0 +1,2 @@
+sample,fastq_1,fastq_2,condition
+sample,tests/crisprdecode/fixtures/sample_R1.fastq.gz,tests/crisprdecode/fixtures/sample_R2.fastq.gz,control

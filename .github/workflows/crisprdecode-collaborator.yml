@@ -1,0 +1,93 @@
+name: CRISPRDecode collaborator tests
+
+on:
+  push:
+    branches:
+      - "test/crisprdecode-*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: crisprdecode-collaborator-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: Python validation and assignment
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
+        with:
+          python-version: "3.12.8"
+      - name: Run regression tests
+        shell: bash
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: |
+          set -euo pipefail
+          mkdir -p test-artifacts
+          git rev-parse HEAD > test-artifacts/commit.txt
+          python --version > test-artifacts/python.txt
+          python -m unittest discover -s tests/crisprdecode -v 2>&1 | tee test-artifacts/python-tests.log
+      - name: Save Python results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: crisprdecode-python-${{ github.sha }}
+          path: test-artifacts/
+          retention-days: 14
+
+  nextflow:
+    name: Nextflow ${{ matrix.suite }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - suite: decoding
+            test_path: subworkflows/local/crisprdecode_paired_guide/tests/main.nf.test
+          - suite: screening-routing
+            test_path: tests/main_screening_crisprdecode.nf.test
+    env:
+      NXF_VER: "25.04.0"
+      NXF_ANSI_LOG: "false"
+      NFT_WORKDIR: ".nf-test"
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - uses: nf-core/setup-nextflow@6c2e22b4d901f0c42ca66c5069f8026df026d165 # v2
+        with:
+          version: "25.04.0"
+          java-version: "17"
+      - uses: nf-core/setup-nf-test@f2db585128ae681918440f6c074dededeceadce1 # v1
+        with:
+          version: "0.9.3"
+      - name: Run selected nf-tests with Docker
+        shell: bash
+        env:
+          TEST_PATH: ${{ matrix.test_path }}
+        run: |
+          set -euo pipefail
+          mkdir -p test-artifacts
+          git rev-parse HEAD > test-artifacts/commit.txt
+          nextflow -version > test-artifacts/nextflow.txt
+          nf-test version > test-artifacts/nf-test.txt
+          docker --version > test-artifacts/docker.txt
+          nf-test test "$TEST_PATH" --profile=+docker --ci --verbose --tap=test-artifacts/tests.tap 2>&1 | tee test-artifacts/nf-test.log
+      - name: Save nf-test results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: crisprdecode-${{ matrix.suite }}-${{ github.sha }}
+          include-hidden-files: true
+          path: |
+            test-artifacts/
+            .nf-test.log
+            .nextflow.log
+            .nf-test/**/*.log
+            .nf-test/**/output/**
+          retention-days: 14

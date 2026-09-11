@@ -20,6 +20,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - [Mapping](#alignment) - bowtie2 aligned reads
 - [Counting](#counting)
   - [MAGeCK count](#mageck-count) - Mapping reads to reference library
+  - [CRISPRDecode paired-guide count](#crisprdecode-paired-guide-count) - Exact construct assignment from paired-end reads
 - [CNV correction](#cnv-correction))
   - [CRISPRcleanR](#crisprcleanr-normalization) - Copy Number Variation correction and read normalization in case of knock-out screens.
 - [Gene essentiality](#gene-essentiality-computation)
@@ -88,6 +89,24 @@ For further reading and documentation see the [cutadapt helper page](https://cut
   - `*_count_table.log`: log information of the run
 
 </details>
+
+### CRISPRDecode paired-guide count
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `crisprdecode/`
+  - `count_table.count.txt`: MAGeCK-compatible construct count matrix used by the existing downstream screening analyses.
+  - `assignment_summary.tsv`: Per-sample totals for extracted, uniquely assigned, ambiguous, unassigned and extraction-failed read pairs.
+  - `library_recovery.tsv`: Per-construct assignability class, duplicate-signature size, total observed count and zero-count status.
+  - `reference/validated_construct_library.tsv`: Validated and deterministically ordered construct library, including assignability annotations.
+  - `per_sample/<sample>/`
+    - `*.crisprdecode.counts.tsv`: Per-sample counts for every construct, including zero-count constructs.
+    - `*.crisprdecode.assignment_summary.tsv`: Assignment metrics for the sample.
+
+</details>
+
+CRISPRDecode paired-guide counting is produced when `--screening_count_method crisprdecode` is selected. Assignment requires an exact match to both extracted spacer elements. Signatures shared by multiple constructs are classified as ambiguous and are not assigned arbitrarily. For every sample, unique, ambiguous, unassigned and extraction-failed read pairs sum to the total. The assignment summary is also shown in the MultiQC report.
 
 ## CNV correction
 
