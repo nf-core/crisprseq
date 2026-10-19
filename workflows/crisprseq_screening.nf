@@ -43,6 +43,7 @@ include { BOWTIE2_ALIGN                                } from '../modules/nf-cor
 
 // Local subworkflows
 include { INITIALISATION_CHANNEL_CREATION_SCREENING    } from '../subworkflows/local/utils_nfcore_crisprseq_pipeline'
+include { CRISPRDECODE_PAIRED_GUIDE                    } from '../subworkflows/local/crisprdecode_paired_guide/main'
 
 // Functions
 
@@ -125,79 +126,92 @@ workflow CRISPRSEQ_SCREENING {
             .set { ch_input }
         }
 
-        if(params.bowtie){
-
-            GUIDES_TO_FASTA (
+        if(params.screening_count_method == 'crisprdecode') {
+            CRISPRDECODE_PAIRED_GUIDE(
+                ch_input,
                 INITIALISATION_CHANNEL_CREATION_SCREENING.out.library
             )
-            ch_versions = ch_versions.mix(GUIDES_TO_FASTA.out.versions)
 
-            GUIDES_TO_FASTA.out.fasta
-                .map { fasta -> [[], fasta] }
-                .collect()
-                .set { ch_fasta }
+            CRISPRDECODE_PAIRED_GUIDE.out.counts.set { ch_counts }
+            ch_multiqc_files = ch_multiqc_files
+                .mix(CRISPRDECODE_PAIRED_GUIDE.out.assignment_summary)
+            ch_versions = ch_versions.mix(CRISPRDECODE_PAIRED_GUIDE.out.versions)
+        } else {
 
-            BOWTIE2_BUILD(
-                ch_fasta
-            )
-            ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
+            if(params.bowtie){
 
-            BOWTIE2_BUILD.out.index
-                .collect()
-                .set { ch_fasta_index }
+                GUIDES_TO_FASTA (
+                    INITIALISATION_CHANNEL_CREATION_SCREENING.out.library
+                )
+                ch_versions = ch_versions.mix(GUIDES_TO_FASTA.out.versions)
 
-            BOWTIE2_ALIGN (
-                ch_input,
-                ch_fasta_index,
-                ch_fasta,
-                false,
-                false
-            )
-            ch_versions = ch_versions.mix(BOWTIE2_ALIGN.out.versions)
+                GUIDES_TO_FASTA.out.fasta
+                    .map { fasta -> [[], fasta] }
+                    .collect()
+                    .set { ch_fasta }
 
-            BOWTIE2_ALIGN.out.bam.map{ meta, bam ->
-                [meta, [bam]]
-            }.set{ch_input}
+                BOWTIE2_BUILD(
+                    ch_fasta
+                )
+                ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
 
-        }
+                BOWTIE2_BUILD.out.index
+                    .collect()
+                    .set { ch_fasta_index }
 
-        // this is to concatenate everything for mageck count
-        ch_input
-        .map { meta, fastqs  ->
-            if(fastqs.size() == 1){
-                [meta.id, [fastqs[0]], meta.single_end, []]
-            } else {
-                [meta.id, [fastqs[0]], meta.single_end, [fastqs[1]]]
+                BOWTIE2_ALIGN (
+                    ch_input,
+                    ch_fasta_index,
+                    ch_fasta,
+                    false,
+                    false
+                )
+                ch_versions = ch_versions.mix(BOWTIE2_ALIGN.out.versions)
+
+                BOWTIE2_ALIGN.out.bam.map{ meta, bam ->
+                    [meta, [bam]]
+                }.set{ch_input}
             }
-        }
-        // if one element is paired-end and the other single-end throw an error
-        // otherwise just concatenate the sample names and the fastqs
-        .reduce { a, b ->
-            if(a[2] != b[2] ) {
-                error "Your samplesheet contains a mix of single-end and paired-end data. This is not supported."
+
+            // this is to concatenate everything for mageck count
+            ch_input
+            .map { meta, fastqs  ->
+                if(fastqs.size() == 1){
+                    [meta.id, [fastqs[0]], meta.single_end, []]
+                } else {
+                    [meta.id, [fastqs[0]], meta.single_end, [fastqs[1]]]
+                }
             }
-            return ["${a[0]},${b[0]}", a[1] + b[1], b[2] ,a[3] + b[3]]
+            // if one element is paired-end and the other single-end throw an error
+            // otherwise just concatenate the sample names and the fastqs
+            .reduce { a, b ->
+                if(a[2] != b[2] ) {
+                    error "Your samplesheet contains a mix of single-end and paired-end data. This is not supported."
+                }
+                return ["${a[0]},${b[0]}", a[1] + b[1], b[2] ,a[3] + b[3]]
+            }
+            .map { id, fastqs_1, single_end, fastqs_2 ->
+                [[id: id, single_end: single_end], fastqs_1, fastqs_2]
+            }
+            .last()
+            .set { joined }
+
+            //
+            // MODULE: Run mageck count
+            //
+            MAGECK_COUNT (
+                joined,
+                INITIALISATION_CHANNEL_CREATION_SCREENING.out.library
+            )
+
+            ch_versions = ch_versions.mix(MAGECK_COUNT.out.versions.first())
+            ch_multiqc_files = ch_multiqc_files.mix(MAGECK_COUNT.out.summary.collect{it[1]})
+
+            MAGECK_COUNT.out.count.map {
+                it -> it[1]
+            }.set { ch_counts }
+
         }
-        .map { id, fastqs_1, single_end, fastqs_2 ->
-            [[id: id, single_end: single_end], fastqs_1, fastqs_2]
-        }
-        .last()
-        .set { joined }
-
-        //
-        // MODULE: Run mageck count
-        //
-        MAGECK_COUNT (
-            joined,
-            INITIALISATION_CHANNEL_CREATION_SCREENING.out.library
-        )
-
-        ch_versions = ch_versions.mix(MAGECK_COUNT.out.versions.first())
-        ch_multiqc_files = ch_multiqc_files.mix(MAGECK_COUNT.out.summary.collect{it[1]})
-
-        MAGECK_COUNT.out.count.map {
-        it -> it[1]
-        }.set { ch_counts }
 
     } else {
         channel.fromPath(params.count_table)

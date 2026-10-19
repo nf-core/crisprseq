@@ -1,0 +1,89 @@
+nextflow_workflow {
+
+    name "Test Subworkflow CRISPRDECODE_PAIRED_GUIDE"
+    script "../main.nf"
+    workflow "CRISPRDECODE_PAIRED_GUIDE"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "crisprdecode_paired_guide"
+
+    test("paired-guide wiring - stub") {
+
+        options "-stub"
+
+        when {
+            params {
+                crisprdecode_r1_anchor = null
+                crisprdecode_r2_anchor = null
+                crisprdecode_r1_offset = 0
+                crisprdecode_r2_offset = 0
+                crisprdecode_reverse_complement_r1 = false
+                crisprdecode_reverse_complement_r2 = false
+            }
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [id: 'sample', single_end: false],
+                    [
+                        file("${projectDir}/tests/crisprdecode/fixtures/sample_R1.fastq", checkIfExists: true),
+                        file("${projectDir}/tests/crisprdecode/fixtures/sample_R2.fastq", checkIfExists: true)
+                    ]
+                ])
+                input[1] = Channel.of(
+                    file("${projectDir}/tests/crisprdecode/fixtures/library.tsv", checkIfExists: true)
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.trace.succeeded().size() == 3 },
+                { assert workflow.out.counts.size() == 1 },
+                { assert workflow.out.assignment_summary.size() == 1 },
+                { assert workflow.out.library_recovery.size() == 1 }
+            )
+        }
+    }
+
+    test("paired-guide exact assignment") {
+
+        when {
+            params {
+                crisprdecode_r1_anchor = null
+                crisprdecode_r2_anchor = null
+                crisprdecode_r1_offset = 0
+                crisprdecode_r2_offset = 0
+                crisprdecode_reverse_complement_r1 = false
+                crisprdecode_reverse_complement_r2 = false
+            }
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [id: 'sample', single_end: false],
+                    [
+                        file("${projectDir}/tests/crisprdecode/fixtures/sample_R1.fastq", checkIfExists: true),
+                        file("${projectDir}/tests/crisprdecode/fixtures/sample_R2.fastq", checkIfExists: true)
+                    ]
+                ])
+                input[1] = Channel.of(
+                    file("${projectDir}/tests/crisprdecode/fixtures/library.tsv", checkIfExists: true)
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.trace.succeeded().size() == 3 },
+                { assert path(workflow.out.counts[0]).text == "sgRNA\tGene\tsample\nconstruct_a\tGENE_A\t1\nconstruct_b\tGENE_B\t1\nconstruct_dup_1\tGENE_DUP\t0\nconstruct_dup_2\tGENE_DUP\t0\nconstruct_zero\tGENE_ZERO\t0\n" },
+                { assert path(workflow.out.assignment_summary[0]).text == "sample\ttotal_reads\textracted_reads\tunique_reads\tambiguous_reads\tunassigned_reads\textraction_failed_reads\nsample\t5\t4\t2\t1\t1\t1\n" },
+                { assert path(workflow.out.library_recovery[0]).text.contains("construct_dup_1\tGENE_DUP\tambiguous\t2\t0\ttrue") },
+                { assert path(workflow.out.library_recovery[0]).text.contains("construct_zero\tGENE_ZERO\tunique\t1\t0\ttrue") }
+            )
+        }
+    }
+}

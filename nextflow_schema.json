@@ -158,6 +158,12 @@
             "description": "Parameters used for functional genomic screenings",
             "default": "",
             "properties": {
+                "screening_count_method": {
+                    "type": "string",
+                    "enum": ["mageck", "crisprdecode"],
+                    "default": "mageck",
+                    "description": "Method used to generate the screening count matrix. The crisprdecode option performs exact paired-guide construct assignment and requires paired-end reads."
+                },
                 "library": {
                     "type": "string",
                     "format": "file-path",
@@ -165,7 +171,39 @@
                     "mimetype": "text/tsv",
                     "exists": true,
                     "fa_icon": "far fa-address-book",
-                    "description": "sgRNA and targetting genes, tab or comma separated"
+                    "description": "Reference library. MAGeCK counting accepts the existing sgRNA library formats; crisprdecode requires a headered TSV with construct_id, target_id, spacer_r1 and spacer_r2 columns."
+                },
+                "crisprdecode_r1_anchor": {
+                    "type": "string",
+                    "pattern": "^[ACGTacgt]+$",
+                    "description": "Optional exact 5-prime anchor immediately upstream of the R1 spacer for crisprdecode extraction."
+                },
+                "crisprdecode_r2_anchor": {
+                    "type": "string",
+                    "pattern": "^[ACGTacgt]+$",
+                    "description": "Optional exact 5-prime anchor immediately upstream of the R2 spacer for crisprdecode extraction."
+                },
+                "crisprdecode_r1_offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0,
+                    "description": "Zero-based R1 spacer start, or non-negative offset after the R1 anchor, for crisprdecode extraction."
+                },
+                "crisprdecode_r2_offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0,
+                    "description": "Zero-based R2 spacer start, or non-negative offset after the R2 anchor, for crisprdecode extraction."
+                },
+                "crisprdecode_reverse_complement_r1": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Reverse-complement R1 before crisprdecode anchor search and spacer extraction."
+                },
+                "crisprdecode_reverse_complement_r2": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Reverse-complement R2 before crisprdecode anchor search and spacer extraction."
                 },
                 "five_prime_adapter": {
                     "type": "string",

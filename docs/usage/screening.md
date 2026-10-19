@@ -55,6 +55,38 @@ The MAGeCK count module supports bam files, which allows you to align with bowti
 If you are running the pipeline with fastq files and wish to obtain a count table, the library parameter is needed. The library table has three mandatory columns : id, target transcript (or gRNA sequence) and gene symbol.
 An [example](https://github.com/nf-core/test-datasets/blob/crisprseq/testdata/brunello_target_sequence.txt) has been provided with the pipeline. Many libraries can be found on [addgene](https://www.addgene.org/).
 
+### Paired-guide construct counting with CRISPRDecode
+
+Use `--screening_count_method crisprdecode` to count paired-guide constructs by exact matching of one guide element from each read in a synchronized paired-end FASTQ pair. This option requires paired-end input and cannot be combined with `--bowtie`. The default `--screening_count_method mageck` retains the existing single-guide counting path.
+
+The CRISPRDecode construct library must be a headered, tab-separated file:
+
+```tsv title="construct_library.tsv"
+construct_id	target_id	spacer_r1	spacer_r2
+construct_1	GENE_A	ACGTACGTACGTACGTACGT	TGCATGCATGCATGCATGCA
+construct_2	GENE_B	GATTACAGATTACAGATTAC	CTAATGTCTAATGTCTAATG
+```
+
+All identifiers must be non-empty, `construct_id` values must be unique, and spacer sequences must contain only `A`, `C`, `G` and `T`. Spacer length must be consistent within each read end. Constructs with the same `spacer_r1`/`spacer_r2` signature are retained in the library but cannot receive a unique count; matching reads are reported as ambiguous.
+
+By default, each spacer is extracted from position zero of its read. Use `--crisprdecode_r1_offset` and `--crisprdecode_r2_offset` to set non-negative zero-based start positions. Alternatively, provide `--crisprdecode_r1_anchor` and/or `--crisprdecode_r2_anchor`; in that case extraction starts immediately after the first exact anchor match plus the corresponding offset. Set `--crisprdecode_reverse_complement_r1` or `--crisprdecode_reverse_complement_r2` when an informative element must be reverse-complemented before anchor search and extraction.
+
+For example:
+
+```bash
+nextflow run nf-core/crisprseq \
+    --analysis screening \
+    --input samplesheet.csv \
+    --library construct_library.tsv \
+    --screening_count_method crisprdecode \
+    --crisprdecode_r1_anchor ACGTAC \
+    --crisprdecode_r2_anchor TGCATG \
+    --outdir results \
+    -profile docker
+```
+
+Assignment is conservative and exact: a read pair is classified as uniquely assigned, ambiguous, unassigned, or extraction failed. These categories are mutually exclusive and sum to the total number of read pairs for each sample.
+
 After the alignment step, if you are performing KO (Knock-Out) screens, you can choose to correct gene-independent cell responses to CRISPR-Cas9 targeting using CRISPRcleanR. If you are performing a CRISPR interference or activation screen, this step is not needed.
 
 The pipeline currently supports 3 algorithms to detect gene essentiality, MAGeCK RRA, MAGeCK MLE and BAGEL2. MAGeCK MLE (Maximum Likelihood Estimation) and MAGeCK RRA (Robust Ranking Aggregation) are two different methods provided by the MAGeCK software package to analyze CRISPR-Cas9 screens. BAGEL2 identifies gene essentiality through Bayesian Analysis.
