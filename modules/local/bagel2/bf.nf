@@ -26,7 +26,7 @@ process BAGEL2_BF {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    BAGEL.py bf -i $foldchange -o '${meta.id}.bf' $args -e $reference_essentials -n $reference_nonessentials -c ${meta.treatment}
+    BAGEL.py bf -i $foldchange -o '${prefix}.bf' $args -e $reference_essentials -n $reference_nonessentials -c ${meta.treatment}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

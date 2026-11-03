@@ -16,7 +16,6 @@ process EXTRACT_UMIS {
     path "versions.yml"              , emit: versions
 
     script:
-    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     extract_umis.py \

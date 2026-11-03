@@ -1,8 +1,11 @@
-Changes in module 'nf-core/cutadapt'
+Changes in component 'nf-core/cutadapt'
+'modules/nf-core/cutadapt/environment.yml' is unchanged
+'modules/nf-core/cutadapt/meta.yml' is unchanged
+Changes in 'cutadapt/main.nf':
 --- modules/nf-core/cutadapt/main.nf
 +++ modules/nf-core/cutadapt/main.nf
 @@ -8,7 +8,7 @@
-         'biocontainers/cutadapt:4.6--py39hf95cd2a_1' }"
+         'biocontainers/cutadapt:5.2--py311haab0aaa_0'}"
  
      input:
 -    tuple val(meta), path(reads)
@@ -10,20 +13,8 @@ Changes in module 'nf-core/cutadapt'
  
      output:
      tuple val(meta), path('*.trim.fastq.gz'), emit: reads
-@@ -30,12 +30,13 @@
-         $trimmed \\
-         $reads \\
-         > ${prefix}.cutadapt.log
-+
-     cat <<-END_VERSIONS > versions.yml
-     "${task.process}":
-         cutadapt: \$(cutadapt --version)
-     END_VERSIONS
-     """
--
-+    
-     stub:
-     def prefix  = task.ext.prefix ?: "${meta.id}"
-     def trimmed = meta.single_end ? "${prefix}.trim.fastq.gz" : "${prefix}_1.trim.fastq.gz ${prefix}_2.trim.fastq.gz"
 
+'modules/nf-core/cutadapt/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/cutadapt/tests/nextflow.config' is unchanged
+'modules/nf-core/cutadapt/tests/main.nf.test' is unchanged
 ************************************************************

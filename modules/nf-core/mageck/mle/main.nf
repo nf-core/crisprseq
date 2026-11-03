@@ -21,7 +21,8 @@ process MAGECK_MLE {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def args2 = task.ext.args2 ?: ''
+    def prefix = meta.id ?: "${meta.treatment}_vs_${meta.reference}"
     def design_command = design_matrix ? "-d $design_matrix" : ''
     def control_sgrna = mle_control_sgrna ? "--control-sgrna $mle_control_sgrna" : ''
 
@@ -33,8 +34,7 @@ process MAGECK_MLE {
         --threads $task.cpus \\
         -k $count_table \\
         -n $prefix     \\
-        $design_command 
-        
+        $design_command
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -53,5 +53,6 @@ process MAGECK_MLE {
         mageck: \$(mageck -v)
     END_VERSIONS
     """
-    
+
+
 }

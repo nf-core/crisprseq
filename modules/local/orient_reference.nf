@@ -16,7 +16,6 @@ process ORIENT_REFERENCE {
     path "versions.yml"                            , emit: versions
 
     script:
-    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     revComp_reference.R \\

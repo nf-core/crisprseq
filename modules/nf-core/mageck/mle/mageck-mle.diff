@@ -1,4 +1,4 @@
-Changes in module 'nf-core/mageck/mle'
+Changes in component 'nf-core/mageck/mle'
 'modules/nf-core/mageck/mle/environment.yml' is unchanged
 'modules/nf-core/mageck/mle/meta.yml' is unchanged
 Changes in 'mageck/mle/main.nf':
@@ -15,14 +15,13 @@ Changes in 'mageck/mle/main.nf':
  
      output:
      tuple val(meta), path("*.gene_summary.txt") , emit: gene_summary
-@@ -21,16 +21,21 @@
+@@ -21,16 +21,20 @@
  
      script:
-     
      def args = task.ext.args ?: ''
 -    def prefix = task.ext.prefix ?: "${meta.id}"
 +    def args2 = task.ext.args2 ?: ''
-+    prefix = meta.id ?: "${meta.treatment}_vs_${meta.reference}"
++    def prefix = meta.id ?: "${meta.treatment}_vs_${meta.reference}"
 +    def design_command = design_matrix ? "-d $design_matrix" : ''
 +    def control_sgrna = mle_control_sgrna ? "--control-sgrna $mle_control_sgrna" : ''
  
@@ -36,21 +35,11 @@ Changes in 'mageck/mle/main.nf':
 -        -d $design_matrix \\
 -        -n $prefix
 +        -n $prefix     \\
-+        $design_command 
-+        
++        $design_command
  
      cat <<-END_VERSIONS > versions.yml
      "${task.process}":
-@@ -49,6 +54,5 @@
-         mageck: \$(mageck -v)
-     END_VERSIONS
-     """
--
--
--}
-+    
-+}
+
 'modules/nf-core/mageck/mle/tests/main.nf.test.snap' is unchanged
-'modules/nf-core/mageck/mle/tests/tags.yml' is unchanged
 'modules/nf-core/mageck/mle/tests/main.nf.test' is unchanged
 ************************************************************

@@ -1,30 +1,238 @@
-Changes in module 'nf-core/minimap2/align'
+Changes in component 'nf-core/minimap2/align'
+'modules/nf-core/minimap2/align/environment.yml' is unchanged
+Changes in 'minimap2/align/meta.yml':
+--- modules/nf-core/minimap2/align/meta.yml
++++ modules/nf-core/minimap2/align/meta.yml
+@@ -1,120 +1,116 @@
+ name: minimap2_align
+ description: A versatile pairwise aligner for genomic and spliced nucleotide sequences
+ keywords:
+-  - align
+-  - fasta
+-  - fastq
+-  - genome
+-  - paf
+-  - reference
++- align
++- fasta
++- fastq
++- genome
++- paf
++- reference
+ tools:
+-  - minimap2:
++- minimap2:
++    description: |
++      A versatile pairwise aligner for genomic and spliced nucleotide sequences.
++    homepage: https://github.com/lh3/minimap2
++    documentation: https://github.com/lh3/minimap2#uguide
++    licence:
++    - "MIT"
++    identifier: ""
++input:
++- - meta:
++      type: map
+       description: |
+-        A versatile pairwise aligner for genomic and spliced nucleotide sequences.
+-      homepage: https://github.com/lh3/minimap2
+-      documentation: https://github.com/lh3/minimap2#uguide
+-      licence: ["MIT"]
+-      identifier: ""
+-input:
++        Groovy Map containing sample information
++        e.g. [ id:'test', single_end:false ]
++  - reads:
++      type: file
++      description: |
++        List of input FASTA or FASTQ files of size 1 and 2 for single-end
++        and paired-end data, respectively.
++      ontologies: []
++  - reference:
++      type: file
++      description: |
++        Reference database in FASTA format.
++      ontologies: []
++- bam_format:
++    type: boolean
++    description: Specify that output should be in BAM format
++- bam_index_extension:
++    type: string
++    description: BAM alignment index extension (e.g. "bai")
++- cigar_paf_format:
++    type: boolean
++    description: Specify that output CIGAR should be in PAF format
++- cigar_bam:
++    type: boolean
++    description: |
++      Write CIGAR with >65535 ops at the CG tag. This is recommended when
++      doing XYZ (https://github.com/lh3/minimap2#working-with-65535-cigar-operations)
++output:
++  paf:
+   - - meta:
+         type: map
+         description: |
+           Groovy Map containing sample information
+           e.g. [ id:'test', single_end:false ]
+-    - reads:
++    - "*.paf":
+         type: file
+-        description: |
+-          List of input FASTA or FASTQ files of size 1 and 2 for single-end
+-          and paired-end data, respectively.
++        description: Alignment in PAF format
++        pattern: "*.paf"
+         ontologies: []
+-  - - meta2:
++  bam:
++  - - meta:
+         type: map
+         description: |
+-          Groovy Map containing reference information
+-          e.g. [ id:'test_ref']
+-    - reference:
++          Groovy Map containing sample information
++          e.g. [ id:'test', single_end:false ]
++    - "*.bam":
+         type: file
++        description: Alignment in BAM format
++        pattern: "*.bam"
++        ontologies: []
++  index:
++  - - meta:
++        type: map
+         description: |
+-          Reference database in FASTA format.
++          Groovy Map containing sample information
++          e.g. [ id:'test', single_end:false ]
++    - "*.bam.${bam_index_extension}":
++        type: file
++        description: BAM alignment index
++        pattern: "*.bam.*"
+         ontologies: []
+-  - bam_format:
+-      type: boolean
+-      description: Specify that output should be in BAM format
+-  - bam_index_extension:
+-      type: string
+-      description: BAM alignment index extension (e.g. "bai")
+-  - cigar_paf_format:
+-      type: boolean
+-      description: Specify that output CIGAR should be in PAF format
+-  - cigar_bam:
+-      type: boolean
+-      description: |
+-        Write CIGAR with >65535 ops at the CG tag. This is recommended when
+-        doing XYZ (https://github.com/lh3/minimap2#working-with-65535-cigar-operations)
+-output:
+-  paf:
+-    - - meta:
+-          type: map
+-          description: |
+-            Groovy Map containing sample information
+-            e.g. [ id:'test', single_end:false ]
+-      - "*.paf":
+-          type: file
+-          description: Alignment in PAF format
+-          pattern: "*.paf"
+-          ontologies: []
+-  bam:
+-    - - meta:
+-          type: map
+-          description: |
+-            Groovy Map containing sample information
+-            e.g. [ id:'test', single_end:false ]
+-      - "*.bam":
+-          type: file
+-          description: Alignment in BAM format
+-          pattern: "*.bam"
+-          ontologies: []
+-  index:
+-    - - meta:
+-          type: map
+-          description: |
+-            Groovy Map containing sample information
+-            e.g. [ id:'test', single_end:false ]
+-      - "*.bam.${bam_index_extension}":
+-          type: file
+-          description: BAM alignment index
+-          pattern: "*.bam.*"
+-          ontologies: []
+   versions_minimap2:
+-    - - ${task.process}:
+-          type: string
+-          description: The process name
+-      - minimap2:
+-          type: string
+-          description: The tool name
+-      - minimap2 --version:
+-          type: eval
+-          description: The tool version
++  - - ${task.process}:
++        type: string
++        description: The process name
++    - minimap2:
++        type: string
++        description: The tool name
++    - minimap2 --version:
++        type: eval
++        description: The tool version
+ topics:
+   versions:
+-    - - ${task.process}:
+-          type: string
+-          description: The process name
+-      - minimap2:
+-          type: string
+-          description: The tool name
+-      - minimap2 --version:
+-          type: eval
+-          description: The tool version
++  - - ${task.process}:
++        type: string
++        description: The process name
++    - minimap2:
++        type: string
++        description: The tool name
++    - minimap2 --version:
++        type: eval
++        description: The tool version
+ authors:
+-  - "@heuermh"
+-  - "@sofstam"
+-  - "@sateeshperi"
+-  - "@jfy133"
+-  - "@fellen31"
++- "@heuermh"
++- "@sofstam"
++- "@sateeshperi"
++- "@jfy133"
++- "@fellen31"
+ maintainers:
+-  - "@heuermh"
+-  - "@sofstam"
+-  - "@sateeshperi"
+-  - "@jfy133"
+-  - "@fellen31"
++- "@heuermh"
++- "@sofstam"
++- "@sateeshperi"
++- "@jfy133"
++- "@fellen31"
+
+Changes in 'minimap2/align/main.nf':
 --- modules/nf-core/minimap2/align/main.nf
 +++ modules/nf-core/minimap2/align/main.nf
 @@ -9,8 +9,7 @@
-         'biocontainers/mulled-v2-66534bcbb7031a148b13e2ad42583020b9cd25c4:3a70f8bc7e17b723591f6132418640cfdbc88246-0' }"
+         'community.wave.seqera.io/library/minimap2_samtools:33bb43c18d22e29c' }"
  
      input:
 -    tuple val(meta), path(reads)
 -    tuple val(meta2), path(reference)
 +    tuple val(meta), path(reads), path(reference)
      val bam_format
+     val bam_index_extension
      val cigar_paf_format
-     val cigar_bam
 
---- modules/nf-core/minimap2/align/meta.yml
-+++ modules/nf-core/minimap2/align/meta.yml
-@@ -25,11 +25,6 @@
-       description: |
-         List of input FASTA or FASTQ files of size 1 and 2 for single-end
-         and paired-end data, respectively.
--  - meta2:
--      type: map
--      description: |
--        Groovy Map containing reference information
--        e.g. [ id:'test_ref']
-   - reference:
-       type: file
-       description: |
-
+'modules/nf-core/minimap2/align/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/minimap2/align/tests/main.nf.test' is unchanged
 ************************************************************

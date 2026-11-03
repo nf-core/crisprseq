@@ -1,4 +1,7 @@
-Changes in module 'nf-core/racon'
+Changes in component 'nf-core/racon'
+'modules/nf-core/racon/environment.yml' is unchanged
+'modules/nf-core/racon/meta.yml' is unchanged
+Changes in 'racon/main.nf':
 --- modules/nf-core/racon/main.nf
 +++ modules/nf-core/racon/main.nf
 @@ -11,8 +11,8 @@
@@ -29,4 +32,6 @@ Changes in module 'nf-core/racon'
  
      gzip -n ${prefix}_assembly_consensus.fasta
 
+'modules/nf-core/racon/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/racon/tests/main.nf.test' is unchanged
 ************************************************************

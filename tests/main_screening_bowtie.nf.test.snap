@@ -3,9 +3,9 @@
         "content": [
             {
                 "BOWTIE2_ALIGN": {
-                    "bowtie2": "2.5.2",
-                    "samtools": 1.18,
-                    "pigz": 2.6
+                    "bowtie2": "2.5.4",
+                    "pigz": 2.8,
+                    "samtools": 1.21
                 },
                 "BOWTIE2_BUILD": {
                     "bowtie2": "2.5.2"
@@ -58,6 +58,7 @@
                 "multiqc/multiqc_data/multiqc_sources.txt",
                 "multiqc/multiqc_plots",
                 "multiqc/multiqc_plots/pdf",
+                "multiqc/multiqc_plots/pdf/fastqc-status-check-heatmap.pdf",
                 "multiqc/multiqc_plots/pdf/fastqc_per_base_n_content_plot.pdf",
                 "multiqc/multiqc_plots/pdf/fastqc_per_base_sequence_quality_plot.pdf",
                 "multiqc/multiqc_plots/pdf/fastqc_per_sequence_gc_content_plot_Counts.pdf",
@@ -68,6 +69,7 @@
                 "multiqc/multiqc_plots/pdf/fastqc_sequence_duplication_levels_plot.pdf",
                 "multiqc/multiqc_plots/pdf/mageck_count.pdf",
                 "multiqc/multiqc_plots/png",
+                "multiqc/multiqc_plots/png/fastqc-status-check-heatmap.png",
                 "multiqc/multiqc_plots/png/fastqc_per_base_n_content_plot.png",
                 "multiqc/multiqc_plots/png/fastqc_per_base_sequence_quality_plot.png",
                 "multiqc/multiqc_plots/png/fastqc_per_sequence_gc_content_plot_Counts.png",
@@ -78,6 +80,7 @@
                 "multiqc/multiqc_plots/png/fastqc_sequence_duplication_levels_plot.png",
                 "multiqc/multiqc_plots/png/mageck_count.png",
                 "multiqc/multiqc_plots/svg",
+                "multiqc/multiqc_plots/svg/fastqc-status-check-heatmap.svg",
                 "multiqc/multiqc_plots/svg/fastqc_per_base_n_content_plot.svg",
                 "multiqc/multiqc_plots/svg/fastqc_per_base_sequence_quality_plot.svg",
                 "multiqc/multiqc_plots/svg/fastqc_per_sequence_gc_content_plot_Counts.svg",
@@ -98,13 +101,13 @@
                 "preprocessing/fastqc/SRR8983580_fastqc.zip"
             ],
             [
-                "SRR8983579.bam:md5,358227eb161e275f396038ff32447a0f",
+                "SRR8983579.bam:md5,332e7c56e3838b937803c9648b4aed37",
                 "SRR8983579.bowtie2.log:md5,9c1b9cdad446dbdfb0a4947e80cd911e",
-                "SRR8983580.bam:md5,67538c7ca40b6cebc94a1ee613b49ce0",
+                "SRR8983580.bam:md5,9e467872b37ea08d4de47ad44455d569",
                 "SRR8983580.bowtie2.log:md5,9c1b9cdad446dbdfb0a4947e80cd911e",
-                "count_table.count.txt:md5,2347ea1c388ada4afb7cd59ccdf0cd3f",
-                "count_table.count_normalized.txt:md5,2347ea1c388ada4afb7cd59ccdf0cd3f",
-                "count_table.countsummary.txt:md5,b637d9fc48c388fde1096c32d16e1ad5",
+                "count_table.count.txt:md5,f2c140bb5947ea0e6f2afc421322de6e",
+                "count_table.count_normalized.txt:md5,f2c140bb5947ea0e6f2afc421322de6e",
+                "count_table.countsummary.txt:md5,3d96214d6ffa3e2de82d0d1a271ccaea",
                 "fastqc-status-check-heatmap.txt:md5,50129a4cd9c87d79a3841ac119f5a187",
                 "fastqc_per_base_n_content_plot.txt:md5,272dfea4dafcd2a7b122c27af4ed1aa3",
                 "fastqc_per_base_sequence_quality_plot.txt:md5,2332a2b6386d9a877c742af251bd51f1",
@@ -116,7 +119,7 @@
                 "multiqc_citations.txt:md5,4c806e63a283ec1b7e78cdae3a923d4f",
                 "multiqc_fastqc.txt:md5,6e20912a1204abf386bccffed398d771",
                 "multiqc_general_stats.txt:md5,70b343b1d228d9306030913daad9a6fe",
-                "multiqc_mageck_count.txt:md5,8a7ed8eb3b594863d10bf85ff1937308"
+                "multiqc_mageck_count.txt:md5,588b4739c75e0e1fffa7ec4163766dcf"
             ]
         ],
         "meta": {

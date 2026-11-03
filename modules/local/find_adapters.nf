@@ -15,7 +15,6 @@ process FIND_ADAPTERS {
     path "versions.yml",                                emit: versions
 
     script:
-    def args = task.ext.args ?: ''
     """
     #!/usr/bin/env Rscript
     library(fastqcr)

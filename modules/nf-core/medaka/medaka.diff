@@ -1,17 +1,30 @@
-Changes in module 'nf-core/medaka'
+Changes in component 'nf-core/medaka'
+Changes in 'medaka/environment.yml':
 --- modules/nf-core/medaka/environment.yml
 +++ modules/nf-core/medaka/environment.yml
 @@ -4,4 +4,4 @@
+   - conda-forge
    - bioconda
-   - defaults
  dependencies:
 -  - bioconda::medaka=1.4.4
 +  - bioconda::medaka=1.11.3 # Updating version due to unable to find tensorflow with the previous version
 
+'modules/nf-core/medaka/meta.yml' is unchanged
+Changes in 'medaka/main.nf':
 --- modules/nf-core/medaka/main.nf
 +++ modules/nf-core/medaka/main.nf
-@@ -11,8 +11,8 @@
+@@ -4,15 +4,16 @@
+ 
+     conda "${moduleDir}/environment.yml"
+     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+-        'https://depot.galaxyproject.org/singularity/medaka:1.4.4--py38h130def0_0' :
+-        'biocontainers/medaka:1.4.4--py38h130def0_0' }"
++        'https://depot.galaxyproject.org/singularity/medaka:1.11.3--py38h2e44183_0' :
++        'biocontainers/medaka:1.11.3--py38h2e44183_0' }"
+ 
+     input:
      tuple val(meta), path(reads), path(assembly)
++    path model
  
      output:
 -    tuple val(meta), path("*.fa.gz"), emit: assembly
@@ -21,7 +34,7 @@ Changes in module 'nf-core/medaka'
  
      when:
      task.ext.when == null || task.ext.when
-@@ -21,16 +21,27 @@
+@@ -21,16 +22,27 @@
      def args = task.ext.args ?: ''
      def prefix = task.ext.prefix ?: "${meta.id}"
      """
@@ -55,4 +68,6 @@ Changes in module 'nf-core/medaka'
      cat <<-END_VERSIONS > versions.yml
      "${task.process}":
 
+'modules/nf-core/medaka/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/medaka/tests/main.nf.test' is unchanged
 ************************************************************
